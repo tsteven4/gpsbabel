@@ -52,6 +52,7 @@
 #define TRACKFILTER_SEGMENT_OPTION      "segment"
 #define TRACKFILTER_FAKETIME_OPTION     "faketime"
 #define TRACKFILTER_DISCARD_OPTION      "discard"
+#define TRACKFILTER_BOUNDS_OPTION       "bounds"
 
 #undef TRACKF_DBG
 
@@ -72,6 +73,7 @@ static char* opt_trk2seg = NULL;
 static char* opt_segment = NULL;
 static char* opt_faketime = NULL;
 static char* opt_discard = NULL;
+static char* opt_bounds = NULL;
 
 static
 arglist_t trackfilter_args[] = {
@@ -156,6 +158,11 @@ arglist_t trackfilter_args[] = {
     "Discard track points without timestamps during merge",
     NULL, ARGTYPE_BOOL, ARG_NOMINMAX
   },
+  {
+    TRACKFILTER_BOUNDS_OPTION, &opt_bounds,
+    "Discard tracks outside of bounds", NULL,
+    ARGTYPE_STRING, ARG_NOMINMAX
+  },
   ARG_TERMINATOR
 };
 
@@ -173,6 +180,7 @@ static int timeless_pts = 0;
 static int opt_interval = 0;
 static int opt_distance = 0;
 static char need_time;		/* initialized within trackfilter_init */
+static bounds trackfilter_bounds;
 
 /*******************************************************************************
 * helpers
@@ -304,6 +312,11 @@ trackfilter_parse_fix(int* nsats)
   return fix_unknown;
 }
 
+static void trackfilter_add_to_bounds(const Waypoint* waypointp)
+{
+  waypt_add_to_bounds(&trackfilter_bounds, waypointp);
+}
+
 static void
 trackfilter_fill_track_list_cb(const route_head* track) 	/* callback for track_disp_all */
 {
@@ -318,6 +331,31 @@ trackfilter_fill_track_list_cb(const route_head* track) 	/* callback for track_d
 
   if (opt_name != NULL) {
     if (!QRegExp(opt_name, Qt::CaseInsensitive, QRegExp::WildcardUnix).exactMatch(track->rte_name)) {
+      QUEUE_FOR_EACH((queue*)&track->waypoint_list, elem, tmp) {
+        Waypoint* wpt = (Waypoint*)elem;
+        track_del_wpt((route_head*)track, wpt);
+        delete wpt;
+      }
+      track_del_head((route_head*)track);
+      return;
+    }
+  }
+
+  if (opt_bounds != NULL) {
+    float opt_minlat, opt_minlon, opt_maxlat, opt_maxlon;
+    int nitems = sscanf(opt_bounds, "%f %f %f %f",&opt_minlat, &opt_minlon, &opt_maxlat, &opt_maxlon);
+    if (nitems != 4) {
+      fatal(MYNAME "Bounds options requires 4 numeric values separated by spaces for min lat, min lon, max lat, max lon.\n");
+    }
+    waypt_init_bounds(&trackfilter_bounds);
+    route_disp(track, trackfilter_add_to_bounds);
+    /* TODO: this is problematic if a box contains a latitude of 180 degrees */
+    if (
+      (opt_maxlon < trackfilter_bounds.min_lon) ||
+      (opt_minlon > trackfilter_bounds.max_lon) ||
+      (opt_maxlat < trackfilter_bounds.min_lat) ||
+      (opt_minlat > trackfilter_bounds.max_lat)
+    ) {
       QUEUE_FOR_EACH((queue*)&track->waypoint_list, elem, tmp) {
         Waypoint* wpt = (Waypoint*)elem;
         track_del_wpt((route_head*)track, wpt);
@@ -458,8 +496,8 @@ trackfilter_pack(void)
     prev = track_list[j];
     if (prev.last_time >= track_list[i].first_time) {
       fatal(MYNAME "-pack: Tracks overlap in time! %s >= %s at %d\n",
-        qPrintable(prev.last_time.toString()), 
-        qPrintable(track_list[i].first_time.toString()), i);
+            qPrintable(prev.last_time.toString()),
+            qPrintable(track_list[i].first_time.toString()), i);
     }
   }
 

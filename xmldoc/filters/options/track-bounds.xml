@@ -1,0 +1,18 @@
+<para>
+With the bounds option you can filter out tracks that don't overlap a given area.
+</para>
+<para>
+The bounds option needs to be set to a value representing the area of interest.  Tracks
+that overlap this area will be passed through the filter, others will be discarded.  The
+value of the option must contain four numeric values seperated by blanks.  The values
+are the minimum latitude, the minimum longitude, the maximum latitude and the maximum 
+longitude of the area of interest.
+</para>
+<example id="ex_track_bounds">
+<title>Selecting tracks within a rectangular area</title>
+<para>
+Suppose you want to select tracks that are on the North Six-shooter Peak 7.5 minute quadrangle.  To do that, use this command line:
+</para>
+<para><userinput>gpsbabel -i gpx -f input.gpx -x track,bounds="38.125 -109.75 38.25 -109.625" -o kml -F output.kml</userinput></para>
+</example>
+
