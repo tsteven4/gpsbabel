@@ -12,7 +12,8 @@ addons:
     - valgrind
     - xsltproc
     - libxml2-utils
-    - qt5-qmake
+    - qt5-default
+    - qtbase5-dev
 script:
  - ./build_and_test
 # TODO: build mac
