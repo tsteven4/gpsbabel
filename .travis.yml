@@ -17,6 +17,7 @@ addons:
     - qt5-default
     - qtbase5-dev
     - libqt5webkit5-dev
+    - qttools5-dev-tools
 script:
  - ./build_and_test
 # TODO: build mac
