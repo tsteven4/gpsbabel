@@ -16,6 +16,7 @@ addons:
     - libxml2-utils
     - qt5-default
     - qtbase5-dev
+    - libqt5webkit5-dev
 script:
  - ./build_and_test
 # TODO: build mac
