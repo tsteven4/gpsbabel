@@ -6,6 +6,7 @@ compiler:
   - clang
 before_install:
   - sudo apt-get -y --purge remove qt4-qmake qt4-linguist-tools
+  - sudo apt-get -y install qttranslations5-l10n
 addons:
   apt:
     packages:
