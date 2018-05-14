@@ -1,0 +1,140 @@
+name: gpsbabel # you probably want to 'snapcraft register <name>'
+version: '1.5.4' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Free software for GPS data conversion and transfer. # 79 char long summary
+description: |
+  GPSBabel converts waypoints, tracks, and routes between popular GPS receivers such as Garmin or Magellan and mapping programs like Google Earth or Basecamp.
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: classic # use 'strict' once you have the right plugs and slots
+
+apps:
+  gpsbabel:
+    command: ./gpsbabel/bin/gpsbabel
+  gpsbabelfe:
+    command: ./gpsbabel/bin/gpsbabelfe
+    # we would like to alias gpsbabel.gpsbabelfe to gpsbabelfe, e.g. "sudo snap alias gpsbabel.gpsbabelfe gpsbabelfe"
+
+parts:
+
+  gpsbabel:
+    plugin: qmake
+    source: https://github.com/gpsbabel/gpsbabel.git
+    source-type: git
+    override-build: |
+      set -x
+      set -e
+      myQt=$SNAPCRAFT_STAGE/Qt/5.9.5/gcc_64
+      env > env.log
+      mkdir -p gui/AppDir/gpsbabel/bin
+      # cli
+      $myQt/bin/qmake GPSBabel.pro
+      make 2>&1 | tee make.log
+      cp GPSBabel gui/AppDir/gpsbabel/bin/gpsbabel
+      # gui
+      cd gui
+      $myQt/bin/qmake app.pro
+      make 2>&1 | tee make.log
+      cp objects/gpsbabelfe-bin AppDir/gpsbabel/bin/gpsbabelfe-bin
+      cp gmapbase.html AppDir/gpsbabel/bin
+      cp COPYING.txt AppDir/gpsbabel
+      mkdir AppDir/gpsbabel/translations
+      cp *.qm AppDir/gpsbabel/translations
+      cd AppDir/gpsbabel
+      $SNAPCRAFT_STAGE/linuxdeployqt bin/gpsbabelfe-bin -executable=bin/gpsbabel -exclude-folders=$SNAPCRAFT_PART_INSTALL,/snap/core -qmake=$myQt/bin/qmake -no-copy-copyright-files -verbose=3 2>&1 | tee ldq.log
+      cd ../..
+      cp -pr AppDir/* $SNAPCRAFT_PART_INSTALL
+      # work around:
+      #QStandardPaths: XDG_RUNTIME_DIR points to non-existing path '/run/user/1000/snap.gpsbabel', please create it with 0700 permissions.
+      echo '#!/bin/sh' > $SNAPCRAFT_PART_INSTALL/gpsbabel/bin/gpsbabelfe
+      echo '[ -n "$XDG_RUNTIME_DIR/snap.gpsbabel" ] && mkdir -p $XDG_RUNTIME_DIR/snap.gpsbabel -m 700' >> $SNAPCRAFT_PART_INSTALL/gpsbabel/bin/gpsbabelfe
+      echo 'exec "$SNAP/./gpsbabel/bin/gpsbabelfe-bin" "$@"' >> $SNAPCRAFT_PART_INSTALL/gpsbabel/bin/gpsbabelfe
+      chmod +x $SNAPCRAFT_PART_INSTALL/gpsbabel/bin/gpsbabelfe
+    build-packages:
+      - g++
+      - libusb-dev
+      - patchelf
+    build-attributes: [keep-execstack]
+    stage-packages:
+      - libasound2
+      - libavahi-client3
+      - libavahi-common3
+      - libboost-filesystem1.58.0
+      - libboost-system1.58.0
+      - libcapnp-0.5.3
+      - libcups2
+      - libdrm2
+      - libegl1-mesa
+      - libfontconfig1
+      - libgbm1
+      - libgl1-mesa-glx
+      - libglapi-mesa
+      - libmirclient9
+      - libmircommon7
+      - libmircore1
+      - libmirprotobuf3
+      - libnspr4
+      - libnss3
+      - libprotobuf-lite9v5
+      - libwayland-client0
+      - libwayland-server0
+      - libx11-6
+      - libx11-xcb1
+      - libxau6
+      - libxcb1
+      - libxcb-dri2-0
+      - libxcb-dri3-0
+      - libxcb-glx0
+      - libxcb-present0
+      - libxcb-sync1
+      - libxcb-xfixes0
+      - libxcomposite1
+      - libxcursor1
+      - libxdamage1
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+      - libxi6
+      - libxkbcommon0
+      - libxrandr2
+      - libxrender1
+      - libxshmfence1
+      - libxtst6
+      - libxxf86vm1
+    after:
+      - qt
+      - linuxdeployqt
+
+  qt:
+    plugin: nil
+    source: ./qt_src
+    override-pull: |
+      snapcraftctl pull
+      wget https://download.qt.io/archive/qt/5.9/5.9.5/qt-opensource-linux-x64-5.9.5.run
+      chmod +x qt-opensource-linux-x64-5.9.5.run
+    override-build: |
+      ./qt-opensource-linux-x64-5.9.5.run  --platform minimal --script qt_installer.qs HomeDir=$SNAPCRAFT_PART_INSTALL
+    build-packages:
+      - libfontconfig1
+      - libx11-xcb1
+    filesets:
+      localqt:
+        - Qt/5.9.5/gcc_64
+    stage:
+      - $localqt
+    prime:
+      - -Qt
+
+  linuxdeployqt:
+    plugin: qmake
+    source: https://github.com/tsteven4/linuxdeployqt.git
+    source-type: git
+    source-branch: excludefolders
+    #source: ldq_src
+    organize:
+      usr/lib/x86_64-linux-gnu/qt5/bin/linuxdeployqt: linuxdeployqt
+    stage:
+      - -usr
+    prime:
+      - -linuxdeployqt
+    after:
+      - qt
+
