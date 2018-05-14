@@ -36,11 +36,14 @@ parts:
       cp objects/gpsbabelfe-bin AppDir/gpsbabel/bin/gpsbabelfe-bin
       cp gmapbase.html AppDir/gpsbabel/bin
       cp COPYING.txt AppDir/gpsbabel
-      mkdir AppDir/gpsbabel/translations
+      mkdir -p AppDir/gpsbabel/translations
       cp *.qm AppDir/gpsbabel/translations
       cd AppDir/gpsbabel
-      $SNAPCRAFT_STAGE/linuxdeployqt bin/gpsbabelfe-bin -executable=bin/gpsbabel -exclude-folders=$SNAPCRAFT_PART_INSTALL,/snap/core -qmake=$myQt/bin/qmake -no-copy-copyright-files -verbose=3 2>&1 | tee ldq.log
+      $SNAPCRAFT_STAGE/linuxdeployqt bin/gpsbabelfe-bin -executable=bin/gpsbabel -exclude-folders=$SNAPCRAFT_PART_INSTALL,/snap/core -qmake=$myQt/bin/qmake -no-copy-copyright-files -verbose=3 2>&1 | tee ../../ldq.log
       cd ../..
+      rm AppDir/AppRun
+      mkdir -p AppDir/gpsbabel/Qt
+      cp -pr $SNAPCRAFT_STAGE/Qt/Licenses AppDir/gpsbabel/Qt
       cp -pr AppDir/* $SNAPCRAFT_PART_INSTALL
       # work around:
       #QStandardPaths: XDG_RUNTIME_DIR points to non-existing path '/run/user/1000/snap.gpsbabel', please create it with 0700 permissions.
@@ -108,18 +111,19 @@ parts:
     source: ./qt_src
     override-pull: |
       snapcraftctl pull
-      wget https://download.qt.io/archive/qt/5.9/5.9.5/qt-opensource-linux-x64-5.9.5.run
-      chmod +x qt-opensource-linux-x64-5.9.5.run
+      #wget https://download.qt.io/archive/qt/5.9/5.9.5/qt-opensource-linux-x64-5.9.5.run
+      #chmod +x qt-opensource-linux-x64-5.9.5.run
+      wget http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
+      chmod +x qt-unified-linux-x64-online.run
     override-build: |
-      ./qt-opensource-linux-x64-5.9.5.run  --platform minimal --script qt_installer.qs HomeDir=$SNAPCRAFT_PART_INSTALL
+      #./qt-opensource-linux-x64-5.9.5.run  --platform minimal --script qt_installer.qs HomeDir=$SNAPCRAFT_PART_INSTALL
+      ./qt-unified-linux-x64-online.run --platform minimal --script qt_installer.qs HomeDir=$SNAPCRAFT_PART_INSTALL
     build-packages:
       - libfontconfig1
       - libx11-xcb1
-    filesets:
-      localqt:
-        - Qt/5.9.5/gcc_64
     stage:
-      - $localqt
+      - Qt/5.9.5
+      - Qt/Licenses
     prime:
       - -Qt
 
@@ -128,7 +132,6 @@ parts:
     source: https://github.com/tsteven4/linuxdeployqt.git
     source-type: git
     source-branch: excludefolders
-    #source: ldq_src
     organize:
       usr/lib/x86_64-linux-gnu/qt5/bin/linuxdeployqt: linuxdeployqt
     stage:
