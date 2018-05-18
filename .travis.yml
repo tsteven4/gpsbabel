@@ -64,9 +64,9 @@ script:
 
 after_success:
   - pwd
-  - ls -l
+  - ls -l *AppImage*
   - if [ "${USE_DOCKER}" = "false" ]; then wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh; fi
-  - if [ "${USE_DOCKER}" = "false" ]; then bash ./upload.sh  gui/GPSBabelFE-*.AppImage*; fi
+  - if [ "${USE_DOCKER}" = "false" ]; then bash ./upload.sh  GPSBabelFE-*.AppImage*; fi
 
 branches:
   except:
