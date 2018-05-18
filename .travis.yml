@@ -63,8 +63,8 @@ script:
   - if [ "${USE_DOCKER}" = "false" ]; then cd gui; QMAKE=/opt/qt${QT_VERSION}/bin/qmake LINUXDEPLOYQT=../linuxdeployqt ./makeappimage.sh; fi
 
 after_success:
-  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash ./upload.sh  gui/GPSBabelFE-*.AppImage
+  - if [ "${USE_DOCKER}" = "false" ]; then wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh; fi
+  - if [ "${USE_DOCKER}" = "false" ]; then bash ./upload.sh  gui/GPSBabelFE-*.AppImage*; fi
 
 branches:
   except:
