@@ -1,0 +1,14 @@
+#!/bin/bash -ex
+#wget -r -np -nd -A '*.rng' http://www.oasis-open.org/docbook/rng/4.5/
+schemas=( \
+calstblx.rng \
+dbhierx.rng \
+dbnotnx.rng \
+dbpoolx.rng \
+docbook.rng \
+htmltblx.rng \
+)
+for schema in "${schemas[@]}"
+do
+  wget -nd  http://www.oasis-open.org/docbook/rng/4.5/$schema
+done

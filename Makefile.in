@@ -239,6 +239,12 @@ dep:
 $(WEB)/htmldoc-$(DOCVERSION)/index.html: FORCE
 	mkdir -p $(WEB)/htmldoc-$(DOCVERSION)
 	perl xmldoc/makedoc
+	if which jing >/dev/null 2>&1; then \
+	  echo Validating document using RELAX NG schema.; \
+	  jing tools/docbook_4.5_rng/docbook.rng xmldoc/readme.xml; \
+	else \
+	  echo Skipping document validation with RELAX NG schema, jing was not found.; \
+	fi
 	xmlwf xmldoc/readme.xml		#check for well-formedness
 	xmllint --noout --valid xmldoc/readme.xml    	#validate
 	xsltproc --load-trace \
