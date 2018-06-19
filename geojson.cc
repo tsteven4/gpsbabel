@@ -29,94 +29,125 @@ static char* compact_opt = nullptr;
 static QJsonObject* track_object = nullptr;
 static QJsonArray* track_coords = nullptr;
 
-static const QString FEATURE_COLLECTION = QStringLiteral("FeatureCollection");
-static const QString FEATURE = QStringLiteral("Feature");
-static const QString POINT = QStringLiteral("Point");
-static const QString MULTIPOINT = QStringLiteral("MultiPoint");
-static const QString LINESTRING = QStringLiteral("LineString");
-static const QString MULTILINESTRING = QStringLiteral("MultiLineString");
-static const QString POLYGON = QStringLiteral("Polygon");
-static const QString MULTIPOLYGON = QStringLiteral("MultiPolygon");
-static const QString TYPE = QStringLiteral("type");
-static const QString FEATURES = QStringLiteral("features");
-static const QString COORDINATES = QStringLiteral("coordinates");
-static const QString GEOMETRY = QStringLiteral("geometry");
-static const QString PROPERTIES = QStringLiteral("properties");
-static const QString NAME = QStringLiteral("name");
-static const QString DESCRIPTION = QStringLiteral("description");
-static const QString URL = QStringLiteral("url");
-static const QString URLNAME = QStringLiteral("urlname");
+// Hide these rather generically named things from
+// the global namespace.
+// As an example problem POINT conflicts with windows.h
+class GeoJson
+{
+public:
+  static const QString FEATURE_COLLECTION;
+  static const QString FEATURE;
+  static const QString POINT;
+  static const QString MULTIPOINT;
+  static const QString LINESTRING;
+  static const QString MULTILINESTRING;
+  static const QString POLYGON;
+  static const QString MULTIPOLYGON;
+  static const QString TYPE;
+  static const QString FEATURES;
+  static const QString COORDINATES;
+  static const QString GEOMETRY;
+  static const QString PROPERTIES;
+  static const QString NAME;
+  static const QString DESCRIPTION;
+  static const QString URL;
+  static const QString URLNAME;
+};
+const QString GeoJson::FEATURE_COLLECTION = QStringLiteral("FeatureCollection");
+const QString GeoJson::FEATURE = QStringLiteral("Feature");
+const QString GeoJson::POINT = QStringLiteral("Point");
+const QString GeoJson::MULTIPOINT = QStringLiteral("MultiPoint");
+const QString GeoJson::LINESTRING = QStringLiteral("LineString");
+const QString GeoJson::MULTILINESTRING = QStringLiteral("MultiLineString");
+const QString GeoJson::POLYGON = QStringLiteral("Polygon");
+const QString GeoJson::MULTIPOLYGON = QStringLiteral("MultiPolygon");
+const QString GeoJson::TYPE = QStringLiteral("type");
+const QString GeoJson::FEATURES = QStringLiteral("features");
+const QString GeoJson::COORDINATES = QStringLiteral("coordinates");
+const QString GeoJson::GEOMETRY = QStringLiteral("geometry");
+const QString GeoJson::PROPERTIES = QStringLiteral("properties");
+const QString GeoJson::NAME = QStringLiteral("name");
+const QString GeoJson::DESCRIPTION = QStringLiteral("description");
+const QString GeoJson::URL = QStringLiteral("url");
+const QString GeoJson::URLNAME = QStringLiteral("urlname");
 
 static arglist_t geojson_args[] = {
-  {"compact", &compact_opt, "Compact Output. Default is off.", 
-    nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr } ,
+  {
+    "compact", &compact_opt, "Compact Output. Default is off.",
+    nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+  },
   ARG_TERMINATOR
 };
 
 static void
-geojson_rd_init(const QString& fname) {
-	input_file_name = fname;
+geojson_rd_init(const QString& fname)
+{
+  input_file_name = fname;
 }
 
 static QJsonArray* feature_collection = nullptr;
 
 static void
-geojson_wr_init(const QString& fname) {
+geojson_wr_init(const QString& fname)
+{
   feature_collection = new QJsonArray;
   ofd = gbfopen(fname, "w", MYNAME);
 }
 
 static void
-geojson_waypt_pr(const Waypoint* waypoint) {
+geojson_waypt_pr(const Waypoint* waypoint)
+{
   QJsonObject geometry;
-  geometry[TYPE] = POINT;
+  geometry[GeoJson::TYPE] = GeoJson::POINT;
   QJsonArray coordinates;
   coordinates.append(waypoint->longitude);
   coordinates.append(waypoint->latitude);
   if (waypoint->altitude != unknown_alt && waypoint->altitude != 0) {
     coordinates.append(waypoint->altitude);
   }
-  geometry[COORDINATES] = coordinates;
+  geometry[GeoJson::COORDINATES] = coordinates;
 
   QJsonObject feature;
-  feature[TYPE] = FEATURE;
-  feature[GEOMETRY] = geometry;
+  feature[GeoJson::TYPE] = GeoJson::FEATURE;
+  feature[GeoJson::GEOMETRY] = geometry;
 
   // Build up the properties.
   QJsonObject properties;
   if (!waypoint->shortname.isEmpty()) {
-    properties[NAME] = waypoint->shortname;
+    properties[GeoJson::NAME] = waypoint->shortname;
   }
   if (!waypoint->description.isEmpty()) {
-    properties[DESCRIPTION] = waypoint->description;
+    properties[GeoJson::DESCRIPTION] = waypoint->description;
   }
   if (waypoint->HasUrlLink()) {
     UrlLink link = waypoint->GetUrlLink();
     if (!link.url_.isEmpty()) {
-      properties[URL] = link.url_;
+      properties[GeoJson::URL] = link.url_;
     }
     if (!link.url_link_text_.isEmpty()) {
-      properties[URLNAME] = link.url_link_text_;
+      properties[GeoJson::URLNAME] = link.url_link_text_;
     }
   }
   if (!properties.empty()) {
-    feature[PROPERTIES] = properties;
+    feature[GeoJson::PROPERTIES] = properties;
   }
-  
+
   feature_collection->append(feature);
 }
 
 static void
-geojson_rd_deinit() {
-	gbfclose(ofd);
-	ofd = nullptr;
+geojson_rd_deinit()
+{
+  gbfclose(ofd);
+  ofd = nullptr;
 }
 
 static void
-geojson_wr_deinit() {
+geojson_wr_deinit()
+{
   QJsonObject object;
-  object[TYPE] = FEATURE_COLLECTION;
-  object[FEATURES]  = *feature_collection;
+  object[GeoJson::TYPE] = GeoJson::FEATURE_COLLECTION;
+  object[GeoJson::FEATURES]  = *feature_collection;
 
   QJsonDocument save(object);
   QJsonDocument::JsonFormat style;
@@ -129,160 +160,135 @@ geojson_wr_deinit() {
   feature_collection = nullptr;
 }
 
-static Waypoint* 
+static Waypoint*
 waypoint_from_coordinates(const QJsonArray& coordinates)
 {
-	auto waypoint = new Waypoint();
-	waypoint->latitude = coordinates.at(1).toDouble();
-	waypoint->longitude = coordinates.at(0).toDouble();
-	if (coordinates.size() > 2)
-	{
-		waypoint->altitude = coordinates.at(3).toDouble();
-	}
-	return waypoint;
-}
-
-static void 
-routes_from_polygon_coordinates(const QJsonArray& polygon)
-{
-	for (auto && lineStringIterator : polygon)
-	{
-		QJsonArray coordinates = (lineStringIterator).toArray();
-		auto route = route_head_alloc();
-		route_add_head(route);
-		for (auto && coordinate : coordinates)
-		{
-			auto waypoint = waypoint_from_coordinates(coordinate.toArray());
-			route_add_wpt(route, waypoint);
-		}
-	}
+  auto waypoint = new Waypoint();
+  waypoint->latitude = coordinates.at(1).toDouble();
+  waypoint->longitude = coordinates.at(0).toDouble();
+  if (coordinates.size() > 2) {
+    waypoint->altitude = coordinates.at(3).toDouble();
+  }
+  return waypoint;
 }
 
 static void
-geojson_read() {
-	QFile file;
-	file.setFileName(input_file_name);
-	file.open(QIODevice::ReadOnly | QIODevice::Text);
-	QString file_content = file.readAll();
-	file.close();
-	QJsonParseError error;
-	QJsonDocument document = QJsonDocument::fromJson(file_content.toUtf8(), &error);
-	QJsonObject rootObject = document.object();
+routes_from_polygon_coordinates(const QJsonArray& polygon)
+{
+  for (auto&& lineStringIterator : polygon) {
+    QJsonArray coordinates = (lineStringIterator).toArray();
+    auto route = route_head_alloc();
+    route_add_head(route);
+    for (auto&& coordinate : coordinates) {
+      auto waypoint = waypoint_from_coordinates(coordinate.toArray());
+      route_add_wpt(route, waypoint);
+    }
+  }
+}
 
-	if (rootObject[TYPE] != FEATURE_COLLECTION)
-	{
-		return;
-	}
-	QJsonArray features = rootObject.value(FEATURES).toArray();
-	for (auto && iterator : features)
-	{
-		QJsonObject feature = iterator.toObject();
-		QJsonObject properties = (feature.value(PROPERTIES)).toObject();
-		QString name;
-		QString description;
-		if (!properties.empty())
-		{
-			if (properties.contains(NAME))
-			{
-				name = properties[NAME].toString();
-			}
-			if (properties.contains(DESCRIPTION))
-			{
-				description = properties[DESCRIPTION].toString();
-			}
-		}
-		
-		QJsonObject geometry = feature.value(GEOMETRY).toObject();
-		auto geometry_type = geometry[TYPE];
-		if (geometry_type == POINT)
-		{
-			QJsonArray coordinates = geometry.value(COORDINATES).toArray();
-			auto waypoint = waypoint_from_coordinates(coordinates);
-			waypoint->shortname = name;
-			waypoint->description = description;
-			if (properties.contains(URL))
-			{
-				QString url = properties[URL].toString();
-				if (properties.contains(URLNAME))
-				{
-					QString url_text = properties[URLNAME].toString();
-					waypoint->AddUrlLink(UrlLink(url, url_text));
-				}
-				else
-				{
-					waypoint->AddUrlLink(UrlLink(url));
-				}
-			}
-			waypt_add(waypoint);
-		}
-		else if (geometry_type == MULTIPOINT)
-		{
-			QJsonArray coordinates = geometry.value(COORDINATES).toArray();
-			for (auto && coordinate : coordinates)
-			{
-				auto waypoint = waypoint_from_coordinates(coordinate.toArray());
-				waypt_add(waypoint);
-			}
-		}
-		else if (geometry_type == LINESTRING)
-		{
-			QJsonArray coordinates = geometry.value(COORDINATES).toArray();
-			auto route = route_head_alloc();
-			route->rte_name = name;
-			route_add_head(route);
-			for (auto && coordinate : coordinates)
-			{
-				auto waypoint = waypoint_from_coordinates(coordinate.toArray());
-				route_add_wpt(route, waypoint);
-			}
-		}
-		else if (geometry_type == POLYGON)
-		{
-			QJsonArray polygon = geometry.value(COORDINATES).toArray();
-			routes_from_polygon_coordinates(polygon);
-		}
-		else if (geometry_type == MULTIPOLYGON)
-		{
-			QJsonArray polygons = geometry.value(COORDINATES).toArray();
-			for (auto && polygons_iterator : polygons)
-			{
-				QJsonArray polygon = polygons_iterator.toArray();
-				routes_from_polygon_coordinates(polygon);
-			}
-		}
-		else if (geometry_type == MULTILINESTRING)
-		{
-			QJsonArray line_strings = geometry.value(COORDINATES).toArray();
-			for (auto && line_string : line_strings)
-			{
-				QJsonArray coordinates = line_string.toArray();
-				auto route = route_head_alloc();
-				track_add_head(route);
-				for (auto && coordinate : coordinates)
-				{
-					auto waypoint = waypoint_from_coordinates(coordinate.toArray());
-					route_add_wpt(route, waypoint);
-				}
-			}
-		}
-	}
+static void
+geojson_read()
+{
+  QFile file;
+  file.setFileName(input_file_name);
+  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  QString file_content = file.readAll();
+  file.close();
+  QJsonParseError error;
+  QJsonDocument document = QJsonDocument::fromJson(file_content.toUtf8(), &error);
+  QJsonObject rootObject = document.object();
+
+  if (rootObject[GeoJson::TYPE] != GeoJson::FEATURE_COLLECTION) {
+    return;
+  }
+  QJsonArray features = rootObject.value(GeoJson::FEATURES).toArray();
+  for (auto&& iterator : features) {
+    QJsonObject feature = iterator.toObject();
+    QJsonObject properties = (feature.value(GeoJson::PROPERTIES)).toObject();
+    QString name;
+    QString description;
+    if (!properties.empty()) {
+      if (properties.contains(GeoJson::NAME)) {
+        name = properties[GeoJson::NAME].toString();
+      }
+      if (properties.contains(GeoJson::DESCRIPTION)) {
+        description = properties[GeoJson::DESCRIPTION].toString();
+      }
+    }
+
+    QJsonObject geometry = feature.value(GeoJson::GEOMETRY).toObject();
+    auto geometry_type = geometry[GeoJson::TYPE];
+    if (geometry_type == GeoJson::POINT) {
+      QJsonArray coordinates = geometry.value(GeoJson::COORDINATES).toArray();
+      auto waypoint = waypoint_from_coordinates(coordinates);
+      waypoint->shortname = name;
+      waypoint->description = description;
+      if (properties.contains(GeoJson::URL)) {
+        QString url = properties[GeoJson::URL].toString();
+        if (properties.contains(GeoJson::URLNAME)) {
+          QString url_text = properties[GeoJson::URLNAME].toString();
+          waypoint->AddUrlLink(UrlLink(url, url_text));
+        } else {
+          waypoint->AddUrlLink(UrlLink(url));
+        }
+      }
+      waypt_add(waypoint);
+    } else if (geometry_type == GeoJson::MULTIPOINT) {
+      QJsonArray coordinates = geometry.value(GeoJson::COORDINATES).toArray();
+      for (auto&& coordinate : coordinates) {
+        auto waypoint = waypoint_from_coordinates(coordinate.toArray());
+        waypt_add(waypoint);
+      }
+    } else if (geometry_type == GeoJson::LINESTRING) {
+      QJsonArray coordinates = geometry.value(GeoJson::COORDINATES).toArray();
+      auto route = route_head_alloc();
+      route->rte_name = name;
+      route_add_head(route);
+      for (auto&& coordinate : coordinates) {
+        auto waypoint = waypoint_from_coordinates(coordinate.toArray());
+        route_add_wpt(route, waypoint);
+      }
+    } else if (geometry_type == GeoJson::POLYGON) {
+      QJsonArray polygon = geometry.value(GeoJson::COORDINATES).toArray();
+      routes_from_polygon_coordinates(polygon);
+    } else if (geometry_type == GeoJson::MULTIPOLYGON) {
+      QJsonArray polygons = geometry.value(GeoJson::COORDINATES).toArray();
+      for (auto&& polygons_iterator : polygons) {
+        QJsonArray polygon = polygons_iterator.toArray();
+        routes_from_polygon_coordinates(polygon);
+      }
+    } else if (geometry_type == GeoJson::MULTILINESTRING) {
+      QJsonArray line_strings = geometry.value(GeoJson::COORDINATES).toArray();
+      for (auto&& line_string : line_strings) {
+        QJsonArray coordinates = line_string.toArray();
+        auto route = route_head_alloc();
+        track_add_head(route);
+        for (auto&& coordinate : coordinates) {
+          auto waypoint = waypoint_from_coordinates(coordinate.toArray());
+          route_add_wpt(route, waypoint);
+        }
+      }
+    }
+  }
 }
 
 
-static void geojson_track_hdr(const route_head* track) {
+static void geojson_track_hdr(const route_head* track)
+{
   track_object = new QJsonObject();
 
-  (*track_object)[TYPE] = FEATURE;
+  (*track_object)[GeoJson::TYPE] = GeoJson::FEATURE;
   track_coords = new QJsonArray();
 
   QJsonObject properties;
   if (!track->rte_name.isEmpty()) {
-    properties[NAME] = track->rte_name;
+    properties[GeoJson::NAME] = track->rte_name;
   }
-  (*track_object)[PROPERTIES] = properties;
+  (*track_object)[GeoJson::PROPERTIES] = properties;
 }
 
-static void geojson_track_disp(const Waypoint* trackpoint) {
+static void geojson_track_disp(const Waypoint* trackpoint)
+{
 
   QJsonArray coords;
   coords.append(trackpoint->longitude);
@@ -293,11 +299,12 @@ static void geojson_track_disp(const Waypoint* trackpoint) {
   (*track_coords).append(coords);
 }
 
-static void geojson_track_tlr(const route_head*) {
+static void geojson_track_tlr(const route_head*)
+{
   QJsonObject geometry;
-  geometry[TYPE] = LINESTRING;
-  geometry[COORDINATES] = *track_coords;
-  (*track_object)[GEOMETRY] = geometry;
+  geometry[GeoJson::TYPE] = GeoJson::LINESTRING;
+  geometry[GeoJson::COORDINATES] = *track_coords;
+  (*track_object)[GeoJson::GEOMETRY] = geometry;
   feature_collection->append(*track_object);
   delete track_object;
   track_object = nullptr;
@@ -306,17 +313,18 @@ static void geojson_track_tlr(const route_head*) {
 }
 
 static void
-geojson_write() {
+geojson_write()
+{
   waypt_disp_all(geojson_waypt_pr);
   track_disp_all(geojson_track_hdr, geojson_track_tlr, geojson_track_disp);
 }
 
 ff_vecs_t geojson_vecs = {
   ff_type_file,
-  { 
-  	(ff_cap)(ff_cap_read | ff_cap_write) /* waypoints */,
-	(ff_cap)(ff_cap_read | ff_cap_write) /* tracks */,
-	(ff_cap)(ff_cap_read | ff_cap_write) /* routes */, 
+  {
+    (ff_cap)(ff_cap_read | ff_cap_write) /* waypoints */,
+    (ff_cap)(ff_cap_read | ff_cap_write) /* tracks */,
+    (ff_cap)(ff_cap_read | ff_cap_write) /* routes */,
   },
   geojson_rd_init,
   geojson_wr_init,
@@ -328,5 +336,5 @@ ff_vecs_t geojson_vecs = {
   geojson_args,
   CET_CHARSET_UTF8, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
-  nullptr  
+  nullptr
 };

@@ -85,7 +85,7 @@ static void data_read()
   int iDataRead;
   int iWptNum;
   int iWptIndex;
-  WPT* pWptHxTmp;
+  Holux::WPT* pWptHxTmp;
   struct tm tm;
   struct tm* ptm;
 
@@ -100,14 +100,14 @@ static void data_read()
     fatal(MYNAME ": Error reading data from %s.\n", file_in->name);
   }
 
-  iWptNum = le_read16(&((WPTHDR*)HxWpt)->num);
+  iWptNum = le_read16(&((Holux::WPTHDR*)HxWpt)->num);
 
   /* Get the waypoints */
   for (iCount = 0; iCount < iWptNum ; iCount ++) {
     wpt_tmp = new Waypoint;
 
-    iWptIndex = le_read16(&((WPTHDR*)HxWpt)->idx[iCount]);
-    pWptHxTmp = (WPT*)&HxWpt[OFFS_WPT + (sizeof(WPT) * iWptIndex)];
+    iWptIndex = le_read16(&((Holux::WPTHDR*)HxWpt)->idx[iCount]);
+    pWptHxTmp = (Holux::WPT*)&HxWpt[OFFS_WPT + (sizeof(Holux::WPT) * iWptIndex)];
 
     wpt_tmp->altitude = 0;
     strncpy(name,pWptHxTmp->name,sizeof(pWptHxTmp->name));
@@ -188,7 +188,7 @@ static void holux_disp(const Waypoint* wpt)
 {
   double lon,lat;
   short sIndex;
-  WPT* pWptHxTmp;
+  Holux::WPT* pWptHxTmp;
 
   lon =(double)wpt->longitude * 36000;
   lat =(double)wpt->latitude * -36000;
@@ -202,14 +202,14 @@ static void holux_disp(const Waypoint* wpt)
     lat += (double)((int)lat/abs((int)lat)) * .5;
   }
 
-  sIndex =  le_read16(&((WPTHDR*)HxWFile)->num);
-  ((WPTHDR*)HxWFile)->idx[sIndex] = sIndex;          /* set the waypoint index  */
-  le_write16(&((WPTHDR*)HxWFile)->idx[sIndex], sIndex);          /* set the waypoint index  */
-  ((WPTHDR*)HxWFile)->used[sIndex] = 0xff;            /* Waypoint used */
+  sIndex =  le_read16(&((Holux::WPTHDR*)HxWFile)->num);
+  ((Holux::WPTHDR*)HxWFile)->idx[sIndex] = sIndex;          /* set the waypoint index  */
+  le_write16(&((Holux::WPTHDR*)HxWFile)->idx[sIndex], sIndex);          /* set the waypoint index  */
+  ((Holux::WPTHDR*)HxWFile)->used[sIndex] = 0xff;            /* Waypoint used */
 
 
   /* set Waypoint */
-  pWptHxTmp = (WPT*)&HxWFile[OFFS_WPT + (sizeof(WPT) * sIndex)];
+  pWptHxTmp = (Holux::WPT*)&HxWFile[OFFS_WPT + (sizeof(Holux::WPT) * sIndex)];
 
   memset(pWptHxTmp->name,0x20,sizeof(pWptHxTmp->name));
   if (wpt->shortname != nullptr) {
@@ -248,8 +248,8 @@ static void holux_disp(const Waypoint* wpt)
   le_write32(&pWptHxTmp->pt.iLongitude,(signed int) lon);
   pWptHxTmp->checked = 01;
   pWptHxTmp->vocidx = (short)0xffff;
-  le_write16(&((WPTHDR*)HxWFile)->num, ++sIndex);
-  le_write16(&((WPTHDR*)HxWFile)->next, ++sIndex);
+  le_write16(&((Holux::WPTHDR*)HxWFile)->num, ++sIndex);
+  le_write16(&((Holux::WPTHDR*)HxWFile)->next, ++sIndex);
 }
 
 
@@ -263,30 +263,30 @@ static void data_write()
   short sCount;
 
   /* init the waypoint area*/
-  le_write32(&((WPTHDR*)HxWFile)->id, WPT_HDR_ID);
-  ((WPTHDR*)HxWFile)->num = 0;
-  ((WPTHDR*)HxWFile)->next = 0;
+  le_write32(&((Holux::WPTHDR*)HxWFile)->id, WPT_HDR_ID);
+  ((Holux::WPTHDR*)HxWFile)->num = 0;
+  ((Holux::WPTHDR*)HxWFile)->next = 0;
 
   /* clear index list */
   for (sCount = 0; sCount < MAXWPT; sCount++) {
-    ((WPTHDR*)HxWFile)->idx[sCount] = (signed short)-1;
+    ((Holux::WPTHDR*)HxWFile)->idx[sCount] = (signed short)-1;
   }
   for (sCount = 0; sCount < MAXWPT; sCount++) {
-    ((WPTHDR*)HxWFile)->used[sCount] = 0;
+    ((Holux::WPTHDR*)HxWFile)->used[sCount] = 0;
   }
 
   /* init the route area */
-  le_write32(&((RTEHDR*)&HxWFile[ROUTESTART])->id, RTE_HDR_ID);
-  ((RTEHDR*)&HxWFile[ROUTESTART])->num = 0;
-  le_write16(&((RTEHDR*)&HxWFile[ROUTESTART])->next, 1);
-  ((RTEHDR*)&HxWFile[ROUTESTART])->rteno = (signed short)-1;
+  le_write32(&((Holux::RTEHDR*)&HxWFile[ROUTESTART])->id, RTE_HDR_ID);
+  ((Holux::RTEHDR*)&HxWFile[ROUTESTART])->num = 0;
+  le_write16(&((Holux::RTEHDR*)&HxWFile[ROUTESTART])->next, 1);
+  ((Holux::RTEHDR*)&HxWFile[ROUTESTART])->rteno = (signed short)-1;
 
   /* clear index list */
   for (sCount = 0; sCount < MAXRTE; sCount++) {
-    ((RTEHDR*)&HxWFile[ROUTESTART])->idx[sCount] = (signed short)-1;
+    ((Holux::RTEHDR*)&HxWFile[ROUTESTART])->idx[sCount] = (signed short)-1;
   }
   for (sCount = 0; sCount < MAXRTE; sCount++) {
-    ((RTEHDR*)&HxWFile[ROUTESTART])->used[sCount] = 0;
+    ((Holux::RTEHDR*)&HxWFile[ROUTESTART])->used[sCount] = 0;
   }
 
   waypt_disp_all(holux_disp);

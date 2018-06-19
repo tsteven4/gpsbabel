@@ -97,11 +97,18 @@ arglist_t an1_args[] = {
   ARG_TERMINATOR
 };
 
-typedef struct guid {
-  unsigned long l;
-  unsigned short s[3];
-  unsigned char c[6];
-} GUID;
+// Hide these rather generically named things from
+// the global namespace.
+// As an example problem GUID conflicts with windows.h
+class An1
+{
+public:
+  typedef struct guid {
+    unsigned long l;
+    unsigned short s[3];
+    unsigned char c[6];
+  } GUID;
+};
 
 #include "an1sym.h"
 
@@ -128,7 +135,7 @@ ReadString(gbfile* f, short len)
 #define WriteString(f,s) gbfputs((s),f)
 
 static void
-ReadGuid(gbfile* f, GUID* guid)
+ReadGuid(gbfile* f, An1::GUID* guid)
 {
   int i = 0;
   guid->l = ReadLong(f);
@@ -141,7 +148,7 @@ ReadGuid(gbfile* f, GUID* guid)
 }
 
 static void
-WriteGuid(gbfile* f, GUID* guid)
+WriteGuid(gbfile* f, An1::GUID* guid)
 {
   int i = 0;
   WriteLong(f, guid->l);
@@ -176,7 +183,7 @@ typedef struct {
   short hotspotxhi;
   long hotspoty;
   long unk1;
-  GUID guid;
+  An1::GUID guid;
   char* name;
 } an1_symbol_record;
 
@@ -199,7 +206,7 @@ typedef struct {
   double radius; /* in km */
   char* name;
   char* fontname;
-  GUID guid;
+  An1::GUID guid;
   long fontcolor;
   long fontstyle;
   long fontsize;
@@ -463,8 +470,8 @@ static void Write_AN1_Waypoint(gbfile* f, an1_waypoint_record* wpt)
   WriteDouble(f, wpt->radius);
 
   short len = strlen(wpt->name) + 1 + 2 + 2 +
-        (wpt->url ? strlen(wpt->url) : 0) + 2 +
-        (wpt->comment ? strlen(wpt->comment) : 0) + 8 + 8;
+              (wpt->url ? strlen(wpt->url) : 0) + 2 +
+              (wpt->comment ? strlen(wpt->comment) : 0) + 8 + 8;
   WriteShort(f, len);
   WriteString(f, wpt->name);
   WriteChar(f, 0);    /* name string terminator */
@@ -791,7 +798,7 @@ Write_One_AN1_Waypoint(const Waypoint* wpt)
     sprintf(extra, "{URL=%s}", CSTR(l.url_));
     rec->name = xstrappend(rec->name, extra);
     xfree(extra);
-    if(rec->url) {
+    if (rec->url) {
       xfree(rec->url);
     }
     rec->url = xstrdup(l.url_);
@@ -948,7 +955,7 @@ Write_One_AN1_Line(const route_head* rte)
     local = 1;
     rec->name = nullptr;
     switch (output_type_num) {
-      /*  drawing road trail waypoint track  */
+    /*  drawing road trail waypoint track  */
     case 1: /* road */
       rec->roadtype = 0x11100541;
       rec->unk2 = 655360;
