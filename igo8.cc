@@ -117,17 +117,17 @@ static void igo8_check_type_sizes()
 {
   if (sizeof(igo8_point) != 12) {
     fatal(MYNAME ": igo8_point is %ld bytes instead of the required 12.\n",
-          (long) sizeof(igo8_point));
+          static_cast<long>(sizeof(igo8_point)));
   }
 
   if (sizeof(igo8_information_block) != 12) {
     fatal(MYNAME ": igo8_information_block is %ld bytes instead of the required 12.\n",
-          (long) sizeof(igo8_information_block));
+          static_cast<long>(sizeof(igo8_information_block)));
   }
 
   if (sizeof(igo8_id_block) != 20) {
     fatal(MYNAME ": igo8_id_block is %ld bytes instead of the required 20.\n",
-          (long) sizeof(igo8_id_block));
+          static_cast<long>(sizeof(igo8_id_block)));
   }
 }
 
@@ -160,8 +160,8 @@ static void igo8_read()
     in_point_count--;
     Waypoint* wpt_tmp = new Waypoint;
 
-    wpt_tmp->latitude = le_read32(&point.lat) / (double)0x800000;
-    wpt_tmp->longitude = le_read32(&point.lon) / (double)0x800000;
+    wpt_tmp->latitude = le_read32(&point.lat) / static_cast<double>(0x800000);
+    wpt_tmp->longitude = le_read32(&point.lon) / static_cast<double>(0x800000);
     wpt_tmp->SetCreationTime(le_read32(&point.unix_time));
 
     track_add_wpt(track_head, wpt_tmp);
@@ -353,7 +353,7 @@ static void igo8_write()
 // Callback definitions
 ff_vecs_t igo8_vecs = {
   ff_type_file,
-  { ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none },
+  { ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write), ff_cap_none },
   igo8_read_init,
   igo8_write_init,
   igo8_read_deinit,

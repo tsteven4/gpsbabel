@@ -50,7 +50,7 @@ static double wppos_to_dec(char* value)
     }
 
     sscanf(value, "%d\xB0%d'%f\"", &degrees, &minutes, &seconds);
-    return sign * (degrees + ((float)minutes / 60) + (seconds / 3600));
+    return sign * (degrees + (static_cast<float>(minutes) / 60) + (seconds / 3600));
   }
 }
 
@@ -105,7 +105,7 @@ enigma_waypt_disp(const Waypoint* wpt)
   if (!wpt->shortname.isEmpty()) {
     // The output might have a space or control character.
     int l = wpt->shortname.length();
-    char *t = (char*) xmalloc(l + 1);
+    char *t = static_cast<char*>(xmalloc(l + 1));
     char* d = t;
     for (int i = 0; i < l; i++) {
       char s = wpt->shortname[i].cell();
@@ -136,7 +136,7 @@ wr_deinit()
 ff_vecs_t pocketfms_wp_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write),  	/* waypoints */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),  	/* waypoints */
     ff_cap_none,                    /* tracks */
     ff_cap_none,			/* routes */
   },

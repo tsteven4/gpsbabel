@@ -132,7 +132,7 @@ inifile_load_file(gbfile* fin, inifile_t* inifile, const char* myname)
               qPrintable(gbinipathname));
       }
 
-      sec = (inifile_section_t*) xcalloc(1, sizeof(*sec));
+      sec = static_cast<inifile_section_t*>(xcalloc(1, sizeof(*sec)));
 
       sec->name = xstrdup(cin);
       QUEUE_INIT(&sec->entries);
@@ -144,7 +144,7 @@ inifile_load_file(gbfile* fin, inifile_t* inifile, const char* myname)
               qPrintable(gbinipathname));
       }
 
-      inifile_entry_t* entry = (inifile_entry_t*) xcalloc(1, sizeof(*entry));
+      inifile_entry_t* entry = static_cast<inifile_entry_t*>(xcalloc(1, sizeof(*entry)));
       ENQUEUE_TAIL(&sec->entries, &entry->Q);
       sec->ientries++;
 
@@ -216,7 +216,7 @@ inifile_init(const QString& filename, const char* myname)
     fin = gbfopen(filename, "rb", myname);
   }
 
-  inifile_t* result = (inifile_t*) xcalloc(1, sizeof(*result));
+  inifile_t* result = static_cast<inifile_t*>(xcalloc(1, sizeof(*result)));
   QUEUE_INIT(&result->secs);
   inifile_load_file(fin, result, myname);
 

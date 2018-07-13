@@ -123,7 +123,7 @@ static void
 ozi_copy_fsdata(ozi_fsdata** dest, ozi_fsdata* src)
 {
   /* No strings to mess with.  Straight forward copy. */
-  *dest = (ozi_fsdata*)xmalloc(sizeof(*src));
+  *dest = static_cast<ozi_fsdata*>(xmalloc(sizeof(*src)));
   ** dest = *src;
   (*dest)->fs.next = nullptr;
 }
@@ -138,7 +138,7 @@ static
 ozi_fsdata*
 ozi_alloc_fsdata()
 {
-  ozi_fsdata* fsdata = (ozi_fsdata*) xcalloc(sizeof(*fsdata), 1);
+  ozi_fsdata* fsdata = static_cast<ozi_fsdata*>(xcalloc(sizeof(*fsdata), 1));
   fsdata->fs.type = FS_OZI;
   fsdata->fs.copy = (fs_copy) ozi_copy_fsdata;
   fsdata->fs.destroy = ozi_free_fsdata;
@@ -169,7 +169,7 @@ ozi_set_time_str(const QString& str, Waypoint* waypointp)
 
   if (ozi_time > DAYS_SINCE_1990) {
     waypointp->SetCreationTime((ozi_time - DAYS_SINCE_1990) * SECONDS_PER_DAY,
-                               lround(1000.0 * (ozi_time - (int) ozi_time)));
+                               lround(1000.0 * (ozi_time - static_cast<int>(ozi_time))));
   }
 }
 

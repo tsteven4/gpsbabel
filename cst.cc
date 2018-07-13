@@ -105,7 +105,7 @@ cst_make_url(char* str)
         char* src, *dest;
 
         char* last = src = res;
-        res = dest = (char*) xcalloc(strlen(src) + (2*i) + 1, 1);
+        res = dest = static_cast<char*>(xcalloc(strlen(src) + (2*i) + 1, 1));
         while ((c = strchr(src, ' '))) {
           if (c != src) {
             strncpy(dest, src, c - src);

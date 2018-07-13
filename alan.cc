@@ -207,24 +207,24 @@ static unsigned int byte_order()
 
 static void sw_bytes(void* word)
 {
-  uint8_t* p = (uint8_t*) word;
-  uint16_t* r = (uint16_t*) word;
+  uint8_t* p = static_cast<uint8_t*>(word);
+  uint16_t* r = static_cast<uint16_t*>(word);
 
-  *r = (uint16_t)(p[1] << 8 | p[0]);
+  *r = static_cast<uint16_t>(p[1] << 8 | p[0]);
 }
 static void sw_words(void* dword)
 {
-  uint16_t* p = (uint16_t*) dword;
-  uint32_t* r = (uint32_t*) dword;
+  uint16_t* p = static_cast<uint16_t*>(dword);
+  uint32_t* r = static_cast<uint32_t*>(dword);
 
-  *r = (uint32_t)(p[0] << 16 | p[1]);
+  *r = static_cast<uint32_t>(p[0] << 16 | p[1]);
 }
 static void rev_bytes(void* dword)
 {
-  uint8_t* p = (uint8_t*) dword;
-  uint32_t* r = (uint32_t*) dword;
+  uint8_t* p = static_cast<uint8_t*>(dword);
+  uint32_t* r = static_cast<uint32_t*>(dword);
 
-  *r = (uint32_t)(p[3] << 24 | p[2] << 16 | p[1] << 8 | p[0]);
+  *r = static_cast<uint32_t>(p[3] << 24 | p[2] << 16 | p[1] << 8 | p[0]);
 }
 
 static void swap_wpthdr(struct wpthdr* wpthdr,
@@ -946,9 +946,9 @@ static void alan_exit()
 ff_vecs_t alanwpr_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* waypoints */,
     ff_cap_none              	/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* routes */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* routes */
   },
   alan_rd_init,
   alan_wr_init,
@@ -968,7 +968,7 @@ ff_vecs_t alantrl_vecs = {
   ff_type_file,
   {
     ff_cap_none            	/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* tracks */,
     ff_cap_none           	/* routes */
   },
   alan_rd_init,

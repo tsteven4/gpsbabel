@@ -46,7 +46,7 @@ typedef struct {
 /* Wrapper to safely cast a void * into a gbser_handle */
 static gbser_handle* gbser__get_handle(void* p)
 {
-  gbser_handle* h = (gbser_handle*) p;
+  gbser_handle* h = static_cast<gbser_handle*>(p);
   assert(h->magic == MYMAGIC);
   return h;
 }
@@ -94,12 +94,12 @@ static void get_time(hp_time* tv)
 static double elapsed(hp_time* tv)
 {
   hp_time now;
-  double ot = (double) tv->tv_sec  * 1000 +
-              (double) tv->tv_usec / 1000;
+  double ot = static_cast<double>(tv->tv_sec)  * 1000 +
+              static_cast<double>(tv->tv_usec) / 1000;
   double nt;
   gettimeofday(&now, nullptr);
-  nt = (double) now.tv_sec  * 1000 +
-       (double) now.tv_usec / 1000;
+  nt = static_cast<double>(now.tv_sec)  * 1000 +
+       static_cast<double>(now.tv_usec) / 1000;
   /*printf("elapsed -> %f\n", nt - ot);*/
   return nt - ot;
 }
@@ -135,7 +135,7 @@ void* gbser_init(const char* port_name)
 
   gbser__db(4, "gbser_init(\"%s\")\n", port_name);
 
-  h = (gbser_handle*) xcalloc(sizeof *h, 1);
+  h = static_cast<gbser_handle*>(xcalloc(sizeof *h, 1));
   h->magic = MYMAGIC;
   h->vmin = h->vtime = 0;
 
@@ -255,7 +255,7 @@ unsigned gbser__read_buffer(void* handle, void** buf, unsigned* len)
 {
   gbser_handle* h = gbser__get_handle(handle);
   unsigned count = *len;
-  unsigned char* cp = (unsigned char*) *buf;
+  unsigned char* cp = static_cast<unsigned char*>(*buf);
   if (count > h->inbuf_used) {
     count = h->inbuf_used;
   }
@@ -315,8 +315,8 @@ int gbser__fill_buffer(void* handle, unsigned want, unsigned* ms)
       FD_ZERO(&rec);
       FD_SET(h->fd, &rec);
 
-      t.tv_sec  = (time_t) time_left / 1000;
-      t.tv_usec = ((unsigned) time_left % 1000) * 1000;
+      t.tv_sec  = static_cast<time_t>(time_left) / 1000;
+      t.tv_usec = (static_cast<unsigned>(time_left) % 1000) * 1000;
 
       if (select(h->fd + 1, &rec, nullptr, nullptr, &t) < 0) {
         return gbser_ERROR;
@@ -376,7 +376,7 @@ int gbser_flush(void* handle)
 int gbser_write(void* handle, const void* buf, unsigned len)
 {
   gbser_handle* h = gbser__get_handle(handle);
-  const char* bp = (const char*) buf;
+  const char* bp = static_cast<const char*>(buf);
   int rc;
   while (len > 0) {
     /*printf("write(%d, %p, %d)\n", h->fd, bp, len);*/
@@ -447,7 +447,7 @@ const char* fix_win_serial_name(const char* comname)
  */
 int gbser_read_line(void* handle, void* buf, unsigned len, unsigned ms, int eol, int discard)
 {
-  char* bp = (char*) buf;
+  char* bp = static_cast<char*>(buf);
   unsigned pos = 0;
   hp_time tv;
   get_time(&tv);

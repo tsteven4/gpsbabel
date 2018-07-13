@@ -126,7 +126,7 @@ dynarray16_init(struct dynarray16* a, unsigned limit)
 {
   a->count = 0;
   a->limit = limit;
-  a->data = (int16_t*) xmalloc(sizeof(a->data[0]) * a->limit);
+  a->data = static_cast<int16_t*>(xmalloc(sizeof(a->data[0]) * a->limit));
 }
 
 static int16_t*
@@ -141,7 +141,7 @@ dynarray16_alloc(struct dynarray16* a, unsigned n)
     unsigned need = a->count - a->limit;
     need = (need > elements_per_chunk) ? need : elements_per_chunk;
     a->limit += need;
-    a->data = (int16_t*) xrealloc(a->data, sizeof(a->data[0]) * a->limit);
+    a->data = static_cast<int16_t*>(xrealloc(a->data, sizeof(a->data[0]) * a->limit));
   }
   return(a->data + oldcount);
 }
@@ -218,7 +218,7 @@ bin2deg(int val)
 
   int deg_int = absval / 1000000;      /* extract ddd */
   int min_scaled = absval % 1000000;   /* extract mmffff (minutes * 10^4) */
-  float deg = deg_int + (double) min_scaled / (10000 * 60);
+  float deg = deg_int + static_cast<double>(min_scaled) / (10000 * 60);
 
   /* restore the sign */
   deg = isneg ? -deg : deg;
@@ -550,7 +550,7 @@ dg100_request(uint8_t cmd, const void* sendbuf, void* recvbuf, size_t count)
   /* the number of frames the answer will comprise */
   int frames = (cmd == dg100cmd_getfile) ? 2 : 1;
   /* alias pointer for easy typecasting */
-  uint8_t* buf = (uint8_t*) recvbuf;
+  uint8_t* buf = static_cast<uint8_t*>(recvbuf);
   int fill = 0;
   for (int i = 0; i < frames; i++) {
     int n = dg100_recv(cmd, buf + fill, count - fill);

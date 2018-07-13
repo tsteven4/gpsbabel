@@ -105,8 +105,8 @@ int TrackFilter::trackfilter_parse_time_opt(const char* arg)
 
 int TrackFilter::trackfilter_init_qsort_cb(const void* a, const void* b)
 {
-  const trkflt_t* ra = (const trkflt_t*) a;
-  const trkflt_t* rb = (const trkflt_t*) b;
+  const trkflt_t* ra = static_cast<const trkflt_t*>(a);
+  const trkflt_t* rb = static_cast<const trkflt_t*>(b);
   const QDateTime dta = ra->first_time;
   const QDateTime dtb = rb->first_time;
 
@@ -121,8 +121,8 @@ int TrackFilter::trackfilter_init_qsort_cb(const void* a, const void* b)
 
 int TrackFilter::trackfilter_merge_qsort_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *(Waypoint**)a;
-  const Waypoint* wb = *(Waypoint**)b;
+  const Waypoint* wa = *static_cast<Waypoint**>(a);
+  const Waypoint* wb = *static_cast<Waypoint**>(b);
   const QDateTime dta = wa->GetCreationTime();
   const QDateTime dtb = wb->GetCreationTime();
 
@@ -363,7 +363,7 @@ void TrackFilter::trackfilter_merge()
     return;
   }
 
-  Waypoint** buff = (Waypoint**)xcalloc(track_pts-timeless_pts, sizeof(*buff));
+  Waypoint** buff = static_cast<Waypoint**>(xcalloc(track_pts-timeless_pts, sizeof(*buff)));
 
   int j = 0;
   for (i = 0; i < track_ct; i++) {	/* put all points into temp buffer */
@@ -532,7 +532,7 @@ void TrackFilter::trackfilter_split()
 
   trackfilter_split_init_rte_name(master, track_list[0].first_time);
 
-  Waypoint** buff = (Waypoint**) xcalloc(count, sizeof(*buff));
+  Waypoint** buff = static_cast<Waypoint**>(xcalloc(count, sizeof(*buff)));
 
   i = 0;
   QUEUE_FOR_EACH((queue*)&master->waypoint_list, elem, tmp) {

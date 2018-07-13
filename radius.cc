@@ -39,10 +39,10 @@ double RadiusFilter::gc_distance(double lat1, double lon1, double lat2, double l
 
 int RadiusFilter::dist_comp(const void* a, const void* b)
 {
-  const Waypoint* x1 = *(Waypoint**)a;
-  const Waypoint* x2 = *(Waypoint**)b;
-  extra_data* x1e = (extra_data*) x1->extra_data;
-  extra_data* x2e = (extra_data*) x2->extra_data;
+  const Waypoint* x1 = *static_cast<Waypoint**>(a);
+  const Waypoint* x2 = *static_cast<Waypoint**>(b);
+  extra_data* x1e = static_cast<extra_data*>(x1->extra_data);
+  extra_data* x2e = static_cast<extra_data*>(x2->extra_data);
 
   if (x1e->distance > x2e->distance) {
     return 1;
@@ -83,7 +83,7 @@ void RadiusFilter::process()
       continue;
     }
 
-    extra_data* ed = (extra_data*) xcalloc(1, sizeof(*ed));
+    extra_data* ed = static_cast<extra_data*>(xcalloc(1, sizeof(*ed)));
     ed->distance = dist;
     waypointp->extra_data = ed;
   }
@@ -91,7 +91,7 @@ void RadiusFilter::process()
   wc = waypt_count();
   QUEUE_INIT(&temp_head);
 
-  comp = (Waypoint**) xcalloc(wc, sizeof(*comp));
+  comp = static_cast<Waypoint**>(xcalloc(wc, sizeof(*comp)));
 
   i = 0;
 

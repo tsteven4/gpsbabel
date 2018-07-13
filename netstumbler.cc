@@ -258,8 +258,8 @@ static
 int
 compare(const void* a, const void* b)
 {
-  unsigned long crc_a = ((const htable_t*)a)->crc;
-  unsigned long crc_b = ((const htable_t*)b)->crc;
+  unsigned long crc_a = (static_cast<const htable_t*>(a))->crc;
+  unsigned long crc_b = (static_cast<const htable_t*>(b))->crc;
 
   /* we can't just return crc_a - crc_b because the return type is
    * signed.
@@ -276,8 +276,8 @@ compare(const void* a, const void* b)
      * to make the testo script happy.
      * */
 
-    Waypoint* wpt_a = ((const htable_t*)a)->wpt;
-    Waypoint* wpt_b = ((const htable_t*)b)->wpt;
+    Waypoint* wpt_a = (static_cast<const htable_t*>(a))->wpt;
+    Waypoint* wpt_b = (static_cast<const htable_t*>(b))->wpt;
     return wpt_a->description.compare(wpt_b->description);
   }
 }
@@ -294,7 +294,7 @@ fix_netstumbler_dupes()
   int ct = waypt_count(), serial = 0;
   unsigned long last_crc;
 
-  htable_t* htable = (htable_t*) xmalloc(ct * sizeof *htable);
+  htable_t* htable = static_cast<htable_t*>(xmalloc(ct * sizeof *htable));
   htable_t* bh = htable;
 
   int i = 0;

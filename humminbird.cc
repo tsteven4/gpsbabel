@@ -291,7 +291,7 @@ humminbird_read_wpt(gbfile* fin)
 
   double guder = gudermannian_i1924(w.north);
   wpt->latitude = geocentric_to_geodetic_hwr(guder);
-  wpt->longitude = (double)w.east / EAST_SCALE * 180.0;
+  wpt->longitude = static_cast<double>(w.east) / EAST_SCALE * 180.0;
 
   wpt->altitude  = 0.0; /* It's from a fishfinder... */
 
@@ -404,7 +404,7 @@ humminbird_read_track(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  humminbird_trk_point_t* points = (humminbird_trk_point_t*) xcalloc(th.num_points, sizeof(humminbird_trk_point_t));
+  humminbird_trk_point_t* points = static_cast<humminbird_trk_point_t*>(xcalloc(th.num_points, sizeof(humminbird_trk_point_t)));
   if (! gbfread(points, sizeof(humminbird_trk_point_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -511,7 +511,7 @@ humminbird_read_track_old(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  humminbird_trk_point_old_t* points = (humminbird_trk_point_old_t*)xcalloc(th.num_points, sizeof(humminbird_trk_point_old_t));
+  humminbird_trk_point_old_t* points = static_cast<humminbird_trk_point_old_t*>(xcalloc(th.num_points, sizeof(humminbird_trk_point_old_t)));
   if (! gbfread(points, sizeof(humminbird_trk_point_old_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -731,8 +731,8 @@ humminbird_track_head(const route_head* trk)
   trk_head = nullptr;
   last_time = 0;
   if (trk->rte_waypt_ct > 0) {
-    trk_head = (humminbird_trk_header_t*) xcalloc(1, sizeof(humminbird_trk_header_t));
-    trk_points = (humminbird_trk_point_t*) xcalloc(max_points, sizeof(humminbird_trk_point_t));
+    trk_head = static_cast<humminbird_trk_header_t*>(xcalloc(1, sizeof(humminbird_trk_header_t)));
+    trk_points = static_cast<humminbird_trk_point_t*>(xcalloc(max_points, sizeof(humminbird_trk_point_t)));
 
     QString name = mkshort(trkname_sh, trk->rte_name);
     strncpy(trk_head->name, CSTR(name), sizeof(trk_head->name)-1);
@@ -854,7 +854,7 @@ humminbird_rte_head(const route_head* rte)
 {
   humrte = nullptr;
   if (rte->rte_waypt_ct > 0) {
-    humrte = (humminbird_rte_t*) xcalloc(1, sizeof(*humrte));
+    humrte = static_cast<humminbird_rte_t*>(xcalloc(1, sizeof(*humrte)));
   }
 }
 
@@ -940,9 +940,9 @@ humminbird_write()
 ff_vecs_t humminbird_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* waypoints */,
     ff_cap_read 			/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* routes */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* routes */
   },
   humminbird_rd_init,
   humminbird_wr_init,
@@ -966,7 +966,7 @@ ff_vecs_t humminbird_ht_vecs = {
   ff_type_file,
   {
     ff_cap_read		 	/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_read			/* routes */
   },
   humminbird_rd_init,

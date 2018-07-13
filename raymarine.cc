@@ -290,9 +290,9 @@ register_waypt(const Waypoint* ref, const char)
   if (waypt_table_ct >= waypt_table_sz) {
     waypt_table_sz += 32;
     if (waypt_table) {
-      waypt_table = (Waypoint**) xrealloc(waypt_table, waypt_table_sz * sizeof(wpt));
+      waypt_table = static_cast<Waypoint**>(xrealloc(waypt_table, waypt_table_sz * sizeof(wpt)));
     } else {
-      waypt_table = (Waypoint**) xmalloc(waypt_table_sz * sizeof(wpt));
+      waypt_table = static_cast<Waypoint**>(xmalloc(waypt_table_sz * sizeof(wpt)));
     }
   }
 
@@ -317,8 +317,8 @@ enum_rtept_cb(const Waypoint* wpt)
 static int
 qsort_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *(Waypoint**)a;
-  const Waypoint* wb = *(Waypoint**)b;
+  const Waypoint* wa = *static_cast<Waypoint**>(a);
+  const Waypoint* wb = *static_cast<Waypoint**>(b);
   return wa->shortname.compare(wb->shortname);
 }
 
@@ -334,7 +334,7 @@ write_waypoint(gbfile* fout, const Waypoint* wpt, const int waypt_no, const char
   }
   notes = csv_stringclean(notes, LINE_FEED);
   double time = wpt->creation_time.isValid() ? TIMET_TO_EXCEL(wpt->GetCreationTime().toTime_t()) : TIMET_TO_EXCEL(gpsbabel_time);
-  char* name = (char*)wpt->extra_data;
+  char* name = static_cast<char*>(wpt->extra_data);
 
   gbfprintf(fout, "[Wp%d]" LINE_FEED
             "Loc=%s" LINE_FEED
@@ -400,7 +400,7 @@ write_route_wpt_cb(const Waypoint* wpt)
     "PredictedTws"
   };
 
-  gbfprintf(fout, "Mk%d=%s" LINE_FEED, rte_wpt_index, (char*)wpt->extra_data);
+  gbfprintf(fout, "Mk%d=%s" LINE_FEED, rte_wpt_index, static_cast<char*>(wpt->extra_data));
   for (auto & item : items) {
     gbfprintf(fout, "%s%d=%.15f" LINE_FEED, item, rte_wpt_index, 0.0);
   }
@@ -494,9 +494,9 @@ raymarine_write()
 ff_vecs_t raymarine_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
     ff_cap_none 			/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* routes */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* routes */,
   },
   raymarine_rd_init,
   raymarine_wr_init,

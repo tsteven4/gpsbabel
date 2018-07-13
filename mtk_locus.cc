@@ -439,7 +439,7 @@ process_pmtklox()
       waypt_add(waypt);
     }
 
-    dbg(1, "Time: %li Type: %02x Lat: %f Long: %f height: %i\n", (long int)timestamp, fixtype, latitude, longitude, height);
+    dbg(1, "Time: %li Type: %02x Lat: %f Long: %f height: %i\n", static_cast<long int>(timestamp), fixtype, latitude, longitude, height);
 
     fixes_found++;
   }

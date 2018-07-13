@@ -212,10 +212,10 @@ static void kml_init_color_sequencer(unsigned int steps_per_rev)
     float color_step = atof(opt_rotate_colors);
     if (color_step > 0.0f) {
       // step around circle by given number of degrees for each track(route)
-      kml_color_sequencer.step = ((float)KML_COLOR_LIMIT) * 6.0f * color_step / 360.0f;
+      kml_color_sequencer.step = (static_cast<float>(KML_COLOR_LIMIT)) * 6.0f * color_step / 360.0f;
     } else {
       // one cycle around circle for all the tracks(routes)
-      kml_color_sequencer.step = ((float)KML_COLOR_LIMIT) * 6.0f / ((float)steps_per_rev);
+      kml_color_sequencer.step = (static_cast<float>(KML_COLOR_LIMIT)) * 6.0f / (static_cast<float>(steps_per_rev));
     }
     kml_color_sequencer.color.opacity=255;
     kml_color_sequencer.seq = 0.0f;
@@ -226,7 +226,7 @@ static void kml_step_color()
 {
   // Map kml_color_sequencer.seq to an integer in the range [0, KML_COLOR_LIMIT*6).
   // Note that color_seq may be outside this range if the cast from float to int fails.
-  int color_seq = ((int) kml_color_sequencer.seq) % (KML_COLOR_LIMIT * 6);
+  int color_seq = (static_cast<int>(kml_color_sequencer.seq)) % (KML_COLOR_LIMIT * 6);
   if (global_opts.debug_level >= 1) {
     printf(MYNAME ": kml_color_sequencer seq %f %d, step %f\n",kml_color_sequencer.seq, color_seq, kml_color_sequencer.step);
   }
@@ -276,7 +276,7 @@ xg_tag_mapping kml_map[] = {
   { gx_trk_e,  	cb_end, 	"/Placemark/*gx:Track" },
   { gx_trk_when,  cb_cdata, "/Placemark/*gx:Track/when" },
   { gx_trk_coord, cb_cdata, "/Placemark/*gx:Track/gx:coord" },
-  { nullptr,	(xg_cb_type) 0, 		nullptr }
+  { nullptr,	static_cast<xg_cb_type>(0), 		nullptr }
 };
 
 static
@@ -1041,7 +1041,7 @@ static void kml_output_point(const Waypoint* waypointp, kml_point_type pt_type)
           value = QString("%1-none").arg(style);
         } else {
           value = QString("%1-%2").arg(style)
-                  .arg((int)(waypointp->course / 22.5 + .5) % 16);
+                  .arg(static_cast<int>(waypointp->course / 22.5 + .5) % 16);
         }
         writer->writeTextElement(QStringLiteral("styleUrl"), value);
       } else {

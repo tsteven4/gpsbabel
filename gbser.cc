@@ -192,7 +192,7 @@ int gbser_readc_wait(void* handle, unsigned ms)
  */
 int gbser_print(void* handle, const char* str)
 {
-  return gbser_write(handle, str, (unsigned) strlen(str));
+  return gbser_write(handle, str, static_cast<unsigned>(strlen(str)));
 }
 
 /* Write a single character to the serial port.

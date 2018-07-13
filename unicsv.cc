@@ -1753,13 +1753,13 @@ unicsv_waypt_disp_cb(const Waypoint* wpt)
   if FIELD_USED(fld_gc_terr) {
     gbfputs(unicsv_fieldsep, fout);
     if (gc_data && gc_data->terr) {
-      gbfprintf(fout, "%.1f", (double)gc_data->terr / 10);
+      gbfprintf(fout, "%.1f", static_cast<double>(gc_data->terr) / 10);
     }
   }
   if FIELD_USED(fld_gc_diff) {
     gbfputs(unicsv_fieldsep, fout);
     if (gc_data && gc_data->diff) {
-      gbfprintf(fout, "%.1f", (double)gc_data->diff / 10);
+      gbfprintf(fout, "%.1f", static_cast<double>(gc_data->diff) / 10);
     }
   }
   if FIELD_USED(fld_gc_is_archived) {
@@ -1838,10 +1838,10 @@ unicsv_wr_init(const QString& filename)
     int i;
 
     if (sscanf(opt_grid, "%d", &i)) {
-      unicsv_grid_idx = (grid_type) i;
+      unicsv_grid_idx = static_cast<grid_type>(i);
       if ((unicsv_grid_idx < GRID_INDEX_MIN) || (unicsv_grid_idx > GRID_INDEX_MAX))
         fatal(MYNAME ": Grid index out of range (%d..%d)!\n",
-              (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
+              static_cast<int>(GRID_INDEX_MIN), static_cast<int>(GRID_INDEX_MAX));
     } else {
       unicsv_grid_idx = gt_lookup_grid_type(opt_grid, MYNAME);
     }

@@ -364,7 +364,7 @@ static void
 nmea_set_waypoint_time(Waypoint* wpt, struct tm* time, double fsec)
 {
   if (time->tm_year == 0) {
-    wpt->SetCreationTime(((((time_t)time->tm_hour * 60) + time->tm_min) * 60) + time->tm_sec, lround(1000.0 * fsec));
+    wpt->SetCreationTime((((static_cast<time_t>(time->tm_hour) * 60) + time->tm_min) * 60) + time->tm_sec, lround(1000.0 * fsec));
     if (wpt->wpt_flags.fmt_use == 0) {
       wpt->wpt_flags.fmt_use = 1;
       without_date++;
@@ -405,7 +405,7 @@ gpgll_parse(char* ibuf)
     return;
   }
 
-  int hms = (int) hmsd;
+  int hms = static_cast<int>(hmsd);
   last_read_time = hms;
   double fsec = hmsd - hms;
 
@@ -478,13 +478,13 @@ gpgga_parse(char* ibuf)
   }
 
   last_read_time = hms;
-  double fsec = hms - (int)hms;
+  double fsec = hms - static_cast<int>(hms);
 
-  tm.tm_sec = (long) hms % 100;
+  tm.tm_sec = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_min = (long) hms % 100;
+  tm.tm_min = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_hour = (long) hms % 100;
+  tm.tm_hour = static_cast<long>(hms) % 100;
 
   Waypoint* waypt = new Waypoint;
 
@@ -561,13 +561,13 @@ gprmc_parse(char* ibuf)
   }
 
   last_read_time = hms;
-  double fsec = hms - (int)hms;
+  double fsec = hms - static_cast<int>(hms);
 
-  tm.tm_sec = (long) hms % 100;
+  tm.tm_sec = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_min = (long) hms % 100;
+  tm.tm_min = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_hour = (long) hms % 100;
+  tm.tm_hour = static_cast<long>(hms) % 100;
 
   tm.tm_year = dmy % 100 + 100;
   dmy = dmy / 100;
@@ -667,9 +667,9 @@ gpzda_parse(char* ibuf)
 
   sscanf(ibuf,"$%*2cZDA,%lf,%d,%d,%d,%d,%d",
          &hms, &dd, &mm, &yy, &lclhrs, &lclmins);
-  tm.tm_sec  = (int) hms % 100;
-  tm.tm_min  = (((int) hms - tm.tm_sec) / 100) % 100;
-  tm.tm_hour = (int) hms / 10000;
+  tm.tm_sec  = static_cast<int>(hms) % 100;
+  tm.tm_min  = ((static_cast<int>(hms) - tm.tm_sec) / 100) % 100;
+  tm.tm_hour = static_cast<int>(hms) / 10000;
   tm.tm_mday = dd;
   tm.tm_mon  = mm - 1;
   tm.tm_year = yy - 1900;
@@ -767,7 +767,7 @@ double pcmpt_deg(int d)
 {
   int deg = d  / 100000;
   double minutes = (((d / 100000.0) - deg) * 100) / 60.0;
-  return (double) deg + minutes;
+  return static_cast<double>(deg) + minutes;
 }
 
 static void
@@ -813,11 +813,11 @@ pcmpt_parse(char* ibuf)
     curr_waypt->longitude = pcmpt_deg(lon);
     curr_waypt->latitude = pcmpt_deg(lat);
 
-    tm.tm_sec = (long) hms % 100;
+    tm.tm_sec = static_cast<long>(hms) % 100;
     hms = hms / 100;
-    tm.tm_min = (long) hms % 100;
+    tm.tm_min = static_cast<long>(hms) % 100;
     hms = hms / 100;
-    tm.tm_hour = (long) hms % 100;
+    tm.tm_hour = static_cast<long>(hms) % 100;
 
     tm.tm_year = dmy % 10000 - 1900;
     dmy = dmy / 10000;
@@ -1292,13 +1292,13 @@ nmea_trackpt_pr(const Waypoint* wpt)
 
   if (opt_gprmc) {
     snprintf(obuf, sizeof(obuf), "GPRMC,%010.3f,%c,%08.3f,%c,%09.3f,%c,%.2f,%.2f,%06d,,",
-             (double) hms + (wpt->GetCreationTime().time().msec() / 1000.0),
+             static_cast<double>(hms) + (wpt->GetCreationTime().time().msec() / 1000.0),
              fix=='0' ? 'V' : 'A',
              fabs(lat), lat < 0 ? 'S' : 'N',
              fabs(lon), lon < 0 ? 'W' : 'E',
              WAYPT_HAS(wpt, speed) ? MPS_TO_KNOTS(wpt->speed):(0),
              WAYPT_HAS(wpt, course) ? (wpt->course):(0),
-             (int) ymd);
+             static_cast<int>(ymd));
     cksum = nmea_cksum(obuf);
 
     /* GISTeq doesn't care about the checksum, but wants this prefixed, so
@@ -1311,7 +1311,7 @@ nmea_trackpt_pr(const Waypoint* wpt)
   }
   if (opt_gpgga) {
     snprintf(obuf, sizeof(obuf), "GPGGA,%010.3f,%08.3f,%c,%09.3f,%c,%c,%02d,%.1f,%.3f,M,%.1f,M,,",
-             (double) hms + (wpt->GetCreationTime().time().msec() / 1000.0),
+             static_cast<double>(hms) + (wpt->GetCreationTime().time().msec() / 1000.0),
              fabs(lat), lat < 0 ? 'S' : 'N',
              fabs(lon), lon < 0 ? 'W' : 'E',
              fix,
@@ -1386,8 +1386,8 @@ nmea_wr_posn_deinit()
 ff_vecs_t nmea_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write),
-    (ff_cap)(ff_cap_read | ff_cap_write),
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),
     ff_cap_none
   },
   nmea_rd_init,

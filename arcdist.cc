@@ -53,9 +53,9 @@ void ArcDistanceFilter::arcdist_arc_disp_wpt_cb(const Waypoint* arcpt2)
       double dist;
       extra_data* ed;
       if (waypointp->extra_data) {
-        ed = (extra_data*) waypointp->extra_data;
+        ed = static_cast<extra_data*>(waypointp->extra_data);
       } else {
-        ed = (extra_data*) xcalloc(1, sizeof(*ed));
+        ed = static_cast<extra_data*>(xcalloc(1, sizeof(*ed)));
         ed->distance = BADVAL;
       }
       if (ed->distance == BADVAL || projectopt || ed->distance >= pos_dist) {
@@ -161,7 +161,7 @@ void ArcDistanceFilter::process()
   QUEUE_FOR_EACH(&waypt_head, elem, tmp) {
     Waypoint* wp = (Waypoint*) elem;
 #endif
-    extra_data* ed = (extra_data*) wp->extra_data;
+    extra_data* ed = static_cast<extra_data*>(wp->extra_data);
     wp->extra_data = nullptr;
     if (ed) {
       if ((ed->distance >= pos_dist) == (exclopt == nullptr)) {

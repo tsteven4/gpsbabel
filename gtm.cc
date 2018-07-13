@@ -81,7 +81,7 @@ fread_string(gbfile* fd)
     return nullptr;
   }
 
-  char* val = (char*) xmalloc(len+1);
+  char* val = static_cast<char*>(xmalloc(len+1));
   gbfread(val, 1, len, fd);
   while (len != 0 && val[len-1] == ' ') {
     len--;
@@ -101,7 +101,7 @@ fread_string_discard(gbfile* fd)
 static QString
 fread_fixedstring(gbfile* fd, int len)
 {
-  char* val = (char*) xmalloc(len+1);
+  char* val = static_cast<char*>(xmalloc(len+1));
 
   gbfread(val, 1, len, fd);
   while (len != 0 && val[len-1] == ' ') {

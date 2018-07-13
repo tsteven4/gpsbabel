@@ -441,9 +441,9 @@ poly_init(const route_head* rte)
 {
   const int ct = rte->rte_waypt_ct;
   poly_count = 0;
-  polybufx = (double*) xcalloc(ct, sizeof(double));
-  polybufy = (double*) xcalloc(ct, sizeof(double));
-  polybufz = (double*) xcalloc(ct, sizeof(double));
+  polybufx = static_cast<double*>(xcalloc(ct, sizeof(double)));
+  polybufy = static_cast<double*>(xcalloc(ct, sizeof(double)));
+  polybufz = static_cast<double*>(xcalloc(ct, sizeof(double)));
 }
 
 

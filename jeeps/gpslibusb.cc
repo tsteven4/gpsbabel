@@ -113,9 +113,9 @@ static int
 gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz)
 {
   int r;
-  r = usb_bulk_write(udev, gusb_bulk_out_ep, (char*)(void*)opkt->dbuf, sz, TMOUT_B);
+  r = usb_bulk_write(udev, gusb_bulk_out_ep, static_cast<char*>((void*)opkt->dbuf), sz, TMOUT_B);
 
-  if (r != (int) sz) {
+  if (r != static_cast<int>(sz)) {
     fprintf(stderr, "Bad cmdsend r %d sz %ld\n", r, (unsigned long) sz);
     if (r < 0) {
       fatal("usb_bulk_write failed. '%s'\n",
@@ -465,7 +465,7 @@ int
 gusb_init(const char* portname, gpsdevh** dh)
 {
   int req_unit_number = 0;
-  libusb_unit_data* lud = (libusb_unit_data*) xcalloc(sizeof(libusb_unit_data), 1);
+  libusb_unit_data* lud = static_cast<libusb_unit_data*>(xcalloc(sizeof(libusb_unit_data), 1));
 
   *dh = (gpsdevh*) lud;
 

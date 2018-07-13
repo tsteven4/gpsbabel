@@ -97,7 +97,7 @@ html_disp(const Waypoint* wpt)
   gbfprintf(file_out, "%s (%d%c %6.0f %7.0f)", cout, utmz, utmzc, utme, utmn);
   xfree(cout);
   if (wpt->altitude != unknown_alt) {
-    gbfprintf(file_out, " alt:%d", (int)((altunits[0]=='f')?METERS_TO_FEET(wpt->altitude):wpt->altitude));
+    gbfprintf(file_out, " alt:%d", static_cast<int>((altunits[0]=='f')?METERS_TO_FEET(wpt->altitude):wpt->altitude));
   }
   gbfprintf(file_out, "<br>\n");
   if (wpt->description != wpt->shortname) {

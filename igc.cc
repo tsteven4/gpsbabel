@@ -115,7 +115,7 @@ retry:
     warning(MYNAME " bad input record: '%s'\n", c);
     return rec_bad;
   }
-  return (igc_rec_type_t) c[0];
+  return static_cast<igc_rec_type_t>(c[0]);
 }
 
 static void rd_init(const QString& fname)
@@ -328,7 +328,7 @@ static void data_read()
     case rec_fix:
       // Date must appear in file before the first fix record
       if (date < 1000000L) {
-        fatal(MYNAME ": bad date %d\n", (int)date);
+        fatal(MYNAME ": bad date %d\n", static_cast<int>(date));
       }
       // Create a track for pressure altitude waypoints
       if (!pres_head) {
@@ -907,7 +907,7 @@ static void wr_track()
       // Only the GNSS altitude track was found so generate fix
       // records from it alone.
       QUEUE_FOR_EACH(&gnss_track->waypoint_list, elem, tmp) {
-        wr_fix_record((Waypoint*) elem, (int) unknown_alt, (int)((Waypoint*) elem)->altitude);
+        wr_fix_record((Waypoint*) elem, static_cast<int>(unknown_alt), static_cast<int>(((Waypoint*) elem)->altitude));
       }
     } else {
       // No tracks found so nothing to do
@@ -948,7 +948,7 @@ static arglist_t igc_args[] = {
 
 ff_vecs_t igc_vecs = {
   ff_type_file,
-  { ff_cap_none , (ff_cap)(ff_cap_read | ff_cap_write), (ff_cap)(ff_cap_read | ff_cap_write) },
+  { ff_cap_none , static_cast<ff_cap>(ff_cap_read | ff_cap_write), static_cast<ff_cap>(ff_cap_read | ff_cap_write) },
   rd_init,
   wr_init,
   rd_deinit,

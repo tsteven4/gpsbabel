@@ -113,7 +113,7 @@ read_tracks()
     wpt->pdop = le_read_float(&bc.espe);
     wpt->course = le_read_float(&bc.course);
     wpt->speed = le_read_float(&bc.speed);
-    wpt->fix = (fix_type)(le_readu16(&bc.fix) - 1);
+    wpt->fix = static_cast<fix_type>(le_readu16(&bc.fix) - 1);
 
     track_add_wpt(trk_head, wpt);
   }
@@ -176,7 +176,7 @@ ff_vecs_t pocketfms_bc_vecs = {
   ff_type_file,
   {
     ff_cap_none,				/* waypoints */
-    (ff_cap)(ff_cap_read | ff_cap_write),	/* tracks */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),	/* tracks */
     ff_cap_none					/* routes */
   },
   rd_init,

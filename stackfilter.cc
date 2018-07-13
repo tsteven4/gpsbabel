@@ -36,7 +36,7 @@ void StackFilter::process()
   queue tmp_queue;
 
   if (opt_push) {
-    tmp_elt = (struct stack_elt*)xmalloc(sizeof(struct stack_elt));
+    tmp_elt = static_cast<struct stack_elt*>(xmalloc(sizeof(struct stack_elt)));
 
     QUEUE_MOVE(&(tmp_elt->waypts), &waypt_head);
     tmp_elt->waypt_ct = waypt_count();

@@ -174,14 +174,14 @@ format_garmin_xt_decomp_trk_blk(uint8_t ii, const uint8_t TrackBlock[], double* 
   uint16_t PrevEleW = TrackBlock[(ii - 1) * 12 + 1 ];
   PrevEleW = PrevEleW << 8;
   PrevEleW = PrevEleW + TrackBlock[(ii - 1) * 12 ];
-  *Ele = (double)PrevEleW * GARMIN_XT_ELE - 1500;
+  *Ele = static_cast<double>(PrevEleW) * GARMIN_XT_ELE - 1500;
 
   uint32_t LatLW = TrackBlock[(ii - 1) * 12 + 4];
   LatLW = LatLW << 8;
   LatLW = LatLW + TrackBlock[(ii - 1) * 12 + 3];
   LatLW = LatLW << 8;
   LatLW = LatLW + TrackBlock[(ii - 1) * 12 + 2];
-  double LatF = (double)LatLW;
+  double LatF = static_cast<double>(LatLW);
   if (LatF > 8388608) {
     LatF = LatF - 16777216;
   }
@@ -192,7 +192,7 @@ format_garmin_xt_decomp_trk_blk(uint8_t ii, const uint8_t TrackBlock[], double* 
   LonLW = LonLW+TrackBlock[(ii-1)*12+6];
   LonLW = LonLW << 8;
   LonLW = LonLW+TrackBlock[(ii-1)*12+5];
-  double LonF = (double)LonLW;
+  double LonF = static_cast<double>(LonLW);
   if (LonF>8388608) {
     LonF = LonF - 16777216;
   }
@@ -217,7 +217,7 @@ format_garmin_xt_decomp_last_ele(uint8_t ii, double* PrevEle, const uint8_t Trac
   uint16_t PrevEleW = TrackBlock[ii - 1];
   PrevEleW = PrevEleW << 8;
   PrevEleW = PrevEleW + TrackBlock[ii - 2];
-  *PrevEle = (double)PrevEleW * GARMIN_XT_ELE - 1500;
+  *PrevEle = static_cast<double>(PrevEleW) * GARMIN_XT_ELE - 1500;
 }
 
 /*
@@ -246,7 +246,7 @@ format_garmin_xt_proc_strk()
   // Process all tracks one by one
   while ((TracksCompleted < NumberOfTracks) && (!gbfeof(fin))) {
     Waypoint*	wpt;
-    char* trk_name = (char*) xmalloc(30);
+    char* trk_name = static_cast<char*>(xmalloc(30));
 
     // Generate Track Header
     uint16_t trackbytes = format_garmin_xt_rd_st_attrs(trk_name, &trk_color) - 50; // Bytes in track
@@ -370,7 +370,7 @@ format_garmin_xt_proc_atrk()
     if (LonF>8388608) {
       LonF -= 16777216;
     };
-    double AltF = (double)uu * GARMIN_XT_ELE - 1500;
+    double AltF = static_cast<double>(uu) * GARMIN_XT_ELE - 1500;
 
     //create new waypoint
     Waypoint* wpt = new Waypoint;

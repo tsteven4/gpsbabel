@@ -221,7 +221,7 @@ gopal_read()
         break;
       case  1:				/* Time UTC */
         sscanf(c,"%lf",&hmsd);
-        hms = (int) hmsd;
+        hms = static_cast<int>(hmsd);
         tm.tm_sec = hms % 100;
         hms = hms / 100;
         tm.tm_min = hms % 100;
@@ -231,7 +231,7 @@ gopal_read()
         tm.tm_mon=trackdate.tm_mon;
         tm.tm_mday=trackdate.tm_mday;
         // This will probably be overwritten by field 9...if we have 9 fields.
-        wpt->SetCreationTime(tx+((((time_t)tm.tm_hour * 60) + tm.tm_min) * 60) + tm.tm_sec);
+        wpt->SetCreationTime(tx+(((static_cast<time_t>(tm.tm_hour) * 60) + tm.tm_min) * 60) + tm.tm_sec);
         wpt->creation_time = wpt->creation_time.addMSecs(millisecs);
         if (global_opts.debug_level > 1) {
           time_t t = wpt->GetCreationTime().toTime_t();
@@ -310,7 +310,7 @@ gopal_read()
     double speed = 0;
     if (lastwpt !=nullptr) {
       speed=3.6*radtometers(gcdist(RAD(lastwpt->latitude), RAD(lastwpt->longitude), RAD(wpt->latitude), RAD(wpt->longitude))) /
-            abs((int)(wpt->creation_time.toTime_t() - lastwpt->GetCreationTime().toTime_t()));
+            abs(static_cast<int>(wpt->creation_time.toTime_t() - lastwpt->GetCreationTime().toTime_t()));
       //printf("speed line %d %lf \n",line,speed);
     }
     /* Error handling: in the tracklog of my device sometimes "jump" waypoints ;-) */
@@ -366,7 +366,7 @@ gopal_write_waypt(const Waypoint* wpt)
     }
   }
   //MSVC handles time_t as int64, gcc and mac only int32, so convert it:
-  unsigned long timestamp = (unsigned long)wpt->GetCreationTime().toTime_t();
+  unsigned long timestamp = static_cast<unsigned long>(wpt->GetCreationTime().toTime_t());
   gbfprintf(fout, "%lu, %s, %lf, %lf, %5.1lf, %8.5lf, %d, %lf, %d\n",timestamp,tbuffer,  wpt->longitude, wpt->latitude,wpt->altitude,
             wpt->speed,fix,wpt->hdop,wpt->sat);
 }
@@ -404,7 +404,7 @@ ff_vecs_t gopal_vecs = {
   ff_type_file,
   {
     ff_cap_none 	 	/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none  	/* routes */
   },
   gopal_rd_init,

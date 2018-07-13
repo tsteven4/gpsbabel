@@ -80,7 +80,7 @@ void SimplifyRouteFilter::routesimple_waypt_pr(const Waypoint* wpt)
     return;
   }
   xte_recs[xte_count].ordinal=xte_count;
-  xte_recs[xte_count].intermed = (struct xte_intermed*) xmalloc(sizeof(struct xte_intermed));
+  xte_recs[xte_count].intermed = static_cast<struct xte_intermed*>(xmalloc(sizeof(struct xte_intermed)));
   xte_recs[xte_count].intermed->wpt = wpt;
   xte_recs[xte_count].intermed->xte_rec = xte_recs+xte_count;
   xte_recs[xte_count].intermed->next = nullptr;
@@ -129,7 +129,7 @@ void SimplifyRouteFilter::compute_xte(struct xte* xte_rec)
     }
     // if timestamps exist, distance to interpolated point
     if (wpt1->GetCreationTime() != wpt2->GetCreationTime()) {
-      double frac = (double)(wpt3->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t()) /
+      double frac = static_cast<double>(wpt3->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t()) /
         (wpt2->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t());
       linepart(wpt1->latitude, wpt1->longitude,
                wpt2->latitude, wpt2->longitude,
@@ -198,7 +198,7 @@ void SimplifyRouteFilter::routesimple_head(const route_head* rte)
     return;
   }
 
-  xte_recs = (struct xte*) xcalloc(rte->rte_waypt_ct, sizeof(struct xte));
+  xte_recs = static_cast<struct xte*>(xcalloc(rte->rte_waypt_ct, sizeof(struct xte)));
   cur_rte = rte;
 
 }
@@ -281,9 +281,9 @@ void SimplifyRouteFilter::routesimple_tail(const route_head* rte)
         totalerror += xte_recs[i].distance;
       }
     }
-    (*waypt_del_fnp)((route_head*)(void*)rte,
-                     (Waypoint*)(void*)(xte_recs[i].intermed->wpt));
-    delete (Waypoint*)(void*)(xte_recs[i].intermed->wpt);
+    (*waypt_del_fnp)(static_cast<route_head*>((void*)rte),
+                     static_cast<Waypoint*>((void*)(xte_recs[i].intermed->wpt)));
+    delete static_cast<Waypoint*>((void*)(xte_recs[i].intermed->wpt));
 
     if (xte_recs[i].intermed->prev) {
       xte_recs[i].intermed->prev->next = xte_recs[i].intermed->next;

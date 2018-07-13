@@ -101,7 +101,7 @@ ggv_log_read()
     break;
   }
 
-  signed char* buf = (signed char*) xmalloc(bufsz);
+  signed char* buf = static_cast<signed char*>(xmalloc(bufsz));
 
   while ((len = gbfread(buf, 1, bufsz, fin))) {
     struct tm tm;
@@ -119,16 +119,16 @@ ggv_log_read()
 
     Waypoint* wpt = new Waypoint;
 
-    int deg = (int16_t) le_read16(&buf[0]);
+    int deg = static_cast<int16_t>(le_read16(&buf[0]));
     int min = le_read16(&buf[2]);
     float sec = le_read_float(&buf[4]);
-    double xlat = (double)deg + ((double)min / 60.0) + (sec / 3600.0);
+    double xlat = static_cast<double>(deg) + (static_cast<double>(min) / 60.0) + (sec / 3600.0);
     wpt->latitude = xlat;
 
-    deg = (int16_t) le_read16(&buf[8]);
+    deg = static_cast<int16_t>(le_read16(&buf[8]));
     min = le_read16(&buf[10]);
     sec = le_read_float(&buf[12]);
-    double xlon = (double)deg + ((double)min / 60.0) + (sec / 3600.0);
+    double xlon = static_cast<double>(deg) + (static_cast<double>(min) / 60.0) + (sec / 3600.0);
     wpt->longitude = xlon;
 
     WAYPT_SET(wpt, course, le_read16(&buf[16 + 0]));
@@ -142,11 +142,11 @@ ggv_log_read()
       tm.tm_hour =    le_read16(&buf[16 + 14]);
       tm.tm_min =     le_read16(&buf[16 + 16]);
       double secs = le_read_double(&buf[16 + 18]);
-      tm.tm_sec = (int)secs;
+      tm.tm_sec = static_cast<int>(secs);
       milliseconds = lround((secs - tm.tm_sec) * 1000.0);
     } else {
       wpt->altitude = le_read16(&buf[16 + 4]);
-      wpt->sat = (unsigned char)buf[16 + 14];
+      wpt->sat = static_cast<unsigned char>(buf[16 + 14]);
 
       /* other probably valid double values at offset:
 
@@ -228,18 +228,18 @@ ggv_log_track_head_cb(const route_head* trk)
       speed = waypt_speed(prev, wpt);
     }
     if (wpt->creation_time.isValid()) {
-      secs = (double)tm.tm_sec + wpt->GetCreationTime().time().msec() / 1000.0;
+      secs = static_cast<double>(tm.tm_sec) + wpt->GetCreationTime().time().msec() / 1000.0;
     }
 
-    gbfputint16((int16_t) latint, fout);
-    gbfputint16((int16_t) latmin, fout);
+    gbfputint16(static_cast<int16_t>(latint), fout);
+    gbfputint16(static_cast<int16_t>(latmin), fout);
     gbfputflt(latsec, fout);
-    gbfputint16((int16_t) lonint, fout);
-    gbfputint16((int16_t) lonmin, fout);
+    gbfputint16(static_cast<int16_t>(lonint), fout);
+    gbfputint16(static_cast<int16_t>(lonmin), fout);
     gbfputflt(lonsec, fout);
-    gbfputint16((int16_t) course, fout);
-    gbfputint16((int16_t)(wpt->altitude != unknown_alt) ? wpt->altitude : 0, fout);
-    gbfputint16((int16_t) speed, fout);
+    gbfputint16(static_cast<int16_t>(course), fout);
+    gbfputint16(static_cast<int16_t>(wpt->altitude != unknown_alt) ? wpt->altitude : 0, fout);
+    gbfputint16(static_cast<int16_t>(speed), fout);
     gbfputint16(0, fout);
     gbfputint16(tm.tm_year, fout);
     gbfputint16(tm.tm_mon, fout);
@@ -264,7 +264,7 @@ ff_vecs_t ggv_log_vecs = {
   ff_type_file,
   {
     ff_cap_none, 			/* waypoints */
-    (ff_cap)(ff_cap_read | ff_cap_write),	/* tracks */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),	/* tracks */
     ff_cap_none			/* routes */
   },
   ggv_log_rd_init,

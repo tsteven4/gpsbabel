@@ -50,7 +50,7 @@ xg_tag_mapping ikt_map[] = {
   { iktobj_waypt,	cb_start,	IKTOBJ "_*/GeoPosition" },
   { iktobj_name,	cb_cdata,	IKTOBJ "_*/Name" },
   { iktobj_text,	cb_cdata,	IKTOBJ "_*/POIDrawable2D/Text" },
-  { nullptr,	(xg_cb_type)0,		nullptr }
+  { nullptr,	static_cast<xg_cb_type>(0),		nullptr }
 };
 
 static void

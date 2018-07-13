@@ -228,8 +228,8 @@ enum_waypt_cb(const Waypoint* wpt)
 static int
 sort_waypt_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *(Waypoint**)a;
-  const Waypoint* wb = *(Waypoint**)b;
+  const Waypoint* wa = *static_cast<Waypoint**>(a);
+  const Waypoint* wb = *static_cast<Waypoint**>(b);
   return wa->shortname.compare(wb->shortname, Qt::CaseInsensitive);
 }
 
@@ -290,8 +290,8 @@ print_position(const Waypoint* wpt)
 
   char latsig = lat < 0 ? 'S':'N';
   char lonsig = lon < 0 ? 'W':'E';
-  int latint = abs((int) lat);
-  int lonint = abs((int) lon);
+  int latint = abs(static_cast<int>(lat));
+  int lonint = abs(static_cast<int>(lon));
   double latmin = 60.0 * (fabs(lat) - latint);
   double lonmin = 60.0 * (fabs(lon) - lonint);
   double latsec = 60.0 * (latmin - floor(latmin));
@@ -316,8 +316,8 @@ print_position(const Waypoint* wpt)
   case grid_lat_lon_dms:
 
     gbfprintf(fout, "%c%d %d %.*f %c%d %d %.*f\t",
-              latsig, latint, (int)latmin, precision, latsec,
-              lonsig, lonint, (int)lonmin, precision, lonsec);
+              latsig, latint, static_cast<int>(latmin), precision, latsec,
+              lonsig, lonint, static_cast<int>(lonmin), precision, lonsec);
     break;
 
   case grid_bng:
@@ -760,10 +760,10 @@ garmin_txt_wr_init(const QString& fname)
     int i;
 
     if (sscanf(grid_str, "%d", &i)) {
-      grid_index = (grid_type) i;
+      grid_index = static_cast<grid_type>(i);
       if ((grid_index < GRID_INDEX_MIN) || (grid_index > GRID_INDEX_MAX))
         fatal(MYNAME ": Grid index out of range (%d..%d)!",
-              (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
+              static_cast<int>(GRID_INDEX_MIN), static_cast<int>(GRID_INDEX_MAX));
     } else {
       grid_index = gt_lookup_grid_type(grid_str, MYNAME);
     }
@@ -821,7 +821,7 @@ garmin_txt_write()
 
   if (waypoints > 0) {
     wpt_a_ct = 0;
-    wpt_a = (const Waypoint**)xcalloc(waypoints, sizeof(*wpt_a));
+    wpt_a = static_cast<const Waypoint**>(xcalloc(waypoints, sizeof(*wpt_a)));
     waypt_disp_all(enum_waypt_cb);
     route_disp_all(nullptr, nullptr, enum_waypt_cb);
     qsort(wpt_a, waypoints, sizeof(*wpt_a), sort_waypt_cb);
@@ -834,7 +834,7 @@ garmin_txt_write()
     xfree(wpt_a);
 
     route_idx = 0;
-    route_info = (info_t*) xcalloc(route_count(), sizeof(struct info_s));
+    route_info = static_cast<info_t*>(xcalloc(route_count(), sizeof(struct info_s)));
     routepoints = 0;
     route_disp_all(prework_hdr_cb, prework_tlr_cb, prework_wpt_cb);
     if (routepoints > 0) {
@@ -845,7 +845,7 @@ garmin_txt_write()
   }
 
   route_idx = 0;
-  route_info = (info_t*) xcalloc(track_count(), sizeof(struct info_s));
+  route_info = static_cast<info_t*>(xcalloc(track_count(), sizeof(struct info_s)));
   routepoints = 0;
   track_disp_all(prework_hdr_cb, prework_tlr_cb, prework_wpt_cb);
 
@@ -1011,7 +1011,7 @@ bind_fields(const header_type ht)
   /* make a copy of headers[ht], uppercase, replace "\t" with "\0" */
 
   int i = strlen(headers[ht]);
-  char* fields = (char*) xmalloc(i + 2);
+  char* fields = static_cast<char*>(xmalloc(i + 2));
   strcpy(fields, headers[ht]);
   strcat(fields, "\t");
   char* c = strupper(fields);
@@ -1315,7 +1315,7 @@ garmin_txt_rd_init(const QString& fname)
   memset(&header_ct, 0, sizeof(header_ct));
 
   datum_index = -1;
-  grid_index = (grid_type) -1;
+  grid_index = static_cast<grid_type>(-1);
 
   init_date_and_time_format();
 }

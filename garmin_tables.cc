@@ -624,7 +624,7 @@ grid_mapping_t gt_mps_grid_names[] = {
   { "bng",	"British National Grid",	grid_bng },
   { "utm",	"UTM",				grid_utm },
   { "swiss",	"Swiss grid",			grid_swiss },
-  { nullptr,	nullptr,	(grid_type) 0 }
+  { nullptr,	nullptr,	static_cast<grid_type>(0) }
 };
 
 /* gt_mps_datum_names: */
@@ -979,8 +979,8 @@ gt_get_mps_grid_longname(const grid_type grid, const char* module)
 {
   if ((grid < GRID_INDEX_MIN) || (grid > GRID_INDEX_MAX))
     fatal("%s: Grid index out of range %d (%d..%d)!",
-          module, (int) grid,
-          (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
+          module, static_cast<int>(grid),
+          static_cast<int>(GRID_INDEX_MIN), static_cast<int>(GRID_INDEX_MAX));
   return gt_mps_grid_names[grid].longname;
 }
 

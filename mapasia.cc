@@ -82,8 +82,8 @@ tr7_read()
 
     gbfread(buff, 1, sizeof(buff), fin);
 
-    double lat = (double)le_read32(&buff[TR7_S_LAT]) / 1000000.0;
-    double lon = (double)le_read32(&buff[TR7_S_LON]) / 1000000.0;
+    double lat = static_cast<double>(le_read32(&buff[TR7_S_LAT])) / 1000000.0;
+    double lon = static_cast<double>(le_read32(&buff[TR7_S_LON])) / 1000000.0;
 
     if ((fabs(lat) > 90) || (fabs(lon) > 180)) {	/* that really happens */
       trk = nullptr;
@@ -208,8 +208,8 @@ tr7_disp_waypt_cb(const Waypoint* wpt)
 
   memset(buff, 0, sizeof(buff));
 
-  le_write32(&buff[TR7_S_LON], (int)(wpt->longitude * 1000000.0));
-  le_write32(&buff[TR7_S_LAT], (int)(wpt->latitude * 1000000.0));
+  le_write32(&buff[TR7_S_LON], static_cast<int>(wpt->longitude * 1000000.0));
+  le_write32(&buff[TR7_S_LAT], static_cast<int>(wpt->latitude * 1000000.0));
 
   if WAYPT_HAS(wpt, course) {
     course = wpt->course;
@@ -219,7 +219,7 @@ tr7_disp_waypt_cb(const Waypoint* wpt)
     course = -1;
   }
   if (course >= 0) {
-    le_write16(&buff[TR7_S_COURSE], (int)(360 - course));
+    le_write16(&buff[TR7_S_COURSE], static_cast<int>(360 - course));
   }
 
   QDateTime dt = wpt->GetCreationTime().toUTC();
@@ -243,7 +243,7 @@ tr7_disp_waypt_cb(const Waypoint* wpt)
       speed = -1;
     }
     if (speed >= 0) {
-      le_write16(&buff[TR7_S_SPEED], (int)MPS_TO_KPH(speed));
+      le_write16(&buff[TR7_S_SPEED], static_cast<int>MPS_TO_KPH(speed));
     }
   }
   buff[TR7_S_VALID] = 'A';	/* meaning unknown */
@@ -283,7 +283,7 @@ ff_vecs_t mapasia_tr7_vecs = {		/* we can read and write tracks */
   ff_type_file,
   {
     ff_cap_none 			/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none			/* routes */
   },
   tr7_rd_init,

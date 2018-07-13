@@ -184,8 +184,8 @@ void xml_read()
     fatal(MYNAME ":Read error: %s (%s, line %ld, col %ld)\n",
           qPrintable(reader.errorString()),
           qPrintable(file.fileName()),
-          (long) reader.lineNumber(),
-          (long) reader.columnNumber());
+          static_cast<long>(reader.lineNumber()),
+          static_cast<long>(reader.columnNumber()));
   }
 }
 
@@ -216,8 +216,8 @@ void xml_readstring(const char* str)
     fatal(MYNAME ":Read error: %s (%s, line %ld, col %ld)\n",
           qPrintable(reader.errorString()),
           "unknown",
-          (long) reader.lineNumber(),
-          (long) reader.columnNumber());
+          static_cast<long>(reader.lineNumber()),
+          static_cast<long>(reader.columnNumber()));
   }
 }
 

@@ -129,7 +129,7 @@ ff_vecs_t navitel_trk_vecs = {
   ff_type_file,
   {
     ff_cap_none			/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none			/* routes */
   },
   navitel_rd_init,

@@ -176,7 +176,7 @@ static void buf_rewind(struct buf_head* h)
 
 static size_t buf_read(struct buf_head* h, void* data, size_t len)
 {
-  char*    bp = (char*) data;
+  char*    bp = static_cast<char*>(data);
   size_t  got = 0;
 
   while (len != 0 && h->current != nullptr) {
@@ -208,7 +208,7 @@ static void buf_extend(struct buf_head* h, size_t amt)
 {
   size_t sz = amt + sizeof(struct buf_chunk);
 
-  struct buf_chunk* c = (struct buf_chunk*) xmalloc(sz);
+  struct buf_chunk* c = static_cast<struct buf_chunk*>(xmalloc(sz));
   c->next = nullptr;
   c->size = amt;
   c->used = 0;
@@ -236,7 +236,7 @@ static void buf_update_checksum(struct buf_head* h, const void* data, size_t len
 
 static void buf_write(struct buf_head* h, const void* data, size_t len)
 {
-  const char* bp = (const char*) data;
+  const char* bp = static_cast<const char*>(data);
 
   buf_update_checksum(h, data, len);
 
@@ -252,7 +252,7 @@ static void buf_write(struct buf_head* h, const void* data, size_t len)
       avail = len;
     }
 
-    memcpy((char*) buf_CHUNK_PTR(h->tail, h->tail->used), bp, avail);
+    memcpy(static_cast<char*>buf_CHUNK_PTR(h->tail, h->tail->used), bp, avail);
     h->tail->used   += avail;
     bp              += avail;
     len             -= avail;
@@ -563,17 +563,17 @@ static Waypoint* make_trackpoint(struct read_state* st, double lat, double lon, 
 static int wbt200_data_chunk(struct read_state* st, const void* buf, int fmt)
 {
   double alt;
-  const char* bp      = (const char*) buf;
+  const char* bp      = static_cast<const char*>(buf);
   size_t     buf_used = fmt_version[fmt].reclen;
 
   uint32_t tim = le_read32(bp + 0);
 
-  double lat = (double)((int32_t) le_read32(bp + 4)) / 10000000;
-  double lon = (double)((int32_t) le_read32(bp + 8)) / 10000000;
+  double lat = static_cast<double>((int32_t) le_read32(bp + 4)) / 10000000;
+  double lon = static_cast<double>((int32_t) le_read32(bp + 8)) / 10000000;
 
   /* Handle extra fields in longer records here. */
   if (buf_used >= 16) {
-    alt = (double) le_read32(bp + 12) / 10;
+    alt = static_cast<double>(le_read32(bp + 12)) / 10;
   } else {
     alt = unknown_alt;
   }
@@ -779,7 +779,7 @@ static void wbt200_data_read()
 
 static int all_null(const void* buf, const int len)
 {
-  const char* bp = (const char*) buf;
+  const char* bp = static_cast<const char*>(buf);
 
   for (int i = 0; i < len; i++) {
     if (bp[i]) {
@@ -792,7 +792,7 @@ static int all_null(const void* buf, const int len)
 
 static int wbt201_data_chunk(struct read_state* st, const void* buf)
 {
-  const char*  bp      = (const char*) buf;
+  const char*  bp      = static_cast<const char*>(buf);
 
   /* Zero records are skipped */
   if (all_null(buf, RECLEN_WBT201)) {
@@ -807,9 +807,9 @@ static int wbt201_data_chunk(struct read_state* st, const void* buf)
     return 0;
   }
 
-  double lat = (double)((int32_t) le_read32(bp +  6)) / 10000000;
-  double lon = (double)((int32_t) le_read32(bp + 10)) / 10000000;
-  double alt = (double)((int16_t) le_read16(bp + 14));
+  double lat = static_cast<double>((int32_t) le_read32(bp +  6)) / 10000000;
+  double lon = static_cast<double>((int32_t) le_read32(bp + 10)) / 10000000;
+  double alt = static_cast<double>(static_cast<int16_t>(le_read16(bp + 14)));
 
   time_t rtim = decode_date(tim);
 

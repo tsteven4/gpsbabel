@@ -189,8 +189,8 @@ parse_coordinates(const char* str, int datum, const grid_type grid,
                 &lathemi, &deg_lat, &lat, &lonhemi, &deg_lon, &lon, &result);
     valid = (ct == 6);
     if (valid) {
-      lat = (double)deg_lat + (lat / 60.0);
-      lon = (double)deg_lon + (lon / 60.0);
+      lat = static_cast<double>(deg_lat) + (lat / 60.0);
+      lon = static_cast<double>(deg_lon) + (lon / 60.0);
     }
     break;
 
@@ -201,8 +201,8 @@ parse_coordinates(const char* str, int datum, const grid_type grid,
                 &result);
     valid = (ct == 8);
     if (valid) {
-      lat = (double)deg_lat + ((double)min_lat / 60.0) + (lat / 3600.0);
-      lon = (double)deg_lon + ((double)min_lon / 60.0) + (lon / 3600.0);
+      lat = static_cast<double>(deg_lat) + (static_cast<double>(min_lat) / 60.0) + (lat / 3600.0);
+      lon = static_cast<double>(deg_lon) + (static_cast<double>(min_lon) / 60.0) + (lon / 3600.0);
     }
     break;
 
@@ -249,7 +249,7 @@ parse_coordinates(const char* str, int datum, const grid_type grid,
   default:
     /* this should never happen in a release version */
     fatal("%s/util: Unknown grid in parse_coordinates (%d)!\n",
-          module, (int)grid);
+          module, static_cast<int>(grid));
   }
 
   if (! valid) {

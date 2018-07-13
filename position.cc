@@ -45,8 +45,8 @@ void PositionFilter::position_runqueue(queue* q, int nelems, int qtype)
   double dist, diff_time;
   int i = 0, anyitem;
 
-  Waypoint** comp = (Waypoint**) xcalloc(nelems, sizeof(*comp));
-  int* qlist = (int*) xcalloc(nelems, sizeof(*qlist));
+  Waypoint** comp = static_cast<Waypoint**>(xcalloc(nelems, sizeof(*comp)));
+  int* qlist = static_cast<int*>(xcalloc(nelems, sizeof(*qlist)));
 
 #if NEWQ
   foreach (Waypoint* waypointp, waypt_list) {
@@ -71,7 +71,7 @@ void PositionFilter::position_runqueue(queue* q, int nelems, int qtype)
                              comp[i]->longitude);
 
           /* convert radians to integer feet */
-          dist = (int)(5280*radtomiles(dist));
+          dist = static_cast<int>(5280*radtomiles(dist));
           diff_time = fabs(waypt_time(comp[i]) - waypt_time(comp[j]));
 
           if (dist <= pos_dist) {

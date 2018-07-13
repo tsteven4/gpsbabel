@@ -175,7 +175,7 @@ bcr_init_radius()
       fatal(MYNAME ": Sorry, the radius should be greater than zero!\n");
     }
   } else {
-    radius = (double)R_EARTH;
+    radius = static_cast<double>(R_EARTH);
   }
 
   if (global_opts.verbose_status > 0) {
@@ -237,7 +237,7 @@ static void
 bcr_mercator_to_wgs84(const int north, const int east, double* lat, double* lon)
 {
   *lat = 2 * (atan(exp(north / radius)) - M_PI / 4) / M_PI * 180.0;
-  *lon = (double)east * 180.0 / (radius * M_PI);
+  *lon = static_cast<double>(east) * 180.0 / (radius * M_PI);
 }
 
 /* ------------------------------------------------------------- */
@@ -480,7 +480,7 @@ bcr_data_write()
 
   if (rtenum_opt != nullptr) {
     target_rte_num = atoi(rtenum_opt);
-    if (((unsigned)target_rte_num > route_count()) || (target_rte_num < 1))
+    if ((static_cast<unsigned>(target_rte_num) > route_count()) || (target_rte_num < 1))
       fatal(MYNAME ": invalid route number %d (1..%d))!\n",
             target_rte_num, route_count());
   }
@@ -490,7 +490,7 @@ bcr_data_write()
 
 ff_vecs_t bcr_vecs = {
   ff_type_file,
-  { ff_cap_none, ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write)},
+  { ff_cap_none, ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write)},
   bcr_rd_init,
   bcr_wr_init,
   bcr_rd_deinit,

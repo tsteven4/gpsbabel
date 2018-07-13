@@ -194,8 +194,8 @@ nav_read()
     fatal(MYNAME ":Read error: %s (%s, line %ld, col %ld)\n",
           qPrintable(reader.errorString()),
           qPrintable(file.fileName()),
-          (long) reader.lineNumber(),
-          (long) reader.columnNumber());
+          static_cast<long>(reader.lineNumber()),
+          static_cast<long>(reader.columnNumber()));
   }
 }
 

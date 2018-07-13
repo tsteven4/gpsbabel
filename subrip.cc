@@ -103,7 +103,7 @@ subrip_prevwp_pr(const Waypoint* waypointp)
         break;
       case 'e':
         if (prevwpp->altitude != unknown_alt)  
-          gbfprintf(fout, "%4d", (int)prevwpp->altitude);
+          gbfprintf(fout, "%4d", static_cast<int>(prevwpp->altitude));
         else
           gbfprintf(fout, "   -");
         break;

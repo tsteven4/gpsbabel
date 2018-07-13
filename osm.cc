@@ -63,7 +63,7 @@ xg_tag_mapping osm_map[] = {
   { osm_way_tag,	cb_start,	"/osm/way/tag" },
   { osm_way_center,	cb_start,	"/osm/way/center" },
   { osm_way_end,	cb_end,		"/osm/way" },
-  { nullptr,	(xg_cb_type)0,		nullptr }
+  { nullptr,	static_cast<xg_cb_type>(0),		nullptr }
 };
 
 static const char* osm_features[] = {
@@ -790,7 +790,7 @@ osm_waypt_disp(const Waypoint* wpt)
 
   waypoints.insert(name, wpt);
 
-  int* id = (int*) xmalloc(sizeof(*id));
+  int* id = static_cast<int*>(xmalloc(sizeof(*id)));
   *id = --node_id;
   (const_cast<Waypoint*>(wpt))->extra_data = id;
 
@@ -878,7 +878,7 @@ osm_rtept_disp(const Waypoint* wpt_ref)
 
   if (waypoints.contains(name)) {
     const Waypoint* wpt = waypoints.value(name);
-    int* id = (int*) wpt->extra_data;
+    int* id = static_cast<int*>(wpt->extra_data);
     gbfprintf(fout, "    <nd ref='%d'/>\n", *id);
   }
 }
@@ -966,9 +966,9 @@ osm_exit()
 ff_vecs_t osm_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
     ff_cap_write 			/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* routes */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* routes */,
   },
   osm_rd_init,
   osm_wr_init,

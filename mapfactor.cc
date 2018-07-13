@@ -85,8 +85,8 @@ mapfactor_read()
     fatal(MYNAME ":Read error: %s (%s, line %ld, col %ld)\n",
           qPrintable(reader.errorString()),
           qPrintable(file.fileName()),
-          (long) reader.lineNumber(),
-          (long) reader.columnNumber());
+          static_cast<long>(reader.lineNumber()),
+          static_cast<long>(reader.columnNumber()));
   }
 }
 
@@ -148,7 +148,7 @@ mapfactor_write()
 
 ff_vecs_t mapfactor_vecs = {
   ff_type_file,
-  { (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none, ff_cap_none },
+  { static_cast<ff_cap>(ff_cap_read | ff_cap_write), ff_cap_none, ff_cap_none },
   mapfactor_rd_init,
   mapfactor_wr_init,
   mapfactor_rd_deinit,

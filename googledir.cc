@@ -46,7 +46,7 @@ xg_tag_mapping google_map[] = {
   { goog_points,  cb_cdata,       "/DirectionsResponse/route/leg/step/polyline/points" },
   { goog_poly_e,  cb_end,         "/DirectionsResponse/route/leg/step" },
   { goog_instr,   cb_cdata,       "/DirectionsResponse/route/leg/step/html_instructions" },
-  { nullptr, (xg_cb_type)0,              nullptr }
+  { nullptr, static_cast<xg_cb_type>(0),              nullptr }
 };
 
 void

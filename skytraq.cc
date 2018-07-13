@@ -235,7 +235,7 @@ static void
 wr_char(int c)
 {
   int rc;
-  db(4, "Sending: %02x '%c'\n", (unsigned)c, isprint(c) ? c : '.');
+  db(4, "Sending: %02x '%c'\n", static_cast<unsigned>(c), isprint(c) ? c : '.');
   if (rc = gbser_writec(serial_handle, c), gbser_OK != rc) {
     fatal(MYNAME ": Write error (%d)\n", rc);
   }
@@ -299,9 +299,9 @@ skytraq_rd_msg(const void* payload, unsigned int len)
   }
 
   db(2, "Receiving message with %i bytes of payload (expected >=%i)\n", rcv_len, len);
-  rd_buf((const unsigned char*) payload, MIN(rcv_len, len));
+  rd_buf(static_cast<const unsigned char*>(payload), MIN(rcv_len, len));
 
-  unsigned int calc_cs = skytraq_calc_checksum((const unsigned char*) payload, MIN(rcv_len, len));
+  unsigned int calc_cs = skytraq_calc_checksum(static_cast<const unsigned char*>(payload), MIN(rcv_len, len));
   for (i = 0; i < rcv_len-len; i++) {
     c = rd_char(&errors);
     calc_cs ^= c;
@@ -560,7 +560,7 @@ skytraq_get_log_buffer_status(uint32_t* log_wr_ptr, uint16_t* sectors_free, uint
 /* reads 32-bit "middle-endian" fields */
 static unsigned int me_read32(const unsigned char* p)
 {
-  return ((unsigned)be_read16(p+2) << 16) | ((unsigned)be_read16(p));
+  return (static_cast<unsigned>(be_read16(p+2)) << 16) | (static_cast<unsigned>(be_read16(p)));
 }
 
 static time_t
@@ -769,7 +769,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
     }
     m.gps_week = ITEM_WEEK_NUMBER(pitem);
     ts = me_read32(pitem->multi_hz.ts);
-    m.gps_sec = ((int)(ts & 0x3FFFFFFF)) / 1000;
+    m.gps_sec = (static_cast<int>(ts & 0x3FFFFFFF)) / 1000;
     m.lat = me_read32(pitem->multi_hz.lat);
     m.lon = me_read32(pitem->multi_hz.lon);
     m.alt = me_read32(pitem->multi_hz.alt);
@@ -904,7 +904,7 @@ process_data_sector(struct read_state* pst, const uint8_t* buf, int len)
 static int
 skytraq_read_single_sector(unsigned int sector, uint8_t* buf)
 {
-  uint8_t MSG_LOG_SECTOR_READ_CONTROL[2] = { 0x1B, (uint8_t)(sector) };
+  uint8_t MSG_LOG_SECTOR_READ_CONTROL[2] = { 0x1B, static_cast<uint8_t>(sector) };
   int errors = 5;		/* allow this many errors */
   unsigned int c, i, j, cs;
   uint8_t buffer[16];
@@ -1090,7 +1090,7 @@ skytraq_read_tracks()
     }
   }
 
-  uint8_t* buffer = (uint8_t*) xmalloc(SECTOR_SIZE*read_at_once+sizeof(SECTOR_READ_END)+6);
+  uint8_t* buffer = static_cast<uint8_t*>(xmalloc(SECTOR_SIZE*read_at_once+sizeof(SECTOR_READ_END)+6));
   // m.ad/090930: removed code that tried reducing read_at_once if necessary since doesn't work with xmalloc
 
   if (opt_dump_file) {
@@ -1226,7 +1226,7 @@ skytraq_probe()
     			continue;
     		}*/
     rc = skytraq_expect_msg(0x80, (uint8_t*)&MSG_SOFTWARE_VERSION, sizeof(MSG_SOFTWARE_VERSION));
-    if (rc < (int)sizeof(MSG_SOFTWARE_VERSION)) {
+    if (rc < static_cast<int>(sizeof(MSG_SOFTWARE_VERSION))) {
       db(2, "Didn't receive expected reply (%d)\n", rc);
     } else {
       db(1, MYNAME ": Venus device found: Kernel version = %i.%i.%i, ODM version = %i.%i.%i, "\
@@ -1366,7 +1366,7 @@ file_read()
   int opt_last_sector_val = atoi(opt_last_sector);
 
   state_init(&st);
-  uint8_t* buffer = (uint8_t*) xmalloc(SECTOR_SIZE);
+  uint8_t* buffer = static_cast<uint8_t*>(xmalloc(SECTOR_SIZE));
 
   if (opt_first_sector_val > 0) {
     db(4, MYNAME ": Seeking to first-sector index %i\n", opt_first_sector_val*SECTOR_SIZE);
@@ -1502,9 +1502,9 @@ static void lla2ecef(double lat, double lng, double alt, double* ecef_x, double*
   long double s = sin(llat);
   long double n = a / sqrt(1 - esqr * s*s);
 
-  *ecef_x = (double)((n+lalt) * cos(llat) * cos(llng));
-  *ecef_y = (double)((n+lalt) * cos(llat) * sin(llng));
-  *ecef_z = (double)((n*(1-esqr) + lalt)* sin(llat));
+  *ecef_x = static_cast<double>((n+lalt) * cos(llat) * cos(llng));
+  *ecef_y = static_cast<double>((n+lalt) * cos(llat) * sin(llng));
+  *ecef_z = static_cast<double>((n*(1-esqr) + lalt)* sin(llat));
 }
 static void miniHomer_get_poi()
 {

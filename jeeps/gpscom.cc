@@ -1189,7 +1189,7 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
     }
 
     /* Create & append course */
-    crs = (struct GPS_SCourse**)xrealloc(crs, (n_crs+1) * sizeof(GPS_PCourse));
+    crs = static_cast<struct GPS_SCourse**>(xrealloc(crs, (n_crs+1) * sizeof(GPS_PCourse)));
     crs[n_crs] = GPS_Course_New();
     if (!crs[n_crs]) {
       if (clp) xfree(clp);
@@ -1203,7 +1203,7 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
     crs[n_crs]->track_index = Unique_Track_Index(crs, n_crs);
 
     /* Create & append new lap */
-    clp = (struct GPS_SCourse_Lap**) xrealloc(clp, (n_clp+1) * sizeof(GPS_PCourse_Lap));
+    clp = static_cast<struct GPS_SCourse_Lap**>(xrealloc(clp, (n_clp+1) * sizeof(GPS_PCourse_Lap)));
     clp[n_clp] = GPS_Course_Lap_New();
     if (!clp[n_clp]) {
       if (clp) xfree(clp);
@@ -1218,7 +1218,7 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
   }
 
   /* Append new track points */
-  ctk = (struct GPS_STrack**) xrealloc(ctk, (n_ctk+n_trk) * sizeof(GPS_PTrack));
+  ctk = static_cast<struct GPS_STrack**>(xrealloc(ctk, (n_ctk+n_trk) * sizeof(GPS_PTrack)));
   first_new_ctk = n_ctk;
   for (i=0; i<n_trk; i++) {
     if (trk[i]->ishdr && (i>=n_trk || trk[i+1]->ishdr)) {
@@ -1244,7 +1244,7 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
   /* Convert waypoints to course points by searching closest track point &
    * append
    */
-  cpt = (struct GPS_SCourse_Point**) xrealloc(cpt, (n_cpt+n_wpt) * sizeof(GPS_PCourse_Point));
+  cpt = static_cast<struct GPS_SCourse_Point**>(xrealloc(cpt, (n_cpt+n_wpt) * sizeof(GPS_PCourse_Point)));
   for (i=0; i<n_wpt; i++) {
     double dist, min_dist = DBL_MAX;
     int min_dist_idx = 0, trk_idx = 0, min_dist_trk_idx = 0;

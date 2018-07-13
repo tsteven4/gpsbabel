@@ -202,13 +202,13 @@ lat_mm_to_deg(double x)
 static long
 lon_deg_to_mm(double x)
 {
-  return (long)(x * SEMIMINOR * DEGREESTORADIANS);
+  return static_cast<long>(x * SEMIMINOR * DEGREESTORADIANS);
 }
 
 static long
 lat_deg_to_mm(double x)
 {
-  return (long)(SEMIMINOR * log(tan((x * DEGREESTORADIANS + M_PI / 2.0) / 2.0)));
+  return static_cast<long>(SEMIMINOR * log(tan((x * DEGREESTORADIANS + M_PI / 2.0) / 2.0)));
 }
 
 static time_t
@@ -243,14 +243,14 @@ lowranceusr4_get_timestamp(int jd_number, time_t t)
 static int
 lowranceusr4_jd_from_timestamp(time_t t)
 {
-  return (int)round((float)t / 86400.0 + 2440587.0);
+  return static_cast<int>(round(static_cast<float>(t) / 86400.0 + 2440587.0));
 }
 
 
 static void
 lowranceusr4_copy_fsdata(lowranceusr4_fsdata** dest, lowranceusr4_fsdata* src)
 {
-  *dest = (lowranceusr4_fsdata*)xmalloc(sizeof(*src));
+  *dest = static_cast<lowranceusr4_fsdata*>(xmalloc(sizeof(*src)));
   ** dest = *src;
   (*dest)->fs.next = nullptr;
 }
@@ -265,7 +265,7 @@ static
 lowranceusr4_fsdata*
 lowranceusr4_alloc_fsdata()
 {
-  lowranceusr4_fsdata* fsdata = (lowranceusr4_fsdata*) xcalloc(sizeof(*fsdata), 1);
+  lowranceusr4_fsdata* fsdata = static_cast<lowranceusr4_fsdata*>(xcalloc(sizeof(*fsdata), 1));
   fsdata->fs.type = FS_LOWRANCEUSR4;
   fsdata->fs.copy = (fs_copy) lowranceusr4_copy_fsdata;
   fsdata->fs.destroy = lowranceusr4_free_fsdata;
@@ -307,9 +307,9 @@ register_waypt(const Waypoint* ref)
   if (waypt_table_ct >= waypt_table_sz) {
     waypt_table_sz += 32;
     if (waypt_table) {
-      waypt_table = (Waypoint**) xrealloc(waypt_table, waypt_table_sz * sizeof(wpt));
+      waypt_table = static_cast<Waypoint**>(xrealloc(waypt_table, waypt_table_sz * sizeof(wpt)));
     } else {
-      waypt_table = (Waypoint**) xmalloc(waypt_table_sz * sizeof(wpt));
+      waypt_table = static_cast<Waypoint**>(xmalloc(waypt_table_sz * sizeof(wpt)));
     }
   }
 

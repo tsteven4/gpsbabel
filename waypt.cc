@@ -338,7 +338,7 @@ waypt_backup(signed int* count, queue** head_bak)
   Waypoint* wpt;
   int no = 0;
 
-  queue* qbackup = (queue*) xcalloc(1, sizeof(*qbackup));
+  queue* qbackup = static_cast<queue*>(xcalloc(1, sizeof(*qbackup)));
   QUEUE_INIT(qbackup);
 #if NEWQ
 // Why does this code exist?
@@ -412,7 +412,7 @@ waypt_time(const Waypoint* wpt)
   if (!wpt->creation_time.isValid()) {
     return 0.0;
   } else {
-    return ((double)wpt->creation_time.toMSecsSinceEpoch()) / 1000.0;
+    return (static_cast<double>(wpt->creation_time.toMSecsSinceEpoch())) / 1000.0;
   }
 }
 
@@ -473,7 +473,7 @@ waypt_speed_ex(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs(static_cast<double>(A->creation_time.msecsTo(B->creation_time))) / 1000.0;
   if (time > 0) {
     return (dist / time);
   } else {
@@ -494,7 +494,7 @@ waypt_speed(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs(static_cast<double>(A->creation_time.msecsTo(B->creation_time))) / 1000.0;
   if (time > 0) {
     return (dist / time);
   } else {
@@ -515,7 +515,7 @@ waypt_vertical_speed(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs(static_cast<double>(A->creation_time.msecsTo(B->creation_time))) / 1000.0;
   if (time > 0) {
     return (altitude / time);
   } else {

@@ -66,10 +66,10 @@ read_wcstr(const int discard)
   while (gbfread(&c, sizeof(c), 1, fin) && (c != 0)) {
     if (size == 0) {
       size = 16;
-      buff = (int16_t*) xmalloc(size * sizeof(*buff));
+      buff = static_cast<int16_t*>(xmalloc(size * sizeof(*buff)));
     } else if (pos == size) {
       size += 16;
-      buff = (int16_t*) xrealloc(buff, size * sizeof(*buff));
+      buff = static_cast<int16_t*>(xrealloc(buff, size * sizeof(*buff)));
     }
     buff[pos] = c;
     pos += 1;
@@ -114,7 +114,7 @@ read_until_wcstr(const char* str)
 
   int len = strlen(str);
   int sz = (len + 1) * 2;
-  char* buff = (char*) xcalloc(sz, 1);
+  char* buff = static_cast<char*>(xcalloc(sz, 1));
 
   while (! gbfeof(fin)) {
 
@@ -294,7 +294,7 @@ destinator_read_trk()
     (void) gbfgetdbl(fin);				/* unknown */
     (void) gbfgetdbl(fin);				/* unknown */
 
-    wpt->fix = (fix_type) gbfgetint32(fin);
+    wpt->fix = static_cast<fix_type>(gbfgetint32(fin));
     wpt->sat = gbfgetint32(fin);
 
     gbfseek(fin, 12 * sizeof(int32_t), SEEK_CUR);	/* SAT info */
@@ -319,7 +319,7 @@ destinator_read_trk()
     wpt->SetCreationTime(mkgmtime(&tm), millisecs);
 
     if (wpt->fix > 0) {
-      wpt->fix = (fix_type)(wpt->fix + 1);
+      wpt->fix = static_cast<fix_type>(wpt->fix + 1);
     }
 
     if (! trk) {
@@ -534,7 +534,7 @@ destinator_write_trk()
 ff_vecs_t destinator_poi_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
     ff_cap_none		 	/* tracks */,
     ff_cap_none 			/* routes */
   },
@@ -555,7 +555,7 @@ ff_vecs_t destinator_itn_vecs = {
   {
     ff_cap_none 			/* waypoints */,
     ff_cap_none		 	/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* routes */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* routes */
   },
   destinator_rd_init,
   destinator_wr_init,
@@ -573,7 +573,7 @@ ff_vecs_t destinator_trl_vecs = {
   ff_type_file,
   {
     ff_cap_none 			/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none 			/* routes */
   },
   destinator_rd_init,

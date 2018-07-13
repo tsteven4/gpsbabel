@@ -243,7 +243,7 @@ dump_packet(char* prefix, unsigned char* packet, unsigned length)
 static void
 write_packet(unsigned type, const void* payload, unsigned length)
 {
-  unsigned char* packet = (unsigned char*) xmalloc(length + 9);
+  unsigned char* packet = static_cast<unsigned char*>(xmalloc(length + 9));
 
   packet[0] = 0xa0;
   packet[1] = 0xa2;
@@ -304,7 +304,7 @@ read_packet(unsigned type, void* payload,
     fatal(MYNAME ": Protocol error: Packet too short\n");
   }
 
-  unsigned char* data = (unsigned char*) xmalloc(size);
+  unsigned char* data = static_cast<unsigned char*>(xmalloc(size));
 
   if (gbser_read_wait(serial_handle, data, size, SERIAL_TIMEOUT) != size) {
     fatal(MYNAME ": Read error reading %d byte payload\n", size);
@@ -378,8 +378,8 @@ decode_position(const unsigned char* buffer, Waypoint* waypt)
 static void
 encode_position(const Waypoint* waypt, unsigned char* buffer)
 {
-  le_write32(buffer + 0, (int)(waypt->latitude * 10000000));
-  le_write32(buffer + 4, (int)(waypt->longitude * 10000000));
+  le_write32(buffer + 0, static_cast<int>(waypt->latitude * 10000000));
+  le_write32(buffer + 4, static_cast<int>(waypt->longitude * 10000000));
   le_write16(buffer + 8, METERS_TO_FEET(waypt->altitude));
 }
 
@@ -469,7 +469,7 @@ serial_read_waypoints()
   unsigned char  information[32];
 
   if (global_opts.masked_objective & RTEDATAMASK) {
-    waypts = (Waypoint**) xcalloc(MAX_WAYPOINTS, sizeof(Waypoint*));
+    waypts = static_cast<Waypoint**>(xcalloc(MAX_WAYPOINTS, sizeof(Waypoint*)));
   }
 
   write_packet(PID_QRY_INFORMATION, nullptr, 0);
@@ -493,7 +493,7 @@ serial_read_waypoints()
 
     write_packet(PID_QRY_WAYPOINTS, payload, sizeof(payload));
 
-    unsigned char*  waypoints = (unsigned char*) xmalloc(count * 32);
+    unsigned char*  waypoints = static_cast<unsigned char*>(xmalloc(count * 32));
 
     read_packet(PID_DATA, waypoints, count * 32, count * 32, FALSE);
 
@@ -563,7 +563,7 @@ serial_read_track()
 
     write_packet(PID_READ_TRACKPOINTS, payload, sizeof(payload));
 
-    unsigned char*  trackpoints = (unsigned char*) xmalloc(count * 32);
+    unsigned char*  trackpoints = static_cast<unsigned char*>(xmalloc(count * 32));
 
     read_packet(PID_DATA, trackpoints, count * 32, count * 32, FALSE);
     write_packet(PID_ACK, nullptr, 0);
@@ -608,7 +608,7 @@ serial_write_track()
 static void
 serial_write_track_start(const route_head*)
 {
-  track_data = (unsigned char*) xmalloc(MAX_WRITE_TRACKPOINTS * 32);
+  track_data = static_cast<unsigned char*>(xmalloc(MAX_WRITE_TRACKPOINTS * 32));
   track_data_ptr = track_data;
   track_data_end = track_data + MAX_WRITE_TRACKPOINTS * 32;
 }
@@ -685,7 +685,7 @@ serial_read_routes(Waypoint** waypts)
 static void
 serial_write_route_start(const route_head* route)
 {
-  route_ids = (unsigned int*) xmalloc(route->rte_waypt_ct * sizeof(unsigned));
+  route_ids = static_cast<unsigned int*>(xmalloc(route->rte_waypt_ct * sizeof(unsigned)));
   route_id_ptr = 0;
 }
 
@@ -722,7 +722,7 @@ serial_write_route_end(const route_head* route)
   }
 
   unsigned src = (route_id_ptr + MAX_SUBROUTE_LENGTH) / MAX_SUBROUTE_LENGTH;
-  unsigned char* data = (unsigned char*) xmalloc(32 + src * 32);
+  unsigned char* data = static_cast<unsigned char*>(xmalloc(32 + src * 32));
 
   le_write16(data + 0, 0x2000);
   data[2] = 0;

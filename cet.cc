@@ -39,7 +39,7 @@ cet_char_to_ucs4(const char src, const cet_cs_vec_t* vec, int* value)
 {
   int trash;
 
-  int c = ((unsigned char)src & 0xFF);
+  int c = (static_cast<unsigned char>(src) & 0xFF);
   int* dest = (value != nullptr) ? value : &trash;
 
   *dest = c;
@@ -237,7 +237,7 @@ cet_ucs4_to_char(const int value, const cet_cs_vec_t* vec)
   }
 
   if (value < vec->ucs4_offset + vec->ucs4_count) {
-    return (char)value & 0xFF;
+    return static_cast<char>(value) & 0xFF;
   } else {
     if (vec->fallback && (vec->fallback != vec)) {
       return cet_ucs4_to_char(value, vec->fallback);
@@ -370,7 +370,7 @@ cet_str_utf8_to_any(const char* src, const cet_cs_vec_t* vec)
   }
 
   int len = strlen(c);
-  char* res = dest = (char*) xmalloc(len + 1);	/* target will become smaller or equal length */
+  char* res = dest = static_cast<char*>(xmalloc(len + 1));	/* target will become smaller or equal length */
 
   const char* cend = c + len;
 
@@ -412,7 +412,7 @@ cet_str_any_to_utf8(const char* src, const cet_cs_vec_t* vec)
     len += cet_ucs4_to_utf8(nullptr, 6, value);
   }
 
-  char* result = cout = (char*) xmalloc(len + 1);
+  char* result = cout = static_cast<char*>(xmalloc(len + 1));
   cin = src;
 
   while (*cin != '\0') {
@@ -446,7 +446,7 @@ cet_str_uni_to_utf8(const short* src, const int length)
     len += cet_ucs4_to_utf8(nullptr, 6, le_read16(cin++));
   }
 
-  char* res = cout = (char*) xmalloc(len + 1);
+  char* res = cout = static_cast<char*>(xmalloc(len + 1));
   cin = (unsigned short*)src;
   i = length;
 
@@ -478,7 +478,7 @@ cet_str_any_to_uni(const char* src, const cet_cs_vec_t* vec, int* length)
   }
 
   int len = cet_utf8_strlen(utf8);
-  short* res = sout = (short int*) xcalloc(2, len + 1);
+  short* res = sout = static_cast<short int*>(xcalloc(2, len + 1));
 
   if (len) {
     char* cin = utf8;

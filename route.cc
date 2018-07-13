@@ -353,7 +353,7 @@ route_copy(int* dst_count, int* dst_wpt_count, queue** dst, queue* src)
   }
 
   if (!*dst) {
-    *dst = (queue*)xcalloc(1, sizeof(queue));
+    *dst = static_cast<queue*>(xcalloc(1, sizeof(queue)));
     QUEUE_INIT(*dst);
     *dst_count = 0;
     *dst_wpt_count = 0;
@@ -530,7 +530,7 @@ void track_recompute(const route_head* trk, computed_trkdata** trkdatap)
   double tot_hrt = 0.0;
   int pts_cad = 0;
   double tot_cad = 0.0;
-  computed_trkdata* tdata = (computed_trkdata*)xcalloc(1, sizeof(computed_trkdata));
+  computed_trkdata* tdata = static_cast<computed_trkdata*>(xcalloc(1, sizeof(computed_trkdata)));
 
   if (trkdatap) {
     *trkdatap = tdata;
@@ -599,24 +599,24 @@ void track_recompute(const route_head* trk, computed_trkdata** trkdatap)
 
     if (thisw->heartrate > 0) {
       pts_hrt++;
-      tot_hrt += (float) thisw->heartrate;
+      tot_hrt += static_cast<float>(thisw->heartrate);
     }
 
     if ((thisw->heartrate > 0) && (thisw->heartrate < tdata->min_hrt)) {
-      tdata->min_hrt = (int) thisw->heartrate;
+      tdata->min_hrt = static_cast<int>(thisw->heartrate);
     }
 
     if ((thisw->heartrate > 0) && (thisw->heartrate > tdata->max_hrt)) {
-      tdata->max_hrt = (int) thisw->heartrate;
+      tdata->max_hrt = static_cast<int>(thisw->heartrate);
     }
 
     if (thisw->cadence > 0) {
       pts_cad++;
-      tot_cad += (float) thisw->cadence;
+      tot_cad += static_cast<float>(thisw->cadence);
     }
 
     if ((thisw->cadence > 0) && (thisw->cadence > tdata->max_cad)) {
-      tdata->max_cad = (int) thisw->cadence;
+      tdata->max_cad = static_cast<int>(thisw->cadence);
     }
 
     if (thisw->GetCreationTime().isValid() && (thisw->GetCreationTime().toTime_t() < tdata->start)) {
@@ -637,11 +637,11 @@ void track_recompute(const route_head* trk, computed_trkdata** trkdatap)
   }
 
   if (pts_hrt > 0) {
-    tdata->avg_hrt = tot_hrt / (float) pts_hrt;
+    tdata->avg_hrt = tot_hrt / static_cast<float>(pts_hrt);
   }
 
   if (pts_cad > 0) {
-    tdata->avg_cad = tot_cad / (float) pts_cad;
+    tdata->avg_cad = tot_cad / static_cast<float>(pts_cad);
   }
 
   if (!trkdatap) {

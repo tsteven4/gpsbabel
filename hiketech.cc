@@ -75,7 +75,7 @@ static xg_tag_mapping ht_map[] = {
   { ht_trk_lat, 	cb_cdata, "/hiketech/gpsdata/trk/pnt/lat" },
   { ht_trk_long, 	cb_cdata, "/hiketech/gpsdata/trk/pnt/long" },
   { ht_trk_alt, 	cb_cdata, "/hiketech/gpsdata/trk/pnt/alt" },
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 
 static void
@@ -304,7 +304,7 @@ void	ht_trk_alt(xg_string args, const QXmlStreamAttributes*)
 
 ff_vecs_t hiketech_vecs = {
   ff_type_file,
-  { (ff_cap)(ff_cap_read | ff_cap_write), (ff_cap)(ff_cap_read | ff_cap_write) },
+  { static_cast<ff_cap>(ff_cap_read | ff_cap_write), static_cast<ff_cap>(ff_cap_read | ff_cap_write) },
   hiketech_rd_init,
   hiketech_wr_init,
   hiketech_rd_deinit,

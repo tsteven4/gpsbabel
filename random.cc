@@ -44,13 +44,13 @@ static arglist_t random_args[] = {
 static double
 rand_dbl(const double max)
 {
-  return max * rand() / (((double)RAND_MAX) + 1);
+  return max * rand() / ((static_cast<double>(RAND_MAX)) + 1);
 }
 
 static int
 rand_int(const int max)
 {
-  return (int)((double)max * rand() / (((double)RAND_MAX) + 1));
+  return static_cast<int>(static_cast<double>(max) * rand() / ((static_cast<double>(RAND_MAX)) + 1));
 }
 
 /* rand_str always returns a valid string with len >= 0 */
@@ -60,7 +60,7 @@ rand_str(const int maxlen, const char* fmt)
 {
   int len = rand_int(maxlen) + 1;
 
-  char* res = (char*) xmalloc(len + 1);
+  char* res = static_cast<char*>(xmalloc(len + 1));
   res[len] = '\0';
 
   for (int i = 0; i < len; i++) {
@@ -190,7 +190,7 @@ random_read()
       wpt->hdop = (rand_int(500)) / 10.0;
       wpt->vdop = (rand_int(500)) / 10.0;
       wpt->pdop = (rand_int(500)) / 10.0;
-      wpt->fix = (fix_type)(rand_int(6) - 1);
+      wpt->fix = static_cast<fix_type>(rand_int(6) - 1);
       if RND(3) {
         wpt->cadence = rand_int(255);
       }

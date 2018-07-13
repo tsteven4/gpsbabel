@@ -228,7 +228,7 @@ static char*
 exif_read_str(exif_tag_t* tag)
 {
   // Panasonic DMC-TZ10 stores datum with trailing spaces.
-  char* buf = xstrndup((char*)tag->data, tag->size);
+  char* buf = xstrndup(static_cast<char*>(tag->data), tag->size);
   rtrim(buf);
   return buf;
 }
@@ -236,7 +236,7 @@ exif_read_str(exif_tag_t* tag)
 static double
 exif_read_double(const exif_tag_t* tag, const int index)
 {
-  int32_t* data = (int32_t*)tag->data;
+  int32_t* data = static_cast<int32_t*>(tag->data);
 
   unsigned int num = data[index * 2];
   unsigned int den = data[(index * 2) + 1];
@@ -244,7 +244,7 @@ exif_read_double(const exif_tag_t* tag, const int index)
     den = 1;
   }
 
-  return (double)num / (double)den;
+  return static_cast<double>(num) / static_cast<double>(den);
 }
 
 static double
@@ -274,7 +274,7 @@ exif_read_timestamp(const exif_tag_t* tag)
   double min = exif_read_double(tag, 1);
   double sec = exif_read_double(tag, 2);
 
-  return ((int)hour * SECONDS_PER_HOUR) + ((int)min * 60) + (int)sec;
+  return (static_cast<int>(hour) * SECONDS_PER_HOUR) + (static_cast<int>(min) * 60) + static_cast<int>(sec);
 }
 
 static time_t
@@ -283,7 +283,7 @@ exif_read_datestamp(const exif_tag_t* tag)
   struct tm tm;
 
   memset(&tm, 0, sizeof(tm));
-  char* str = xstrndup((char*)tag->data, tag->size);
+  char* str = xstrndup(static_cast<char*>(tag->data), tag->size);
   sscanf(str, "%d:%d:%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday);
   xfree(str);
 
@@ -366,7 +366,7 @@ exif_load_apps()
   exif_app_t* exif_app = nullptr;
 
   while (! gbfeof(fin)) {
-    exif_app_t* app = (exif_app_t*) xcalloc(sizeof(*app), 1);
+    exif_app_t* app = static_cast<exif_app_t*>(xcalloc(sizeof(*app), 1));
 
     ENQUEUE_TAIL(&exif_apps, &app->Q);
     QUEUE_INIT(&app->ifds);
@@ -400,7 +400,7 @@ exif_read_ifd(exif_app_t* app, const uint16_t ifd_nr, gbsize_t offs,
   queue* elem, *tmp;
   gbfile* fin = app->fexif;
 
-  exif_ifd_t* ifd = (exif_ifd_t*) xcalloc(sizeof(*ifd), 1);
+  exif_ifd_t* ifd = static_cast<exif_ifd_t*>(xcalloc(sizeof(*ifd), 1));
   QUEUE_INIT(&ifd->tags);
   ENQUEUE_TAIL(&app->ifds, &ifd->Q);
   ifd->nr = ifd_nr;
@@ -440,7 +440,7 @@ exif_read_ifd(exif_app_t* app, const uint16_t ifd_nr, gbsize_t offs,
   }
 
   for (uint16_t i = 0; i < ifd->count; i++) {
-    exif_tag_t* tag = (exif_tag_t*) xcalloc(sizeof(*tag), 1);
+    exif_tag_t* tag = static_cast<exif_tag_t*>(xcalloc(sizeof(*tag), 1));
 #ifdef EXIF_DBG
     offs = gbftell(fin);
     tag->offs = offs;
@@ -485,7 +485,7 @@ exif_read_ifd(exif_app_t* app, const uint16_t ifd_nr, gbsize_t offs,
       tag->data = xmalloc(tag->size);
       tag->data_is_dynamic = 1;
 
-      char* ptr = (char*) tag->data;
+      char* ptr = static_cast<char*>(tag->data);
       gbfseek(fin, tag->value, SEEK_SET);
 
       if (BYTE_TYPE(tag->type)) {
@@ -690,19 +690,19 @@ exif_waypt_from_exif_app(exif_app_t* app)
     case GPS_IFD_TAG_VERSION:
       break;
     case GPS_IFD_TAG_LATREF:
-      lat_ref = *(char*)tag->data;
+      lat_ref = *static_cast<char*>(tag->data);
       break;
     case GPS_IFD_TAG_LAT:
       wpt->latitude = exif_read_coord(tag);
       break;
     case GPS_IFD_TAG_LONREF:
-      lon_ref = *(char*)tag->data;
+      lon_ref = *static_cast<char*>(tag->data);
       break;
     case GPS_IFD_TAG_LON:
       wpt->longitude = exif_read_coord(tag);
       break;
     case GPS_IFD_TAG_ALTREF:
-      alt_ref = *(char*)tag->data;
+      alt_ref = *static_cast<char*>(tag->data);
       break;
     case GPS_IFD_TAG_ALT:
       alt = exif_read_double(tag, 0);
@@ -711,16 +711,16 @@ exif_waypt_from_exif_app(exif_app_t* app)
       timestamp = exif_read_timestamp(tag);
       break;
     case GPS_IFD_TAG_SAT:
-      wpt->sat = atoi((char*)tag->data);
+      wpt->sat = atoi(static_cast<char*>(tag->data));
       break;
     case GPS_IFD_TAG_MODE:
-      mode = *(char*)tag->data;
+      mode = *static_cast<char*>(tag->data);
       break;
     case GPS_IFD_TAG_DOP:
       gpsdop = exif_read_double(tag, 0);
       break;
     case GPS_IFD_TAG_SPEEDREF:
-      speed_ref = *(char*)tag->data;
+      speed_ref = *static_cast<char*>(tag->data);
       break;
     case GPS_IFD_TAG_SPEED:
       WAYPT_SET(wpt, speed, exif_read_double(tag, 0));
@@ -845,14 +845,14 @@ exif_waypt_from_exif_app(exif_app_t* app)
   if (tag && (tag->size > 8)) {
     QString str;
     if (memcmp(tag->data, "ASCII\0\0\0", 8) == 0) {
-      wpt->notes = QString::fromLatin1((char*) tag->data + 8, tag->size - 8);
+      wpt->notes = QString::fromLatin1(static_cast<char*>(tag->data) + 8, tag->size - 8);
     } else if (memcmp(tag->data, "UNICODE\0", 8) == 0) {
       // I'm not at all sure that casting alignment away like this is a good
       // idea in light of arches that don't allow unaligned loads, but in the
       // absence of test data that captures it and the grubbiness of the code
       // that was here before, I'm going to do this and then come back to it
       // if it's a problem.
-      wpt->notes = QString::fromUtf16((const uint16_t*)((char*) tag->data + 8), tag->size - 8);
+      wpt->notes = QString::fromUtf16((const uint16_t*)(static_cast<char*>(tag->data) + 8), tag->size - 8);
     }
   }
 
@@ -948,7 +948,7 @@ exif_put_value(const int ifd_nr, const uint16_t tag_id, const uint16_t type, con
 
   exif_ifd_t* ifd = exif_find_ifd(exif_app, ifd_nr);
   if (ifd == nullptr) {
-    ifd = (exif_ifd_t*) xcalloc(sizeof(*ifd), 1);
+    ifd = static_cast<exif_ifd_t*>(xcalloc(sizeof(*ifd), 1));
     ifd->nr = ifd_nr;
     QUEUE_INIT(&ifd->tags);
     ENQUEUE_TAIL(&exif_app->ifds, &ifd->Q);
@@ -969,7 +969,7 @@ exif_put_value(const int ifd_nr, const uint16_t tag_id, const uint16_t type, con
       return nullptr;
     }
 
-    tag = (exif_tag_t*) xcalloc(sizeof(*tag), 1);
+    tag = static_cast<exif_tag_t*>(xcalloc(sizeof(*tag), 1));
 
     tag->id = tag_id;
     tag->type = type;
@@ -1003,10 +1003,10 @@ exif_put_value(const int ifd_nr, const uint16_t tag_id, const uint16_t type, con
   case EXIF_TYPE_RAT:
   case EXIF_TYPE_SRAT: {
     double val = *(double*)data;
-    uint32_t* dest = (uint32_t*) tag->data;
+    uint32_t* dest = static_cast<uint32_t*>(tag->data);
 
-    if ((int)val == val) {
-      dest[index * 2] = (int)val;
+    if (static_cast<int>(val) == val) {
+      dest[index * 2] = static_cast<int>(val);
       dest[(index * 2) + 1] = 1;
     } else {
       int32_t Nom, Den;
@@ -1020,7 +1020,7 @@ exif_put_value(const int ifd_nr, const uint16_t tag_id, const uint16_t type, con
   }
   break;
   default: {
-    char* dest = (char*) tag->data;
+    char* dest = static_cast<char*>(tag->data);
     memcpy(&dest[index * item_size], data, count * item_size);
   }
   }
@@ -1046,12 +1046,12 @@ exif_put_str(const int ifd_nr, const int tag_id, const char* val)
 static void
 exif_put_coord(const int ifd_nr, const int tag_id, const double val)
 {
-  int vint = abs((int) val);
+  int vint = abs(static_cast<int>(val));
   double vmin = 60.0 * (fabs(val) - vint);
   double vsec = 60.0 * (vmin - floor(vmin));
   vmin = floor(vmin);
 
-  exif_put_double(ifd_nr, tag_id, 0, (double)vint);
+  exif_put_double(ifd_nr, tag_id, 0, static_cast<double>(vint));
   exif_put_double(ifd_nr, tag_id, 1, vmin);
   exif_put_double(ifd_nr, tag_id, 2, vsec);
 }
@@ -1117,7 +1117,7 @@ exif_write_value(exif_tag_t* tag, gbfile* fout)
   if (tag->size > 4) {
     gbfputuint32(tag->value, fout);  /* offset to data */
   } else {
-    char* data = (char*) tag->data;
+    char* data = static_cast<char*>(tag->data);
 
     if BYTE_TYPE(tag->type) {
       gbfwrite(data, 4, 1, fout);
@@ -1170,7 +1170,7 @@ exif_write_ifd(const exif_ifd_t* ifd, const char next, gbfile* fout)
     exif_tag_t* tag = (exif_tag_t*)elem;
 
     if (tag->size > 4) {
-      char* ptr = (char*) tag->data;
+      char* ptr = static_cast<char*>(tag->data);
 
       if BYTE_TYPE(tag->type) {
         gbfwrite(tag->data, tag->size, 1, fout);
@@ -1511,7 +1511,7 @@ exif_write()
 ff_vecs_t exif_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
     ff_cap_none 			/* tracks */,
     ff_cap_none 			/* routes */
   },

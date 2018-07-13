@@ -58,7 +58,7 @@ wr_init(const QString& fname)
 {
   mkshort_handle = mkshort_new_handle();
 
-  HxWFile = (unsigned char*) xcalloc(GM100_WPO_FILE_SIZE, 1);
+  HxWFile = static_cast<unsigned char*>(xcalloc(GM100_WPO_FILE_SIZE, 1));
 
   file_out = gbfopen_le(fname, "wb", MYNAME);
 }
@@ -84,7 +84,7 @@ static void data_read()
 
   memset(&tm, 0, sizeof(tm));
 
-  unsigned char* HxWpt = (unsigned char*) xcalloc(GM100_WPO_FILE_SIZE, 1);
+  unsigned char* HxWpt = static_cast<unsigned char*>(xcalloc(GM100_WPO_FILE_SIZE, 1));
 
   /* read the wpo file to the data-array */
   int iDataRead = gbfread(HxWpt, 1, GM100_WPO_FILE_SIZE, file_in);
@@ -184,10 +184,10 @@ static void holux_disp(const Waypoint* wpt)
 
   /* round it to increase the accuracy */
   if (lon != 0) {
-    lon += (double)((int)lon/abs((int)lon)) * .5;
+    lon += static_cast<double>(static_cast<int>(lon)/abs(static_cast<int>(lon))) * .5;
   }
   if (lat != 0) {
-    lat += (double)((int)lat/abs((int)lat)) * .5;
+    lat += static_cast<double>(static_cast<int>(lat)/abs(static_cast<int>(lat))) * .5;
   }
 
   short sIndex = le_read16(&((WPTHDR*)HxWFile)->num);
@@ -232,10 +232,10 @@ static void holux_disp(const Waypoint* wpt)
   // yield undefined results for negative values.
   // We intentionally convert to int, then do an implicit
   // conversion to unsigned in the call.
-  le_write32(&pWptHxTmp->pt.iLatitude,(signed int) lat);
-  le_write32(&pWptHxTmp->pt.iLongitude,(signed int) lon);
+  le_write32(&pWptHxTmp->pt.iLatitude,static_cast<signed int>(lat));
+  le_write32(&pWptHxTmp->pt.iLongitude,static_cast<signed int>(lon));
   pWptHxTmp->checked = 01;
-  pWptHxTmp->vocidx = (short)0xffff;
+  pWptHxTmp->vocidx = static_cast<short>(0xffff);
   le_write16(&((WPTHDR*)HxWFile)->num, ++sIndex);
   le_write16(&((WPTHDR*)HxWFile)->next, ++sIndex);
 }
@@ -256,7 +256,7 @@ static void data_write()
 
   /* clear index list */
   for (sCount = 0; sCount < MAXWPT; sCount++) {
-    ((WPTHDR*)HxWFile)->idx[sCount] = (signed short)-1;
+    ((WPTHDR*)HxWFile)->idx[sCount] = static_cast<signed short>(-1);
   }
   for (sCount = 0; sCount < MAXWPT; sCount++) {
     ((WPTHDR*)HxWFile)->used[sCount] = 0;
@@ -266,11 +266,11 @@ static void data_write()
   le_write32(&((RTEHDR*)&HxWFile[ROUTESTART])->id, RTE_HDR_ID);
   ((RTEHDR*)&HxWFile[ROUTESTART])->num = 0;
   le_write16(&((RTEHDR*)&HxWFile[ROUTESTART])->next, 1);
-  ((RTEHDR*)&HxWFile[ROUTESTART])->rteno = (signed short)-1;
+  ((RTEHDR*)&HxWFile[ROUTESTART])->rteno = static_cast<signed short>(-1);
 
   /* clear index list */
   for (sCount = 0; sCount < MAXRTE; sCount++) {
-    ((RTEHDR*)&HxWFile[ROUTESTART])->idx[sCount] = (signed short)-1;
+    ((RTEHDR*)&HxWFile[ROUTESTART])->idx[sCount] = static_cast<signed short>(-1);
   }
   for (sCount = 0; sCount < MAXRTE; sCount++) {
     ((RTEHDR*)&HxWFile[ROUTESTART])->used[sCount] = 0;

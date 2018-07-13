@@ -72,7 +72,7 @@ copy_xml_tag(xml_tag** copy, xml_tag* src, xml_tag* parent)
       count++;
       ap++;
     }
-    res->attributes = (char**)xcalloc(count+1, sizeof(char*));
+    res->attributes = static_cast<char**>(xcalloc(count+1, sizeof(char*)));
     ap = src->attributes;
     auto ap2 = res->attributes;
     while (*ap) {
@@ -110,7 +110,7 @@ convert_xml_tag(xml_tag* tag)
 static void
 fs_xml_destroy(void* fs)
 {
-  fs_xml* xml = (fs_xml*)fs;
+  fs_xml* xml = static_cast<fs_xml*>(fs);
   if (xml) {
     free_xml_tag(xml->tag);
   }
@@ -120,20 +120,20 @@ fs_xml_destroy(void* fs)
 static void
 fs_xml_copy(void** copy, void* source)
 {
-  fs_xml* src = (fs_xml*)source;
+  fs_xml* src = static_cast<fs_xml*>(source);
   if (!source) {
     *copy = nullptr;
     return;
   }
   *copy = (void*)fs_xml_alloc(src->fs.type);
   memcpy(*copy, source, sizeof(fs_xml));
-  copy_xml_tag(&(((fs_xml*)(*copy))->tag), src->tag, nullptr);
+  copy_xml_tag(&((static_cast<fs_xml*>(*copy))->tag), src->tag, nullptr);
 }
 
 static void
 fs_xml_convert(void* fs)
 {
-  fs_xml* xml = (fs_xml*)fs;
+  fs_xml* xml = static_cast<fs_xml*>(fs);
   if (xml) {
     convert_xml_tag(xml->tag);
   }

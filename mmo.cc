@@ -153,7 +153,7 @@ mmo_readstr()
 {
   char* res;
 
-  signed int len = (unsigned)gbfgetc(fin);
+  signed int len = static_cast<unsigned>(gbfgetc(fin));
   if (len == 0xFF) {
     // Next two bytes are either the length (strings longer than 254 chars)
     // or FE then FF (which is -2) meaning a UTF-16 string
@@ -161,10 +161,10 @@ mmo_readstr()
     if (len == -2) {
       // read the new length (single byte)
       // length is number of "characters" not number of bytes
-      len = (unsigned)gbfgetc(fin);
+      len = static_cast<unsigned>(gbfgetc(fin));
       if (len > 0) {
         unsigned int resbytes=0;
-        res = (char*) xmalloc(len*2 + 1);  // bigger to allow for utf-8 expansion
+        res = static_cast<char*>(xmalloc(len*2 + 1));  // bigger to allow for utf-8 expansion
         for (signed int ii = 0; ii<len; ii++) {
           char utf8buf[8];
           unsigned int ch = gbfgetint16(fin);
@@ -184,14 +184,14 @@ mmo_readstr()
     // positive values of len are for strings longer than 254, handled below:
   }
   // length zero returns an empty string
-  res = (char*) xmalloc(len + 1);
+  res = static_cast<char*>(xmalloc(len + 1));
   res[len] = '\0';
   if (len) {
     gbfread(res, len, 1, fin);
     if (static_cast<size_t>(len) != strlen(res)) {
       // strlen requires a size_t, but Microsoft's stupid compiler doesn't
       // do C99 %zd.  Thanx, Microsoft.
-      fprintf(stdout, "got len %d but str is '%s' (strlen %d)\n", len, res, (int) strlen(res));
+      fprintf(stdout, "got len %d but str is '%s' (strlen %d)\n", len, res, static_cast<int>(strlen(res)));
       fatal(MYNAME ": Error in file structure!\n");
     }
   }
@@ -243,7 +243,7 @@ mmo_printbuf(const char* buf, int count, const char* comment)
 static mmo_data_t*
 mmo_register_object(const int objid, const void* ptr, const gpsdata_type type)
 {
-  mmo_data_t* data = (mmo_data_t*) xcalloc(1, sizeof(*data));
+  mmo_data_t* data = static_cast<mmo_data_t*>(xcalloc(1, sizeof(*data)));
   data->data = const_cast<void*>(ptr);
   data->visible = 1;
   data->locked = 0;
@@ -294,7 +294,7 @@ mmo_get_waypt(mmo_data_t* data)
   if (data->refct == 1) {
     return static_cast<Waypoint*>(data->data);
   } else {
-    return new Waypoint(*(Waypoint*)data->data);
+    return new Waypoint(*static_cast<Waypoint*>(data->data));
   }
 }
 
@@ -305,7 +305,7 @@ mmo_free_object(mmo_data_t* data)
     xfree(data->name);
   }
   if ((data->type == wptdata) && (data->refct == 0)) {
-    delete(Waypoint*)data->data;
+    deletestatic_cast<Waypoint*>(data->data);
   }
   xfree(data);
 }
@@ -327,7 +327,7 @@ mmo_end_of_route(mmo_data_t* data)
 #ifdef MMO_DBG
   const char* sobj = "CObjRoute";
 #endif
-  route_head* rte = (route_head*) data->data;
+  route_head* rte = static_cast<route_head*>(data->data);
   char buf[7];
 
   if (mmo_version >= 0x12) {
@@ -458,7 +458,7 @@ mmo_read_CObjWaypoint(mmo_data_t* data)
   int rtelinks = gbfgetuint16(fin);
   if (rtelinks > 0) {
 
-    rtelink = (mmo_data_t**) xcalloc(sizeof(*rtelink), rtelinks);
+    rtelink = static_cast<mmo_data_t**>(xcalloc(sizeof(*rtelink), rtelinks));
     DBG((sobj, "rtelinks = %d\n", rtelinks));
 
     for (i = 0; i < rtelinks; i++) {
@@ -812,7 +812,7 @@ mmo_read_object()
 
     int len = gbfgetint16(fin);
 
-    char* sobj = (char*) xmalloc(len + 1);
+    char* sobj = static_cast<char*>(xmalloc(len + 1));
     sobj[len] = '\0';
     gbfread(sobj, len, 1, fin);
     DBG(("mmo_read_object", "%s\n", sobj));
@@ -840,7 +840,7 @@ mmo_read_object()
   DBG(("mmo_read_object", "objid = 0x%04X\n", objid));
 
   if (objid & 0x8000) {
-    data = mmo_register_object(mmo_object_id++, nullptr, (gpsdata_type)0);
+    data = mmo_register_object(mmo_object_id++, nullptr, static_cast<gpsdata_type>(0));
     data->name = mmo_readstr();
 
     if (objid != cat_object_id) {
@@ -922,7 +922,7 @@ mmo_finalize_rtept_cb(const Waypoint* wptref)
 #if OLD
     sscanf(wpt->shortname + 1, "%p", &data);
 #endif
-    wpt2 = (Waypoint*)data->data;
+    wpt2 = static_cast<Waypoint*>(data->data);
 
     wpt->latitude = wpt2->latitude;
     wpt->longitude = wpt2->longitude;
@@ -1243,7 +1243,7 @@ mmo_write_wpt_cb(const Waypoint* wpt)
 
   gbfputuint32(0x01, fout);
   if WAYPT_HAS(wpt, proximity) {
-    gbfputflt((int) wpt->proximity, fout);
+    gbfputflt(static_cast<int>(wpt->proximity), fout);
   } else {
     gbfputflt(0, fout);
   }

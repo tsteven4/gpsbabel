@@ -388,7 +388,7 @@ static int do_cmd(const char* cmd, const char* expect, char** rslt, time_t timeo
           }
           // printf("Data segment: #%s#\n", &line[expect_len+1]);
           if (rslt) {
-            *rslt = (char*) xmalloc(len-3-expect_len+1);
+            *rslt = static_cast<char*>(xmalloc(len-3-expect_len+1));
             strcpy(*rslt, &line[expect_len+1]);
           }
         }
@@ -633,10 +633,10 @@ static void mtk_read()
 
   unsigned int line_size = 2*read_bsize + 32; // logdata as nmea/hex.
   unsigned int data_size = read_bsize + 32;
-  if ((line = (char*) xmalloc(line_size)) == nullptr) {
+  if ((line = static_cast<char*>(xmalloc(line_size))) == nullptr) {
     fatal(MYNAME ": Can't allocate %u bytes for NMEA buffer\n",  line_size);
   }
-  if ((data = (unsigned char*) xmalloc(data_size)) ==  nullptr) {
+  if ((data = static_cast<unsigned char*>(xmalloc(data_size))) ==  nullptr) {
     fatal(MYNAME ": Can't allocate %u bytes for data buffer\n",  data_size);
   }
   memset(line, '\0', line_size);

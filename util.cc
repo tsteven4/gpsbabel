@@ -174,7 +174,7 @@ xstrndup(const char* str, size_t sz)
     cin++;
   }
 
-  char* newstr = (char*) xmalloc(newlen + 1);
+  char* newstr = static_cast<char*>(xmalloc(newlen + 1));
   memcpy(newstr, str, newlen);
   newstr[newlen] = 0;
 
@@ -188,7 +188,7 @@ XREALLOC(void* p, size_t s, DEBUG_PARAMS)
 xrealloc(void* p, size_t s)
 #endif
 {
-  char* o = (char*) realloc(p,s);
+  char* o = static_cast<char*>(realloc(p,s));
 #ifdef DEBUG_MEM
   if (p != NULL) {
     debug_mem_output("realloc, %x, %x, %x, %s, %d\n", o, p, s, file, line);
@@ -222,7 +222,7 @@ xstrappend(char* src, const char* newd)
   }
 
   size_t newsz = strlen(src) + strlen(newd) + 1;
-  src = (char*) xxrealloc(src, newsz, file, line);
+  src = static_cast<char*>(xxrealloc(src, newsz, file, line));
   strcat(src, newd);
 
   return src;
@@ -339,12 +339,12 @@ xvasprintf(char** strp, const char* fmt, va_list ap)
   int bufsize = 0;
   for (;;) {
     if (bufsize == 0) {
-      if ((buf = (char*) xmalloc(FIRSTSIZE)) == nullptr) {
+      if ((buf = static_cast<char*>(xmalloc(FIRSTSIZE))) == nullptr) {
         *strp = nullptr;
         return -1;
       }
       bufsize = FIRSTSIZE;
-    } else if ((newbuf = (char*) xrealloc(buf, nextsize)) != nullptr) {
+    } else if ((newbuf = static_cast<char*>(xrealloc(buf, nextsize))) != nullptr) {
       buf = newbuf;
       bufsize = nextsize;
     } else {
@@ -398,7 +398,7 @@ xvasprintf(char** strp, const char* fmt, va_list ap)
   if (bufsize > outsize + 1) {
     const unsigned ptrsz = sizeof(buf);
     if (((bufsize + ptrsz + 1) / ptrsz) > ((outsize + ptrsz + 1) / ptrsz)) {
-      buf = (char*) xrealloc(buf, outsize + 1);
+      buf = static_cast<char*>(xrealloc(buf, outsize + 1));
     }
 
   }
@@ -437,12 +437,12 @@ lrtrim(char* buff)
   }
 
   char* c = buff + strlen(buff);
-  while ((c >= buff) && ((unsigned char)*c <= ' ')) {
+  while ((c >= buff) && (static_cast<unsigned char>(*c) <= ' ')) {
     *c-- = '\0';
   }
 
   c = buff;
-  while ((*c != '\0') && ((unsigned char)*c <= ' ')) {
+  while ((*c != '\0') && (static_cast<unsigned char>(*c) <= ' ')) {
     c++;
   }
 
@@ -646,7 +646,7 @@ be_readu16(const void* p)
 void
 be_write16(void* addr, const unsigned value)
 {
-  unsigned char* p = (unsigned char*) addr;
+  unsigned char* p = static_cast<unsigned char*>(addr);
   p[0] = value >> 8;
   p[1] = value;
 
@@ -655,7 +655,7 @@ be_write16(void* addr, const unsigned value)
 void
 be_write32(void* pp, const unsigned i)
 {
-  char* p = (char*)pp;
+  char* p = static_cast<char*>(pp);
 
   p[0] = (i >> 24) & 0xff;
   p[1] = (i >> 16) & 0xff;
@@ -666,28 +666,28 @@ be_write32(void* pp, const unsigned i)
 signed int
 le_read16(const void* addr)
 {
-  const unsigned char* p = (const unsigned char*) addr;
+  const unsigned char* p = static_cast<const unsigned char*>(addr);
   return p[0] | (p[1] << 8);
 }
 
 unsigned int
 le_readu16(const void* addr)
 {
-  const unsigned char* p = (const unsigned char*) addr;
+  const unsigned char* p = static_cast<const unsigned char*>(addr);
   return p[0] | (p[1] << 8);
 }
 
 signed int
 le_read32(const void* addr)
 {
-  const unsigned char* p = (const unsigned char*) addr;
+  const unsigned char* p = static_cast<const unsigned char*>(addr);
   return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
 
 unsigned int
 le_readu32(const void* addr)
 {
-  const unsigned char* p = (const unsigned char*) addr;
+  const unsigned char* p = static_cast<const unsigned char*>(addr);
   return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
 
@@ -698,8 +698,8 @@ le_readu32(const void* addr)
 void
 le_read64(void* dest, const void* src)
 {
-  char* cdest = (char*) dest;
-  const char* csrc = (const char*) src;
+  char* cdest = static_cast<char*>(dest);
+  const char* csrc = static_cast<const char*>(src);
 
   if (i_am_little_endian) {
     memcpy(dest, src, 8);
@@ -714,7 +714,7 @@ le_read64(void* dest, const void* src)
 void
 le_write16(void* addr, const unsigned value)
 {
-  unsigned char* p = (unsigned char*) addr;
+  unsigned char* p = static_cast<unsigned char*>(addr);
   p[0] = value;
   p[1] = value >> 8;
 
@@ -723,7 +723,7 @@ le_write16(void* addr, const unsigned value)
 void
 le_write32(void* addr, const unsigned value)
 {
-  unsigned char* p = (unsigned char*) addr;
+  unsigned char* p = static_cast<unsigned char*>(addr);
   p[0] = value;
   p[1] = value >> 8;
   p[2] = value >> 16;
@@ -734,9 +734,9 @@ signed int
 si_round(double d)
 {
   if (d < 0) {
-    return (signed int)(d-0.5);
+    return static_cast<signed int>(d-0.5);
   } else {
-    return (signed int)(d+0.5);
+    return static_cast<signed int>(d+0.5);
   }
 }
 
@@ -962,14 +962,14 @@ endian_read_float(const void* ptr, int read_le)
 void
 endian_write_double(void* ptr, double d, int write_le)
 {
-  char* optr = (char*) ptr;
+  char* optr = static_cast<char*>(ptr);
 // Word order is different on arm, but not on arm-eabi.
 #if defined(__arm__) && !defined(__ARM_EABI__)
   char r[8];
   memcpy(r + 4, &d, 4);
   memcpy(r, ((void*)&d) + 4, 4);
 #else
-  char* r = (char*)(void*)&d;
+  char* r = static_cast<char*>((void*)&d);
 #endif
 
 
@@ -985,8 +985,8 @@ endian_write_double(void* ptr, double d, int write_le)
 void
 endian_write_float(void* ptr, float f, int write_le)
 {
-  char* r = (char*)(void*)&f;
-  char* optr = (char*) ptr;
+  char* r = static_cast<char*>((void*)&f);
+  char* optr = static_cast<char*>(ptr);
 
   if (i_am_little_endian == write_le) {
     memcpy(ptr, &f, 4);
@@ -1049,14 +1049,14 @@ be_write_double(void* ptr, double d)
 /* Magellan and PCX formats use this DDMM.mm format */
 double ddmm2degrees(double pcx_val)
 {
-  signed int deg = (signed int)(pcx_val / 100.0);
+  signed int deg = static_cast<signed int>(pcx_val / 100.0);
   double minutes = (((pcx_val / 100.0) - deg) * 100.0) / 60.0;
-  return (double) deg + minutes;
+  return static_cast<double>(deg) + minutes;
 }
 
 double degrees2ddmm(double deg_val)
 {
-  signed int deg = (signed int) deg_val;
+  signed int deg = static_cast<signed int>(deg_val);
   return (deg * 100.0) + ((deg_val - deg) * 60.0);
 }
 
@@ -1077,7 +1077,7 @@ strsub(const char* s, const char* search, const char* replace)
     return nullptr;
   }
 
-  char* d = (char*) xmalloc(len + rlen + 1);
+  char* d = static_cast<char*>(xmalloc(len + rlen + 1));
 
   /* Copy first part */
   len = p - s;
@@ -1105,11 +1105,11 @@ gstrsub(const char* s, const char* search, const char* replace)
   int slen = strlen(search);
   int rlen = strlen(replace);
 
-  char* o = (char*) xmalloc(olen + 1);
+  char* o = static_cast<char*>(xmalloc(olen + 1));
 
   while ((c = strstr(src, search))) {
     olen += (rlen - slen);
-    o = (char*) xrealloc(o, olen + 1);
+    o = static_cast<char*>(xrealloc(o, olen + 1));
     memcpy(o + ooffs, src, c - src);
     ooffs += (c - src);
     src = c + slen;
@@ -1178,7 +1178,7 @@ rot13(const QString& s)
 char*
 convert_human_date_format(const char* human_datef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_datef)) + 1, 1);
+  char* result = static_cast<char*>(xcalloc((2*strlen(human_datef)) + 1, 1));
   char* cout = result;
   char prev = '\0';
   int ylen = 0;
@@ -1242,7 +1242,7 @@ convert_human_date_format(const char* human_datef)
 char*
 convert_human_time_format(const char* human_timef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_timef)) + 1, 1);
+  char* result = static_cast<char*>(xcalloc((2*strlen(human_timef)) + 1, 1));
   char* cout = result;
   char prev = '\0';
 
@@ -1338,8 +1338,8 @@ pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
   char*	result;
   char latsig = lat < 0 ? 'S':'N';
   char lonsig = lon < 0 ? 'W':'E';
-  int latint = abs((int) lat);
-  int lonint = abs((int) lon);
+  int latint = abs(static_cast<int>(lat));
+  int lonint = abs(static_cast<int>(lon));
   double latmin = 60.0 * (fabs(lat) - latint);
   double lonmin = 60.0 * (fabs(lon) - lonint);
   double latsec = 60.0 * (latmin - floor(latmin));
@@ -1353,8 +1353,8 @@ pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
               lonsig, fabs(lon), html?"&deg;":"");
   } else if (fmt == 's') { /* dms */
     xasprintf(&result, "%c%d%s%02d'%04.1f\"%s%c%d%s%02d'%04.1f\"",
-              latsig, latint, html?"&deg;":" ", (int)latmin, latsec, sep,
-              lonsig, lonint, html?"&deg;":" ", (int)lonmin, lonsec);
+              latsig, latint, html?"&deg;":" ", static_cast<int>(latmin), latsec, sep,
+              lonsig, lonint, html?"&deg;":" ", static_cast<int>(lonmin), lonsec);
   } else { /* default dmm */
     xasprintf(&result,  "%c%d%s%06.3f%s%c%d%s%06.3f",
               latsig, latint, html?"&deg;":" ", latmin, sep,
@@ -1644,7 +1644,7 @@ entitize(const char* str, bool is_html)
 #endif
 
   /* enough space for the whole string plus entity replacements, if any */
-  tmp = (char*) xcalloc((strlen(str) + elen + 1), 1);
+  tmp = static_cast<char*>(xcalloc((strlen(str) + elen + 1), 1));
   strcpy(tmp, str);
 
   /* no entity replacements */
@@ -1779,7 +1779,7 @@ const QString get_filename(const QString& fname)
  */
 void gb_setbit(void* buf, const uint32_t nr)
 {
-  unsigned char* bytes = (unsigned char*) buf;
+  unsigned char* bytes = static_cast<unsigned char*>(buf);
   bytes[nr / 8] |= (1 << (nr % 8));
 }
 
@@ -1788,7 +1788,7 @@ void gb_setbit(void* buf, const uint32_t nr)
  */
 char gb_getbit(const void* buf, const uint32_t nr)
 {
-  const unsigned char* bytes = (const unsigned char*) buf;
+  const unsigned char* bytes = static_cast<const unsigned char*>(buf);
   return (bytes[nr / 8] & (1 << (nr % 8)));
 
 }

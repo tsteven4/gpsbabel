@@ -472,7 +472,7 @@ psit_routehdr_w(gbfile* psit_file, const route_head* rte)
 
     /* route name */
     if (rte->rte_name.isEmpty()) {
-      rname = QString("Route%1").arg((uint) uniqueValue, 4, 16, QChar('0'));
+      rname = QString("Route%1").arg(static_cast<uint>(uniqueValue), 4, 16, QChar('0'));
     } else {
       rname = rte->rte_name;
     }
@@ -614,7 +614,7 @@ psit_trackhdr_w(gbfile* psit_file, const route_head* trk)
 
       /* track name */
       if (trk->rte_name.isEmpty()) {
-        tname = QString("Track%1").arg((uint) uniqueValue, 4, 16, QChar('0'));
+        tname = QString("Track%1").arg(static_cast<uint>(uniqueValue), 4, 16, QChar('0'));
       } else {
         tname = trk->rte_name;
       }

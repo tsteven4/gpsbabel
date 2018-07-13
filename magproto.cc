@@ -231,7 +231,7 @@ static icon_mapping_t* icon_mapping = map330_icon_table;
 static QString
 m315_cleanse(const char* istring)
 {
-  char* rstring = (char*) xmalloc(strlen(istring)+1);
+  char* rstring = static_cast<char*>(xmalloc(strlen(istring)+1));
   char* o;
   const char* i;
   static char m315_valid_chars[] =
@@ -256,7 +256,7 @@ m330_cleanse(const char* istring)
   static char m330_valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                    "abcdefghijklmnopqrstuvwxyz"
                                    "0123456789+-.'/!@#<%^&>()=:\\";
-  char* rstring = (char*) xmalloc(strlen(istring)+1);
+  char* rstring = static_cast<char*>(xmalloc(strlen(istring)+1));
   char* o; 
   const char* i;
 
@@ -649,7 +649,7 @@ termwrite(char* obuf, int size)
 {
   if (is_file) {
     size_t nw;
-    if (nw = gbfwrite(obuf, 1, size, magfile_h), nw < (size_t) size) {
+    if (nw = gbfwrite(obuf, 1, size, magfile_h), nw < static_cast<size_t>(size)) {
       fatal(MYNAME ": Write error");
     }
   } else {
@@ -1063,7 +1063,7 @@ mag_rteparse(char* rtemsg)
    * queue head.
    */
   if (frag == 1) {
-    mag_rte_head = (struct mag_rte_head_*) xcalloc(sizeof(*mag_rte_head),1);
+    mag_rte_head = static_cast<struct mag_rte_head_*>(xcalloc(sizeof(*mag_rte_head),1));
     QUEUE_INIT(&mag_rte_head->Q);
     mag_rte_head->nelems = frags;
   }

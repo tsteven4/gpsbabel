@@ -112,9 +112,9 @@ ng_convert_datum(Waypoint* wpt)
 {
   double lat, lon;
 
-  double east = (double) WPNC.wp_data.East;
-  double north = (double) WPNC.wp_data.North;
-  double alt = (double) WPNC.wp_data.Alt;
+  double east = static_cast<double>(WPNC.wp_data.East);
+  double north = static_cast<double>(WPNC.wp_data.North);
+  double alt = static_cast<double>(WPNC.wp_data.Alt);
 
   GPS_Math_ICS_EN_To_WGS84(east, north, &lat, &lon);
   wpt->latitude = lat;
@@ -170,7 +170,7 @@ ng_fread_wp_data(char* d, ng_wp_no_comment_t* wpnc, gbfile* f)
   gbfread(&wpnc->wp_data.pad2,2, 1, f);
   wpnc->wp_data.Alt = gbfgetint32(f);
   gbfread(&wpnc->wp_data.CommentLength, 1, 1, f);
-  int i = (int)wpnc->wp_data.CommentLength;
+  int i = static_cast<int>(wpnc->wp_data.CommentLength);
 
 
   /* Read the comment field */
@@ -242,8 +242,8 @@ ng_waypt_rd(const Waypoint* wpt)
     fatal(MYNAME ": Waypoint %d is out of the israeli grid area", current_wp_ix);
   }
 
-  WPNC.wp_data.North = (int32_t)lat;
-  WPNC.wp_data.East = (int32_t)lon;
+  WPNC.wp_data.North = static_cast<int32_t>(lat);
+  WPNC.wp_data.East = static_cast<int32_t>(lon);
 
   QString s;
   if (reorder_wp) {

@@ -36,7 +36,7 @@
 garmin_fs_t*
 garmin_fs_alloc(const int protocol)
 {
-  garmin_fs_t* result = (garmin_fs_t*)xcalloc(1, sizeof(*result));
+  garmin_fs_t* result = static_cast<garmin_fs_t*>(xcalloc(1, sizeof(*result)));
   result->fs.type = FS_GMSD;
   result->fs.copy = (fs_copy) garmin_fs_copy;
   result->fs.destroy = garmin_fs_destroy;
@@ -51,7 +51,7 @@ garmin_fs_alloc(const int protocol)
 void
 garmin_fs_destroy(void* fs)
 {
-  garmin_fs_t* data = (garmin_fs_t*) fs;
+  garmin_fs_t* data = static_cast<garmin_fs_t*>(fs);
   if (data != nullptr) {
     garmin_ilink_t* ilinks;
 
@@ -112,7 +112,7 @@ void garmin_fs_copy(garmin_fs_t** dest, garmin_fs_t* src)
     *dest = nullptr;
     return;
   }
-  *dest = (garmin_fs_t*) xmalloc(sizeof(*src));
+  *dest = static_cast<garmin_fs_t*>(xmalloc(sizeof(*src)));
 
   /* do not copy interlinks, only increment the refrence counter */
   if (src->ilinks != nullptr) {
@@ -137,7 +137,7 @@ void garmin_fs_copy(garmin_fs_t** dest, garmin_fs_t* src)
 
 void garmin_fs_convert(void* fs)
 {
-  garmin_fs_t* gmsd = (garmin_fs_t*) fs;
+  garmin_fs_t* gmsd = static_cast<garmin_fs_t*>(fs);
 
   if (gmsd->addr) {
     gmsd->addr = cet_convert_string(gmsd->addr);

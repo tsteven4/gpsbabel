@@ -134,7 +134,7 @@ static gbsize_t
 gzapi_read(void* buf, const gbsize_t size, const gbsize_t members, gbfile* self)
 {
   int result = 0;
-  char* target = (char*) buf;
+  char* target = static_cast<char*>(buf);
   int count = size * members;
 
   if (self->back != -1) {
@@ -146,26 +146,26 @@ gzapi_read(void* buf, const gbsize_t size, const gbsize_t members, gbfile* self)
   result += gzread(self->handle.gz, target, count);
 
   /* Check for an incomplete READ */
-  if ((members == 1) && (size > 1) && (result > 0) && (result < (int)size)) {
+  if ((members == 1) && (size > 1) && (result > 0) && (result < static_cast<int>(size))) {
     fatal("%s: Unexpected end of file (EOF)!\n", self->module);
   }
 
   result /= size;
 
-  if ((result < 0) || ((gbsize_t)result < members)) {
+  if ((result < 0) || (static_cast<gbsize_t>(result) < members)) {
     int errnum;
 
     const char* errtxt = gzerror(self->handle.gz, &errnum);
 
     /* Workaround for zlib bug: buffer error on empty files */
     if ((errnum == Z_BUF_ERROR) && (gztell(self->handle.gz) == 0)) {
-      return (gbsize_t) 0;
+      return static_cast<gbsize_t>(0);
     }
     if ((errnum != Z_STREAM_END) && (errnum != 0))
       fatal("%s: zlib returned error %d ('%s')!\n",
             self->module, errnum, errtxt);
   }
-  return (gbsize_t) result;
+  return static_cast<gbsize_t>(result);
 }
 
 static gbsize_t
@@ -289,7 +289,7 @@ stdapi_seek(gbfile* self, int32_t offset, int whence)
             self->module, whence, self->name);
     }
     fatal("%s: Unable to set file (%s) to position (%llu)!\n",
-          self->module, self->name, (long long unsigned) pos);
+          self->module, self->name, static_cast<long long unsigned>(pos));
   }
   return 0;
 }
@@ -379,7 +379,7 @@ memapi_close(gbfile* self)
 static int
 memapi_seek(gbfile* self, int32_t offset, int whence)
 {
-  long long pos = (int)self->mempos;
+  long long pos = static_cast<int>(self->mempos);
 
   switch (whence) {
   case SEEK_CUR:
@@ -428,7 +428,7 @@ memapi_write(const void* buf, const gbsize_t size, const gbsize_t members, gbfil
 
   if (self->mempos + count > self->memsz) {
     self->memsz = ((self->mempos + count + 4095) / 4096) * 4096;
-    self->handle.mem = (unsigned char*) xrealloc(self->handle.mem, self->memsz);
+    self->handle.mem = static_cast<unsigned char*>(xrealloc(self->handle.mem, self->memsz));
   }
   memcpy(self->handle.mem + self->mempos, buf, count);
   self->mempos += count;
@@ -465,7 +465,7 @@ memapi_ungetc(const int c, gbfile* self)
     return EOF;
   } else {
     self->mempos--;
-    self->handle.mem[self->mempos] = (unsigned char) c;
+    self->handle.mem[self->mempos] = static_cast<unsigned char>(c);
     return c;
   }
 }
@@ -494,7 +494,7 @@ memapi_error(gbfile* self)
 gbfile*
 gbfopen(const QString& filename, const char* mode, const char* module)
 {
-  gbfile* file = (gbfile*) xcalloc(1, sizeof(*file));
+  gbfile* file = static_cast<gbfile*>(xcalloc(1, sizeof(*file)));
 
   file->module = xstrdup(module);
   file->mode = 'r'; // default
@@ -586,7 +586,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
 #else
   file->buffsz = 256;
 #endif
-  file->buff = (char*) xmalloc(file->buffsz);
+  file->buff = static_cast<char*>(xmalloc(file->buffsz));
 
   return file;
 }
@@ -636,7 +636,7 @@ gbfgetc(gbfile* file)
   if (gbfread(&c, 1, 1, file) == 0) {
     return EOF;
   } else {
-    return (unsigned int)c;
+    return static_cast<unsigned int>(c);
   }
 }
 
@@ -656,7 +656,7 @@ gbfgets(char* buf, int len, gbfile* file)
       break;
     }
 
-    *(unsigned char*)buf = (unsigned char)c;
+    *(unsigned char*)buf = static_cast<unsigned char>(c);
     buf++;
 
     if (c == '\r') {
@@ -739,7 +739,7 @@ int gbvfprintf(gbfile* file, const char* format, va_list ap)
       file->buffsz *= 2;
     }
 
-    file->buff = (char*) xrealloc(file->buff, file->buffsz);
+    file->buff = static_cast<char*>(xrealloc(file->buff, file->buffsz));
   }
   return gbfwrite(file->buff, 1, len, file);
 }
@@ -767,7 +767,7 @@ gbfprintf(gbfile* file, const char* format, ...)
 int
 gbfputc(int c, gbfile* file)
 {
-  unsigned char temp = (unsigned int) c;
+  unsigned char temp = static_cast<unsigned int>(c);
 
   gbfwrite(&temp, 1, 1, file);
 
@@ -799,7 +799,7 @@ gbfwrite(const void* buf, const gbsize_t size, const gbsize_t members, gbfile* f
   if (result != members) {
     fatal("%s: Could not write %lld bytes to %s (result %d)!\n",
           file->module,
-          (long long int)(members - result) * size,
+          static_cast<long long int>(members - result) * size,
           file->name,
           result);
   }
@@ -866,7 +866,7 @@ gbsize_t
 gbftell(gbfile* file)
 {
   gbsize_t result = file->filetell(file);
-  if ((signed) result == -1)
+  if (static_cast<signed>(result) == -1)
     fatal("%s: Could not determine position of file '%s'!\n",
           file->module, file->name);
   return result;
@@ -982,13 +982,13 @@ gbfgetcstr_old(gbfile* file)
 
     if (len == file->buffsz) {
       file->buffsz += 64;
-      str = file->buff = (char*) xrealloc(file->buff, file->buffsz + 1);
+      str = file->buff = static_cast<char*>(xrealloc(file->buff, file->buffsz + 1));
     }
     str[len] = c;
     len++;
   }
 
-  char* result = (char*) xmalloc(len + 1);
+  char* result = static_cast<char*>(xmalloc(len + 1));
   if (len > 0) {
     memcpy(result, str, len);
   }
@@ -1078,7 +1078,7 @@ gbfgetucs2str(gbfile* file)
 
     if (len+clen >= file->buffsz) {
       file->buffsz += 64;
-      result = file->buff = (char*) xrealloc(file->buff, file->buffsz + 1);
+      result = file->buff = static_cast<char*>(xrealloc(file->buff, file->buffsz + 1));
     }
     memcpy(&result[len], buff, clen);
     len += clen;
@@ -1141,9 +1141,9 @@ gbfgetstr(gbfile* file)
 
     if ((len + 1) == file->buffsz) {
       file->buffsz += 64;
-      result = file->buff = (char*) xrealloc(file->buff, file->buffsz + 1);
+      result = file->buff = static_cast<char*>(xrealloc(file->buff, file->buffsz + 1));
     }
-    result[len] = (char)c;
+    result[len] = static_cast<char>(c);
     len++;
   }
   result[len] = '\0';	// terminate resulting string

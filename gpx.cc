@@ -211,7 +211,7 @@ gpx_add_to_global(gpx_global_entry* ge, const QString& s)
     }
   }
 
-  gep = (gpx_global_entry*) xcalloc(sizeof(*gep), 1);
+  gep = static_cast<gpx_global_entry*>(xcalloc(sizeof(*gep), 1));
   QUEUE_INIT(&gep->queue);
   gep->tagdata = xstrdup(s);
   ENQUEUE_TAIL(&ge->queue, &gep->queue);
@@ -418,7 +418,7 @@ static tag_mapping tag_path_map[] = {
   GPXWPTTYPETAG(tt_wpttype_vdop, 0, "vdop"),
   GPXWPTTYPETAG(tt_wpttype_pdop, 0, "pdop"),
 
-  {(tag_type)0, 0, nullptr}
+  {static_cast<tag_type>(0), 0, nullptr}
 };
 
 // Maintain a fast mapping from full tag names to the struct above.
@@ -537,7 +537,7 @@ start_something_else(const QString& el, const QXmlStreamAttributes& attr)
   int attr_count = attr.size();
   const QXmlStreamNamespaceDeclarations nsdecl = reader->namespaceDeclarations();
   const int ns_count = nsdecl.size();
-  new_tag->attributes = (char**)xcalloc(sizeof(char*),2*(attr_count+ns_count)+1);
+  new_tag->attributes = static_cast<char**>(xcalloc(sizeof(char*),2*(attr_count+ns_count)+1));
   char** avcp = new_tag->attributes;
   for (int i = 0; i < attr_count; i++)  {
     *avcp = xstrdup(attr[i].qualifiedName().toString());
@@ -1187,7 +1187,7 @@ gpx_rd_init(const QString& fname)
   cdatastr = QString();
 
   if (nullptr == gpx_global) {
-    gpx_global = (struct gpx_global*) xcalloc(sizeof(*gpx_global), 1);
+    gpx_global = static_cast<struct gpx_global*>(xcalloc(sizeof(*gpx_global), 1));
     QUEUE_INIT(&gpx_global->name.queue);
     QUEUE_INIT(&gpx_global->desc.queue);
     QUEUE_INIT(&gpx_global->author.queue);

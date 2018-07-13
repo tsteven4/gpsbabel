@@ -107,7 +107,7 @@ ggv_ovl_read()
 
     snprintf(symbol, sizeof(symbol), "Symbol %d", i);
 
-    OVL_SYMBOL_TYP type = (OVL_SYMBOL_TYP) inifile_readint_def(inifile, symbol, "Typ", 0);
+    OVL_SYMBOL_TYP type = static_cast<OVL_SYMBOL_TYP>(inifile_readint_def(inifile, symbol, "Typ", 0));
     int points = inifile_readint_def(inifile, symbol, "Punkte", -1);
 
     switch (type) {
@@ -316,7 +316,7 @@ route_disp_cb(const route_head* rte)
     Waypoint* wpt = (Waypoint*) elem;
 
     if (prev != nullptr) {
-      draw_symbol_basics(OVL_SYMBOL_TRIANGLE, 1, (OVL_COLOR_TYP)9 /* color */, prev);
+      draw_symbol_basics(OVL_SYMBOL_TRIANGLE, 1, static_cast<OVL_COLOR_TYP>(9) /* color */, prev);
 
       gbfprintf(fout, "Width=12\n");
       gbfprintf(fout, "Height=8\n");
@@ -394,7 +394,7 @@ get_direction(const Waypoint* A, const Waypoint* B)
   if (lonb < lona) {
     dir = -dir;
   }
-  int res = (int) DEG(dir);
+  int res = static_cast<int>DEG(dir);
   res = 360 - (res + 270);
   if (res < 0) {
     res += 360;

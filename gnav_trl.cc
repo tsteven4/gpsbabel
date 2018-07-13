@@ -69,7 +69,7 @@ gnav_trl_rw_deinit()
 static double
 read_altitude(void* ptr)
 {
-  unsigned char* i = (unsigned char*) ptr;
+  unsigned char* i = static_cast<unsigned char*>(ptr);
   char buf[sizeof(float)];
   le_write32(&buf, i[2] << 24 | i[1] << 16 | i[0] <<8 | i[3]);
   return le_read_float(&buf);
@@ -141,7 +141,7 @@ ff_vecs_t gnav_trl_vecs = {
   ff_type_file,
   {
     ff_cap_none			/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none			/* routes */
   },
   gnav_trl_rd_init,

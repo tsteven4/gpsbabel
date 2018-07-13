@@ -97,8 +97,8 @@ vcf_print(const QString& s)
 static void
 vcf_disp(const Waypoint* wpt)
 {
-  int lonint = abs((int) wpt->longitude);
-  int latint = abs((int) wpt->latitude);
+  int lonint = abs(static_cast<int>(wpt->longitude));
+  int latint = abs(static_cast<int>(wpt->latitude));
 
   gbfprintf(file_out, "BEGIN:VCARD\nVERSION:3.0\n");
   gbfprintf(file_out, "N:%s;%s;;;\n", CSTRc(wpt->description),CSTRc(wpt->shortname));

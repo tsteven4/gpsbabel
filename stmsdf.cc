@@ -167,8 +167,8 @@ parse_header(char* line)
 static int
 track_qsort_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *(Waypoint**)a;
-  const Waypoint* wb = *(Waypoint**)b;
+  const Waypoint* wa = *static_cast<Waypoint**>(a);
+  const Waypoint* wb = *static_cast<Waypoint**>(b);
 
   return wa->GetCreationTime().toTime_t() - wb->GetCreationTime().toTime_t();
 }
@@ -188,7 +188,7 @@ finalize_tracks(void)
     return;
   }
 
-  Waypoint** list = (Waypoint**)xmalloc(count * sizeof(*list));
+  Waypoint** list = static_cast<Waypoint**>(xmalloc(count * sizeof(*list)));
 
   int index = 0;
   QUEUE_FOR_EACH(&trackpts, elem, tmp) {
@@ -450,7 +450,7 @@ calculate(const Waypoint* wpt, double* dist, double* speed, double* course,
     if (time == 0) {
       *speed = 0;
     } else {
-      *speed = *dist / (double)time;
+      *speed = *dist / static_cast<double>(time);
     }
 
     if (asc && desc && (trkpt_out->altitude != unknown_alt) && (wpt->altitude != unknown_alt)) {
@@ -660,7 +660,7 @@ static void
 track_disp_custom_cb(const Waypoint* wpt)
 {
   if (wpt->GetCreationTime().isValid() && (wpt->altitude != unknown_alt)) {
-    gbfprintf(fout, "%d,%.f\n", (int)(wpt->GetCreationTime().toTime_t() - start_time), wpt->altitude);
+    gbfprintf(fout, "%d,%.f\n", static_cast<int>(wpt->GetCreationTime().toTime_t() - start_time), wpt->altitude);
   }
 }
 
@@ -757,7 +757,7 @@ data_write(void)
         gbfprintf(fout, "DATE=%s\n", tbuf);
       }
       if (all_time) {
-        gbfprintf(fout, "AVGSPEED=%.2f\n", all_dist / (double)all_time);
+        gbfprintf(fout, "AVGSPEED=%.2f\n", all_dist / static_cast<double>(all_time));
       }
     }
     gbfprintf(fout, "[POINTS]\n");
@@ -787,8 +787,8 @@ ff_vecs_t stmsdf_vecs = {
   ff_type_file,
   {
     ff_cap_none,
-    (ff_cap)(ff_cap_read | ff_cap_write),
-    (ff_cap)(ff_cap_read | ff_cap_write)
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)
   },
   rd_init,
   wr_init,

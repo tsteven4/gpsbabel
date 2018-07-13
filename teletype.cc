@@ -72,7 +72,7 @@ teletype_read()
     if (true) {  // need bit value of NEWFORMAT
       int len = gbfgetuint16(fin);
       // probably could treat as a pascal string
-      char* junk = (char*) xmalloc(len);
+      char* junk = static_cast<char*>(xmalloc(len));
       gbfread(junk, len, 1, fin);
       xfree(junk);
     }

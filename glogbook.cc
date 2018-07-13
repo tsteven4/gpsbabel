@@ -57,7 +57,7 @@ static xg_tag_mapping gl_map[] = {
   { gl_trk_long, cb_cdata, "/History/Run/Track/Trackpoint/Position/Longitude" },
   { gl_trk_alt,  cb_cdata, "/History/Run/Track/Trackpoint/Position/Altitude" },
   { gl_trk_utc,  cb_cdata, "/History/Run/Track/Trackpoint/Time" },
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 
 static void
@@ -179,7 +179,7 @@ void	gl_trk_alt(xg_string args, const QXmlStreamAttributes*)
 
 ff_vecs_t glogbook_vecs = {
   ff_type_file,
-  { ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none},
+  { ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write), ff_cap_none},
   glogbook_rd_init,
   glogbook_wr_init,
   glogbook_rd_deinit,

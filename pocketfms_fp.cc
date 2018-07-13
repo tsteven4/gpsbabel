@@ -46,7 +46,7 @@ static xg_tag_mapping gl_map[] = {
   { wpt_to_elev,		cb_cdata, "/PocketFMSFlightplan/LIB/ToPoint/Elevation" },
   { wpt_altitude,	cb_start, "/PocketFMSFlightplan/LIB/PlannedAltitude" },
   { wpt_e,			cb_end,   "/PocketFMSFlightplan/LIB" },
-  { nullptr,	(xg_cb_type)0,		nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),		nullptr}
 };
 
 static void

@@ -82,8 +82,8 @@ cet_str_any_to_any(const char* src, const cet_cs_vec_t* src_vec, const cet_cs_ve
 static signed int
 cet_cs_alias_qsort_cb(const void* a, const void* b)
 {
-  const cet_cs_alias_t* va = (const cet_cs_alias_t*) a;
-  const cet_cs_alias_t* vb = (const cet_cs_alias_t*) b;
+  const cet_cs_alias_t* va = static_cast<const cet_cs_alias_t*>(a);
+  const cet_cs_alias_t* vb = static_cast<const cet_cs_alias_t*>(b);
   return case_ignore_strcmp(va->name, vb->name);
 }
 
@@ -162,7 +162,7 @@ cet_register()
     }
     /* create name to vec table */
 
-    cet_cs_alias_t* list = (cet_cs_alias_t*) xcalloc(c, sizeof(*list));
+    cet_cs_alias_t* list = static_cast<cet_cs_alias_t*>(xcalloc(c, sizeof(*list)));
     i = 0;
     for (p = cet_cs_vec_root; p != nullptr; p = p->next) {
       if (p->alias != nullptr) {

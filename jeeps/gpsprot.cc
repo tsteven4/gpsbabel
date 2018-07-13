@@ -426,7 +426,7 @@ void GPS_Unknown_Protocol_Print(void)
   (void) fprintf(stdout,"\n");
 
   for (i=0; i<gps_n_tag_unknown; ++i)
-    (void) fprintf(stdout,"[%c %d]\n",(char)gps_tag_unknown[i],
+    (void) fprintf(stdout,"[%c %d]\n",static_cast<char>(gps_tag_unknown[i]),
                    (int)gps_tag_data_unknown[i]);
   return;
 }

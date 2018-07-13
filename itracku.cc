@@ -118,7 +118,7 @@ static const char*
 itracku_device_read_string()
 {
   const int size = 1024;
-  char* s = (char*) xmalloc(size);
+  char* s = static_cast<char*>(xmalloc(size));
   gbser_read_line(fd, s, size, 1000, 0, 0);
   dbg(1, "read from device: %s", s);
   return s;
@@ -216,7 +216,7 @@ deg_min_to_deg(volatile uint32_t x)
   uint32_t m10000 = x - d * sep;
 
   // convert minutes and degrees to a double
-  return sign * ((double)d + ((double)m10000) / 600000.0);
+  return sign * (static_cast<double>(d) + (static_cast<double>(m10000)) / 600000.0);
 }
 
 /*
@@ -242,8 +242,8 @@ deg_to_deg_min(double x)
   double f = x - d;
 
   return
-    (uint32_t)d * 1000000 + // multiply integer degrees to shift it to the right digits.
-    (uint32_t)(f * 600000.0) + // multiply fractional part to convert to minutes and to to shift it to the right digits.
+    static_cast<uint32_t>(d) * 1000000 + // multiply integer degrees to shift it to the right digits.
+    static_cast<uint32_t>(f * 600000.0) + // multiply fractional part to convert to minutes and to to shift it to the right digits.
     ((sign > 0) ? 0 : 0x80000000); // add 0x80000000 for negative degrees
 }
 
@@ -479,7 +479,7 @@ import_data_record(itracku_data_record* d)
     result = 0;
   } else {
     if (fbackup) {
-      if ((uint32_t)le_read32(d->creation_time) > backup_last_creation_time) {
+      if (static_cast<uint32_t>(le_read32(d->creation_time)) > backup_last_creation_time) {
         backup_last_creation_time = le_read32(d->creation_time);
         gbfwrite(d, sizeof(*d), 1, fbackup);
         result = -1;
@@ -536,9 +536,9 @@ itracku_file_read_last_time(gbfile* fin)
   if (gbftell(fin) < s) {
     return 0;
   }
-  gbfseek(fin, -(int)s, SEEK_END);
+  gbfseek(fin, -static_cast<int>(s), SEEK_END);
   itracku_file_read_data_record(fin, &d);
-  return (uint32_t) le_read32(d.creation_time);
+  return static_cast<uint32_t>(le_read32(d.creation_time));
 }
 
 static void
@@ -655,7 +655,7 @@ static void
 nmea_set_waypoint_time(Waypoint* wpt, struct tm* time, double fsec)
 {
   if (time->tm_year == 0) {
-    wpt->SetCreationTime(((((time_t)time->tm_hour * 60) + time->tm_min) * 60) + time->tm_sec, lround(1000.0 * fsec));
+    wpt->SetCreationTime((((static_cast<time_t>(time->tm_hour) * 60) + time->tm_min) * 60) + time->tm_sec, lround(1000.0 * fsec));
     if (wpt->wpt_flags.fmt_use == 0) {
       wpt->wpt_flags.fmt_use = 1;
     }
@@ -687,13 +687,13 @@ gprmc_parse(char* ibuf)
     return nullptr;
   }
 
-  double fsec = hms - (int)hms;
+  double fsec = hms - static_cast<int>(hms);
 
-  tm.tm_sec = (long) hms % 100;
+  tm.tm_sec = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_min = (long) hms % 100;
+  tm.tm_min = static_cast<long>(hms) % 100;
   hms = hms / 100;
-  tm.tm_hour = (long) hms % 100;
+  tm.tm_hour = static_cast<long>(hms) % 100;
 
   tm.tm_year = dmy % 100 + 100;
   dmy = dmy / 100;
@@ -778,8 +778,8 @@ ff_vecs_t itracku_vecs = {
 ff_vecs_t itracku_fvecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write) /* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write) /* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) /* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) /* tracks */,
     ff_cap_none /* routes */
   },
   itracku_rd_init,

@@ -370,7 +370,7 @@ lat_mm_to_deg(double x)
 static long
 lat_deg_to_mm(double x)
 {
-  return (long)(SEMIMINOR * log(tan((x * DEGREESTORADIANS + M_PI / 2.0) / 2.0)));
+  return static_cast<long>(SEMIMINOR * log(tan((x * DEGREESTORADIANS + M_PI / 2.0) / 2.0)));
 }
 
 static void
@@ -408,9 +408,9 @@ lowranceusr_parse_waypt(Waypoint* wpt_tmp)
 
   if (global_opts.debug_level >= 2) {
     printf(MYNAME " parse_waypt: creation time %d\n",
-           (int)wpt_tmp->creation_time.toTime_t());
-    printf(MYNAME " parse_waypt: base_time %d\n", (int)base_time_secs);
-    printf(MYNAME " parse_waypt: waypt time %d\n", (int)waypt_time);
+           static_cast<int>(wpt_tmp->creation_time.toTime_t()));
+    printf(MYNAME " parse_waypt: base_time %d\n", static_cast<int>(base_time_secs));
+    printf(MYNAME " parse_waypt: waypt time %d\n", static_cast<int>(waypt_time));
   }
 
   /* Symbol ID */
@@ -735,9 +735,9 @@ lowranceusr_waypt_disp(const Waypoint* wpt)
 
   if (global_opts.debug_level >= 2) {
     time_t wpt_time = Time;
-    printf(MYNAME " waypt_disp: base_time : %d\n", (int)base_time_secs);
-    printf(MYNAME " waypt_disp: creation time : %d\n", (int)wpt->creation_time.toTime_t());
-    printf(MYNAME " waypt_disp: waypt time : %d\n", (int)wpt_time);
+    printf(MYNAME " waypt_disp: base_time : %d\n", static_cast<int>(base_time_secs));
+    printf(MYNAME " waypt_disp: creation time : %d\n", static_cast<int>(wpt->creation_time.toTime_t()));
+    printf(MYNAME " waypt_disp: waypt time : %d\n", static_cast<int>(wpt_time));
     printf(MYNAME " waypt_disp: waypt time (local): %s\n", ctime(&wpt_time));
   }
 
@@ -843,7 +843,7 @@ lowranceusr_track_hdr(const route_head* trk)
   }
   gbfwrite(CSTR(name), 1, text_len, file_out);
 
-  short num_trail_points = (short) trk->rte_waypt_ct;
+  short num_trail_points = static_cast<short>(trk->rte_waypt_ct);
   short max_trail_size = MAX_TRAIL_POINTS;
   if (num_trail_points > max_trail_size) {
     num_trail_points = max_trail_size;
@@ -887,7 +887,7 @@ lowranceusr_route_hdr(const route_head* rte)
   xfree(name);
 
   /* num legs */
-  short num_legs = (short) rte->rte_waypt_ct;
+  short num_legs = static_cast<short>(rte->rte_waypt_ct);
   gbfputint16(num_legs, file_out);
   gbfwrite(&route_reversed, 1, 1, file_out);
 
@@ -945,7 +945,7 @@ lowranceusr_merge_track_hdr(const route_head* trk)
     gbfwrite(name, 1, text_len, file_out);
   }
 
-  trail_point_count += (short) trk->rte_waypt_ct;
+  trail_point_count += static_cast<short>(trk->rte_waypt_ct);
 }
 
 static void

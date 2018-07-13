@@ -58,7 +58,7 @@ xg_tag_mapping ignr_xml_map[] = {
   { ignr_etape_end, 	cb_end, 	"/RANDONNEE/ETAPE" },
   { ignr_etape_pos,	cb_cdata,	"/RANDONNEE/ETAPE/POSITION" },
   { ignr_etape_alt,	cb_cdata,	"/RANDONNEE/ETAPE/ALTITUDE" },
-  { nullptr,	(xg_cb_type)0, 		nullptr }
+  { nullptr,	static_cast<xg_cb_type>(0), 		nullptr }
 };
 
 static void
@@ -217,7 +217,7 @@ ignr_write()
 
   if (index_opt != nullptr) {
     track_index = atoi(index_opt);
-    if ((track_index < 1) || (track_index > (int) track_count()))
+    if ((track_index < 1) || (track_index > static_cast<int>(track_count())))
       fatal(MYNAME ": Invalid track index %d (we have currently %d track(s))!\n",
             track_index, track_count());
   } else {
@@ -246,7 +246,7 @@ ignr_write()
 
 ff_vecs_t ignr_vecs = {
   ff_type_file,
-  { ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none },
+  { ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write), ff_cap_none },
   ignr_rd_init,
   ignr_rw_init,
   ignr_rd_deinit,

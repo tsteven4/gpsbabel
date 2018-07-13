@@ -155,7 +155,7 @@ static xg_tag_mapping gtc_map[] = {
   { gtc_wpt_long, cb_cdata, "/Courses/Course/Lap/BeginPosition/LongitudeDegrees" },
   { gtc_trk_alt,  cb_cdata, "/Courses/Course/Lap/BeginAltitudeMeters" },
 
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 
 static const char*
@@ -371,12 +371,12 @@ gtc_fake_hdr()
   }
   if (tdata->avg_hrt) {
     gtc_write_xml(1, "<AverageHeartRateBpm xsi:type=\"HeartRateInBeatsPerMinute_t\">\n");
-    gtc_write_xml(0, "<Value>%d</Value>\n", (int)(tdata->avg_hrt + 0.5));
+    gtc_write_xml(0, "<Value>%d</Value>\n", static_cast<int>(tdata->avg_hrt + 0.5));
     gtc_write_xml(-1,"</AverageHeartRateBpm>\n");
   }
   if (tdata->max_hrt) {
     gtc_write_xml(1, "<MaximumHeartRateBpm xsi:type=\"HeartRateInBeatsPerMinute_t\">\n");
-    gtc_write_xml(0, "<Value>%d</Value>\n", (int)(tdata->max_hrt + 0.5));
+    gtc_write_xml(0, "<Value>%d</Value>\n", static_cast<int>(tdata->max_hrt + 0.5));
     gtc_write_xml(-1,"</MaximumHeartRateBpm>\n");
   }
   gtc_write_xml(0, "<Intensity>Active</Intensity>\n");
@@ -639,7 +639,7 @@ ff_vecs_t gtc_vecs = {
   ff_type_file,
   {
     ff_cap_read 			/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* tracks */,
     ff_cap_none 			/* routes */
   },
   gtc_rd_init,

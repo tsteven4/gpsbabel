@@ -52,7 +52,7 @@ static xg_tag_mapping xol_map[] = {
     { xol_shape, cb_start, XOL "/shapes/*shape" },
     { xol_shape_end, cb_end, XOL "/shapes/*shape" },
     { xol_waypt, cb_start, XOL "/shapes/shape/*points/point" },
-    { nullptr, (xg_cb_type)0, nullptr} };
+    { nullptr, static_cast<xg_cb_type>(0), nullptr} };
 
 static void xol_overlay(xg_string, const QXmlStreamAttributes* attrv) {
   if (attrv->hasAttribute("version")) {
@@ -296,8 +296,8 @@ static void xol_write() {
 }
 
 ff_vecs_t xol_vecs = {ff_type_file,
-                      {(ff_cap)(ff_cap_read | ff_cap_write), /* waypoints */
-                       (ff_cap)(ff_cap_read | ff_cap_write), /* tracks */
+                      {static_cast<ff_cap>(ff_cap_read | ff_cap_write), /* waypoints */
+                       static_cast<ff_cap>(ff_cap_read | ff_cap_write), /* tracks */
                        ff_cap_none},                         /* routes */
                       xol_rd_init,
                       xol_wr_init,

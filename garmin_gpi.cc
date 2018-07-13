@@ -255,7 +255,7 @@ gpi_read_lc_string_old(char* languagecode, short* length)
   if ((lc[0] < 'A') || (lc[0] > 'Z') || (lc[1] < 'A') || (lc[1] > 'Z')) {
     fatal(MYNAME ": Invalid language code %s!\n", lc);
   }
-  char* res = (char*) xmalloc(len + 1);
+  char* res = static_cast<char*>(xmalloc(len + 1));
   res[len] = '\0';
   PP;
   if (len > 0) {
@@ -305,7 +305,7 @@ gpi_read_string_old(const char* field)
         res = res1;
       }
     } else {
-      res = (char*) xmalloc(l0 + 1);
+      res = static_cast<char*>(xmalloc(l0 + 1));
       *res = first;
       *(res + l0) = '\0';
       PP;
@@ -438,7 +438,7 @@ read_poi(const int sz, const int tag)
   (void) gbfgetc(fin);		/* seems to 1 when extra options present */
   wpt->shortname = gpi_read_string("Shortname");
 
-  while (gbftell(fin) < (gbsize_t)(pos + sz - 4)) {
+  while (gbftell(fin) < static_cast<gbsize_t>(pos + sz - 4)) {
     int tag = gbfgetint32(fin);
     if (! read_tag("read_poi", tag, wpt)) {
       break;
@@ -489,7 +489,7 @@ read_poi_list(const int sz)
 
   (void) gbfgetint32(fin);	/* ? const 0x1000100 ? */
 
-  while (gbftell(fin) < (gbsize_t)(pos + sz - 4)) {
+  while (gbftell(fin) < static_cast<gbsize_t>(pos + sz - 4)) {
     int tag = gbfgetint32(fin);
     if (! read_tag("read_poi_list", tag, nullptr)) {
       return;
@@ -521,7 +521,7 @@ read_poi_group(const int sz, const int tag)
   }
   rdata->group = gpi_read_string("Group");
 
-  while (gbftell(fin) < (gbsize_t)(pos + sz)) {
+  while (gbftell(fin) < static_cast<gbsize_t>(pos + sz)) {
     int subtag = gbfgetint32(fin);
     if (! read_tag("read_poi_group", subtag, nullptr)) {
       break;
@@ -568,7 +568,7 @@ read_tag(const char* caller, const int tag, Waypoint* wpt)
   case 0x80003:	/* size = 12 */
 
     dist = gbfgetint16(fin);		/* proximity distance in meters */
-    speed = (double)gbfgetint16(fin) / 100;	/* speed in meters per second */
+    speed = static_cast<double>(gbfgetint16(fin)) / 100;	/* speed in meters per second */
 
     if (dist > 0) {
       WAYPT_SET(wpt, proximity, dist);
@@ -780,7 +780,7 @@ compare_strings(const QString& s1, const QString& s2)
 static writer_data_t*
 wdata_alloc()
 {
-  writer_data_t* res = (writer_data_t*) xcalloc(1, sizeof(*res));
+  writer_data_t* res = static_cast<writer_data_t*>(xcalloc(1, sizeof(*res)));
   QUEUE_INIT(&res->Q);
   waypt_init_bounds(&res->bds);
 
@@ -797,7 +797,7 @@ wdata_free(writer_data_t* data)
     Waypoint* wpt = (Waypoint*)elem;
 
     if (wpt->extra_data) {
-      gpi_waypt_t* dt = (gpi_waypt_t*) wpt->extra_data;
+      gpi_waypt_t* dt = static_cast<gpi_waypt_t*>(wpt->extra_data);
       if (dt->addr_is_dynamic) {
         xfree(dt->addr);
       }
@@ -925,7 +925,7 @@ wdata_compute_size(writer_data_t* data)
       res += 10;  /* tag(4) */
     }
 
-    gpi_waypt_t* dt = (gpi_waypt_t*) xcalloc(1, sizeof(*dt));
+    gpi_waypt_t* dt = static_cast<gpi_waypt_t*>(xcalloc(1, sizeof(*dt)));
     wpt->extra_data = dt;
 
     if (alerts) {
@@ -1082,7 +1082,7 @@ wdata_write(const writer_data_t* data)
   QUEUE_FOR_EACH(&data->Q, elem, tmp) {
     int s1;
     Waypoint* wpt = (Waypoint*)elem;
-    gpi_waypt_t* dt = (gpi_waypt_t*) wpt->extra_data;
+    gpi_waypt_t* dt = static_cast<gpi_waypt_t*>(wpt->extra_data);
 
     QString str = wpt->description;
     if (str.isEmpty()) {
@@ -1125,13 +1125,13 @@ wdata_write(const writer_data_t* data)
       gbfputint32(12, fout);	/* always 12 */
 
       if (WAYPT_HAS(wpt, proximity) && (wpt->proximity > 0)) {
-        gbfputint16((int) wpt->proximity, fout);
+        gbfputint16(static_cast<int>(wpt->proximity), fout);
         flag = 4;
       } else {
         gbfputint16(0, fout);
       }
       if (WAYPT_HAS(wpt, speed) && (wpt->speed > 0)) {
-        gbfputint16((int)(wpt->speed * 100), fout);
+        gbfputint16(static_cast<int>(wpt->speed * 100), fout);
         flag = 5;
       } else {
         gbfputint16(0, fout);
@@ -1355,7 +1355,7 @@ load_bitmap_from_file(const char* fname, unsigned char** data, int* data_sz)
   }
 
   if (src_h.used_colors > 0) {
-    color_table = (int*) xmalloc(4 * src_h.used_colors);
+    color_table = static_cast<int*>(xmalloc(4 * src_h.used_colors));
     gbfread(color_table, 1, 4 * src_h.used_colors, f);
     for (i = 0; i < src_h.used_colors; i++) {
       int color = color_table[i];
@@ -1383,7 +1383,7 @@ load_bitmap_from_file(const char* fname, unsigned char** data, int* data_sz)
     sz += (src_h.used_colors * 4);
   }
 
-  ptr = (unsigned char*) xmalloc(sz);
+  ptr = static_cast<unsigned char*>(xmalloc(sz));
   dest_h = (gpi_bitmap_header_t*)ptr;
   *data = ptr;
   *data_sz = sz;
@@ -1414,7 +1414,7 @@ load_bitmap_from_file(const char* fname, unsigned char** data, int* data_sz)
       unsigned char* p = ptr;
 
       for (j = 0; j < src_h.width; j++) {
-        int color = (int32_t)gbfgetint16(f) | (gbfgetc(f) << 16);
+        int color = static_cast<int32_t>(gbfgetint16(f)) | (gbfgetc(f) << 16);
         le_write32(p, color);
         p += 4;
       }
@@ -1632,7 +1632,7 @@ garmin_gpi_write()
 ff_vecs_t garmin_gpi_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* waypoints */,
     ff_cap_none 			/* tracks */,
     ff_cap_none 			/* routes */
   },

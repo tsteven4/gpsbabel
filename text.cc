@@ -115,7 +115,7 @@ text_disp(const Waypoint* wpt)
                            &utme, &utmn, &utmz, &utmzc);
   char* tmpout1 = pretty_deg_format(wpt->latitude, wpt->longitude, degformat[2], " ", 0);
   if (wpt->altitude != unknown_alt) {
-    xasprintf(&altout, " alt:%d", (int)((altunits[0]=='f')?METERS_TO_FEET(wpt->altitude):wpt->altitude));
+    xasprintf(&altout, " alt:%d", static_cast<int>((altunits[0]=='f')?METERS_TO_FEET(wpt->altitude):wpt->altitude));
   } else {
     altout = (char*) "";
   }

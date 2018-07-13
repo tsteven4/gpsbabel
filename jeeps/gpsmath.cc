@@ -90,8 +90,8 @@ void GPS_Math_Deg_To_DegMin(double v, int32* d, double* m)
     sign = 0;
   }
 
-  *d = (int32)v;
-  *m = (v-(double)*d) * 60.0;
+  *d = static_cast<int32>(v);
+  *m = (v-static_cast<double>(*d)) * 60.0;
   if (*m>59.999) {
     ++*d;
     *m = 0.0;
@@ -120,7 +120,7 @@ void GPS_Math_Deg_To_DegMin(double v, int32* d, double* m)
 void GPS_Math_DegMin_To_Deg(int32 d, double m, double* deg)
 {
 
-  *deg = ((double)abs(d)) + m / 60.0;
+  *deg = (static_cast<double>(abs(d))) + m / 60.0;
   if (d<0) {
     *deg = -*deg;
   }
@@ -154,10 +154,10 @@ void GPS_Math_Deg_To_DegMinSec(double v, int32* d, int32* m, double* s)
     sign = 0;
   }
 
-  *d = (int32)v;
-  t  = (v -(double)*d) * 60.0;
-  *m = (v-(double)*d) * 60.0;
-  *s = (t - (int32)t) * 60.0;
+  *d = static_cast<int32>(v);
+  t  = (v -static_cast<double>(*d)) * 60.0;
+  *m = (v-static_cast<double>(*d)) * 60.0;
+  *s = (t - static_cast<int32>(t)) * 60.0;
 
   if (*s>59.999) {
     ++t;
@@ -170,7 +170,7 @@ void GPS_Math_Deg_To_DegMinSec(double v, int32* d, int32* m, double* s)
     t = 0;
   }
 
-  *m = (int32)t;
+  *m = static_cast<int32>(t);
 
   if (sign) {
     *d = -*d;
@@ -196,7 +196,7 @@ void GPS_Math_Deg_To_DegMinSec(double v, int32* d, int32* m, double* s)
 void GPS_Math_DegMinSec_To_Deg(int32 d, int32 m, double s, double* deg)
 {
 
-  *deg = ((double)abs(d)) + ((double)m + s / 60.0) / 60.0;
+  *deg = (static_cast<double>(abs(d))) + (static_cast<double>(m) + s / 60.0) / 60.0;
   if (d<0) {
     *deg = -*deg;
   }
@@ -249,7 +249,7 @@ double GPS_Math_Feet_To_Metres(double v)
 
 int32 GPS_Math_Deg_To_Semi(double v)
 {
-  return ((double)(1U<<31) / 180.0) * v;
+  return (static_cast<double>(1U<<31) / 180.0) * v;
 }
 
 
@@ -265,7 +265,7 @@ int32 GPS_Math_Deg_To_Semi(double v)
 
 double GPS_Math_Semi_To_Deg(int32 v)
 {
-  return (((double)v / (double)(1U<<31)) * 180.0);
+  return ((static_cast<double>(v) / static_cast<double>(1U<<31)) * 180.0);
 }
 
 
@@ -1361,14 +1361,14 @@ int32 GPS_Math_EN_To_UKOSNG_Map(double E, double N, double* mE,
     return 0;
   }
 
-  idx = ((int32)N/100000)*7 + (int32)E/100000;
+  idx = (static_cast<int32>(N)/100000)*7 + static_cast<int32>(E)/100000;
   (void) strcpy(map,UKNG[idx]);
 
-  t = ((int32)E / 100000) * 100000;
-  *mE = E - (double)t;
+  t = (static_cast<int32>(E) / 100000) * 100000;
+  *mE = E - static_cast<double>(t);
 
-  t = ((int32)N / 100000) * 100000;
-  *mN = N - (double)t;
+  t = (static_cast<int32>(N) / 100000) * 100000;
+  *mN = N - static_cast<double>(t);
 
   return 1;
 }
@@ -1413,10 +1413,10 @@ int32 GPS_Math_UKOSNG_Map_To_EN(char* map, double mapE, double mapN, double* E,
 
 
   t = (idx / 7) * 100000;
-  *N = mapN + (double)t;
+  *N = mapN + static_cast<double>(t);
 
   t = (idx % 7) * 100000;
-  *E = mapE + (double)t;
+  *E = mapE + static_cast<double>(t);
 
   return 1;
 }
@@ -2019,15 +2019,15 @@ static int32 GPS_Math_LatLon_To_UTM_Param(double lat, double lon, int32* zone,
     psign=1;
   }
 
-  ilon = abs((int32)lon);
-  ilat = abs((int32)lat);
+  ilon = abs(static_cast<int32>(lon));
+  ilat = abs(static_cast<int32>(lat));
 
   if (!lsign) {
     *zone = 31 + (ilon / 6);
-    *Mc   = (double)((ilon / 6) * 6 + 3);
+    *Mc   = static_cast<double>((ilon / 6) * 6 + 3);
   } else {
     *zone = 30 - (ilon / 6);
-    *Mc   = -(double)((ilon / 6) * 6 + 3);
+    *Mc   = -static_cast<double>((ilon / 6) * 6 + 3);
   }
 
   if (!psign) {
@@ -2174,9 +2174,9 @@ static int32 GPS_Math_UTM_Param_To_Mc(int32 zone, char zc, double* Mc,
   }
 
   if (zone > 30) {
-    *Mc = (double)((zone-31)*6) + 3.0;
+    *Mc = static_cast<double>((zone-31)*6) + 3.0;
   } else {
-    *Mc = (double) -(((30-zone)*6)+3);
+    *Mc = static_cast<double>(-(((30-zone)*6)+3));
   }
 
   if (zone==32 && zc=='V') {

@@ -336,7 +336,7 @@ globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand)
     printf("len=%d Payload:", length);
   }
 
-  uint8_t* payload = (uint8_t*) malloc(length);
+  uint8_t* payload = static_cast<uint8_t*>(malloc(length));
   if (payload == nullptr) {
     goto error_out;
   }
@@ -766,8 +766,8 @@ track_read()
               //   qDebug() << "DateTime2:" << gpsDateTime.toString();
               // }
               if (global_opts.debug_level > 1) {
-                printf("     recpoint[%2d] Lat:%f Long:%f Alt:%dm", recpoint,(double)((int32_t) point.Latitude) / 1000000.0,(double)((int32_t) point.Longitude) / 1000000.0, point.Altitude);
-                printf(" Speed:%f HR:%d",(double) point.Speed / 100, point.HeartRate);
+                printf("     recpoint[%2d] Lat:%f Long:%f Alt:%dm", recpoint,static_cast<double>(static_cast<int32_t>(point.Latitude)) / 1000000.0,static_cast<double>(static_cast<int32_t>(point.Longitude)) / 1000000.0, point.Altitude);
+                printf(" Speed:%f HR:%d",static_cast<double>(point.Speed) / 100, point.HeartRate);
                 printf(" Time:%d Cadence:%d", point.IntervalTime, point.Cadence);
                 printf(" PwrCadense:%d Power:%d\n", point.PwrCadence,point.Power);
               }
@@ -775,10 +775,10 @@ track_read()
               Waypoint* wpt = new Waypoint(); // waypt_new();
               //wpt->creation_time = mkgmtime(&gpstime);
               wpt->SetCreationTime(gpsbabeltime);
-              wpt->longitude = ((int32_t) point.Longitude) / 1000000.0;
-              wpt->latitude = ((int32_t) point.Latitude) / 1000000.0;
+              wpt->longitude = (static_cast<int32_t>(point.Longitude)) / 1000000.0;
+              wpt->latitude = (static_cast<int32_t>(point.Latitude)) / 1000000.0;
               wpt->altitude = point.Altitude;
-              wpt->speed = ((double) point.Speed / 100.0) * 1000.0 / 3600.0;
+              wpt->speed = (static_cast<double>(point.Speed) / 100.0) * 1000.0 / 3600.0;
               wpt->heartrate = point.HeartRate;
               wpt->cadence = point.Cadence;	//TODO convert in any way??
               wpt->power = point.Power;	//TODO convert in any way??

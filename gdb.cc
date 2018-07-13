@@ -495,7 +495,7 @@ read_waypoint(gt_waypt_classes_e* waypt_class_out)
 #if GDB_DEBUG
   sn = xstrdup(nice(res->shortname));
 #endif
-  wpt_class = (gt_waypt_classes_e) FREAD_i32;
+  wpt_class = static_cast<gt_waypt_classes_e>(FREAD_i32);
   GMSD_SET(wpt_class, wpt_class);
   if (wpt_class != 0) {
     waypth_ct++;
@@ -785,7 +785,7 @@ read_route()
       warning(MYNAME "-rte_pt \"%s\" (class %d): possible error in route.\n", qPrintable(wpt->shortname), wpt_class);
       warning(MYNAME "-rte_pt (dump):");
       for (int i = 0; i < 18; i++) {
-        warning(" %02x", (unsigned char)buf[i]);
+        warning(" %02x", static_cast<unsigned char>(buf[i]));
       }
       warning("\n");
     }
@@ -799,7 +799,7 @@ read_route()
            nice(wpt->shortname), wpt_class, links);
 #endif
     for (int j = 0; j < links; j++) {
-      garmin_ilink_t* il_step = (garmin_ilink_t*) xmalloc(sizeof(*il_step));
+      garmin_ilink_t* il_step = static_cast<garmin_ilink_t*>(xmalloc(sizeof(*il_step)));
 
       il_step->ref_count = 1;
 
@@ -1101,12 +1101,12 @@ read_data()
         warning(MYNAME ":(%d%c): delta = %d -", gdb_ver, typ, delta);
       }
       if (delta > 0) {
-        char* buf = (char*) xmalloc(delta);
+        char* buf = static_cast<char*>(xmalloc(delta));
         if (FREAD(buf, delta) < 1) {
           fatal(MYNAME ": Attempt to read past EOF.\n");
         }
         for (int i = 0; i < delta; i++) {
-          warning(" %02x", (unsigned char)buf[i]);
+          warning(" %02x", static_cast<unsigned char>(buf[i]));
         }
         xfree(buf);
       }
@@ -1463,7 +1463,7 @@ write_route(const route_head* rte, const QString& rte_name)
     garmin_fs_t* gmsd = GMSD_FIND(wpt);
 
     /* extra_data may contain a modified shortname */
-    FWRITE_CSTR((wpt->extra_data) ? (char*)wpt->extra_data : wpt->shortname);
+    FWRITE_CSTR((wpt->extra_data) ? static_cast<char*>(wpt->extra_data) : wpt->shortname);
 
     int wpt_class = wpt->wpt_flags.fmt_use;			/* trick */
 

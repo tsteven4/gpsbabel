@@ -146,7 +146,7 @@ tpo_check_version_string()
 
   /* read the id string */
   gbfread(&string_size, 1, 1, tpo_file_in);
-  char* string_buffer = (char*) xmalloc(string_size+1);
+  char* string_buffer = static_cast<char*>(xmalloc(string_size+1));
   gbfread(string_buffer, 1, string_size, tpo_file_in);
 
   /* terminate the string */
@@ -179,7 +179,7 @@ static void
    as a C array definition. */
 tpo_dump_header_bytes(int header_size)
 {
-  unsigned char* buffer = (unsigned char*) xmalloc(header_size);
+  unsigned char* buffer = static_cast<unsigned char*>(xmalloc(header_size));
 
   gbfread(buffer, 1, header_size, tpo_file_in);
 
@@ -372,7 +372,7 @@ static void tpo_read_2_x()
 //
 static int tpo_read_int()
 {
-  unsigned char val = (unsigned char) gbfgetc(tpo_file_in);
+  unsigned char val = static_cast<unsigned char>(gbfgetc(tpo_file_in));
 
   switch (val) {
 
@@ -388,7 +388,7 @@ static int tpo_read_int()
 
   default:    // 8-bit value
 //printf("Found 8-bit value: %x\n", val);
-    return((int)val);
+    return(static_cast<int>(val));
     break;
   }
 }
@@ -448,8 +448,8 @@ static Waypoint* tpo_convert_ll(int lat, int lon)
 {
   Waypoint* waypoint_temp = new Waypoint;
 
-  double latitude = (double)lat / 0x800000;
-  double longitude = (double)lon / 0x800000;
+  double latitude = static_cast<double>(lat) / 0x800000;
+  double longitude = static_cast<double>(lon) / 0x800000;
 
 //printf("lat: %f\tlon: %f\n", latitude, longitude);
 
@@ -515,7 +515,7 @@ static void tpo_process_tracks()
 
     // clumsy way to skip two undefined bytes (compiler should unwind this)
     for (unsigned xx = 0; xx < 2; xx++) {
-      unsigned int skipped = (unsigned char) gbfgetc(tpo_file_in);
+      unsigned int skipped = static_cast<unsigned char>(gbfgetc(tpo_file_in));
       Q_UNUSED(skipped);
       // printf("Skipping unknown (visibility?) byte 0x%x\n", skipped);
     }
@@ -527,7 +527,7 @@ static void tpo_process_tracks()
       if ((col < 0) || (col >255)) {
         col = 0; // assign black if out of range 0x00 to 0xff
       }
-      styles[ii].color[xx] = (uint8_t)col;
+      styles[ii].color[xx] = static_cast<uint8_t>(col);
     }
 
     unsigned char tmp = gbfgetc(tpo_file_in);
@@ -560,8 +560,8 @@ static void tpo_process_tracks()
     }
 
     // one byte for line width (value 1-4), one byte for 'dashed' boolean
-    styles[ii].wide = (uint8_t) gbfgetc(tpo_file_in);
-    styles[ii].dash = (uint8_t) gbfgetc(tpo_file_in);
+    styles[ii].wide = static_cast<uint8_t>(gbfgetc(tpo_file_in));
+    styles[ii].dash = static_cast<uint8_t>(gbfgetc(tpo_file_in));
 
     // clumsy way to skip two undefined bytes
     for (unsigned xx = 0; xx < 2; xx++) {
@@ -672,7 +672,7 @@ static void tpo_process_tracks()
     // proper place for the next track.
 
     // Read the track bytes into a buffer
-    unsigned char* buf = (unsigned char*) xmalloc(track_byte_count);
+    unsigned char* buf = static_cast<unsigned char*>(xmalloc(track_byte_count));
     gbfread(buf, 1, track_byte_count, tpo_file_in);
 
     int latscale = 0;
@@ -800,7 +800,7 @@ static void tpo_process_waypoints()
 
   // Fetch storage for the waypoint index (needed later for
   // routes)
-  tpo_wp_index = (Waypoint**) xmalloc(sizeof(Waypoint*) * waypoint_count);
+  tpo_wp_index = static_cast<Waypoint**>(xmalloc(sizeof(Waypoint*) * waypoint_count));
   tpo_index_ptr = 0;
 
   if (waypoint_count == 0) {
@@ -846,7 +846,7 @@ static void tpo_process_waypoints()
       /* this is unecessary, the constructor will do this anyway. */
       waypoint_temp->altitude = unknown_alt;
     } else {
-      waypoint_temp->altitude = (double) altitude / 100.0;   // Meters
+      waypoint_temp->altitude = static_cast<double>(altitude) / 100.0;   // Meters
     }
 //printf("\tAltitude: %1.2f meters\n", waypoint_temp->altitude);
 
@@ -1712,11 +1712,11 @@ tpo_track_disp(const Waypoint* waypointp)
   lon *= -1.0;
 
   /* longitude delta from first route point */
-  short lon_delta = (short)((first_track_waypoint_lon - lon) / output_track_lon_scale);
+  short lon_delta = static_cast<short>((first_track_waypoint_lon - lon) / output_track_lon_scale);
   gbfputint16(lon_delta, tpo_file_out);
 
   /* latitude delta from first route point */
-  short lat_delta = (short)((first_track_waypoint_lat - lat) / output_track_lat_scale);
+  short lat_delta = static_cast<short>((first_track_waypoint_lat - lat) / output_track_lat_scale);
   gbfputint16(lat_delta, tpo_file_out);
 
   /*

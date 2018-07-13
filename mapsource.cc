@@ -405,12 +405,12 @@ mps_fileHeader_w(gbfile* mps_file, int mps_ver)
   strcpy(hdr+7,"Oct 20 1999");
   strcpy(hdr+19,"12:50:33");
   if (mps_ver == 4) {
-    hdr[1] = (char) 0x96;					/* equates to V4.06 */
+    hdr[1] = static_cast<char>(0x96);					/* equates to V4.06 */
     strcpy(hdr+7,"Oct 22 2001");
     strcpy(hdr+19,"15:45:33");
   }
   if (mps_ver == 5) {
-    hdr[1] = (char) 0xF4;					/* equates to V5.0 */
+    hdr[1] = static_cast<char>(0xF4);					/* equates to V5.0 */
     strcpy(hdr+7,"Jul  3 2003");
     strcpy(hdr+19,"08:35:33");
   }
@@ -666,9 +666,9 @@ mps_waypoint_w(gbfile* mps_file, int mps_ver, const Waypoint* wpt, const bool is
   gbfwrite(zbuf, 1, 1, mps_file);		/* NULL termination to ident */
 
   if (isRouteWpt)	{
-    zbuf[0] = (char)MPSHIDDENROUTEWPTCLASS;
+    zbuf[0] = static_cast<char>(MPSHIDDENROUTEWPTCLASS);
   } else {
-    zbuf[0] = (char)MPSDEFAULTWPTCLASS;
+    zbuf[0] = static_cast<char>(MPSDEFAULTWPTCLASS);
   }
   gbfwrite(zbuf, 4, 1, mps_file);		/* class */
 
@@ -1167,7 +1167,7 @@ mps_routehdr_w(gbfile* mps_file, int mps_ver, const route_head* rte)
 
     /* route name */
     if (rte->rte_name.isEmpty()) {
-      sprintf(hdr, "Route%04x", (unsigned) uniqueValue);
+      sprintf(hdr, "Route%04x", static_cast<unsigned>(uniqueValue));
       rname = xstrdup(hdr);
     } else {
       rname = xstrdup(rte->rte_name);
@@ -1374,9 +1374,9 @@ mps_routedatapoint_w(gbfile* mps_file, int mps_ver, const Waypoint* rtewpt)
 
   Waypoint* wptfound = mps_find_wpt_q_by_name(&written_route_wpt_head, ident);
   if (wptfound != nullptr)	{
-    zbuf[0] = (char)MPSHIDDENROUTEWPTCLASS;
+    zbuf[0] = static_cast<char>(MPSHIDDENROUTEWPTCLASS);
   } else {
-    zbuf[0] = (char)MPSDEFAULTWPTCLASS;
+    zbuf[0] = static_cast<char>(MPSDEFAULTWPTCLASS);
   }
   gbfwrite(zbuf, 4, 1, mps_file);			/* class */
 
@@ -1559,7 +1559,7 @@ mps_trackhdr_w(gbfile* mps_file, int mps_ver, const route_head* trk)
 
     /* track name */
     if (trk->rte_name.isEmpty()) {
-      sprintf(hdr, "Track%04x", (unsigned) uniqueValue);
+      sprintf(hdr, "Track%04x", static_cast<unsigned>(uniqueValue));
       tname = xstrdup(hdr);
     } else {
       tname = xstrdup(trk->rte_name);
@@ -1810,7 +1810,7 @@ mps_write()
         fatal(MYNAME ": merge source version is %d, requested out version is %d\n", mps_ver_temp, atoi(mpsverout));
       }
     } else {
-      mpsverout = (char*) xmalloc(10);
+      mpsverout = static_cast<char*>(xmalloc(10));
       sprintf(mpsverout,"%d", mps_ver_temp);
     }
   }

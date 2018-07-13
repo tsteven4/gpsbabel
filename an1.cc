@@ -115,7 +115,7 @@ typedef struct guid {
 static char*
 ReadString(gbfile* f, short len)
 {
-  char* result = (char*)xcalloc(1, len + 1);
+  char* result = static_cast<char*>(xcalloc(1, len + 1));
   if (len) {
     gbfread(result, 1, len, f);
   }
@@ -160,13 +160,13 @@ Skip(gbfile* f,
 static double
 DecodeOrd(long ord)
 {
-  return (double)((int32_t)(0x80000000 - ord)) / 0x800000;
+  return static_cast<double>(static_cast<int32_t>(0x80000000 - ord)) / 0x800000;
 }
 
 static long
 EncodeOrd(double ord)
 {
-  return (int32_t)(0x80000000 - (int32_t)(ord * 0x800000));
+  return static_cast<int32_t>(0x80000000 - static_cast<int32_t>(ord * 0x800000));
 }
 
 typedef struct {
@@ -250,7 +250,7 @@ static an1_waypoint_record* Alloc_AN1_Waypoint();
 static void Destroy_AN1_Waypoint(void* vwpt)
 {
 
-  an1_waypoint_record* wpt = (an1_waypoint_record*)vwpt;
+  an1_waypoint_record* wpt = static_cast<an1_waypoint_record*>(vwpt);
   xfree(wpt->name);
   xfree(wpt->fontname);
 
@@ -268,7 +268,7 @@ static void Destroy_AN1_Waypoint(void* vwpt)
 
 static void Copy_AN1_Waypoint(void** vdwpt, void* vwpt)
 {
-  an1_waypoint_record* wpt = (an1_waypoint_record*)vwpt;
+  an1_waypoint_record* wpt = static_cast<an1_waypoint_record*>(vwpt);
   an1_waypoint_record* dwpt = Alloc_AN1_Waypoint();
   memcpy(dwpt, wpt, sizeof(an1_waypoint_record));
   dwpt->name = xstrdup(wpt->name);
@@ -281,7 +281,7 @@ static void Copy_AN1_Waypoint(void** vdwpt, void* vwpt)
 
 static an1_waypoint_record* Alloc_AN1_Waypoint()
 {
-  an1_waypoint_record* result = (an1_waypoint_record*)xcalloc(sizeof(*result), 1);
+  an1_waypoint_record* result = static_cast<an1_waypoint_record*>(xcalloc(sizeof(*result), 1));
   result->fs.type = FS_AN1W;
   result->fs.copy = Copy_AN1_Waypoint;
   result->fs.destroy = Destroy_AN1_Waypoint;
@@ -298,7 +298,7 @@ static void Destroy_AN1_Vertex(void* vvertex)
 
 static void Copy_AN1_Vertex(void** vdvert, void* vvert)
 {
-  an1_vertex_record* vert = (an1_vertex_record*)vvert;
+  an1_vertex_record* vert = static_cast<an1_vertex_record*>(vvert);
   an1_vertex_record* dvert = Alloc_AN1_Vertex();
   memcpy(dvert, vert, sizeof(an1_vertex_record));
   *vdvert = (void*)dvert;
@@ -306,7 +306,7 @@ static void Copy_AN1_Vertex(void** vdvert, void* vvert)
 
 static an1_vertex_record* Alloc_AN1_Vertex()
 {
-  an1_vertex_record* result = (an1_vertex_record*)xcalloc(sizeof(*result), 1);
+  an1_vertex_record* result = static_cast<an1_vertex_record*>(xcalloc(sizeof(*result), 1));
   result->fs.type = FS_AN1V;
   result->fs.copy = Copy_AN1_Vertex;
   result->fs.destroy = Destroy_AN1_Vertex;
@@ -319,14 +319,14 @@ static an1_line_record* Alloc_AN1_Line();
 
 static void Destroy_AN1_Line(void* vline)
 {
-  an1_line_record* line = (an1_line_record*)vline;
+  an1_line_record* line = static_cast<an1_line_record*>(vline);
   xfree(line->name);
   xfree(vline);
 }
 
 static void Copy_AN1_Line(void** vdline, void* vline)
 {
-  an1_line_record* line = (an1_line_record*)vline;
+  an1_line_record* line = static_cast<an1_line_record*>(vline);
   an1_line_record* dline = Alloc_AN1_Line();
   memcpy(dline, line, sizeof(an1_line_record));
   dline->name = xstrdup(line->name);
@@ -335,7 +335,7 @@ static void Copy_AN1_Line(void** vdline, void* vline)
 
 static an1_line_record* Alloc_AN1_Line()
 {
-  an1_line_record* result = (an1_line_record*)xcalloc(sizeof(*result), 1);
+  an1_line_record* result = static_cast<an1_line_record*>(xcalloc(sizeof(*result), 1));
   result->fs.type = FS_AN1L;
   result->fs.copy = Copy_AN1_Line;
   result->fs.destroy = Destroy_AN1_Line;
@@ -389,7 +389,7 @@ static void Read_AN1_Waypoint(gbfile* f, an1_waypoint_record* wpt)
       if (oldurlstr) {
         *oldurlstr = 0;
       }
-      wpt->url = (char*) xcalloc(len+1, 1);
+      wpt->url = static_cast<char*>(xcalloc(len+1, 1));
       memcpy(wpt->url, ofs, len);
       ofs += len;
     }
@@ -398,7 +398,7 @@ static void Read_AN1_Waypoint(gbfile* f, an1_waypoint_record* wpt)
     ofs += 2;
 
     if (len) {
-      wpt->comment = (char*) xcalloc(len+1, 1);
+      wpt->comment = static_cast<char*>(xcalloc(len+1, 1));
       memcpy(wpt->comment, ofs, len);
       ofs += len;
     }
@@ -741,7 +741,7 @@ Write_One_AN1_Waypoint(const Waypoint* wpt)
 
   if (!nogc && wpt->gc_data->id) {
 #if NEW_STRINGS
-    char* extra = (char*) xmalloc(25 + wpt->gc_data->placer.length() + wpt->shortname.length());
+    char* extra = static_cast<char*>(xmalloc(25 + wpt->gc_data->placer.length() + wpt->shortname.length()));
 #else
     char* extra = (char*) xmalloc(25 + strlen(CSTR(wpt->gc_data->placer)) + strlen(wpt->shortname));
 #endif
@@ -756,7 +756,7 @@ Write_One_AN1_Waypoint(const Waypoint* wpt)
   if (!nourl && wpt->HasUrlLink()) {
     UrlLink l = wpt->GetUrlLink();
     int len = 7 + l.url_.length();
-    char* extra = (char*)xmalloc(len);
+    char* extra = static_cast<char*>(xmalloc(len));
     sprintf(extra, "{URL=%s}", CSTR(l.url_));
     rec->name = xstrappend(rec->name, extra);
     xfree(extra);
@@ -824,7 +824,7 @@ static void Read_AN1_Lines(gbfile* f)
     rte_head->rte_name = rec->name;
     fs_chain_add(&rte_head->fs, (format_specific_data*)rec);
     route_add_head(rte_head);
-    for (unsigned long j = 0; j < (unsigned) rec->pointcount; j++) {
+    for (unsigned long j = 0; j < static_cast<unsigned>(rec->pointcount); j++) {
       an1_vertex_record* vert = Alloc_AN1_Vertex();
       Read_AN1_Vertex(f, vert);
 
@@ -871,7 +871,7 @@ Write_One_AN1_Line(const route_head* rte)
   format_specific_data* fs = fs_chain_find(rte->fs, FS_AN1L);
 
   if (fs) {
-    rec = (an1_line_record*)(void*)fs;
+    rec = static_cast<an1_line_record*>((void*)fs);
     local = 0;
     switch (output_type_num) {
     case 1:
@@ -967,7 +967,7 @@ Write_One_AN1_Vertex(const Waypoint* wpt)
   format_specific_data* fs = fs_chain_find(wpt->fs, FS_AN1V);
 
   if (fs) {
-    rec = (an1_vertex_record*)(void*)fs;
+    rec = static_cast<an1_vertex_record*>((void*)fs);
     local = 0;
   } else {
     rec = Alloc_AN1_Vertex();
@@ -1115,7 +1115,7 @@ Init_Road_Changes()
     fatal(MYNAME ": invalid format for road changes\n");
   }
   count = 1 + count / 2;
-  roadchanges = (roadchange*)xmalloc((count+1) * sizeof(roadchange));
+  roadchanges = static_cast<roadchange*>(xmalloc((count+1) * sizeof(roadchange)));
 
   roadchanges[count].type = 0;
   roadchanges[count].name = nullptr;
@@ -1202,9 +1202,9 @@ my_write()
 ff_vecs_t an1_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
     ff_cap_write 			/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* routes */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* routes */,
   },
   rd_init,
   wr_init,

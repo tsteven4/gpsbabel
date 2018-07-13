@@ -313,9 +313,9 @@ geojson_write() {
 ff_vecs_t geojson_vecs = {
   ff_type_file,
   { 
-  	(ff_cap)(ff_cap_read | ff_cap_write) /* waypoints */,
-	(ff_cap)(ff_cap_read | ff_cap_write) /* tracks */,
-	(ff_cap)(ff_cap_read | ff_cap_write) /* routes */, 
+  	static_cast<ff_cap>(ff_cap_read | ff_cap_write) /* waypoints */,
+	static_cast<ff_cap>(ff_cap_read | ff_cap_write) /* tracks */,
+	static_cast<ff_cap>(ff_cap_read | ff_cap_write) /* routes */, 
   },
   geojson_rd_init,
   geojson_wr_init,

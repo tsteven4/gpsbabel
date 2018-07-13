@@ -255,9 +255,9 @@ void PolygonFilter::process()
         waypointp = (Waypoint*)elem;
 #endif
         if (waypointp->extra_data) {
-          ed = (extra_data*) waypointp->extra_data;
+          ed = static_cast<extra_data*>(waypointp->extra_data);
         } else {
-          ed = (extra_data*) xcalloc(1, sizeof(*ed));
+          ed = static_cast<extra_data*>(xcalloc(1, sizeof(*ed)));
           ed->state = OUTSIDE;
           ed->override = 0;
           waypointp->extra_data = ed;
@@ -303,7 +303,7 @@ void PolygonFilter::process()
   QUEUE_FOR_EACH(&waypt_head, elem, tmp) {
     Waypoint* wp = (Waypoint*) elem;
 #endif
-    ed = (extra_data*) wp->extra_data;
+    ed = static_cast<extra_data*>(wp->extra_data);
     wp->extra_data = nullptr;
     if (ed) {
       if (ed->override) {

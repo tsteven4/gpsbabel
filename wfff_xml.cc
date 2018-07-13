@@ -78,7 +78,7 @@ xg_tag_mapping loc_map[] = {
   { wfff_hdop, 	cb_cdata, 	"/DocumentElement/AP/HDOP"		},
   { wfff_lat, 	cb_cdata, 	"/DocumentElement/AP/Lat"		},
   { wfff_lon, 	cb_cdata, 	"/DocumentElement/AP/Lon"		},
-  { nullptr,(xg_cb_type)0,nullptr }
+  { nullptr,static_cast<xg_cb_type>(0),nullptr }
 };
 
 /* work variables for wfff_xxx */

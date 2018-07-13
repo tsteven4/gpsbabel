@@ -225,7 +225,7 @@ csv_stringtrim(const char* string, const char* enclosure, int strip_max)
   if (elen) {
     while (
       (stripped < strip_max) &&
-      ((size_t)(p2 - p1 + 1) >= (elen * 2)) &&
+      (static_cast<size_t>(p2 - p1 + 1) >= (elen * 2)) &&
       (strncmp(p1, enclosure, elen) == 0) &&
       (strncmp((p2 - elen + 1), enclosure, elen) == 0)) {
       p2 -= elen;
@@ -340,7 +340,7 @@ csv_lineparse(const char* stringstart, const char* delimited_by,
   }
 
   /* allocate enough space for this data field */
-  tmp = (char*) xcalloc((p - sp) + 1, sizeof(char));
+  tmp = static_cast<char*>(xcalloc((p - sp) + 1, sizeof(char)));
 
   strncpy(tmp, sp, (p - sp));
   tmp[p - sp] = '\0';
@@ -640,13 +640,13 @@ dec_to_human(const char* format, const char* dirs, double val)
   int sign = (val < 0) ? 0 : 1;
 
   dblvals[0] = fabs(val);
-  intvals[0] = (int)dblvals[0];
+  intvals[0] = static_cast<int>(dblvals[0]);
   dblvals[1] = 60*(dblvals[0]-intvals[0]);
-  intvals[1] = (int)dblvals[1];
+  intvals[1] = static_cast<int>(dblvals[1]);
   dblvals[2] = 60*(dblvals[1]-intvals[1]);
-  intvals[2] = (int)dblvals[2];
+  intvals[2] = static_cast<int>(dblvals[2]);
 
-  char* subformat = (char*) xmalloc(strlen(format)+2);
+  char* subformat = static_cast<char*>(xmalloc(strlen(format)+2));
   const char* formatptr = format;
 
   QString buff;
@@ -728,7 +728,7 @@ void xcsv_file_init(void)
   /* ofield is alloced to allow pointing back at ifields
    * where applicable.
    */
-  xcsv_file.ofield = (queue*) xcalloc(sizeof(queue), 1);
+  xcsv_file.ofield = static_cast<queue*>(xcalloc(sizeof(queue), 1));
   QUEUE_INIT(xcsv_file.ofield);
   /*
    * Provide a sane default for CSV _files_.
@@ -770,7 +770,7 @@ void validate_fieldmap(field_map_t* fmp, bool is_output) {
 void
 xcsv_ifield_add(char* key, char* val, char* pfc)
 {
-  field_map_t* fmp = (field_map_t*) xcalloc(sizeof(*fmp), 1);
+  field_map_t* fmp = static_cast<field_map_t*>(xcalloc(sizeof(*fmp), 1));
   struct xt_mapping* xm = Perfect_Hash::in_word_set(key, strlen(key));
 
   fmp->key = key;
@@ -790,7 +790,7 @@ xcsv_ifield_add(char* key, char* val, char* pfc)
 void
 xcsv_ofield_add(char* key, char* val, char* pfc, int options)
 {
-  field_map_t* fmp = (field_map_t*) xcalloc(sizeof(*fmp), 1);
+  field_map_t* fmp = static_cast<field_map_t*>(xcalloc(sizeof(*fmp), 1));
   struct xt_mapping* xm = Perfect_Hash::in_word_set(key, strlen(key));
 
   fmp->key = key;
@@ -873,7 +873,7 @@ addhms(const char* s, const char* format)
   int  min  =0;
   int  sec  =0;
 
-  char* ampm = (char*) xmalloc(strlen(s) + 1);
+  char* ampm = static_cast<char*>(xmalloc(strlen(s) + 1));
   int ac = sscanf(s, format, &hour, &min, &sec, ampm);
   /* If no time format in arg string, assume AM */
   if (ac < 4) {
@@ -1030,7 +1030,7 @@ xcsv_parse_val(const char* s, Waypoint* wpt, const field_map_t* fmp,
     break;
   case XT_LAT_INT32DEG:
     /* latitude as a 32 bit integer offset */
-    wpt->latitude = intdeg_to_dec((int) atof(s));
+    wpt->latitude = intdeg_to_dec(static_cast<int>(atof(s)));
     break;
   case XT_LAT_HUMAN_READABLE:
     human_to_dec(s, &wpt->latitude, &wpt->longitude, 1);
@@ -1054,7 +1054,7 @@ xcsv_parse_val(const char* s, Waypoint* wpt, const field_map_t* fmp,
     break;
   case XT_LON_INT32DEG:
     /* longitude as a 32 bit integer offset  */
-    wpt->longitude = intdeg_to_dec((int) atof(s));
+    wpt->longitude = intdeg_to_dec(static_cast<int>(atof(s)));
     break;
   case XT_LON_HUMAN_READABLE:
     human_to_dec(s, &wpt->latitude, &wpt->longitude, 2);
@@ -1276,7 +1276,7 @@ xcsv_parse_val(const char* s, Waypoint* wpt, const field_map_t* fmp,
     wpt->sat = atoi(s);
     break;
   case XT_GPS_FIX:
-    wpt->fix = (fix_type)(atoi(s)-(fix_type)1);
+    wpt->fix = static_cast<fix_type>(atoi(s)-static_cast<fix_type>(1));
     if (wpt->fix < fix_2d) {
       if (!case_ignore_strcmp(s, "none")) {
         wpt->fix = fix_none;
@@ -1810,7 +1810,7 @@ xcsv_waypt_pr(const Waypoint* wpt)
       if (! GPS_Math_WGS84_To_UKOSMap_M(wpt->latitude, wpt->longitude, &east, &north, map))
         fatal(MYNAME ": Position (%.5f/%.5f) outside of BNG.\n",
               wpt->latitude, wpt->longitude);
-      buff = QString().sprintf(fmp->printfc, map, (int)(east + 0.5), (int)(north + 0.5));
+      buff = QString().sprintf(fmp->printfc, map, static_cast<int>(east + 0.5), static_cast<int>(north + 0.5));
     }
     break;
     case XT_UTM: {

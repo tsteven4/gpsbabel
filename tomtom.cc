@@ -194,7 +194,7 @@ data_read()
       check_recsize(recsize);
       x = read_long(file_in);
       y = read_long(file_in);
-      desc = (char*)xmalloc(recsize - 13);
+      desc = static_cast<char*>(xmalloc(recsize - 13));
       gbfread(desc, recsize-13, 1, file_in);
 
       wpt_tmp = new Waypoint;
@@ -256,8 +256,8 @@ static
 int
 compare_lat(const void* a, const void* b)
 {
-  const struct hdr* wa = (const struct hdr*) a;
-  const struct hdr* wb = (const struct hdr*) b;
+  const struct hdr* wa = static_cast<const struct hdr*>(a);
+  const struct hdr* wb = static_cast<const struct hdr*>(b);
 
   double difference = wa->wpt->latitude - wb->wpt->latitude;
   if (difference < 0) {
@@ -276,8 +276,8 @@ static
 int
 compare_lon(const void* a, const void* b)
 {
-  const struct hdr* wa = (const struct hdr*)a;
-  const struct hdr* wb = (const struct hdr*)b;
+  const struct hdr* wa = static_cast<const struct hdr*>(a);
+  const struct hdr* wb = static_cast<const struct hdr*>(b);
 
   double difference = wa->wpt->longitude - wb->wpt->longitude;
   if (difference < 0) {
@@ -342,8 +342,8 @@ write_blocks(gbfile* f, struct blockheader* blocks)
                  blocks->start[i].wpt->gc_data->terr/10,
                  blocks->start[i].wpt->gc_data->diff/10,
                  STRFROMUNICODE(blocks->start[i].wpt->shortname),
-                 (int) blocks->start[i].wpt->gc_data->type,
-                 (int) blocks->start[i].wpt->gc_data->container);
+                 static_cast<int>(blocks->start[i].wpt->gc_data->type),
+                 static_cast<int>(blocks->start[i].wpt->gc_data->container));
         //Unfortunately enums mean we get numbers for cache type and container.
       } else {
         snprintf(desc_field, sizeof(desc_field), "%s",
@@ -361,7 +361,7 @@ static struct blockheader*
 compute_blocks(struct hdr* start, int count,
                double minlon, double maxlon, double minlat, double maxlat)
 {
-  struct blockheader* newblock = (struct blockheader*)xcalloc(sizeof(*newblock), 1);
+  struct blockheader* newblock = static_cast<struct blockheader*>(xcalloc(sizeof(*newblock), 1));
   newblock->start = start;
   newblock->count = count;
   newblock->minlon = minlon;
@@ -435,7 +435,7 @@ data_write()
   double maxlat = -200;
   struct blockheader* blocks = nullptr;
 
-  htable = (struct hdr*) xmalloc(ct * sizeof(*htable));
+  htable = static_cast<struct hdr*>(xmalloc(ct * sizeof(*htable)));
   bh = htable;
 
 #if NEWQ

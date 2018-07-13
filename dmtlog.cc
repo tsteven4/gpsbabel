@@ -66,7 +66,7 @@ static xg_tag_mapping tlog3a_xgcb_map[] = {
   { tlog3a_xgcb_version, 	cb_cdata, "/CXMLSafe/Version" },
   { tlog3a_xgcb_length, 	cb_cdata, "/CXMLSafe/Length" },
   { tlog3a_xgcb_data, 	cb_cdata, "/CXMLSafe/Data" },
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 #endif
 
@@ -97,7 +97,7 @@ static xg_tag_mapping tlog3b_xgcb_map[] = {
   { tlog3b_xgcb_wptno,	cb_cdata, "/CTrackFile/CTrackPoint/Northing" },
   { tlog3b_xgcb_wptal,	cb_cdata, "/CTrackFile/CTrackPoint/Altitude" },
   { tlog3b_xgcb_tpten,	cb_end,   "/CTrackFile/CTrackPoint" },
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 
 /* helpers */
@@ -169,7 +169,7 @@ tlog3a_xgcb_data(xg_string args, const QXmlStreamAttributes*)
 #else
   len = strlen(args);
 #endif
-  bin = (char*) xmalloc((len >> 1) + 1);
+  bin = static_cast<char*>(xmalloc((len >> 1) + 1));
 
 #if NEW_STRINGS
   char* cincopy  = xstrdup(args);
@@ -338,7 +338,7 @@ read_str(gbfile* f)
     i = gbfgetint16(f);
   }
 
-  char* res = (char*) xmalloc(i + 1);
+  char* res = static_cast<char*>(xmalloc(i + 1));
   res[i] = '\0';
   if (i) {
     gbfread(res, 1, i, f);
@@ -595,7 +595,7 @@ inflate_buff(const char* buff, const size_t size, char** out_buff)
     }
     uint32_t have = DEFLATE_BUFF_SIZE - strm.avail_out;
     if (have > 0) {
-      cout = (char*) xrealloc(cout, bytes + have);
+      cout = static_cast<char*>(xrealloc(cout, bytes + have));
       memcpy(cout+bytes, out, have);
       bytes+=have;
     }
@@ -818,8 +818,8 @@ dmtlog_write()
 ff_vecs_t dmtlog_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* tracks */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* waypoints */,
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write)	/* tracks */,
     ff_cap_none			/* routes */
   },
   dmtlog_rd_init,

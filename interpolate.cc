@@ -79,7 +79,7 @@ void InterpolateFilter::process()
             wpt_new->shortname = QString();
             wpt_new->description = QString();
 
-            frac = (double)(timen - time1) / (double)(wpt->creation_time.toTime_t() - time1);
+            frac = static_cast<double>(timen - time1) / static_cast<double>(wpt->creation_time.toTime_t() - time1);
             linepart(lat1, lon1,
                      wpt->latitude, wpt->longitude,
                      frac,

@@ -147,7 +147,7 @@ void DuplicateFilter::process(void)
   int ct = waypt_count();
   queue* elem, *tmp;
 
-  wpt_ptr* htable = (wpt_ptr*) xmalloc(ct * sizeof(*htable));
+  wpt_ptr* htable = static_cast<wpt_ptr*>(xmalloc(ct * sizeof(*htable)));
   wpt_ptr* bh = htable;
 
   int i = 0;
@@ -188,7 +188,7 @@ void DuplicateFilter::process(void)
 
     crc = get_crc32(&dupe, sizeof(dupe));
 
-    newnode = (btree_node*)xcalloc(sizeof(btree_node), 1);
+    newnode = static_cast<btree_node*>(xcalloc(sizeof(btree_node), 1));
     newnode->data = crc;
     newnode->wpt = waypointp;
 

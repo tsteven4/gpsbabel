@@ -231,7 +231,7 @@ static int32 GPS_A000(const char* port)
 
   (void) strcpy(gps_save_string,(char*)rec.data+4);
   gps_save_id = id;
-  gps_save_version = ((double)version/100.);
+  gps_save_version = (static_cast<double>(version)/100.);
 
   GPS_User("Unit:\t%s\nID:\t%d\nVersion:\t%.2f",
            gps_save_string, gps_save_id, gps_save_version);
@@ -895,7 +895,7 @@ int32 GPS_A100_Get(const char* port, GPS_PWay** way, int (*cb)(int, GPS_PWay*))
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*way)=(GPS_PWay*)malloc(n*sizeof(GPS_PWay)))) {
+    if (!((*way)=static_cast<GPS_PWay*>(malloc(n*sizeof(GPS_PWay))))) {
       GPS_Error("A100_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -1023,7 +1023,7 @@ int32 GPS_A100_Send(const char* port, GPS_PWay* way, int32 n, int (*cb)(GPS_PWay
     return gps_errno;
   }
 
-  GPS_Util_Put_Short(data, (short) n);
+  GPS_Util_Put_Short(data, static_cast<short>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -2136,7 +2136,7 @@ static void GPS_D102_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Float(p,way->dst);
   p+= sizeof(float);
 
-  GPS_Util_Put_Short(p,(US) way->smbl);
+  GPS_Util_Put_Short(p,static_cast<US>(way->smbl));
 
   *len = 64;
 
@@ -2170,8 +2170,8 @@ static void GPS_D103_Send(UC* data, GPS_PWay way, int32* len)
   p+=sizeof(int32);
   copy_char_array(&p, way->cmnt, 40, UpperYes);
 
-  *p++ = (UC) way->smbl;
-  *p   = (UC) way->dspl;
+  *p++ = static_cast<UC>(way->smbl);
+  *p   = static_cast<UC>(way->dspl);
 
   *len = 60;
 
@@ -2211,7 +2211,7 @@ static void GPS_D104_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Float(p,way->dst);
   p+= sizeof(float);
 
-  GPS_Util_Put_Short(p, (int16) way->smbl);
+  GPS_Util_Put_Short(p, static_cast<int16>(way->smbl));
   p+=sizeof(int16);
 
   *p = 3; /* display symbol with waypoint name */
@@ -2244,7 +2244,7 @@ static void GPS_D105_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Int(p,GPS_Math_Deg_To_Semi(way->lon));
   p+=sizeof(int32);
 
-  GPS_Util_Put_Short(p, (int16) way->smbl);
+  GPS_Util_Put_Short(p, static_cast<int16>(way->smbl));
   p+=sizeof(int16);
 
   q = (UC*) way->wpt_ident;
@@ -2284,7 +2284,7 @@ static void GPS_D106_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Int(p,GPS_Math_Deg_To_Semi(way->lon));
   p+=sizeof(int32);
 
-  GPS_Util_Put_Short(p, (int16) way->smbl);
+  GPS_Util_Put_Short(p, static_cast<int16>(way->smbl));
   p+=sizeof(int16);
 
   q = (UC*) way->wpt_ident;
@@ -2361,7 +2361,7 @@ static void GPS_D108_Send(UC* data, GPS_PWay way, int32* len)
   *p++ = way->colour;
   *p++ = way->dspl;
   *p++ = 0x60;
-  GPS_Util_Put_Short(p,(US) way->smbl);
+  GPS_Util_Put_Short(p,static_cast<US>(way->smbl));
   p+=sizeof(int16);
   for (i=0; i<18; ++i) {
     *p++ = way->subclass[i];
@@ -2372,7 +2372,7 @@ static void GPS_D108_Send(UC* data, GPS_PWay way, int32* len)
   p+=sizeof(int32);
 
   if (way->alt_is_unknown) {
-    GPS_Util_Put_Float(p,(const float) 1.0e25);
+    GPS_Util_Put_Float(p,static_cast<const float>(1.0e25));
   } else {
     GPS_Util_Put_Float(p,way->alt);
   }
@@ -2447,7 +2447,7 @@ static void GPS_D109_Send(UC* data, GPS_PWay way, int32* len, int protoid)
   } else {
     GPS_Warning("Unknown protoid in GPS_D109_Send.");
   }
-  GPS_Util_Put_Short(p,(US) way->smbl);
+  GPS_Util_Put_Short(p,static_cast<US>(way->smbl));
   p+=sizeof(int16);
   for (i=0; i<18; ++i) {
     *p++ = way->subclass[i];
@@ -2457,7 +2457,7 @@ static void GPS_D109_Send(UC* data, GPS_PWay way, int32* len, int protoid)
   GPS_Util_Put_Int(p,GPS_Math_Deg_To_Semi(way->lon));
   p+=sizeof(int32);
   if (way->alt_is_unknown) {
-    GPS_Util_Put_Float(p,(const float) 1.0e25);
+    GPS_Util_Put_Float(p,static_cast<const float>(1.0e25));
   } else {
     GPS_Util_Put_Float(p,way->alt);
   }
@@ -2550,7 +2550,7 @@ static void GPS_D150_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Int(p,GPS_Math_Deg_To_Semi(way->lon));
   p+=sizeof(int32);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   copy_char_array(&p, way->city, 24, UpperYes);
@@ -2597,7 +2597,7 @@ static void GPS_D151_Send(UC* data, GPS_PWay way, int32* len)
   copy_char_array(&p, way->city, 24, UpperYes);
   copy_char_array(&p, way->state, 2, UpperYes);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   for (i=0; i<2; ++i) {
@@ -2650,7 +2650,7 @@ static void GPS_D152_Send(UC* data, GPS_PWay way, int32* len)
   copy_char_array(&p, way->city, 24, UpperYes);
   copy_char_array(&p, way->state, 2, UpperYes);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   for (i=0; i<2; ++i) {
@@ -2703,7 +2703,7 @@ static void GPS_D154_Send(UC* data, GPS_PWay way, int32* len)
   copy_char_array(&p, way->city, 24, UpperYes);
   copy_char_array(&p, way->state, 2, UpperYes);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   for (i=0; i<2; ++i) {
@@ -2716,7 +2716,7 @@ static void GPS_D154_Send(UC* data, GPS_PWay way, int32* len)
   }
   *p++   = way->wpt_class;
 
-  GPS_Util_Put_Short(p,(int16)way->smbl);
+  GPS_Util_Put_Short(p,static_cast<int16>(way->smbl));
 
   *len = 126;
 
@@ -2757,7 +2757,7 @@ static void GPS_D155_Send(UC* data, GPS_PWay way, int32* len)
   copy_char_array(&p, way->city, 24, UpperYes);
   copy_char_array(&p, way->state, 2, UpperYes);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   copy_char_array(&p, way->cc, 2, UpperYes);
@@ -2766,7 +2766,7 @@ static void GPS_D155_Send(UC* data, GPS_PWay way, int32* len)
   /* Ignore wpt_class; our D155 points are always user type which is "4". */
   *p++ = 4;
 
-  GPS_Util_Put_Short(p,(int16)way->smbl);
+  GPS_Util_Put_Short(p,static_cast<int16>(way->smbl));
   p+=sizeof(int16);
 
   *p = way->dspl;
@@ -2822,7 +2822,7 @@ int32 GPS_A200_Get(const char* port, GPS_PWay** way)
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*way)=(GPS_PWay*)malloc(n*sizeof(GPS_PWay)))) {
+    if (!((*way)=static_cast<GPS_PWay*>(malloc(n*sizeof(GPS_PWay))))) {
       GPS_Error("A200_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -2994,7 +2994,7 @@ int32 GPS_A201_Get(const char* port, GPS_PWay** way)
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*way)=(GPS_PWay*)malloc(n*sizeof(GPS_PWay)))) {
+    if (!((*way)=static_cast<GPS_PWay*>(malloc(n*sizeof(GPS_PWay))))) {
       GPS_Error("A201_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -3162,7 +3162,7 @@ int32 GPS_A200_Send(const char* port, GPS_PWay* way, int32 n)
     return gps_errno;
   }
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -3301,7 +3301,7 @@ int32 GPS_A201_Send(const char* port, GPS_PWay* way, int32 n)
     return gps_errno;
   }
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -3634,7 +3634,7 @@ static void GPS_D210_Send(UC* data, GPS_PWay way, int32* len)
 
   p = data;
 
-  GPS_Util_Put_Short(p,(US) way->rte_link_class);
+  GPS_Util_Put_Short(p,static_cast<US>(way->rte_link_class));
   p+=sizeof(int16);
   for (i=0; i<18; ++i) {
     *p++ = way->rte_link_subclass[i];
@@ -3705,7 +3705,7 @@ int32 GPS_A300_Get(const char* port , GPS_PTrack** trk, pcb_fn)
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*trk)=(GPS_PTrack*)malloc(n*sizeof(GPS_PTrack)))) {
+    if (!((*trk)=static_cast<GPS_PTrack*>(malloc(n*sizeof(GPS_PTrack))))) {
       GPS_Error("A300_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -3863,7 +3863,7 @@ int32 GPS_A301_Get(const char* port, GPS_PTrack** trk, pcb_fn cb, int protoid)
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*trk)=(GPS_PTrack*)malloc(n*sizeof(GPS_PTrack)))) {
+    if (!((*trk)=static_cast<GPS_PTrack*>(malloc(n*sizeof(GPS_PTrack))))) {
       GPS_Error("A301_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -3996,7 +3996,7 @@ int32 GPS_A300_Send(const char* port, GPS_PTrack* trk, int32 n)
     return gps_errno;
   }
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -4112,7 +4112,7 @@ int32 GPS_A301_Send(const char* port, GPS_PTrack* trk, int32 n, int protoid,
     return gps_errno;
   }
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -4285,7 +4285,7 @@ void GPS_D301b_Get(GPS_PTrack* trk, UC* data)
   if (!t || t==0x7fffffff || t==0xffffffff) {
     (*trk)->Time=0;
   } else {
-    (*trk)->Time = GPS_Math_Gtime_To_Utime((time_t)t);
+    (*trk)->Time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   }
   p+=sizeof(uint32);
 
@@ -4327,7 +4327,7 @@ void GPS_D302b_Get(GPS_PTrack* trk, UC* data)
   if (!t || t==0x7fffffff || t==0xffffffff) {
     (*trk)->Time=0;
   } else {
-    (*trk)->Time = GPS_Math_Gtime_To_Utime((time_t)t);
+    (*trk)->Time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   }
   p+=sizeof(uint32);
 
@@ -4411,7 +4411,7 @@ void GPS_D303b_Get(GPS_PTrack* trk, UC* data)
   if (!t || t==0x7fffffff || t==0xffffffff) {
     (*trk)->Time=0;
   } else {
-    (*trk)->Time = GPS_Math_Gtime_To_Utime((time_t)t);
+    (*trk)->Time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   }
   p+=sizeof(uint32);
 
@@ -4677,7 +4677,7 @@ static void GPS_A300_Translate(UC* s, GPS_PTrack* trk)
   if (!t || t==0x7fffffff || t==0xffffffff) {
     (*trk)->Time=0;
   } else {
-    (*trk)->Time = GPS_Math_Gtime_To_Utime((time_t)t);
+    (*trk)->Time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   }
   p+=sizeof(uint32);
 
@@ -4715,7 +4715,7 @@ static void GPS_A300_Encode(UC* s, GPS_PTrack trk)
   GPS_Util_Put_Uint(p,GPS_Math_Utime_To_Gtime(trk->Time));
   p+=sizeof(uint32);
 
-  *p = (UC) trk->tnew;
+  *p = static_cast<UC>(trk->tnew);
 
   return;
 }
@@ -4782,7 +4782,7 @@ int32 GPS_A400_Get(const char* port, GPS_PWay** way)
   n = GPS_Util_Get_Short(rec.data);
 
   if (n)
-    if (!((*way)=(GPS_PWay*)malloc(n*sizeof(GPS_PWay)))) {
+    if (!((*way)=static_cast<GPS_PWay*>(malloc(n*sizeof(GPS_PWay))))) {
       GPS_Error("A400_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -4910,7 +4910,7 @@ int32 GPS_A400_Send(const char* port, GPS_PWay* way, int32 n)
   }
 
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -5239,7 +5239,7 @@ static void GPS_D450_Send(UC* data, GPS_PWay way, int32* len)
 
   p = data;
 
-  GPS_Util_Put_Short(p,(US) way->idx);
+  GPS_Util_Put_Short(p,static_cast<US>(way->idx));
   p+=sizeof(int16);
 
   for (i=0; i<6; ++i) {
@@ -5255,7 +5255,7 @@ static void GPS_D450_Send(UC* data, GPS_PWay way, int32* len)
   GPS_Util_Put_Int(p,GPS_Math_Deg_To_Semi(way->lon));
   p+=sizeof(int32);
 
-  GPS_Util_Put_Short(p,(US) way->alt);
+  GPS_Util_Put_Short(p,static_cast<US>(way->alt));
   p+=sizeof(int16);
 
   for (i=0; i<24; ++i) {
@@ -5326,7 +5326,7 @@ int32 GPS_A500_Get(const char* port, GPS_PAlmanac** alm)
   n = GPS_Util_Get_Short(recpkt.data);
 
   if (n)
-    if (!((*alm)=(GPS_PAlmanac*)malloc(n*sizeof(GPS_PAlmanac)))) {
+    if (!((*alm)=static_cast<GPS_PAlmanac*>(malloc(n*sizeof(GPS_PAlmanac))))) {
       GPS_Error("A500_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -5419,7 +5419,7 @@ int32 GPS_A500_Send(const char* port, GPS_PAlmanac* alm, int32 n)
   }
 
 
-  GPS_Util_Put_Short(data,(US) n);
+  GPS_Util_Put_Short(data,static_cast<US>(n));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -5915,9 +5915,9 @@ time_t GPS_D600_Get(GPS_PPacket& packet)
 
   ts.tm_mon  = *p++ - 1;
   ts.tm_mday = *p++;
-  ts.tm_year = (int32) GPS_Util_Get_Short(p) - 1900;
+  ts.tm_year = static_cast<int32>(GPS_Util_Get_Short(p)) - 1900;
   p+=2;
-  ts.tm_hour = (int32) GPS_Util_Get_Short(p);
+  ts.tm_hour = static_cast<int32>(GPS_Util_Get_Short(p));
   p+=2;
   ts.tm_min  = *p++;
   ts.tm_sec  = *p++;
@@ -5947,9 +5947,9 @@ void GPS_D600_Send(GPS_PPacket& packet, time_t Time)
   *p++ = ts->tm_mon+1;
   *p++ = ts->tm_mday;
 
-  GPS_Util_Put_Short(p,(US)(ts->tm_year+1900));
+  GPS_Util_Put_Short(p,static_cast<US>(ts->tm_year+1900));
   p+=2;
-  GPS_Util_Put_Short(p,(US) ts->tm_hour);
+  GPS_Util_Put_Short(p,static_cast<US>(ts->tm_hour));
   p+=2;
 
   *p++ = ts->tm_min;
@@ -6350,7 +6350,7 @@ int32 GPS_A906_Get(const char* port, GPS_PLap** lap, pcb_fn cb)
   n = GPS_Util_Get_Short(recpkt.data);
 
   if (n)
-    if (!((*lap)=(GPS_PLap*)malloc(n*sizeof(GPS_PLap)))) {
+    if (!((*lap)=static_cast<GPS_PLap*>(malloc(n*sizeof(GPS_PLap))))) {
       GPS_Error("A906_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -6438,7 +6438,7 @@ void GPS_D1011b_Get(GPS_PLap* Lap, UC* p)
   }
 
   t = GPS_Util_Get_Uint(p);
-  (*Lap)->start_time = GPS_Math_Gtime_To_Utime((time_t)t);
+  (*Lap)->start_time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   p+=sizeof(uint32);
 
   (*Lap)->total_time = GPS_Util_Get_Int(p);
@@ -6568,7 +6568,7 @@ int32  GPS_A1006_Get
 
 
   if (n)
-    if (!((*crs)=(GPS_PCourse*)malloc(n*sizeof(GPS_PCourse)))) {
+    if (!((*crs)=static_cast<GPS_PCourse*>(malloc(n*sizeof(GPS_PCourse))))) {
       GPS_Error("A1006_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -6650,7 +6650,7 @@ int32 GPS_A1006_Send(const char*,
   int32 i;
   int32 len;
 
-  GPS_Util_Put_Short(data,(US) n_crs);
+  GPS_Util_Put_Short(data,static_cast<US>(n_crs));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -6673,7 +6673,7 @@ int32 GPS_A1006_Send(const char*,
     }
 
     GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Course,
-                    data,(US) len);
+                    data,static_cast<US>(len));
 
     if (!GPS_Write_Packet(fd,tra)) {
       return gps_errno;
@@ -6739,7 +6739,7 @@ void GPS_D1006_Send(UC* data, GPS_PCourse crs, int32* len)
   int j;
   p = data;
 
-  GPS_Util_Put_Short(p, (US) crs->index);
+  GPS_Util_Put_Short(p, static_cast<US>(crs->index));
   p += 2;
 
   GPS_Util_Put_Uint(p,0);
@@ -6749,7 +6749,7 @@ void GPS_D1006_Send(UC* data, GPS_PCourse crs, int32* len)
     *p++ = crs->course_name[j];
   }
 
-  GPS_Util_Put_Short(p, (US) crs->track_index);
+  GPS_Util_Put_Short(p, static_cast<US>(crs->track_index));
   p += 2;
 
   *len = p-data;
@@ -6805,7 +6805,7 @@ int32 GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb)
 
 
   if (n)
-    if (!((*clp)=(GPS_PCourse_Lap*)malloc(n*sizeof(GPS_PCourse_Lap)))) {
+    if (!((*clp)=static_cast<GPS_PCourse_Lap*>(malloc(n*sizeof(GPS_PCourse_Lap))))) {
       GPS_Error("A1007_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -6887,7 +6887,7 @@ int32 GPS_A1007_Send(const char*,
   int32 i;
   int32 len;
 
-  GPS_Util_Put_Short(data,(US) n_clp);
+  GPS_Util_Put_Short(data,static_cast<US>(n_clp));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -6910,7 +6910,7 @@ int32 GPS_A1007_Send(const char*,
     }
 
     GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Course_Lap,
-                    data,(US) len);
+                    data,static_cast<US>(len));
 
     if (!GPS_Write_Packet(fd,tra)) {
       return gps_errno;
@@ -6996,10 +6996,10 @@ void GPS_D1007_Send(UC* data, GPS_PCourse_Lap clp, int32* len)
   UC* p;
   p = data;
 
-  GPS_Util_Put_Short(p, (US) clp->course_index);
+  GPS_Util_Put_Short(p, static_cast<US>(clp->course_index));
   p += 2;
 
-  GPS_Util_Put_Short(p, (US) clp->lap_index);
+  GPS_Util_Put_Short(p, static_cast<US>(clp->lap_index));
   p += 2;
 
   GPS_Util_Put_Uint(p, clp->total_time);
@@ -7079,7 +7079,7 @@ int32 GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb)
 
 
   if (n)
-    if (!((*cpt)=(GPS_PCourse_Point*)malloc(n*sizeof(GPS_PCourse_Point)))) {
+    if (!((*cpt)=static_cast<GPS_PCourse_Point*>(malloc(n*sizeof(GPS_PCourse_Point))))) {
       GPS_Error("A1008_Get: Insufficient memory");
       return MEMORY_ERROR;
     }
@@ -7162,7 +7162,7 @@ int32 GPS_A1008_Send(const char*,
   int32 i;
   int32 len;
 
-  GPS_Util_Put_Short(data,(US) n_cpt);
+  GPS_Util_Put_Short(data,static_cast<US>(n_cpt));
   GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Records,
                   data,2);
   if (!GPS_Write_Packet(fd,tra)) {
@@ -7185,7 +7185,7 @@ int32 GPS_A1008_Send(const char*,
     }
 
     GPS_Make_Packet(&tra, LINK_ID[gps_link_type].Pid_Course_Point,
-                    data,(US) len);
+                    data,static_cast<US>(len));
 
     if (!GPS_Write_Packet(fd,tra)) {
       return gps_errno;
@@ -7235,7 +7235,7 @@ void GPS_D1012_Get(GPS_PCourse_Point* cpt, UC* p)
   p+=sizeof(uint16); // unused
 
   t = GPS_Util_Get_Uint(p);
-  (*cpt)->track_point_time = GPS_Math_Gtime_To_Utime((time_t)t);
+  (*cpt)->track_point_time = GPS_Math_Gtime_To_Utime(static_cast<time_t>(t));
   p+=sizeof(uint32);
 
   (*cpt)->point_type = *p++;
@@ -7266,7 +7266,7 @@ void GPS_D1012_Send(UC* data, GPS_PCourse_Point cpt, int32* len)
   GPS_Util_Put_Uint(p,0);
   p++;
 
-  GPS_Util_Put_Short(p, (US) cpt->course_index);
+  GPS_Util_Put_Short(p, static_cast<US>(cpt->course_index));
   p += 2;
 
   GPS_Util_Put_Uint(p,0);
@@ -7626,11 +7626,11 @@ void GPS_Prepare_Track_For_Device(GPS_PTrack** trk, int32* n)
             GPS_PTrack trkpt = GPS_Track_New();
             *trkpt = *((*trk)[j]);
             trkpt->no_latlon = 1;
-            trkpt->alt = (float) 1e25;
+            trkpt->alt = static_cast<float>(1e25);
             trkpt->distance_populated = 0;
             trkpt->heartrate = 0;
             trkpt->cadence = 0xff;
-            *trk = (struct GPS_STrack**) xrealloc(*trk, (*n+1) * sizeof(GPS_PTrack));
+            *trk = static_cast<struct GPS_STrack**>(xrealloc(*trk, (*n+1) * sizeof(GPS_PTrack)));
             memmove(&(*trk)[i+1], &(*trk)[i], (*n-i) * sizeof(GPS_PTrack));
             (*trk)[i] = trkpt;
             i++;

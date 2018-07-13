@@ -415,9 +415,9 @@ waypt_read()
      * all the cases here.     Yes, libjeeps should probably
      * do this and not us...
      */
-    if ((way[i]->alt == (float)(1U<<31)) ||
+    if ((way[i]->alt == static_cast<float>(1U<<31)) ||
         (way[i]->alt == INT_MAX) ||
-        (way[i]->alt >= (float) 1.0e20)
+        (way[i]->alt >= static_cast<float>(1.0e20))
        ) {
       wpt_tmp->altitude = unknown_alt;
     } else {
@@ -918,7 +918,7 @@ waypoint_prepare()
 #endif
   int icon;
 
-  tx_waylist = (struct GPS_SWay**) xcalloc(n,sizeof(*tx_waylist));
+  tx_waylist = static_cast<struct GPS_SWay**>(xcalloc(n,sizeof(*tx_waylist)));
 
   for (i = 0; i < n; i++) {
     tx_waylist[i] = sane_GPS_Way_New();
@@ -1119,7 +1119,7 @@ route_write()
 {
   int n = 2 * route_waypt_count(); /* Doubled for the islink crap. */
 
-  tx_routelist = (struct GPS_SWay**) xcalloc(n,sizeof(GPS_PWay));
+  tx_routelist = static_cast<struct GPS_SWay**>(xcalloc(n,sizeof(GPS_PWay)));
   cur_tx_routelist_entry = tx_routelist;
 
   for (int i = 0; i < n; i++) {
@@ -1164,7 +1164,7 @@ track_prepare()
 {
   int32 n = track_waypt_count() + track_count();
 
-  tx_tracklist = (struct GPS_STrack**) xcalloc(n, sizeof(GPS_PTrack));
+  tx_tracklist = static_cast<struct GPS_STrack**>(xcalloc(n, sizeof(GPS_PTrack)));
   cur_tx_tracklist_entry = tx_tracklist;
   for (int i = 0; i < n; i++) {
     tx_tracklist[i] = GPS_Track_New();

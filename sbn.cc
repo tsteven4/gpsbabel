@@ -80,18 +80,18 @@ read_packet(int* type, void* payload, size_t max_len)
   size_t size = be_readu16(start + 2);
 
   if (size < 1 || max_len < size) {
-    fatal(MYNAME ": Format error: unexpected size: %d.\n", (int) size);
+    fatal(MYNAME ": Format error: unexpected size: %d.\n", static_cast<int>(size));
   }
 
   /* allocate space for checksum and trailing 0xb0b3 */
   size_t data_size = size + 4;
 
   /* data_size can be up to about 64k */
-  unsigned char* data = (unsigned char*) xmalloc(data_size);
+  unsigned char* data = static_cast<unsigned char*>(xmalloc(data_size));
 
   if (gbfread(data, data_size, 1, file_handle) != 1) {
     fatal(MYNAME ": Format error: could not read %d bytes.\n",
-          (int) data_size);
+          static_cast<int>(data_size));
   }
 
   *type = data[0];

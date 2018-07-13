@@ -467,9 +467,9 @@ static void mapsend_track_disp(const Waypoint* wpt)
    * in V4.0+ this field is a float, it was previously an int
    */
   if (trk_version < 40) {
-    gbfputint32((int) wpt->altitude, mapsend_file_out);
+    gbfputint32(static_cast<int>(wpt->altitude), mapsend_file_out);
   } else {
-    gbfputflt((float) wpt->altitude, mapsend_file_out);
+    gbfputflt(static_cast<float>(wpt->altitude), mapsend_file_out);
   }
 
   /* time */

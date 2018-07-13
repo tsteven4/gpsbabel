@@ -126,9 +126,9 @@ data_read()
 
     lat /= 100.0;
     lon /= 100.0;
-    int ilon = (int)(lon);
+    int ilon = static_cast<int>(lon);
     wpt_tmp->longitude = ilon + (lon - ilon)*(100.0/60.0);
-    int ilat = (int)(lat);
+    int ilat = static_cast<int>(lat);
     wpt_tmp->latitude = ilat + (lat - ilat) * (100.0/60.0);
     wpt_tmp->icon_descr = mag_find_descr_from_token(icon);
     waypt_add(wpt_tmp);

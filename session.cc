@@ -54,7 +54,7 @@ start_session(const char* name, const char* filename)
   }
   session_ct++;
 
-  session_t* s = (session_t*) xcalloc(1, sizeof(*s));
+  session_t* s = static_cast<session_t*>(xcalloc(1, sizeof(*s)));
   ENQUEUE_TAIL(&session_list, &s->Q);
   QUEUE_INIT(&s->category_list);
   s->nr = session_ct;

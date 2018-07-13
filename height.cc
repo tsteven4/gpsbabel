@@ -63,8 +63,8 @@ double HeightFilter::wgs84_separation(double lat, double lon)
     fatal(MYNAME ": Invalid longitude value (%f)\n", lon);
   }
 
-  int ilat = (int)floor((90.0+lat)/GEOID_GRID_DEG);
-  int ilon = (int)floor((180.0+lon)/GEOID_GRID_DEG);
+  int ilat = static_cast<int>(floor((90.0+lat)/GEOID_GRID_DEG));
+  int ilon = static_cast<int>(floor((180.0+lon)/GEOID_GRID_DEG));
 
   int ilat1 = ilat;
   int ilon1 = ilon;
@@ -75,10 +75,10 @@ double HeightFilter::wgs84_separation(double lat, double lon)
            ilon1*GEOID_GRID_DEG-180.0,ilat1*GEOID_GRID_DEG-90.0,
            ilon2*GEOID_GRID_DEG-180.0,ilat2*GEOID_GRID_DEG-90.0,
            lon, lat,
-           (double)geoid_delta[ilon1+ilat1*GEOID_COL]/GEOID_SCALE,
-           (double)geoid_delta[ilon2+ilat1*GEOID_COL]/GEOID_SCALE,
-           (double)geoid_delta[ilon1+ilat2*GEOID_COL]/GEOID_SCALE,
-           (double)geoid_delta[ilon2+ilat2*GEOID_COL]/GEOID_SCALE
+           static_cast<double>(geoid_delta[ilon1+ilat1*GEOID_COL])/GEOID_SCALE,
+           static_cast<double>(geoid_delta[ilon2+ilat1*GEOID_COL])/GEOID_SCALE,
+           static_cast<double>(geoid_delta[ilon1+ilat2*GEOID_COL])/GEOID_SCALE,
+           static_cast<double>(geoid_delta[ilon2+ilat2*GEOID_COL])/GEOID_SCALE
          );
 }
 

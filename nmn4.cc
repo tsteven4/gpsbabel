@@ -226,7 +226,7 @@ nmn4_write_data()
 
   if (index_opt != nullptr) {
     target_rte_num = atoi(index_opt);
-    is_fatal(((target_rte_num > (int) route_count()) || (target_rte_num < 1)),
+    is_fatal(((target_rte_num > static_cast<int>(route_count())) || (target_rte_num < 1)),
              MYNAME ": invalid route number %d (1..%d))!\n", target_rte_num, route_count());
   }
 
@@ -277,7 +277,7 @@ nmn4_write()
 
 ff_vecs_t nmn4_vecs = {
   ff_type_file,
-  { ff_cap_none, ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write)},
+  { ff_cap_none, ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write)},
   nmn4_rd_init,
   nmn4_wr_init,
   nmn4_rd_deinit,

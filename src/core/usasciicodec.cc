@@ -89,7 +89,7 @@ QByteArray UsAsciiCodec::convertFromUnicode(const QChar* uc, int len, ConverterS
   for (int i = 0; i < len; i++) {
     int u = uc[i].unicode();
     if (u < 128) {
-      c[i] = (char) u;
+      c[i] = static_cast<char>(u);
     } else {
       c[i] = replacement;
       ++invalid;

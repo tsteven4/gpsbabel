@@ -160,7 +160,7 @@ gpl_write()
 
 ff_vecs_t gpl_vecs = {
   ff_type_file,
-  { ff_cap_none, (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none },
+  { ff_cap_none, static_cast<ff_cap>(ff_cap_read | ff_cap_write), ff_cap_none },
   gpl_rd_init,
   gpl_wr_init,
   gpl_rd_deinit,

@@ -95,7 +95,7 @@ static float enigmaPositionToDec(int32_t val)
 {
   int deg = abs(val) / 180000;
   int enigmafrac = abs(val) % 180000;
-  double frac = (double)enigmafrac / 180000;
+  double frac = static_cast<double>(enigmafrac) / 180000;
   int sign = (val < 0) ? -1 : +1;
   return sign * (deg + frac);
 }
@@ -180,11 +180,11 @@ enigma_waypt_disp(const Waypoint* wpt)
     le_write32(&ewpt.data.wp_altitude, METERS_TO_FEET(wpt->altitude) + 1000);
   }
   if (wpt->shortname != nullptr) {
-    ewpt.shortname_len = (uint8_t) min(6, strlen(CSTRc(wpt->shortname)));
+    ewpt.shortname_len = static_cast<uint8_t>min(6, strlen(CSTRc(wpt->shortname)));
     strncpy(ewpt.shortname, CSTRc(wpt->shortname), 6);
   }
   if (wpt->description != nullptr) {
-    ewpt.longname_len = (uint8_t) min(27, strlen(CSTRc(wpt->description)));
+    ewpt.longname_len = static_cast<uint8_t>min(27, strlen(CSTRc(wpt->description)));
     strncpy(ewpt.longname, CSTRc(wpt->description), 27);
   }
   gbfwrite(&ewpt, sizeof(ewpt), 1, file_out);
@@ -207,7 +207,7 @@ ff_vecs_t enigma_vecs = {
   {
     ff_cap_none,                    /* waypoints */
     ff_cap_none,                    /* tracks */
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* routes */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write) 	/* routes */
   },
   rd_init,
   wr_init,

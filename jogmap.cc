@@ -71,7 +71,7 @@ static
 xg_tag_mapping jogmap_map[] = {
   { jogmap_markers,	cb_start,	"/markers" },
   { jogmap_marker,	cb_start,	"/markers/marker" },
-  { nullptr,	(xg_cb_type)0,		nullptr }
+  { nullptr,	static_cast<xg_cb_type>(0),		nullptr }
 };
 
 static void

@@ -187,7 +187,7 @@ fit_getuint8()
     fatal(MYNAME ": unexpected end of file with fit_data.len=%d\n",fit_data.len);
   }
   fit_data.len--;
-  return (uint8_t)val;
+  return static_cast<uint8_t>(val);
 
 }
 
@@ -259,12 +259,12 @@ fit_parse_definition_message(uint8_t header)
     debug_print(8,"%s: definition message contains %d records\n",MYNAME, def->num_fields);
   }
   if (def->num_fields == 0) {
-    def->fields = (fit_field_t*) xmalloc(sizeof(fit_field_t));
+    def->fields = static_cast<fit_field_t*>(xmalloc(sizeof(fit_field_t)));
   }
 
   // remainder of the definition message is data at one byte per field * 3 fields
   if (def->num_fields > 0) {
-    def->fields = (fit_field_t*) xmalloc(def->num_fields * sizeof(fit_field_t));
+    def->fields = static_cast<fit_field_t*>(xmalloc(def->num_fields * sizeof(fit_field_t)));
     for (i = 0; i < def->num_fields; i++) {
       def->fields[i].id   = fit_getuint8();
       def->fields[i].size = fit_getuint8();
@@ -309,7 +309,7 @@ fit_parse_definition_message(uint8_t header)
     }
 
     int numOfFields = def->num_fields+numOfDevFields;
-    def->fields = (fit_field_t*) xrealloc(def->fields, numOfFields * sizeof(fit_field_t));
+    def->fields = static_cast<fit_field_t*>(xrealloc(def->fields, numOfFields * sizeof(fit_field_t)));
     for (i = def->num_fields; i < numOfFields; i++) {
       def->fields[i].id   = fit_getuint8();
       def->fields[i].size = fit_getuint8();
@@ -607,8 +607,8 @@ fit_parse_data(fit_message_def* def, int time_offset)
       debug_print(7,"%s: storing fit data LAP %d\n", MYNAME, def->global_id);
     }
     lappt = new Waypoint;
-    lappt->latitude = (endlat / (double)0x7fffffff) * 180;
-    lappt->longitude = (endlon / (double)0x7fffffff) * 180;
+    lappt->latitude = (endlat / static_cast<double>(0x7fffffff)) * 180;
+    lappt->longitude = (endlon / static_cast<double>(0x7fffffff)) * 180;
     lap_ct++;
     snprintf(cbuf, sizeof(cbuf), "LAP%03d", lap_ct);
     lappt->shortname = cbuf;
@@ -621,10 +621,10 @@ fit_parse_data(fit_message_def* def, int time_offset)
 
     waypt = new Waypoint;
     if (lat != 0x7fffffff) {
-      waypt->latitude = (lat / (double)0x7fffffff) * 180;
+      waypt->latitude = (lat / static_cast<double>(0x7fffffff)) * 180;
     }
     if (lon != 0x7fffffff) {
-      waypt->longitude = (lon / (double)0x7fffffff) * 180;
+      waypt->longitude = (lon / static_cast<double>(0x7fffffff)) * 180;
     }
     if (alt != 0xffff) {
       waypt->altitude = (alt / 5.0) - 500;

@@ -308,7 +308,7 @@ static xg_tag_mapping gl_map[] = {
   { lmx_lm_link,  	cb_cdata, 	LM "/lm:mediaLink/lm:url" },
   { lmx_lm_linkt, 	cb_cdata, 	LM "/lm:mediaLink/lm:name" },
   { lmx_lm_mlink_e,	cb_end, 	LM "/lm:mediaLink" },
-  { nullptr,	(xg_cb_type)0,         nullptr}
+  { nullptr,	static_cast<xg_cb_type>(0),         nullptr}
 };
 
 static void
@@ -401,7 +401,7 @@ lmx_lm_mlink_e(xg_string, const QXmlStreamAttributes*)
 ff_vecs_t lmx_vecs = {
   ff_type_file,
   {
-    (ff_cap)(ff_cap_read | ff_cap_write),	/* waypoints */
+    static_cast<ff_cap>(ff_cap_read | ff_cap_write),	/* waypoints */
     ff_cap_none,			/* tracks */
     ff_cap_none			/* routes */
   },

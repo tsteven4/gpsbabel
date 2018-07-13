@@ -67,7 +67,7 @@ arglist_t saroute_args[] = {
 static unsigned char*
 ReadRecord(gbfile* f, gbsize_t size)
 {
-  unsigned char* result = (unsigned char*) xmalloc(size);
+  unsigned char* result = static_cast<unsigned char*>(xmalloc(size));
 
   (void)gbfread(result, size, 1, f);
   return result;
@@ -154,7 +154,7 @@ my_read()
 
   uint16_t stringlen = le_read16((uint16_t*)(record + 0x1a));
   if (stringlen) {
-    routename = (char*)xmalloc(stringlen + 1);
+    routename = static_cast<char*>(xmalloc(stringlen + 1));
     routename[stringlen] = '\0';
     memcpy(routename, record+0x1c, stringlen);
   }
@@ -187,9 +187,9 @@ my_read()
 
       /* These records are backwards for some reason */
       double lat = (0x80000000UL -
-        le_read32(&latlon->lon)) / (double)(0x800000);
+        le_read32(&latlon->lon)) / static_cast<double>(0x800000);
       double lon = (0x80000000UL -
-        le_read32(&latlon->lat)) / (double)(0x800000);
+        le_read32(&latlon->lat)) / static_cast<double>(0x800000);
 
       wpt_tmp = new Waypoint;
       wpt_tmp->latitude = lat;
@@ -355,10 +355,10 @@ my_read()
         memcpy(&mylatlon,latlon,sizeof(mylatlon));
         double lat = (0x80000000UL -
             le_read32(&mylatlon.lat)) /
-          (double)(0x800000);
+          static_cast<double>(0x800000);
         double lon = (0x80000000UL -
             le_read32(&mylatlon.lon)) /
-          (double)(0x800000);
+          static_cast<double>(0x800000);
 
         wpt_tmp->latitude = lat;
         wpt_tmp->longitude = -lon;

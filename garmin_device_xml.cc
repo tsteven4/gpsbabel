@@ -50,7 +50,7 @@ void device_s(xg_string args, const QXmlStreamAttributes*)
   if (my_gdx_info) {
     fatal(MYNAME ": More than one device type found in file.\n");
   }
-  my_gdx_info = (gdx_info*) xcalloc(sizeof *my_gdx_info, 1);
+  my_gdx_info = static_cast<gdx_info*>(xcalloc(sizeof *my_gdx_info, 1));
   my_gdx_info->device_desc = xstrdup(args);
 }
 
@@ -121,7 +121,7 @@ static xg_tag_mapping gdx_map[] = {
   { ext_s, cb_cdata, "/Device/MassStorageMode/DataType/File/Location/FileExtension" },
   { base_s, cb_cdata, "/Device/MassStorageMode/DataType/File/Location/BaseName" },
   { dir_s, cb_cdata, "/Device/MassStorageMode/DataType/File/TransferDirection" },
-  { nullptr, (xg_cb_type) 0, nullptr }
+  { nullptr, static_cast<xg_cb_type>(0), nullptr }
 };
 
 const gdx_info*
