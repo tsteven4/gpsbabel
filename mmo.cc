@@ -305,7 +305,7 @@ mmo_free_object(mmo_data_t* data)
     xfree(data->name);
   }
   if ((data->type == wptdata) && (data->refct == 0)) {
-    deletestatic_cast<Waypoint*>(data->data);
+    delete static_cast<Waypoint*>(data->data);
   }
   xfree(data);
 }

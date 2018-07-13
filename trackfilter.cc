@@ -121,8 +121,8 @@ int TrackFilter::trackfilter_init_qsort_cb(const void* a, const void* b)
 
 int TrackFilter::trackfilter_merge_qsort_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *static_cast<Waypoint**>(a);
-  const Waypoint* wb = *static_cast<Waypoint**>(b);
+  const Waypoint* wa = *static_cast<Waypoint* const*>(a);
+  const Waypoint* wb = *static_cast<Waypoint* const*>(b);
   const QDateTime dta = wa->GetCreationTime();
   const QDateTime dtb = wb->GetCreationTime();
 

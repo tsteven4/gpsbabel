@@ -228,8 +228,8 @@ enum_waypt_cb(const Waypoint* wpt)
 static int
 sort_waypt_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *static_cast<Waypoint**>(a);
-  const Waypoint* wb = *static_cast<Waypoint**>(b);
+  const Waypoint* wa = *static_cast<Waypoint* const*>(a);
+  const Waypoint* wb = *static_cast<Waypoint* const*>(b);
   return wa->shortname.compare(wb->shortname, Qt::CaseInsensitive);
 }
 

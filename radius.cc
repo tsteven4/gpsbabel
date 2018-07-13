@@ -39,10 +39,10 @@ double RadiusFilter::gc_distance(double lat1, double lon1, double lat2, double l
 
 int RadiusFilter::dist_comp(const void* a, const void* b)
 {
-  const Waypoint* x1 = *static_cast<Waypoint**>(a);
-  const Waypoint* x2 = *static_cast<Waypoint**>(b);
-  extra_data* x1e = static_cast<extra_data*>(x1->extra_data);
-  extra_data* x2e = static_cast<extra_data*>(x2->extra_data);
+  const Waypoint* x1 = *static_cast<Waypoint* const*>(a);
+  const Waypoint* x2 = *static_cast<Waypoint* const*>(b);
+  const extra_data* x1e = static_cast<extra_data*>(x1->extra_data);
+  const extra_data* x2e = static_cast<extra_data*>(x2->extra_data);
 
   if (x1e->distance > x2e->distance) {
     return 1;

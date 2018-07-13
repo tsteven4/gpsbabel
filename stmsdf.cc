@@ -167,8 +167,8 @@ parse_header(char* line)
 static int
 track_qsort_cb(const void* a, const void* b)
 {
-  const Waypoint* wa = *static_cast<Waypoint**>(a);
-  const Waypoint* wb = *static_cast<Waypoint**>(b);
+  const Waypoint* wa = *static_cast<Waypoint* const*>(a);
+  const Waypoint* wb = *static_cast<Waypoint* const*>(b);
 
   return wa->GetCreationTime().toTime_t() - wb->GetCreationTime().toTime_t();
 }
