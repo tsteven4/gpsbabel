@@ -170,6 +170,12 @@ typedef enum {
   posndata
 } gpsdata_type;
 
+/*
+ * A constant for unknown altitude.   It's tempting to just use zero
+ * but that's not very nice for the folks near sea level.
+ */
+#define unknown_alt 	-99999999.0
+
 #define NOTHINGMASK		0
 #define WPTDATAMASK		1
 #define TRKDATAMASK		2
@@ -450,27 +456,27 @@ private:
   static geocache_data empty_gc_data;
 
 public:
-  queue Q;			/* Master waypoint q.  Not for use
-					   by modules. */
+  queue Q;    /* Master waypoint q.  Not for use
+                 by modules. */
 
-  double latitude;		/* Degrees */
-  double longitude; 		/* Degrees */
-  double altitude; 		/* Meters. */
-  double geoidheight;	/* Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. */
+  double latitude{0};   /* Degrees */ // These should probably use some invalid data, but
+  double longitude{0};  /* Degrees */ // it looks like we have code that relies on them being zero.
+  double altitude{unknown_alt};    /* Meters. */
+  double geoidheight{0};  /* Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. */
 
   /*
    * The "thickness" of a waypoint; adds an element of 3D.  Can be
    * used to construct rudimentary polygons for, say, airspace
    * definitions.   The units are meters.
    */
-  double depth;
+  double depth{0};
 
   /*
    * An alarm trigger value that can be considered to be a circle
    * surrounding a waypoint (or cylinder if depth is also defined).
    * The units are meters.
    */
-  double proximity;
+  double proximity{0};
 
   /* shortname is a waypoint name as stored in receiver.  It should
    * strive to be, well, short, and unique.   Enforcing length and
@@ -512,31 +518,31 @@ public:
    * This is also used by the google input filter because they were
    * nice enough to use exactly the same priority scheme.
    */
-  int route_priority;
+  int route_priority{0};
 
   /* Optional dilution of precision:  positional, horizontal, veritcal.
    * 1 <= dop <= 50
    */
-  float hdop;
-  float vdop;
-  float pdop;
-  float course;	/* Optional: degrees true */
-  float speed;   	/* Optional: meters per second. */
-  fix_type fix;	/* Optional: 3d, 2d, etc. */
-  int  sat;	/* Optional: number of sats used for fix */
+  float hdop{0};
+  float vdop{0};
+  float pdop{0};
+  float course{0};  /* Optional: degrees true */
+  float speed{0};   /* Optional: meters per second. */
+  fix_type fix{fix_unknown};  /* Optional: 3d, 2d, etc. */
+  int  sat{-1};  /* Optional: number of sats used for fix */
 
-  unsigned char heartrate; /* Beats/min. likely to get moved to fs. */
-  unsigned char cadence;	 /* revolutions per minute */
-  float power; /* watts, as measured by cyclists */
-  float temperature; /* Degrees celsius */
-  float odometer_distance; /* Meters? */
-  geocache_data* gc_data;
-  format_specific_data* fs;
-  const session_t* session;	/* pointer to a session struct */
-  void* extra_data;	/* Extra data added by, say, a filter. */
+  unsigned char heartrate{0};  /* Beats/min. likely to get moved to fs. */
+  unsigned char cadence{0};  /* revolutions per minute */
+  float power{0}; /* watts, as measured by cyclists */
+  float temperature{0}; /* Degrees celsius */
+  float odometer_distance{0}; /* Meters? */
+  geocache_data* gc_data{&empty_gc_data};
+  format_specific_data* fs{nullptr};
+  const session_t* session{curr_session()};  /* pointer to a session struct */
+  void* extra_data{nullptr};  /* Extra data added by, say, a filter. */
 
 public:
-  Waypoint();
+  Waypoint() = default;
   ~Waypoint();
   Waypoint(const Waypoint& other);
   // the default assignment operator is not appropriate as we do deep copy of some members,
@@ -554,7 +560,7 @@ public:
   void SetCreationTime(time_t t);
   void SetCreationTime(time_t t, int ms);
   geocache_data* AllocGCData();
-  int EmptyGCData() const;
+  bool isGCDataEmpty() const;
 };
 
 typedef void (*waypt_cb)(const Waypoint*);
@@ -654,16 +660,20 @@ public:
   QString rte_name;
   QString rte_desc;
   QString rte_url;
-  int rte_num;
-  int rte_waypt_ct;		/* # waypoints in waypoint list */
-  format_specific_data* fs;
-  unsigned short cet_converted;	/* strings are converted to UTF8; interesting only for input */
+  int rte_num{0};
+  int rte_waypt_ct{0};		/* # waypoints in waypoint list */
+  format_specific_data* fs{nullptr};
+  unsigned short cet_converted{0};	/* strings are converted to UTF8; interesting only for input */
   gb_color line_color;         /* Optional line color for rendering */
-  int line_width;         /* in pixels (sigh).  < 0 is unknown. */
-  const session_t* session;	/* pointer to a session struct */
+  int line_width{-1};         /* in pixels (sigh).  < 0 is unknown. */
+  const session_t* session{curr_session()};	/* pointer to a session struct */
 
 public:
-  route_head();
+  route_head() = default;
+  // the default copy and assignment operator are not appropriate.
+  // Catch attempts to use them.
+  route_head(const route_head& other) = delete;
+  route_head& operator=(const route_head& other) = delete;
   ~route_head();
 };
 
@@ -1246,11 +1256,6 @@ int nmea_cksum(const char* const buf);
  */
 int color_to_bbggrr(const char* cname);
 
-/*
- * A constant for unknown altitude.   It's tempting to just use zero
- * but that's not very nice for the folks near sea level.
- */
-#define unknown_alt 	-99999999.0
 #define unknown_color	-1
 
 // TODO: this is a (probably temporary) shim for the C->QString conversion.

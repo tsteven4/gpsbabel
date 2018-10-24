@@ -641,19 +641,6 @@ computed_trkdata track_recompute(const route_head* trk)
   return tdata;
 }
 
-route_head::route_head() :
-  rte_num(0),
-  rte_waypt_ct(0),
-  fs(nullptr),
-  cet_converted(0),
-  // line_color(),
-  line_width(-1),
-  session(curr_session())
-{
-  QUEUE_INIT(&Q);
-  QUEUE_INIT(&waypoint_list);
-};
-
 route_head::~route_head()
 {
   waypt_flush(&waypoint_list);

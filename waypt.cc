@@ -558,35 +558,6 @@ waypt_course(const Waypoint* A, const Waypoint* B)
   }
 }
 
-Waypoint::Waypoint() :
-  // Q(),
-  latitude(0),  // These should probably use some invalid data, but
-  longitude(0), // it looks like we have code that relies on them being zero.
-  altitude(unknown_alt),
-  geoidheight(0),
-  depth(0),
-  proximity(0),
-  route_priority(0),
-  hdop(0),
-  vdop(0),
-  pdop(0),
-  course(0),
-  speed(0),
-  fix(fix_unknown),
-  sat(-1),
-  heartrate(0),
-  cadence(0),
-  power(0),
-  temperature(0),
-  odometer_distance(0),
-  gc_data(&Waypoint::empty_gc_data),
-  fs(nullptr),
-  session(curr_session()),
-  extra_data(nullptr)
-{
-  QUEUE_INIT(&Q);
-}
-
 Waypoint::~Waypoint()
 {
   if (gc_data != &Waypoint::empty_gc_data) {
@@ -722,8 +693,8 @@ Waypoint::AllocGCData()
   return gc_data;
 }
 
-int
-Waypoint::EmptyGCData() const
+bool
+Waypoint::isGCDataEmpty() const
 {
   return (gc_data == &Waypoint::empty_gc_data);
 }

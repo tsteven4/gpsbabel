@@ -1398,7 +1398,7 @@ unicsv_waypt_enum_cb(const Waypoint* wpt)
     }
   }
 
-  if (! wpt->EmptyGCData()) {
+  if (!wpt->isGCDataEmpty()) {
     const geocache_data* gc_data = wpt->gc_data;
 
     if (gc_data->id) {
@@ -1742,7 +1742,7 @@ unicsv_waypt_disp_cb(const Waypoint* wpt)
     unicsv_print_str(GMSD_GET(email, NULL));
   }
 
-  if (wpt->EmptyGCData()) {
+  if (wpt->isGCDataEmpty()) {
     gc_data = nullptr;
   } else {
     gc_data = wpt->gc_data;

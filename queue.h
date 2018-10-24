@@ -21,10 +21,11 @@
 #ifndef QUEUE_H_INCLUDED_
 #define QUEUE_H_INCLUDED_
 
-typedef struct queue {
-  struct queue* next;
-  struct queue* prev;
-} queue;
+struct queue {
+// Note the default constructor should match the results of QUEUE_INIT.
+  queue* next{this};
+  queue* prev{this};
+};
 
 void enqueue(queue* new_el, queue* old);
 queue* dequeue(queue* element);
