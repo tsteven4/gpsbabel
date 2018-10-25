@@ -23,8 +23,15 @@
 
 struct queue {
 // Note the default constructor should match the results of QUEUE_INIT.
+#if MICROSOFT_GETS_THERE
   queue* next{this};
   queue* prev{this};
+#else
+  // this works on Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24234.1 for x86
+  queue* next;
+  queue* prev;
+  queue() : next{this}, prev{this} {}
+#endif
 };
 
 void enqueue(queue* new_el, queue* old);
