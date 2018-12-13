@@ -5,8 +5,11 @@
 # be used outside this script.
 #
 
-# our expectation is that qt-5.9.5-osx creates $QTDIR, $QTDIR/bin.
-QTDIR=${HOME}/Qt/5.9.5/clang_64
+QT_VERSION=${1:-5.12.0}
+QT_VERSION_SHORT=$(echo ${QT_VERSION} | sed 's/\.//g')
+
+# our expectation is that install-qt-osx creates $QTDIR, $QTDIR/bin.
+QTDIR=${HOME}/Qt/${QT_VERSION}/clang_64
 
 if [ -d "${QTDIR}/bin" ]; then
   echo "Using cached Qt."
@@ -15,10 +18,10 @@ if [ -d "${QTDIR}/bin" ]; then
 else
   pushd ${HOME};
   rm -fr Qt
-  # qt-5.9.5-osx creates the install at $PWD/Qt.
-  QT_CI_PACKAGES=qt.595.clang_64,qt.595.qtwebengine PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} qt-5.9.5-osx;
+  # install-qt-osx creates the install at $PWD/Qt.
+  QT_CI_PACKAGES=qt.${QT_VERSION_SHORT}.clang_64,qt.${QT_VERSION_SHORT}.qtwebengine PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt-osx ${QT_VERSION}
   popd;
 fi
-# note that qt-5.9.5-osx.env created by qt-5.9.5-osx is not cached!
+# note that qt-x.y.z.env created by install-qt-osx is not cached!
 export PATH=${QTDIR}/bin:${PATH}
 unset -v QTDIR
