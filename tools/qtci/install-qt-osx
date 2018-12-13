@@ -2,7 +2,7 @@
 # Reference:
 #   https://github.com/musescore/MuseScore/blob/master/build/travis/job_macos/install.sh
 
-set -v
+set -x
 set -e
 
 QT_VERSION=${1:-5.12.0}
