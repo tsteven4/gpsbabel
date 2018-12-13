@@ -5,6 +5,8 @@
 # be used outside this script.
 #
 
+set -x
+
 QT_VERSION=${1:-5.12.0}
 QT_VERSION_SHORT=$(echo ${QT_VERSION} | sed 's/\.//g')
 
