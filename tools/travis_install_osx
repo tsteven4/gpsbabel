@@ -19,7 +19,7 @@ else
   pushd ${HOME};
   rm -fr Qt
   # install-qt-osx creates the install at $PWD/Qt.
-  QT_CI_PACKAGES=qt.${QT_VERSION_SHORT}.clang_64,qt.${QT_VERSION_SHORT}.qtwebengine PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt-osx ${QT_VERSION}
+  QT_CI_PACKAGES=qt.${QT_VERSION_SHORT}.clang_64,qt.${QT_VERSION_SHORT}.qtwebengine QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt-osx ${QT_VERSION}
   popd;
 fi
 # note that qt-x.y.z.env created by install-qt-osx is not cached!
