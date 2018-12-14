@@ -46,6 +46,10 @@ matrix:
         directories:
           - $HOME/Qt
         timeout: 600
+      addons:
+        homebrew:
+          packages:
+            - gnu-getopt
     - os: linux
       dist: xenial
       sudo: required

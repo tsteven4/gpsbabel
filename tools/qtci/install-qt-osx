@@ -17,7 +17,7 @@ APPFILE=/Volumes/${INSTALLER_NAME}/${INSTALLER_NAME}.app/Contents/MacOS/${INSTAL
 
 echo Downloading Qt
 ${QT_CI_DOWNLOADER} $DOWNLOAD_URL
-hdiutil attach ${INSTALLER}
+hdiutil attach ${INSTALLER} -noverify
 echo Installing Qt
 extract-qt-installer $APPFILE ${QT_TARGET_CATALOG}/Qt
 # workaround apparent exit of extract-qt-installer before finished,
