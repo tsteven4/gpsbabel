@@ -24,4 +24,7 @@ else
 fi
 # note that qt-x.y.z.env created by install-qt-osx is not cached!
 export PATH=${QTDIR}/bin:${PATH}
+echo $PATH
+ls ${QTDIR}
+ls ${QTDIR}/bin
 unset -v QTDIR
