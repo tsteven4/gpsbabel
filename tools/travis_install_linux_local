@@ -24,7 +24,7 @@ else
 fi
 # note that qt-x.y.z.env created by install-qt is not cached!
 export PATH=${QTDIR}/bin:${PATH}
-unset -v QTDIR
+unset -v QT_VERSION QT_VERSION_SHORT QTDIR
 
 # prepare locale for test_encoding_latin1, requires locales package.
 sudo rm -rf /var/lib/apt/lists/* \
