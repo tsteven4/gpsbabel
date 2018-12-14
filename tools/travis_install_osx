@@ -27,4 +27,5 @@ export PATH=${QTDIR}/bin:${PATH}
 echo $PATH
 ls ${QTDIR}
 ls ${QTDIR}/bin
+cat ${HOME}/Qt/InstallationLog.txt
 unset -v QTDIR
