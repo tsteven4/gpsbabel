@@ -21,6 +21,14 @@ else
   # install-qt creates the install at $PWD/Qt.
   QT_CI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.gcc_64,qt.qt5.${QT_VERSION_SHORT}.qtwebengine PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
   popd;
+  if [ ! -e ${QTDIR}/bin/qmake ]; then
+    echo "ERROR: qmake not found on the installation path." >&2
+    echo "Are the package names in QT_CI_PACKAGES correct?" >&2
+    find ${HOME}/Qt -maxdepth 3
+    cat ${HOME}/Qt/InstallationLog.txt
+    cat ${HOME}/Qt/components.xml
+    exit 1
+  fi
 fi
 # note that qt-x.y.z.env created by install-qt is not cached!
 export PATH=${QTDIR}/bin:${PATH}
