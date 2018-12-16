@@ -3,37 +3,9 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
-      sudo: required
-      services: docker
-      compiler: gcc
-      env:
-        - BUILD_TYPE="docker"
-    - os: linux
-      dist: trusty
-      sudo: required
-      services: docker
-      compiler: clang
-      env:
-        - BUILD_TYPE="docker"
-    - os: linux
       dist: xenial
       sudo: required
       compiler: gcc
-      env:
-        - BUILD_TYPE="local"
-      addons:
-        apt:
-          packages:
-            - expat
-            - fop
-            - valgrind
-            - xsltproc
-            - libxml2-utils
-            - libusb-dev
-            - docbook-xml
-            - docbook-xsl
-            - libgl1-mesa-dev
       cache:
         directories:
           - $HOME/Qt
@@ -42,42 +14,9 @@ matrix:
       compiler: clang
       cache:
         directories:
-          - $HOME/Qt
+          - $HOME/Cache
         timeout: 600
-    - os: linux
-      dist: xenial
-      sudo: required
-      compiler: gcc
-      env:
-        - BUILD_TYPE="coverage"
-      addons:
-        apt:
-          packages:
-            - libusb-dev
-            - gcovr
-            - lcov
-      cache:
-        directories:
-          - $HOME/Qt
-
-install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "coverage" ]; then ./tools/travis_install_linux_coverage; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then source ./tools/travis_install_linux_local; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then source ./tools/travis_install_osx; fi
 
 script:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "coverage" ]; then ./tools/travis_script_linux_coverage; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "docker" ]; then ./tools/travis_script_linux_docker; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then echo $PATH; ./build_and_test; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./tools/travis_script_osx; fi
-
-after_success:
-  - cd ${TRAVIS_BUILD_DIR}
-  # only deploy pushes to master or prs that target master.  the prs will go to transfr.sh, the pushes go to github.
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ] && [ "$TRAVIS_BRANCH" = "master" ]; then bash ./tools/uploadtool/upload.sh  gui/objects/GPSBabel-*.dmg; fi
-
-branches:
-  except:
-    - /^(?i:continuous)$/  # Do not build tags that we create when we upload to GitHub Releases
-    - /^(?i:continuous.*windows)$/  # Do not build tags that we create when we upload to GitHub Releases
+  - ./tools/lookup
 

@@ -1,0 +1,59 @@
+#!/bin/bash -e
+
+#debug failed install
+function debug() {
+  cat ${CACHEDIR}/qt-${QT_VERSION}.env
+  find ${CACHEDIR}/Qt -maxdepth 3 -ls
+  cat ${CACHEDIR}/Qt/InstallationLog.txt
+  cat ${CACHEDIR}/Qt/components.xml
+  echo "$1" >&2
+  exit 1
+}
+
+# lookup installer related information
+function lookup_qt_data() {
+  # first assume the latest conventions
+  QT_VERSION=$1
+  QT_PKG_BASE=qt.qt5.$(echo ${QT_VERSION} | sed 's/\.//g')
+  QT_BIN_BASE=Qt/${QT_VERSION}
+  # correct for know exceptions
+  case "$1" in
+    5.7.0) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
+    5.7.1) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
+    5.8.0) QT_PKG_BASE="qt.58"; QT_BIN_BASE="Qt/5.8";;
+    5.9.0) QT_PKG_BASE="qt.59"; QT_BIN_BASE="Qt/5.9";;
+    5.9.1) QT_PKG_BASE="qt.591";;
+    5.9.2) QT_PKG_BASE="qt.592";;
+    5.9.3) QT_PKG_BASE="qt.593";;
+    5.9.4) QT_PKG_BASE="qt.594";;
+    5.9.5) QT_PKG_BASE="qt.595";;
+    5.9.6) QT_PKG_BASE="qt.596";;
+  esac
+}
+
+CACHEDIR=${HOME}/Cache
+for ver in 5.7.1 5.9.0 5.9.1 5.9.2 5.9.3 5.9.4 5.9.5 5.9.6 5.9.7 5.9.8 5.12.0
+do
+  lookup_qt_data $ver
+  echo $QT_VERSION, $QT_PKG_BASE, $QT_BIN_BASE
+  QTDIR=${CACHEDIR}/${QT_BIN_BASE}/gcc_64
+
+  rm -fr ${CACHEDIR}
+  mkdir -p ${CACHEDIR}
+  pushd ${CACHEDIR}
+  QT_CI_PACKAGES=${QT_PKG_BASE}.gcc_64 QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
+  popd
+  (
+    set +e
+    source ${CACHEDIR}/qt-${QT_VERSION}.env
+    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QTDIR}/bin" ]; then
+      debug "ERROR: unexpected Qt location."
+    fi
+    if [ "$(qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
+      debug "ERROR: wrong Qt version."
+    fi
+  )
+  rm -fr ${CACHEDIR}
+done
+echo done
+
