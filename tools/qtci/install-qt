@@ -7,7 +7,7 @@ QT_TARGET_CATALOG=${2:-$PWD}
 QT_CI_DOWNLOADER=${QT_CI_DOWNLOADER:-"wget -c -N"}
 
 if [ "$(uname)" = "Darwin" ]; then
-  if [ "$(echo ${QT_VERSION} | cut -d "." -f 1) -le 5 ] && [ "$(echo ${QT_VERSION} | cut -d "." -f 2) -le 8 ]; then
+  if [ "$(echo ${QT_VERSION} | cut -d "." -f 1)" -eq 5 ] && [ "$(echo ${QT_VERSION} | cut -d "." -f 2)" -le 8 ]; then
     DOWNLOAD_URL=https://download.qt.io/archive/qt/$(echo ${QT_VERSION} | cut -d "." -f -2)/${QT_VERSION}/qt-opensource-mac-x64-clang-${QT_VERSION}.dmg
   else
     DOWNLOAD_URL=https://download.qt.io/archive/qt/$(echo ${QT_VERSION} | cut -d "." -f -2)/${QT_VERSION}/qt-opensource-mac-x64-${QT_VERSION}.dmg
