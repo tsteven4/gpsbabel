@@ -29,6 +29,17 @@ if [ "$(uname)" = "Darwin" ]; then
   hdiutil attach ${PWD}/${INSTALLER}
   extract-qt-installer $APPFILE ${QT_TARGET_CATALOG}/Qt
   hdiutil detach /Volumes/${INSTALLER_NAME}
+  # workaround apparent exit of extract-qt-installer before finished,
+  # which results in hdiutil "hdiutil: couldn't unmount "disk1" - Resource busy"
+  # and the install resources not being available.
+  #hdiutil detach /Volumes/${INSTALLER_NAME}
+  count=0
+  until hdiutil detach /Volumes/${INSTALLER_NAME} || [ $count -ge 12 ]
+  do
+    echo "Wait and attempt to detach again"
+    count=`expr $count + 1`
+    sleep 10
+  done
 elif [ "$(uname)" = "Linux" ]; then
   extract-qt-installer ${PWD}/${INSTALLER} ${QT_TARGET_CATALOG}/Qt
 fi
