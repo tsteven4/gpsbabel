@@ -42,6 +42,7 @@ else
       debug "ERROR: wrong Qt version."
     fi
   )
+  rm ${CACHEDIR}/qt-opensource*.run
 fi
 
 # prepare locale for test_encoding_latin1, requires locales package.

@@ -42,4 +42,5 @@ else
       debug "ERROR: wrong Qt version."
     fi
   )
+  rm ${CACHEDIR}/qt-opensource*.dmg
 fi
