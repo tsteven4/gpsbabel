@@ -16,8 +16,14 @@ function lookup_qt_data() {
   QT_VERSION=$1
   QT_PKG_BASE=qt.qt5.$(echo ${QT_VERSION} | sed 's/\.//g')
   QT_BIN_BASE=Qt/${QT_VERSION}
+  if [ "$(uname)" = "Darwin" ]; then
+    COMPILER=clang_64
+  elif [ "$(uname)" = "Linux" ]; then
+    COMPILER=gcc_64
+  fi
   # correct for know exceptions
   case "$1" in
+    5.6.3) QT_PKG_BASE="qt.56"; QT_BIN_BASE="Qt/5.6";;
     5.7.0) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
     5.7.1) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
     5.8.0) QT_PKG_BASE="qt.58"; QT_BIN_BASE="Qt/5.8";;
@@ -29,19 +35,14 @@ function lookup_qt_data() {
     5.9.5) QT_PKG_BASE="qt.595";;
     5.9.6) QT_PKG_BASE="qt.596";;
   esac
+  QT_BIN_DIR=${CACHEDIR}/${QT_BIN_BASE}/${COMPILER}/bin
 }
 
 CACHEDIR=${HOME}/Cache
-if [ "$(uname)" = "Darwin" ]; then
-  COMPILER=clang_64
-elif [ "$(uname)" = "Linux" ]; then
-  COMPILER=gcc_64
-fi
-for ver in 5.7.0 5.7.1 5.8.0 5.9.0 5.9.1 5.9.2 5.9.3 5.9.4 5.9.5 5.9.6 5.9.7 5.10.0 5.10.1 5.11.0 5.11.1 5.11.2 5.11.3 5.12.0
+for ver in 5.6.3 5.7.0 5.7.1 5.8.0 5.9.0 5.9.1 5.9.2 5.9.3 5.9.4 5.9.5 5.9.6 5.9.7 5.10.0 5.10.1 5.11.0 5.11.1 5.11.2 5.11.3 5.12.0
 do
   lookup_qt_data $ver
   echo $QT_VERSION, $QT_PKG_BASE, $QT_BIN_BASE
-  QTDIR=${CACHEDIR}/${QT_BIN_BASE}/${COMPILER}
 
   rm -fr ${CACHEDIR}
   mkdir -p ${CACHEDIR}
@@ -51,7 +52,7 @@ do
   (
     set +e
     source ${CACHEDIR}/qt-${QT_VERSION}.env
-    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QTDIR}/bin" ]; then
+    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QT_BIN_DIR}" ]; then
       debug "ERROR: unexpected Qt location."
     fi
     if [ "$(qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
