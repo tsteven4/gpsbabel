@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 #debug failed install
 function debug() {
@@ -32,16 +32,21 @@ function lookup_qt_data() {
 }
 
 CACHEDIR=${HOME}/Cache
-for ver in 5.7.1 5.9.0 5.9.1 5.9.2 5.9.3 5.9.4 5.9.5 5.9.6 5.9.7 5.9.8 5.12.0
+if [ "$(uname)" = "Darwin" ]; then
+  COMPILER=clang_64
+elif [ "$(uname)" = "Linux" ]; then
+  COMPILER=gcc_64
+fi
+for ver in 5.7.0 5.7.1 5.8.0 5.9.0 5.9.1 5.9.2 5.9.3 5.9.4 5.9.5 5.9.6 5.9.7 5.12.0
 do
   lookup_qt_data $ver
   echo $QT_VERSION, $QT_PKG_BASE, $QT_BIN_BASE
-  QTDIR=${CACHEDIR}/${QT_BIN_BASE}/gcc_64
+  QTDIR=${CACHEDIR}/${QT_BIN_BASE}/${COMPILER}
 
   rm -fr ${CACHEDIR}
   mkdir -p ${CACHEDIR}
   pushd ${CACHEDIR}
-  QT_CI_PACKAGES=${QT_PKG_BASE}.gcc_64 QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
+  QT_CI_PACKAGES=${QT_PKG_BASE}.${COMPILER} QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
   popd
   (
     set +e
