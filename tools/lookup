@@ -23,7 +23,7 @@ function lookup_qt_data() {
   fi
   # correct for know exceptions
   case "$1" in
-    5.6.3) QT_PKG_BASE="qt.56"; QT_BIN_BASE="Qt/5.6";;
+    5.6.3) QT_BIN_BASE="Qt/5.6";;
     5.7.0) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
     5.7.1) QT_PKG_BASE="qt.57"; QT_BIN_BASE="Qt/5.7";;
     5.8.0) QT_PKG_BASE="qt.58"; QT_BIN_BASE="Qt/5.8";;
