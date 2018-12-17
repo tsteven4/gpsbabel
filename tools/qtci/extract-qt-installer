@@ -279,7 +279,7 @@ Controller.prototype.ReadyForInstallationPageCallback = function() {
     // Bug? If commit button pressed too quickly finished callback might not show the checkbox to disable running qt creator
     // Behaviour started around 5.10. You don't actually have to press this button at all with those versions, even though gui.isButtonEnabled() returns true.
     
-    gui.clickButton(buttons.CommitButton);
+    gui.clickButton(buttons.CommitButton, 200);
 }
 
 Controller.prototype.PerformInstallationPageCallback = function() {
