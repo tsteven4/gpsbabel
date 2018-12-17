@@ -13,11 +13,25 @@ function debug() {
   exit 1
 }
 
+function validate() {
+  # validate install
+  (
+    set +e
+    source ${CACHEDIR}/qt-${QT_VERSION}.env
+    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QTDIR}/bin" ]; then
+      debug "ERROR: unexpected Qt location."
+    fi
+    if [ "$(qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
+      debug "ERROR: wrong Qt version."
+    fi
+  )
+}
+
 QT_VERSION=${1:-5.7.1}
-QT_VERSION_SHORT=$(echo ${QT_VERSION} | sed 's/\.//g')
+QT_VERSION_SHORT=${QT_VERSION//./}
 # older Qt releases use different package names and install locations.
 QT_VERSION_XY=$(echo ${QT_VERSION} | cut -d "." -f -2)
-QT_VERSION_XY_SHORT=$(echo ${QT_VERSION_XY} | sed 's/\.//g')
+QT_VERSION_XY_SHORT=${QT_VERSION_XY//./}
 
 # our expectation is that install-qt creates $QTDIR, $QTDIR/bin.
 CACHEDIR=${HOME}/Cache
@@ -33,17 +47,7 @@ else
   pushd ${CACHEDIR}
   # install-qt creates the install at $PWD/Qt.
   QT_CI_PACKAGES=qt.${QT_VERSION_XY_SHORT}.gcc_64 QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
-  popd;
-  # validate install
-  (
-    set +e
-    source ${CACHEDIR}/qt-${QT_VERSION}.env
-    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QTDIR}/bin" ]; then
-      debug "ERROR: unexpected Qt location."
-    fi
-    if [ "$(qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
-      debug "ERROR: wrong Qt version."
-    fi
-  )
+  popd
+  validate
   rm ${CACHEDIR}/qt-opensource*.run
 fi
