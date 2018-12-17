@@ -53,7 +53,7 @@ do
   rm -fr ${CACHEDIR}
   mkdir -p ${CACHEDIR}
   pushd ${CACHEDIR}
-  QT_CI_PACKAGES=${QT_PKG_BASE}.${COMPILER} QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt-online ${QT_VERSION}
+  QT_CI_PACKAGES=${QT_PKG_BASE}.${COMPILER} QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
   popd
   (
     set +e
