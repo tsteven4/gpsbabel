@@ -14,7 +14,7 @@ function debug() {
 function lookup_qt_data() {
   # first assume the latest conventions
   QT_VERSION=$1
-  QT_PKG_BASE=qt.qt5.$(echo ${QT_VERSION} | sed 's/\.//g')
+  QT_PKG_BASE=qt.qt5.${QT_VERSION//./}
   QT_BIN_BASE=Qt/${QT_VERSION}
   QT_ECHO_VERSION=${QT_VERSION}
   if [ "$(uname)" = "Darwin" ]; then
