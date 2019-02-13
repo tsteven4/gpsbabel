@@ -14,6 +14,9 @@ VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z $(git show -s --format=
 "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"/ci_tokens
 
 # build and test the CLI
+touch configure
+touch xcsv_tokens.gperf
+touch internal_styles.cc
 ./configure
 make
 cat Makefile.d
