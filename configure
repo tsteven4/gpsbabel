@@ -6779,7 +6779,7 @@ as_dir=shapelib; as_fn_mkdir_p
 as_dir=src/core; as_fn_mkdir_p
 as_dir=zlib/contrib/minizip; as_fn_mkdir_p
 
-ac_config_files="$ac_config_files Makefile gbversion.h gui/setup.iss xmldoc/makedoc tools/mkcapabilities win32/gpsbabel.rc"
+ac_config_files="$ac_config_files Makefile Makefile.sub gbversion.h gui/setup.iss xmldoc/makedoc tools/mkcapabilities win32/gpsbabel.rc"
 
 ac_config_files="$ac_config_files gui/makelinuxdist.sh"
 
@@ -7477,6 +7477,7 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "Makefile.sub") CONFIG_FILES="$CONFIG_FILES Makefile.sub" ;;
     "gbversion.h") CONFIG_FILES="$CONFIG_FILES gbversion.h" ;;
     "gui/setup.iss") CONFIG_FILES="$CONFIG_FILES gui/setup.iss" ;;
     "xmldoc/makedoc") CONFIG_FILES="$CONFIG_FILES xmldoc/makedoc" ;;

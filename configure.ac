@@ -443,6 +443,6 @@ AS_MKDIR_P([shapelib])
 AS_MKDIR_P([src/core])
 AS_MKDIR_P([zlib/contrib/minizip])
 
-AC_CONFIG_FILES([Makefile gbversion.h gui/setup.iss xmldoc/makedoc tools/mkcapabilities win32/gpsbabel.rc])
+AC_CONFIG_FILES([Makefile Makefile.sub gbversion.h gui/setup.iss xmldoc/makedoc tools/mkcapabilities win32/gpsbabel.rc])
 AC_CONFIG_FILES([gui/makelinuxdist.sh], [chmod +x gui/makelinuxdist.sh])
 AC_OUTPUT
