@@ -46,7 +46,7 @@ matrix:
         homebrew:
           packages:
             - valgrind
-          update: true
+          update: true # this takes 4.5 minutes, but we need it with default osx image on 2019/02/16 "travis-build version: 7713e6a71"
       cache:
         directories:
           - $HOME/Cache
@@ -58,7 +58,7 @@ matrix:
         homebrew:
           packages:
             - valgrind
-          update: true
+          update: true # this takes 4.5 minutes, but we need it with default osx image on 2019/02/16 "travis-build version: 7713e6a71"
       cache:
         directories:
           - $HOME/Cache
