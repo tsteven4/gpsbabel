@@ -40,13 +40,14 @@ matrix:
           - $HOME/Cache
         timeout: 600
     - os: osx
+      osx_image: xcode9.2
       compiler: clang
       env: QT_VERSION="5.9.7"
       addons:
         homebrew:
           packages:
             - valgrind
-          update: true # this takes 4.5 minutes, but we need it with default osx image on 2019/02/16 "travis-build version: 7713e6a71"
+          #update: true # this takes 4.5 minutes, but we need it with default osx image on 2019/02/16 "travis-build version: 7713e6a71"
       cache:
         directories:
           - $HOME/Cache
