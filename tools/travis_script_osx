@@ -3,6 +3,8 @@
 # this script is run on travis for the script stage of mac builds
 #
 
+sysctl hw
+
 QMAKE=${QMAKE:-qmake}
 LUPDATE=${LUPDATE:-lupdate}
 LRELEASE=${LRELEASE:-lrelease}
