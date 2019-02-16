@@ -46,6 +46,7 @@ matrix:
         homebrew:
           packages:
             - valgrind
+          update: true
       cache:
         directories:
           - $HOME/Cache
@@ -57,6 +58,7 @@ matrix:
         homebrew:
           packages:
             - valgrind
+          update: true
       cache:
         directories:
           - $HOME/Cache
