@@ -14,7 +14,7 @@ VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z $(git show -s --format=
 "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"/ci_tokens
 
 # build and test the CLI
-CONFIG+=debug $QMAKE GPSBabel.pro && make && make check && PNAME=./GPSBabel ./vtesto -l -j alantrl vg.log
+$QMAKE CONFIG+=debug GPSBabel.pro && make && make check && PNAME=./GPSBabel ./vtesto -l -j alantrl vg.log
 cat vg.log
 
 # build the GUI
