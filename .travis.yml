@@ -42,6 +42,10 @@ matrix:
     - os: osx
       compiler: clang
       env: QT_VERSION="5.9.7"
+      addons:
+        homebrew:
+          packages:
+            - valgrind
       cache:
         directories:
           - $HOME/Cache
@@ -49,6 +53,10 @@ matrix:
     - os: osx
       compiler: clang
       env: QT_VERSION="5.12.1"
+      addons:
+        homebrew:
+          packages:
+            - valgrind
       cache:
         directories:
           - $HOME/Cache
