@@ -1,0 +1,23 @@
+FROM tsteven4/gpsbabel_build_environment_qtio
+LABEL maintainer="https://github.com/tsteven4"
+WORKDIR /app
+WORKDIR /build_app
+RUN  \
+ . /opt/qtio.env \
+ && git clone https://github.com/gpsbabel/gpsbabel.git \
+ && cd gpsbabel \
+ && ./configure \
+ && make -j 2 gui \
+ && cp gpsbabel /app \
+ && cp gui/objects/gpsbabelfe-bin /app \
+ && cp gui/gmapbase.html /app \
+ && rm -fr /build_app \\
+ && echo '#!/bin/bash' > /app/gpsbabelfe \
+ && echo 'mkdir -p /tmp/user/$(id -u)' >> /app/gpsbabelfe \
+ && echo 'chmod 0700 /tmp/user/$(id -u)' >> /app/gpsbabelfe \
+ && echo 'export XDG_RUNTIME_DIR=/tmp/user/$(id -u)' >> /app/gpsbabelfe \
+ && echo '/app/gpsbabelfe-bin' >> /app/gpsbabelfe \
+ && chmod +x /app/gpsbabelfe
+WORKDIR /user_pwd
+CMD /app/gpsbabelfe
+

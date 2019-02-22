@@ -1,0 +1,26 @@
+#!/bin/bash -e
+#
+# run GPSBabel GUI 
+#
+# This uses a custom apparmor profile, gpsbabel_apparmor_profile.
+# From examining /var/log/syslog it was found that some dbus
+# access was needed.
+#
+# The profile must be loaded 'apparmor_parser -r -W gpsbabel_apparmor_profile'
+# https://docs.docker.com/engine/security/apparmor/
+#
+# Alternatively, you may change the security-opt line for
+# '--privileged \', although this is risky.
+#
+
+docker run \
+--rm \
+--security-opt apparmor=gpsbabel_apparmor_profile \
+--env DISPLAY  \
+--user $(id -u):$(id -g) \
+--volume ${HOME}:${HOME}:rw \
+--mount type=bind,source="$(pwd)",target=/user_pwd \
+--mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly \
+--mount type=bind,source=/etc/group,target=/etc/group,readonly \
+--net host \
+tsteven4/gpsbabelfe:latest

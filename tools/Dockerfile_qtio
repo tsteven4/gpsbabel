@@ -70,13 +70,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 # dependencies of Qt
+# some of these can be found by chasing dependencies of plugins
+# shown by running the gui with export QT_DEBUG_PLUGINS=1.
+# some were recommended by Qt.
+# some showed up in messages to the terminal when running the gui.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libglib2.0-0 \
-    libx11-xcb-dev \
-    libglu1-mesa-dev \
     libasound2 \
+    libatk1.0-0 \
+    libcairo2 \
+    libcairo-gobject2 \
+    libgdk-pixbuf2.0-0 \
+    libglib2.0-0 \
+    libglu1-mesa-dev \
+    libgtk-3-0 \
+    libgtk-3-0 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libwayland-cursor0 \
+    libwayland-egl1-mesa \
+    libx11-xcb-dev \
     libxcomposite1 \
     libxcursor1 \
+    libxkbcommon-x11-0 \
  && rm -rf /var/lib/apt/lists/*
 
 # Qt
