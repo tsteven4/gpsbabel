@@ -6,12 +6,40 @@
 # From examining /var/log/syslog it was found that some dbus
 # access was needed.
 #
-# The profile must be loaded 'apparmor_parser -r -W gpsbabel_apparmor_profile'
+# The profile must be loaded 'sudo apparmor_parser -r -W gpsbabel_apparmor_profile'
 # https://docs.docker.com/engine/security/apparmor/
 #
 # Alternatively, you may change the security-opt line for
 # '--privileged \', although this is risky.
 #
+# to change the language you may add
+# --env LC_ALL=lng \
+# where lng may be
+# C
+# C.UTF-8
+# POSIX
+# de_DE
+# de_DE.iso88591
+# de_DE.utf8
+# en_US
+# en_US.iso88591
+# en_US.utf8
+# es_ES
+# es_ES.iso88591
+# es_ES.utf8
+# fr_FR
+# fr_FR.iso88591
+# fr_FR.utf8
+# hu_HU
+# hu_HU.iso88592
+# hu_HU.utf8
+# it_IT
+# it_IT.iso88591
+# it_IT.utf8
+# ru_RU
+# ru_RU.iso88595
+# ru_RU.utf8
+
 
 docker run \
 --rm \

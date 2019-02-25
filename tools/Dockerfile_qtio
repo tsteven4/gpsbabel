@@ -83,7 +83,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libglu1-mesa-dev \
     libgtk-3-0 \
-    libgtk-3-0 \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
     libwayland-cursor0 \
@@ -109,7 +108,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
  && rm -rf /var/lib/apt/lists/* \
- && sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen \
- && locale-gen \
+ && locale-gen en_US \
+ && locale-gen en_US.UTF-8 \
  && locale -a
 

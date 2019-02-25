@@ -1,23 +1,93 @@
-FROM tsteven4/gpsbabel_build_environment_qtio
-LABEL maintainer="https://github.com/tsteven4"
-WORKDIR /app
+FROM tsteven4/gpsbabel_build_environment_qtio as build
 WORKDIR /build_app
+COPY convert_qt_translations /tmp
 RUN  \
  . /opt/qtio.env \
  && git clone https://github.com/gpsbabel/gpsbabel.git \
  && cd gpsbabel \
- && ./configure \
- && make -j 2 gui \
- && cp gpsbabel /app \
- && cp gui/objects/gpsbabelfe-bin /app \
- && cp gui/gmapbase.html /app \
- && rm -fr /build_app \\
- && echo '#!/bin/bash' > /app/gpsbabelfe \
+ && qmake GPSBabel.pro && make -j 2 \
+ && make check \
+ && PNAME=./GPSBabel ./test_encoding_latin1 \
+ && LC_ALL=C.UTF-8 PNAME=./GPSBabel ./test_encoding_utf8 \
+ && cd gui \
+ && qmake app.pro && make -j 2 \
+ && (cd objects; /tmp/convert_qt_translations)
+
+FROM ubuntu:bionic
+LABEL maintainer="https://github.com/tsteven4"
+WORKDIR /app/translations
+WORKDIR /app
+
+COPY --from=build /opt /opt
+COPY --from=build /build_app/gpsbabel/GPSBabel /app/gpsbabel
+COPY --from=build /build_app/gpsbabel/gui/objects/gpsbabelfe-bin /app
+COPY --from=build /build_app/gpsbabel/gui/gmapbase.html /app
+COPY --from=build /build_app/gpsbabel/gui/COPYING.txt /app
+COPY --from=build /build_app/gpsbabel/gui/objects/qt_*.qm /app/translations/
+COPY --from=build /build_app/gpsbabel/gui/gpsbabelfe_*.qm /app/translations/
+
+# update environment.
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
+ && apt-get upgrade -y \
+ && rm -rf /var/lib/apt/lists/*
+
+# dependencies of Qt and gpsbabel
+# some of these can be found by chasing dependencies of plugins
+# shown by running the gui with export QT_DEBUG_PLUGINS=1.
+# some were recommended by Qt.
+# some showed up in messages to the terminal when running the gui.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libasound2 \
+    libatk1.0-0 \
+    libcairo2 \
+    libcairo-gobject2 \
+    libgdk-pixbuf2.0-0 \
+    libglib2.0-0 \
+    libglu1-mesa-dev \
+    libgtk-3-0 \
+    libnss3 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libusb-0.1-4 \
+    libwayland-cursor0 \
+    libwayland-egl1-mesa \
+    libx11-xcb-dev \
+    libxcomposite1 \
+    libxcursor1 \
+    libxkbcommon-x11-0 \
+    libxtst6 \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN \
+ echo '#!/bin/bash' > /app/gpsbabelfe \
  && echo 'mkdir -p /tmp/user/$(id -u)' >> /app/gpsbabelfe \
  && echo 'chmod 0700 /tmp/user/$(id -u)' >> /app/gpsbabelfe \
  && echo 'export XDG_RUNTIME_DIR=/tmp/user/$(id -u)' >> /app/gpsbabelfe \
  && echo '/app/gpsbabelfe-bin' >> /app/gpsbabelfe \
  && chmod +x /app/gpsbabelfe
+
+# install environment for user
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    locales \
+ && rm -rf /var/lib/apt/lists/* \
+ && locale-gen de_DE \
+ && locale-gen de_DE.UTF-8 \
+ && locale-gen en_US \
+ && locale-gen en_US.UTF-8 \
+ && locale-gen es_ES \
+ && locale-gen es_ES.UTF-8 \
+ && locale-gen fr_FR \
+ && locale-gen fr_FR.UTF-8 \
+ && locale-gen hu_HU \
+ && locale-gen hu_HU.UTF-8 \
+ && locale-gen it_IT \
+ && locale-gen it_IT.UTF-8 \
+ && locale-gen ru_RU \
+ && locale-gen ru_RU.UTF-8 \
+ && locale -a
+
 WORKDIR /user_pwd
 CMD /app/gpsbabelfe
 

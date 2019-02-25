@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
  && rm -rf /var/lib/apt/lists/* \
- && sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen \
- && locale-gen \
+ && locale-gen en_US \
+ && locale-gen en_US.UTF-8 \
  && locale -a
 
