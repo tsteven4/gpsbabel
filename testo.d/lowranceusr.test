@@ -66,6 +66,7 @@
 # Perform ${TMPDIR} cleanup
 rm -f ${TMPDIR}/lowrance*
 
+echo "  Testing lowranceusr versions 2 & 3" # these tests take a long time, let travis know we are alive.
 # Test ability to read non-Lowrance format and generate USR v2 file
 gpsbabel -i geo -f ${REFERENCE}/../geocaching.loc -o lowranceusr,wversion=2 -F ${TMPDIR}/lowrance1.usr
 bincompare ${TMPDIR}/lowrance1.usr ${REFERENCE}/lowrance.usr
@@ -114,6 +115,7 @@ compare ${TMPDIR}/lowrance-v2-unicsv-sorted.txt ${TMPDIR}/lowrance-v3-unicsv-nod
 # Perform USR version 4 test
 #         -------------
 #
+echo "  Testing lowranceusr version 4" # these tests take a long time, let travis know we are alive.
 gpsbabel -i lowranceusr -f ${REFERENCE}/lowrance-v4.usr -o gpx -F ${TMPDIR}/lowrance-v4.gpx
 compare ${REFERENCE}/lowrance-v4.gpx ${TMPDIR}/lowrance-v4.gpx
 
@@ -121,6 +123,7 @@ compare ${REFERENCE}/lowrance-v4.gpx ${TMPDIR}/lowrance-v4.gpx
 # Perform USR version 5 test
 #         -------------
 #
+echo "  Testing lowranceusr version 5" # these tests take a long time, let travis know we are alive.
 gpsbabel -i lowranceusr -f ${REFERENCE}/lowrance-v5.usr -o gpx -F ${TMPDIR}/lowrance-v5.gpx
 compare ${REFERENCE}/lowrance-v5.gpx ${TMPDIR}/lowrance-v5.gpx
 
@@ -137,6 +140,7 @@ compare ${TMPDIR}/lowrance-v4-unicsv-sorted.txt ${TMPDIR}/lowrance-v5-unicsv-sor
 # Perform USR version 6 test
 #         -------------
 #
+echo "  Testing lowranceusr version 6" # these tests take a long time, let travis know we are alive.
 # Should generate the SAME GPX file as USR version 5
 gpsbabel -i lowranceusr -f ${REFERENCE}/lowrance-v6.usr -o gpx -F ${TMPDIR}/lowrance-v6.gpx
 compare ${REFERENCE}/lowrance-v5.gpx ${TMPDIR}/lowrance-v6.gpx
