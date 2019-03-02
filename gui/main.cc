@@ -20,26 +20,15 @@
 //  USA
 //
 //------------------------------------------------------------------------
-#define _CRT_SECURE_NO_DEPRECATE 1
-#include <QMessageBox>
-#include <QFile>
-#include <QCoreApplication>
-#include <QLibraryInfo>
-#include <QIcon>
-#include <QTextCodec>
+#include <QtCore/QByteArray>        // for operator+, QByteArray
+#include <QtCore/QCoreApplication>  // for QCoreApplication
+#include <QtCore/QDir>              // for QDir
+#include <QtCore/QString>           // for QString
+#include <QtCore/QtGlobal>          // for qgetenv, qputenv, QT_VERSION, QT_VERSION_CHECK
+#include <QtGui/QIcon>              // for QIcon
+#include <QtWidgets/QApplication>   // for QApplication
 
 #include "mainwindow.h"
-#include "gmapdlg.h"
-
-#ifdef _WIN32
-const char *pathSeparator = ";";
-#else
-const char *pathSeparator = ":";
-#endif
-
-#if defined (Q_OS_MAC)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
 
 //------------------------------------------------------------------------
 int main(int argc, char**argv)
@@ -49,23 +38,26 @@ int main(int argc, char**argv)
   #error this version of Qt is not supported.
 #endif
 
-  QApplication *app;
-  app = new QApplication(argc, argv);
-  app->setWindowIcon(QIcon(":/images/appicon.png"));
+  QApplication app(argc, argv);
+  QApplication::setWindowIcon(QIcon(":/images/appicon.png"));
 
-  QString newPath = "PATH=" + QApplication::applicationDirPath() +
-    QString(pathSeparator) + getenv("PATH");
-  char *newPathEnv = new char[newPath.length() + 1];
-  strcpy(newPathEnv, newPath.toStdString().c_str());
-  putenv(newPathEnv);
+#ifdef _WIN32
+  const QByteArray pathSeparator(";");
+#else
+  const QByteArray pathSeparator(":");
+#endif
+  qputenv("PATH",
+          QDir::toNativeSeparators(QApplication::applicationDirPath()).toUtf8()
+          + pathSeparator
+          + qgetenv("PATH"));
 
   QCoreApplication::setOrganizationName("GPSBabel");
   QCoreApplication::setOrganizationDomain("gpsbabel.org");
   QCoreApplication::setApplicationName("GPSBabel");
 
-  MainWindow mainWindow(0);
+  MainWindow mainWindow(nullptr);
   mainWindow.show();
-  app->exec();
+  QApplication::exec();
 
   return 0;
 }
