@@ -214,7 +214,7 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
   }
 
   if (!babelData_.ignoreVersionMismatch_ && babelVersion_ != VERSION) {
-    VersionMismatch vm(0, babelVersion_, QString(VERSION));
+    VersionMismatch vm(nullptr, babelVersion_, QString(VERSION));
 
     vm.exec();
     babelData_.ignoreVersionMismatch_ = vm.neverAgain();
@@ -274,7 +274,7 @@ void MainWindow::createLanguageMenu(void)
 // Called every time, when a menu entry of the language menu is called
 void MainWindow::slotLanguageChanged(QAction* action)
 {
-  if (0 != action) {
+  if (nullptr != action) {
     // load the language dependant on the action content.
     loadLanguage(action->data().toString());
   }
@@ -307,7 +307,7 @@ void MainWindow::loadLanguage(const QString& rLanguage)
 
 void MainWindow::changeEvent(QEvent* event)
 {
-    if (0 != event) {
+    if (nullptr != event) {
         switch(event->type()) {
         // This event is sent if a translator is loaded.
         case QEvent::LanguageChange:
@@ -524,7 +524,7 @@ void MainWindow::browseInputFile()
   }
 
   QStringList userList =
-    QFileDialog::getOpenFileNames(0, tr("Select one or more input files"),
+    QFileDialog::getOpenFileNames(nullptr, tr("Select one or more input files"),
 				  startFile,
 				  filterForFormat(idx));
   if (userList.size()) {
@@ -551,7 +551,7 @@ void MainWindow::browseOutputFile()
   }
 
   QString str =
-    QFileDialog::getSaveFileName(0, tr("Output File Name"),
+    QFileDialog::getSaveFileName(nullptr, tr("Output File Name"),
 				 startFile,
 				 filterForFormat(idx));
   if (str.length() != 0) {
@@ -610,7 +610,7 @@ QList<int> MainWindow::outputDeviceFormatIndices()
 void MainWindow::loadFormats()
 {
   if (!FormatLoad().getFormats(formatList_)) {
-    QMessageBox::information(0, QString(appName),
+    QMessageBox::information(nullptr, QString(appName),
 			     tr("Error reading format configuration.  "
 				"Check that the backend program \"gpsbabel\" is properly installed "
 				"and is in the current PATH\n\n"
@@ -621,7 +621,7 @@ void MainWindow::loadFormats()
       inputDeviceFormatIndices().size() == 0 ||
       outputFileFormatIndices().size() == 0 ||
       outputDeviceFormatIndices().size() == 0) {
-    QMessageBox::information(0, QString(appName),
+    QMessageBox::information(nullptr, QString(appName),
 			     tr("Some file/device formats were not found during initialization.  "
 				"Check that the backend program \"gpsbabel\" is properly installed "
 				"and is in the current PATH\n\n"
@@ -765,11 +765,11 @@ void MainWindow::inputOptionButtonClicked()
   int fidx = currentComboFormatIndex(ui_.inputFormatCombo);
   if (formatList_[fidx].getInputOptionsRef()->size() == 0) {
     QMessageBox::information
-      (0, appName,
+      (nullptr, appName,
        tr("There are no input options for format \"%1\"").arg(formatList_[fidx].getDescription()));
   }
   else {
-    OptionsDlg optionDlg(0,
+    OptionsDlg optionDlg(nullptr,
              formatList_[fidx].getName(),
              formatList_[fidx].getInputOptionsRef(),
              formatList_[fidx].getHtml());
@@ -785,11 +785,11 @@ void MainWindow::outputOptionButtonClicked()
   int fidx = currentComboFormatIndex(ui_.outputFormatCombo);
   if (formatList_[fidx].getOutputOptionsRef()->size() == 0) {
     QMessageBox::information
-      (0, appName,
+      (nullptr, appName,
        tr("There are no output options for format \"%1\"").arg(formatList_[fidx].getDescription()));
   }
   else {
-    OptionsDlg optionDlg(0, 
+    OptionsDlg optionDlg(nullptr, 
              formatList_[fidx].getName(),
              formatList_[fidx].getOutputOptionsRef(),
              formatList_[fidx].getHtml());
@@ -807,7 +807,7 @@ bool MainWindow::isOkToGo()
   if (!((ui_.xlateWayPtsCk->isChecked() && ui_.xlateWayPtsCk->isEnabled()) ||
     (ui_.xlateRoutesCk->isChecked() && ui_.xlateRoutesCk->isEnabled()) ||
     (ui_.xlateTracksCk->isChecked() && ui_.xlateTracksCk->isEnabled()))) {
-    QMessageBox::information(0, QString(appName), tr("No valid waypoints/routes/tracks translation specified"));
+    QMessageBox::information(nullptr, QString(appName), tr("No valid waypoints/routes/tracks translation specified"));
     return false;
   }
 
@@ -826,19 +826,19 @@ bool MainWindow::isOkToGo()
 
   if ((babelData_.inputType_ == BabelData::fileType_) &&
       (babelData_.inputFileNames_.size() == 0)) {
-    QMessageBox::information(0, QString(appName), tr("No input file specified"));
+    QMessageBox::information(nullptr, QString(appName), tr("No input file specified"));
     return false;
   }
 
   if (babelData_.outputType_ == BabelData::noType_ && babelData_.previewGmap_ == true) {
   }
   if (babelData_.outputType_ == BabelData::noType_ && babelData_.previewGmap_ == false) {
-    QMessageBox::information(0, QString(appName), tr("No valid output specified"));
+    QMessageBox::information(nullptr, QString(appName), tr("No valid output specified"));
     return false;
   }
   else if (babelData_.outputType_ == BabelData::fileType_ &&
        babelData_.outputFileName_.length() == 0) {
-    QMessageBox::information(0, QString(appName), tr("No output file specified"));
+    QMessageBox::information(nullptr, QString(appName), tr("No output file specified"));
     return false;
   }
   return true;
@@ -848,10 +848,10 @@ bool MainWindow::isOkToGo()
 bool MainWindow::runGpsbabel(const QStringList &args, QString &errorString,
 			  QString &outputString)
 {
-  QProcess *proc = new QProcess(0);
+  QProcess *proc = new QProcess(nullptr);
   QString name = "gpsbabel";
   proc->start(name, args);
-  ProcessWaitDialog *waitDlg = new ProcessWaitDialog(0, proc);
+  ProcessWaitDialog *waitDlg = new ProcessWaitDialog(nullptr, proc);
 
   if (proc->state() == QProcess::NotRunning) {
     errorString = QString(tr("Process \"%1\" did not start")).arg(name);
@@ -1006,7 +1006,7 @@ void MainWindow::applyActionX()
     ui_.outputWindow->appendPlainText(tr("Translation successful"));
     if (babelData_.previewGmap_) {
       this->hide();
-      GMapDialog dlg(0, tempName, babelData_.debugLevel_ >=1 ? ui_.outputWindow : 0);
+      GMapDialog dlg(nullptr, tempName, babelData_.debugLevel_ >=1 ? ui_.outputWindow : nullptr);
       dlg.show();
       dlg.exec();
       QFile(tempName).remove();
@@ -1029,7 +1029,7 @@ void MainWindow::closeActionX()
   QDateTime now = QDateTime::currentDateTime();
   if ((babelData_.runCount_ == 1) ||
       ((babelData_.runCount_ > 5) && (babelData_.donateSplashed_.daysTo(now) > 30))) {
-    Donate donate(0);
+    Donate donate(nullptr);
     if (babelData_.donateSplashed_.date() == QDate(2010,1,1))
       donate.showNever(false);
     donate.exec();
@@ -1037,7 +1037,7 @@ void MainWindow::closeActionX()
   }
   saveSettings();
   delete upgrade;
-  upgrade = 0;
+  upgrade = nullptr;
   qApp->exit(0);
 }
 
@@ -1141,7 +1141,7 @@ void MainWindow::resetFormatDefaults()
 //------------------------------------------------------------------------
 void MainWindow::moreOptionButtonClicked()
 {
-  AdvDlg advDlg(0, babelData_.synthShortNames_,
+  AdvDlg advDlg(nullptr, babelData_.synthShortNames_,
                 babelData_.previewGmap_, babelData_.debugLevel_);
   connect(advDlg.formatButton(), SIGNAL(clicked()),
 	  this, SLOT(resetFormatDefaults()));
@@ -1150,7 +1150,7 @@ void MainWindow::moreOptionButtonClicked()
 //------------------------------------------------------------------------
 void MainWindow::aboutActionX()
 {
-  AboutDlg aboutDlg(0, babelVersion_, QString(appName) + QString(" " VERSION), babelData_.installationUuid_);
+  AboutDlg aboutDlg(nullptr, babelVersion_, QString(appName) + QString(" " VERSION), babelData_.installationUuid_);
   aboutDlg.setWindowTitle(tr("About %1").arg(appName));
   aboutDlg.exec();
 }
@@ -1166,7 +1166,7 @@ void MainWindow::upgradeCheckActionX()
 //------------------------------------------------------------------------
 void MainWindow::preferencesActionX()
 {
-  Preferences preferences(0, formatList_, babelData_);
+  Preferences preferences(nullptr, formatList_, babelData_);
   preferences.exec();
 
   // We may have changed the list of displayed formats.  Resynchronize.
@@ -1182,7 +1182,7 @@ void MainWindow::helpActionX()
 //------------------------------------------------------------------------
 void MainWindow::filtersClicked()
 {
-  FilterDialog dlg(0, filterData_);
+  FilterDialog dlg(nullptr, filterData_);
   dlg.runDialog();
   updateFilterStatus();
 }
@@ -1301,5 +1301,5 @@ QString MainWindow::getFormatNameForExtension(QString ext)
       }
     }
   }
-  return 0;
+  return nullptr;
 }

@@ -90,7 +90,7 @@ Map::Map(QWidget *parent,
 
   QString baseFile =  QApplication::applicationDirPath() + "/gmapbase.html";
   if (!QFile(baseFile).exists()) {
-    QMessageBox::critical(0, appName,
+    QMessageBox::critical(nullptr, appName,
 			  tr("Missing \"gmapbase.html\" file.  Check installation"));
   }
   else {
@@ -128,7 +128,7 @@ void Map::loadFinishedX(bool f)
 {
   this->logTime("Done initial page load");
   if (!f)
-    QMessageBox::critical(0, appName,
+    QMessageBox::critical(nullptr, appName,
 			  tr("Failed to load Google maps base page"));
   else {
     QApplication::processEvents();
