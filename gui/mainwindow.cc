@@ -41,6 +41,7 @@
 #include <QtGui/QDesktopServices>      // for QDesktopServices
 #include <QtGui/QIcon>                 // for QIcon
 #include <QtGui/QImage>                // for QImage
+#include <QtSerialPort/QSerialPortInfo>    // for QSerialPortInfo
 #include <QtWidgets/QApplication>      // for QApplication, qApp
 #include <QtWidgets/QCheckBox>         // for QCheckBox
 #include <QtWidgets/QDialogButtonBox>  // for QDialogButtonBox
@@ -1354,4 +1355,12 @@ QString MainWindow::getFormatNameForExtension(const QString& ext)
     }
   }
   return nullptr;
+}
+
+void MainWindow::osLoadDeviceNameCombos(QComboBox* box)
+{
+  const auto ports = QSerialPortInfo::availablePorts();
+  for (const auto& info : ports) {
+    box->addItem(info.systemLocation());
+  }
 }

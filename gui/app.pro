@@ -11,6 +11,7 @@ ICON = images/appicon.icns
 QT += core \
       gui \
       network \
+      serialport \
       xml
 
 qtHaveModule(webenginewidgets) {
@@ -25,15 +26,6 @@ unix:MOC_DIR = objects
 unix:OBJECTS_DIR = objects
 unix:RCC_DIR = objects
 mac:DESTDIR = .
-
-mac:LIBS += -framework IOKit -framework CoreFoundation
-unix {
-    CONFIG += link_pkgconfig
-    packagesExist(libudev) {
-        DEFINES += HAVE_UDEV
-        PKGCONFIG += libudev
-    }
-}
 
 UI_DIR = tmp
 
@@ -84,9 +76,6 @@ SOURCES += preferences.cc
 SOURCES += processwait.cc
 SOURCES += upgrade.cc
 SOURCES += version_mismatch.cc
-macx:SOURCES += serial_mac.cc
-unix:SOURCES += serial_unix.cc
-windows:SOURCES += serial_win.cc
 
 HEADERS += aboutdlg.h
 HEADERS += advdlg.h
