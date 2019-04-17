@@ -366,7 +366,7 @@ void MainWindow::loadInputDeviceNameCombo(const QString& format)
   // Later, we can probe the system for multiple USB devices and populate
   // here.
   if (formatSupportsUSB(format)) {
-    ui_.inputDeviceNameCombo->addItem("usb:");
+    ui_.inputDeviceNameCombo->addItem("usb:", "usb:");
   }
   if (formatSupportsSerial(format)) {
     osLoadDeviceNameCombos(ui_.inputDeviceNameCombo);
@@ -382,7 +382,7 @@ void MainWindow::loadOutputDeviceNameCombo(const QString& format)
   // Later, we can probe the system for multiple USB devices and populate
   // here.
   if (formatSupportsUSB(format)) {
-    ui_.outputDeviceNameCombo->addItem("usb:");
+    ui_.outputDeviceNameCombo->addItem("usb:", "usb:");
   }
   if (formatSupportsSerial(format)) {
     osLoadDeviceNameCombos(ui_.outputDeviceNameCombo);
@@ -1318,7 +1318,7 @@ void MainWindow::getWidgetValues()
     babelData_.inputType_ = BabelData::deviceType_;
     babelData_.inputDeviceFormat_ =formatList_[fidx].getName();
   }
-  babelData_.inputDeviceName_ = ui_.inputDeviceNameCombo->currentText();
+  babelData_.inputDeviceName_ = ui_.inputDeviceNameCombo->currentData().toString();
 
   comboIdx = ui_.outputFormatCombo->currentIndex();
   fidx = ui_.outputFormatCombo->itemData(comboIdx).toInt();
@@ -1331,7 +1331,7 @@ void MainWindow::getWidgetValues()
   } else {
     babelData_.outputType_ = BabelData::noType_;
   }
-  babelData_.outputDeviceName_ = ui_.outputDeviceNameCombo->currentText();
+  babelData_.outputDeviceName_ = ui_.outputDeviceNameCombo->currentData().toString();
 
   babelData_.xlateWayPts_ = ui_.xlateWayPtsCk->isChecked();
   babelData_.xlateTracks_ = ui_.xlateTracksCk->isChecked();
@@ -1361,6 +1361,6 @@ void MainWindow::osLoadDeviceNameCombos(QComboBox* box)
 {
   const auto ports = QSerialPortInfo::availablePorts();
   for (const auto& info : ports) {
-    box->addItem(info.systemLocation());
+    box->addItem(info.portName(), info.systemLocation());
   }
 }
