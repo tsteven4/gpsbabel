@@ -1,5 +1,3 @@
-// $Id: serial_win.cpp,v 1.3 2010-06-21 02:35:06 robertl Exp $
-//------------------------------------------------------------------------
 //
 //  Copyright (C) 2009  S. Khai Mong <khai@mangrai.com>.
 //
@@ -19,54 +17,17 @@
 //  USA
 //
 
+#include <QtCore/QList>                    // for QList
+#include <QtSerialPort/QSerialPortInfo>    // for QSerialPortInfo
+#include <QtWidgets/QComboBox>             // for QComboBox
+
 #include "mainwindow.h"
 
-#if 0  // Does not require Windows 2000
-
-static const char* deviceNames[] = {
-  "com1:",
-  "com2:",
-  "com3:",
-  "com4:",
-  0
-};
 
 void MainWindow::osLoadDeviceNameCombos(QComboBox* box)
 {
-  for (int i=0; deviceNames[i]; i++) {
-    box->addItem(deviceNames[i]);
+  const auto ports = QSerialPortInfo::availablePorts();
+  for (const auto& info : ports) {
+    box->addItem(info.portName());
   }
 }
-
-#else // This code assumes Windows 2000 or later
-
-// Uses QueryDosDevice(), Minimum supported: Windows 2000 Professional/Server
-#include <windows.h>
-#include <stdio.h>
-
-void MainWindow::osLoadDeviceNameCombos(QComboBox* box)
-{
-  char DevList[64*1024-1];  // a single byte more, and certain versions of windows
-  // always return QueryDosDevice()==0 && GetLastError()==ERROR_MORE_DATA.
-  // see http://support.microsoft.com/kb/931305
-  // Get a list of all existing MS-DOS device names. Stores one or more asciiz strings followed by an extra null.
-  DWORD res = QueryDosDeviceA(NULL, DevList, sizeof(DevList));
-  if (res == 0) {
-    DWORD err = GetLastError(); // could check for ERROR_INSUFFICIENT_BUFFER, and retry with a larger buffer.
-    // but DevList is already at the maximum size it can be without running into kb 931305.
-    // FIXME: This shold be a QMessageBox::warning() - RJL
-    // fprintf(stderr,"QueryDosDevice() failed with %d.  GetLastError()==%d.\n", res, err);
-    (void) err;
-    return;
-  }
-
-  for (char* p=DevList; *p;) {
-    int len = strlen(p);
-    if (strncmp(p,"COM",3)==0) {
-      box->addItem((PCHAR)p);
-    }
-    p += len+1; // +1 to also skip the null character of each string
-  }
-}
-
-#endif

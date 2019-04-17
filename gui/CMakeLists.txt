@@ -19,7 +19,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Find the Qt5Core library
-find_package(Qt5 COMPONENTS Core Gui Network Xml REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Network SerialPort Xml REQUIRED)
 #message("Qt5Core_VERSION String describing the version of the module: \"${Qt5Core_VERSION}\"")
 #message("Qt5Core_LIBRARIES List of libraries for use with the target_link_libraries command: \"${Qt5Core_LIBRARIES}\"")
 #message("Qt5Core_INCLUDE_DIRS List of directories for use with the include_directories command: \"${Qt5Core_INCLUDE_DIRS}\"")
@@ -34,30 +34,20 @@ endif()
 # hard code webengine instead of webkit for now
 find_package(Qt5 COMPONENTS WebEngineWidgets WebChannel REQUIRED)
 
-set(QT_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS} ${Qt5WebEngineWidgets_INCLUDE_DIRS} ${Qt5WebChannel_INCLUDE_DIRS})
+set(QT_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} ${Qt5SerialPort_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS} ${Qt5WebEngineWidgets_INCLUDE_DIRS} ${Qt5WebChannel_INCLUDE_DIRS})
 list(REMOVE_DUPLICATES QT_INCLUDE_DIRS)
 message("QT INCLUDE DIRS: \"${QT_INCLUDE_DIRS}\"\n")
 
-set(QT_DEFINITIONS ${Qt5Core_DEFINITIONS} ${QT5Gui_DEFINITIONS} ${Qt5Network_DEFINITIONS} ${Qt5Xml_DEFINITIONS} ${Qt5WebEngineWidgets_DEFINITIONS} ${Qt5WwebChannel_DEFINITIONS})
+set(QT_DEFINITIONS ${Qt5Core_DEFINITIONS} ${QT5Gui_DEFINITIONS} ${Qt5Network_DEFINITIONS} ${Qt5SerialPort_DEFINITIONS} ${Qt5Xml_DEFINITIONS} ${Qt5WebEngineWidgets_DEFINITIONS} ${Qt5WwebChannel_DEFINITIONS})
 list(REMOVE_DUPLICATES QT_DEFINITIONS)
 message("QT DEFS: \"${QT_DEFINITIONS}\"\n")
 
-set(QT_LIBRARIES ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5WebEngineWidgets_LIBRARIES} ${Qt5WebChannel_LIBRARIES} ${LIBUDEV_LIBRARIES} ${LIBS})
+set(QT_LIBRARIES ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5SerialPort_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5WebEngineWidgets_LIBRARIES} ${Qt5WebChannel_LIBRARIES} ${LIBUDEV_LIBRARIES} ${LIBS})
 #list(REMOVE_DUPLICATES QT_LIBRARIES)
 message("QT LIBS: \"${QT_LIBRARIES}\"\n")
 
 include_directories(AFTER SYSTEM ${QT_INCLUDE_DIRS})
 add_definitions(${QT_DEFINITIONS} -DHAVE_WEBENGINE)
-
-# mac:LIBS += -framework IOKit -framework CoreFoundation
-
-if (UNIX AND NOT APPLE)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(LIBUDEV libudev)
-  if (${LIBUDEV_FOUND})
-    add_definitions(-DHAVE_UDEV)
-  endif()
-endif()
 
 set(RESOURCES app.qrc)
 
@@ -112,10 +102,8 @@ set(SOURCES
   version_mismatch.cc
 )
 
-if (UNIX AND NOT APPLE)
+if (UNIX)
   set(SOURCES ${SOURCES} serial_unix.cc)
-elseif (APPLE)
-  set(SOURCES ${SOURCES} serial_mac.cc)
 elseif (WIN32)
   set(SOURCES ${SOURCES} serial_win.cc)
 endif()
