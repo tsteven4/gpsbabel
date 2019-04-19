@@ -19,18 +19,25 @@
 
  */
 
-#include "defs.h"
-#include "gbser.h"
-#include "gbser_private.h"
+#include <QtCore/QByteArray>            // for QByteArray
+#include <QtCore/QLatin1String>         // for QLatin1String
+#include <QtCore/QString>               // for QString
+#include <QtCore/QtGlobal>              // for qPrintable
 
-#include <cassert>
-#include <cerrno>
-#include <cstdarg>
-#include <cstdio>
+#include <cassert>                      // for assert
+#include <cerrno>                       // for errno
+#include <cstdio>                       // for printf
+#include <cstring>                      // for strerror, memcpy, memmove
+#include <ctime>                        // for time_t
 #include <fcntl.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+
+#include "defs.h"
+#include "gbser.h"
+#include "gbser_private.h"
+
 
 typedef struct {
   struct termios  old_tio;
@@ -129,26 +136,26 @@ static int set_rx_timeout(gbser_handle* h, unsigned vmin, unsigned vtime)
  * ('com1:') are translated into the equivalent name required by
  * WIN32
  */
-void* gbser_init(const char* port_name)
+void* gbser_init(const QString& port_name)
 {
   gbser_handle* h;
 
-  gbser__db(4, "gbser_init(\"%s\")\n", port_name);
+  gbser__db(4, "gbser_init(\"%s\")\n", qPrintable(port_name));
 
   h = (gbser_handle*) xcalloc(sizeof *h, 1);
   h->magic = MYMAGIC;
   h->vmin = h->vtime = 0;
 
-  if (0 == strcmp(port_name, "-")) {
+  if (port_name.compare(QLatin1String("-")) == 0) {
     h->fd = 0;
     return h;
-  } else if (h->fd = open(port_name, O_RDWR | O_NOCTTY), h->fd == -1) {
+  } else if (h->fd = open(port_name.toLocal8Bit().constData(), O_RDWR | O_NOCTTY), h->fd == -1) {
     warning("Failed to open port (%s)\n", strerror(errno));
     goto failed;
   }
 
   if (!isatty(h->fd)) {
-    warning("%s is not a TTY\n", port_name);
+    warning("%s is not a TTY\n", qPrintable(port_name));
     goto failed;
   }
 
@@ -396,12 +403,12 @@ int gbser_write(void* handle, const void* buf, unsigned len)
  * isatty()
  */
 
-int gbser_is_serial(const char* port_name)
+bool gbser_is_serial(const QString& port_name)
 {
   int fd;
   int is_port = 0;
 
-  if (fd = open(port_name, O_RDWR | O_NOCTTY), fd == -1) {
+  if (fd = open(port_name.toLocal8Bit().constData(), O_RDWR | O_NOCTTY), fd == -1) {
     gbser__db(1, "Failed to open port (%s) to check its type\n", strerror(errno));
     return 0;
   }
@@ -420,22 +427,11 @@ int gbser_is_serial(const char* port_name)
  * COM ports 1 - 9 are "COM1:" through "COM9:"
  * The one after that is \\.\\com10 - this function tries to plaster over
  * that.
- * It returns a pointer to a staticly allocated buffer and is therefore not
- * thread safe.   The buffer pointed to remains valid only until the next
- * call to this function.
  */
 
-const char* fix_win_serial_name_r(const char* comname, char* obuf, size_t len)
+QString fix_win_serial_name(const QString& comname)
 {
-  strncpy(obuf, comname, len);
-  return obuf;
-}
-
-static char gb_com_buffer[100];
-
-const char* fix_win_serial_name(const char* comname)
-{
-  return fix_win_serial_name_r(comname, gb_com_buffer, sizeof(gb_com_buffer));
+  return comname;
 }
 
 /* Read from the serial port until the specified |eol| character is

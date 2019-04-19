@@ -1319,7 +1319,7 @@ skytraq_set_location()
 static void
 skytraq_rd_init(const QString& fname)
 {
-  if ((serial_handle = gbser_init(qPrintable(fname))) == nullptr) {
+  if ((serial_handle = gbser_init(fname)) == nullptr) {
     fatal(MYNAME ": Can't open port '%s'\n", qPrintable(fname));
   }
   if ((skytraq_baud = skytraq_probe()) <= 0) {

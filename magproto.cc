@@ -576,8 +576,8 @@ static void* serial_handle = nullptr;
 static int
 terminit(const QString& portname, int create_ok)
 {
-  if (gbser_is_serial(qPrintable(portname))) {
-    if (serial_handle = gbser_init(qPrintable(portname)), nullptr != serial_handle) {
+  if (gbser_is_serial(portname)) {
+    if (serial_handle = gbser_init(portname), nullptr != serial_handle) {
       int rc;
       if (rc = gbser_set_port(serial_handle, bitrate, 8, 0, 1), gbser_OK != rc) {
         fatal(MYNAME ": Can't configure port\n");

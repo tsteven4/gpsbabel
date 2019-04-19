@@ -421,7 +421,7 @@ itracku_rd_ser_init(const QString& fname)
 #endif
   {
 
-    if (gbser_is_serial(qPrintable(fname))) {
+    if (gbser_is_serial(fname)) {
       port = xstrdup(qPrintable(fname));
 
       dbg(1, "opening port %s", qPrintable(fname));

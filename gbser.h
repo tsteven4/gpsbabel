@@ -22,7 +22,8 @@
 #ifndef __GBSER_H
 #define __GBSER_H
 
-#include <cstddef> // for size_t
+#include <QtCore/QString>  // for QString
+
 
 #define gbser_OK         0
 #define gbser_NOTHING   -1
@@ -40,7 +41,7 @@
  * ('com1:') are translated into the equivalent name required by
  * WIN32
  */
-void* gbser_init(const char* port_name);
+void* gbser_init(const QString& port_name);
 
 /* Close a serial port
  */
@@ -119,7 +120,7 @@ int gbser_writec(void* handle, int c);
  * /^(\\\\\.\\\\)?com\d+:?$/i). On Posix it returns the value of
  * isatty()
  */
-int gbser_is_serial(const char* port_name);
+bool gbser_is_serial(const QString& port_name);
 
 /* This isn't part of the above abstraction; it's just a helper for
  * the other serial modules in the tree.
@@ -128,12 +129,8 @@ int gbser_is_serial(const char* port_name);
  * COM ports 1 - 9 are "COM1:" through "COM9:"
  * The one after that is \\.\\com10 - this function tries to plaster over
  * that.
- * It returns a pointer to a staticly allocated buffer and is therefore not
- * thread safe.   The buffer pointed to remains valid only until the next
- * call to this function.
  */
 
-const char* fix_win_serial_name_r(const char* comname, char* obuf, size_t len);
-const char* fix_win_serial_name(const char* comname);
+QString fix_win_serial_name(const QString& comname);
 
 #endif /* GBSER_H */

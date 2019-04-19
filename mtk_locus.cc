@@ -124,11 +124,11 @@ mtk_locus_rd_init(const QString& fname)
 {
   dbg(1, "Opening file: %s\n", qPrintable(fname));
 
-  if (gbser_is_serial(qPrintable(fname))) {
+  if (gbser_is_serial(fname)) {
 
     dbg(1, "Input is a serial port\n");
     read_mode = rm_serial;
-    if ((sfd = gbser_init(qPrintable(fname))) == nullptr) {
+    if ((sfd = gbser_init(fname)) == nullptr) {
       fatal(MYNAME ": Can't initialise port \"%s\" (%s)\n", qPrintable(fname), strerror(errno));
     }
     set_baudrate();

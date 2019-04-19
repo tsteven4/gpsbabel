@@ -1053,8 +1053,8 @@ nuke()
 static void
 navilink_common_init(const QString& name)
 {
-  if (gbser_is_serial(qPrintable(name))) {
-    if ((serial_handle = gbser_init(qPrintable(name))) == nullptr) {
+  if (gbser_is_serial(name)) {
+    if ((serial_handle = gbser_init(name)) == nullptr) {
       fatal(MYNAME ": Could not open serial port %s\n", qPrintable(name));
     }
 

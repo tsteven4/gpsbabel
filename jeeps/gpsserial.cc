@@ -26,6 +26,7 @@
 #include "gps.h"
 #include "../gbser.h"
 #include "gpsserial.h"
+#include <QtCore/QString>
 #include <QtCore/QThread>
 #include <cerrno>
 #include <cstdio>
@@ -95,11 +96,12 @@ int32 GPS_Serial_On(const char* port, gpsdevh** dh)
   DCB tio;
   COMMTIMEOUTS timeout;
   HANDLE comport;
-  const char* xname = fix_win_serial_name(port);
+  const auto xname = fix_win_serial_name(port);
   win_serial_data* wsd = (win_serial_data*) xcalloc(sizeof(win_serial_data), 1);
   *dh = (gpsdevh*) wsd;
-  GPS_Diag("Opening %s\n", xname);
-  comport = CreateFileA(xname, GENERIC_READ|GENERIC_WRITE, 0, NULL,
+  GPS_Diag("Opening %s\n", qPrintable(xname));
+  comport = CreateFileW(reinterpret_cast<const wchar_t*>(xname.utf16()),
+                        GENERIC_READ|GENERIC_WRITE, 0, NULL,
                         OPEN_EXISTING, 0, NULL);
 
   if (comport == INVALID_HANDLE_VALUE) {

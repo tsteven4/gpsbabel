@@ -678,7 +678,7 @@ arglist_t dg100_args[] = {
 static void
 common_rd_init(const QString& fname)
 {
-  if (serial_handle = gbser_init(qPrintable(fname)), nullptr == serial_handle) {
+  if (serial_handle = gbser_init(fname), nullptr == serial_handle) {
     fatal(MYNAME ": Can't open port '%s'\n", qPrintable(fname));
   }
   if (gbser_set_speed(serial_handle, model->speed) != gbser_OK) {

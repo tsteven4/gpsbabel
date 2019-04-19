@@ -19,13 +19,15 @@
 
  */
 
-#include "defs.h"
-#include "gbser.h"
-#include "gbser_private.h"
+#include <ctype.h>          // for isdigit, isspace
+#include <string.h>         // for strlen
+#include <cstdarg>          // for va_end, va_list, va_start
+#include <cstdio>           // for vprintf
 
-#include <cassert>
-#include <cstdarg>
-#include <cstdio>
+#include "defs.h"           // for global_options, global_opts
+#include "gbser.h"
+#include "gbser_private.h"  // for gbser__fill_buffer, gbser__read_buffer, gbser__db
+
 
 void gbser__db(int l, const char* msg, ...)
 {

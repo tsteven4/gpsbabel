@@ -1108,7 +1108,7 @@ nmea_read()
 void
 nmea_rd_posn_init(const QString& fname)
 {
-  if ((gbser_handle = gbser_init(qPrintable(fname))) != nullptr) {
+  if ((gbser_handle = gbser_init(fname)) != nullptr) {
     read_mode = rm_serial;
     gbser_set_speed(gbser_handle, 4800);
   } else {
