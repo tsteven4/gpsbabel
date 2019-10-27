@@ -49,6 +49,34 @@ matrix:
         directories:
           - $HOME/Cache
         timeout: 600
+    - os: linux
+      arch: arm64
+      dist: bionic
+      sudo: required
+      compiler: gcc
+      env:
+        - BUILD_TYPE="ubuntu"
+        - QT_VERSION="5.9.8" # 5.12.1 vtesto stmsdf fails with valgrind 3.11.0 which is on xenial
+      addons:
+        apt:
+          packages:
+            - expat
+            - fop
+            - valgrind
+            - xsltproc
+            - libxml2-utils
+            - libusb-dev
+            - docbook-xml
+            - docbook-xsl
+            - libgl1-mesa-dev
+            - qt5-default
+            - libqt5webkit5-dev
+            - qttools5-dev-tools
+            - qttranslations5-l10n
+      cache:
+        directories:
+          - $HOME/Cache
+        timeout: 600
     - os: osx
       compiler: clang
       env: QT_VERSION="5.9.8"
@@ -89,6 +117,7 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "coverage" ]; then ./tools/travis_script_linux_coverage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "docker" ]; then ./tools/travis_script_linux_docker ${DOCKER_IMG}; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then echo $PATH; ./build_and_test; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "ubuntu" ]; then echo $PATH; ./build_and_test; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./tools/travis_script_osx; fi
 
 after_success:
