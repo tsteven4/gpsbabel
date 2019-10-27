@@ -61,7 +61,6 @@ matrix:
           packages:
             - expat
             - fop
-            - valgrind
             - xsltproc
             - libxml2-utils
             - libusb-dev
@@ -72,6 +71,9 @@ matrix:
             - libqt5webkit5-dev
             - qttools5-dev-tools
             - qttranslations5-l10n
+        snaps:
+          - name: valgrind # 3.13.0 from ubuntu bionic /usr/bin generates illegal instruction errors on arm64.
+            confinement: classic
         timeout: 600
     - os: osx
       compiler: clang
