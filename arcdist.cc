@@ -20,14 +20,23 @@
  */
 
 
+#include <cmath>                // for round
+#include <cstdio>               // for printf, sscanf
+#include <cstdlib>              // for strtod
+#include <cstring>              // for strchr, strlen, strncmp, strspn
+
+#include <QtCore/QByteArray>    // for QByteArray
+#include <QtCore/QDateTime>     // for QDateTime
+#include <QtCore/QString>       // for QString
+#include <QtCore/QtGlobal>      // for foreach, qPrintable
+
 #include "defs.h"
 #include "arcdist.h"
-#include "filterdefs.h"
-#include "grtcirc.h"
+#include "filterdefs.h"         // for global_waypoint_list
+#include "gbfile.h"             // for gbfclose, gbfgetstr, gbfopen, gbfile
+#include "grtcirc.h"            // for RAD, gcdist, linedistprj, radtomiles
+#include "src/core/datetime.h"  // for DateTime
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib> // strtod
 
 #if FILTERS_ENABLED
 #define MYNAME "Arc filter"
@@ -179,9 +188,9 @@ void ArcDistanceFilter::process()
             // Apply the multiplier to the difference between the times
             // of the two points.   Add that to the first for the
             // interpolated time.
-            int scaled_time = ed->frac *
-                              ed->arcpt1->GetCreationTime().msecsTo(ed->arcpt2->GetCreationTime());
-            QDateTime new_time(ed->arcpt1->GetCreationTime().addMSecs(scaled_time));
+            double scaled_time = ed->frac *
+                                 ed->arcpt1->GetCreationTime().msecsTo(ed->arcpt2->GetCreationTime());
+            QDateTime new_time(ed->arcpt1->GetCreationTime().addMSecs(round(scaled_time)));
             wp->SetCreationTime(new_time);
           }
         }
