@@ -18,6 +18,14 @@ vg_version_warning() {
 QUIET="-q"
 BASEPATH=`dirname $0`
 
+# skip on aarch64.
+# we get illegal instruction errors on every test with 3.13.0 on bionic arm64 (aarch64).
+# presumably an newer version of valgrind will have this fixed, and we can enable testing then.
+machine=`uname -m`
+if [ "${machine}" = "aarch64" ]; then
+  echo "Skipping valgrind on machine ${machine}."
+fi
+
 # Older valgrind can choke with newer version of Qt.
 # valgrind 3.11.0 has this problem with Qt 5.12.1.
 # It is unknown if 3.12.0 has this problem with Qt 5.12.1.

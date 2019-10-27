@@ -56,7 +56,6 @@ matrix:
       compiler: gcc
       env:
         - BUILD_TYPE="ubuntu"
-        - QT_VERSION="5.9.8" # 5.12.1 vtesto stmsdf fails with valgrind 3.11.0 which is on xenial
       addons:
         apt:
           packages:
@@ -73,9 +72,6 @@ matrix:
             - libqt5webkit5-dev
             - qttools5-dev-tools
             - qttranslations5-l10n
-      cache:
-        directories:
-          - $HOME/Cache
         timeout: 600
     - os: osx
       compiler: clang
