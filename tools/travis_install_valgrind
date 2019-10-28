@@ -1,0 +1,21 @@
+#!/bin/bash
+
+CACHEDIR=${HOME}/Cache
+VGDIR=${CACHEDIR}/valgrind
+
+if [ -d "${VGDIR}/bin" ]; then
+  echo "Using cached valgrind."
+  echo "If you need to clear the cache see"
+  echo "https://docs.travis-ci.com/user/caching/#Fetching-and-storing-caches."
+else
+  rm -fr ${VGDIR}
+  mkdir -p ${VGDIR}
+  wget https://sourceware.org/pub/valgrind/valgrind-3.15.0.tar.bz2
+  tar -xjvf valgrind-3.15.0.tar.bz2 
+  cd valgrind-3.15.0
+  ./configure --prefix=${VGDIR}
+  make -j 4 install
+fi
+
+${VGDIR}/bin/valgrind ls -l
+

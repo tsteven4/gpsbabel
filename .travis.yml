@@ -55,7 +55,7 @@ matrix:
       sudo: required
       compiler: gcc
       env:
-        - BUILD_TYPE="ubuntu"
+        - BUILD_TYPE="arm64"
       addons:
         apt:
           packages:
@@ -71,9 +71,9 @@ matrix:
             - libqt5webkit5-dev
             - qttools5-dev-tools
             - qttranslations5-l10n
-        snaps:
-          - name: valgrind # 3.13.0 from ubuntu bionic /usr/bin generates illegal instruction errors on arm64.
-            confinement: classic
+      cache:
+        directories:
+          - $HOME/Cache
         timeout: 600
     - os: osx
       compiler: clang
@@ -109,13 +109,14 @@ matrix:
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "coverage" ]; then ./tools/travis_install_linux_coverage ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then ./tools/travis_install_linux_local ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "arm64" ]; then ./tools/travis_install_valgrind && export PATH=${HOME}/valgrind/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./tools/travis_install_osx ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
 
 script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "coverage" ]; then ./tools/travis_script_linux_coverage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "docker" ]; then ./tools/travis_script_linux_docker ${DOCKER_IMG}; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then echo $PATH; ./build_and_test; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "ubuntu" ]; then echo $PATH; ./build_and_test; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "arm64" ]; then echo $PATH; ./build_and_test; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./tools/travis_script_osx; fi
 
 after_success:
