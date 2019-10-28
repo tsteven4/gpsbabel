@@ -75,7 +75,7 @@ matrix:
       cache:
         directories:
           - $HOME/Cache
-        timeout: 600
+        timeout: 1200
     - os: osx
       compiler: clang
       env: QT_VERSION="5.9.8"
