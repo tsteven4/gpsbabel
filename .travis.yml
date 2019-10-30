@@ -50,6 +50,7 @@ matrix:
           - $HOME/Cache
         timeout: 600
     - os: osx
+      osx_image: xcode10.3
       compiler: clang
       env: QT_VERSION="5.9.8"
       cache:
@@ -57,6 +58,7 @@ matrix:
           - $HOME/Cache
         timeout: 600
     - os: osx
+      osx_image: xcode10.3
       compiler: clang
       env: QT_VERSION="5.12.5"
       cache:
