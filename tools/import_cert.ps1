@@ -17,8 +17,16 @@ if ((Test-Path 'Env:\WINDOWS_CERT_PW') -and (Test-Path 'Env:\WINDOWS_CERT')) {
     # delete the certificate pfx file
     Remove-Item -LiteralPath $certpfx
 
+    Write-Host ''
+    Write-Host 'Using code signing certificate:'
+    Write-Host ($certificate | Format-List | Out-String)
+    Write-Host ''
+
     return $certificate
 } else {
-    Write-Host 'No certificate available'
+    Write-Host ''
+    Write-Host 'No code signing certificate available.'
+    Write-Host 'Code will not be signed.'
+    Write-Host ''
     return $null
 }
