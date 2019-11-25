@@ -34,7 +34,9 @@ SetupIconFile=images\babel2.ico
 Compression=lzma
 SolidCompression=yes
 LicenseFile=COPYING.txt
-Signtool=signtool
+#ifdef sign
+  Signtool=signtool
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
