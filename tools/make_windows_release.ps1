@@ -85,7 +85,8 @@ if ($buildinstaller -eq "true")
   if ($certificate -ne $null) {
     # ISCC will echo the signing command, including the password if it is included with the signtool /p option, unless ISCC option /Q or /Qp is included!
     # It's safer to add it to the certificate store and specify the issuer to signtool.
-    & "$($iscc)" /Ssigntool="signtool.exe sign /fd sha256 /sha1 $certificate.Thumbprint /tr http://timestamp.comodoca.com/authenticode /td sha256 `$f" /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss
+    $thumbprint = $certificate | Select -ExpandProperty "Thumbprint"
+    & "$($iscc)" /Ssigntool="signtool.exe sign /fd sha256 /sha1 $thumbprint /tr http://timestamp.comodoca.com/authenticode /td sha256 `$f" /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss
     $iscc_exit_code = $LastExitCode
     & "$($gpsbabel_src_dir)\tools\delete_cert.ps1" $certificate
     if ($iscc_exit_code -ne 0) { $host.SetShouldExit($iscc_exit_code) }
