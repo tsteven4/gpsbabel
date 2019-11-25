@@ -88,7 +88,7 @@ if ($buildinstaller -eq "true")
     $thumbprint = $certificate | Select -ExpandProperty "Thumbprint"
     & "$($iscc)" /Ssigntool="signtool.exe sign /fd sha256 /sha1 $thumbprint /tr http://timestamp.comodoca.com/authenticode /td sha256 `$f" /Dsign /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss
     $iscc_exit_code = $LastExitCode
-    & "$($gpsbabel_src_dir)\tools\delete_cert.ps1" $certificate
+    & "$($gpsbabel_src_dir)\tools\delete_cert.ps1" $thumbprint
     if ($iscc_exit_code -ne 0) { $host.SetShouldExit($iscc_exit_code) }
   } else {
     & "$($iscc)" /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss

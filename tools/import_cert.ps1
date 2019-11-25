@@ -1,7 +1,7 @@
 ﻿$ErrorActionPreference = 'Continue'
 
 if ((Test-Path 'Env:\WINDOWS_CERT_PW') -and (Test-Path 'Env:\WINDOWS_CERT')) {
-    $certstore= "Cert:\CurrentUser\My"
+    $certstore= 'Cert:\CurrentUser\My'
 
     $certpfx = New-TemporaryFile
 
