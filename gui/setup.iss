@@ -34,6 +34,7 @@ SetupIconFile=images\babel2.ico
 Compression=lzma
 SolidCompression=yes
 LicenseFile=COPYING.txt
+Signtool=signtool
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,10 +46,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: gmapbase.html; 			DestDir: "{app}"; Flags: ignoreversion
 Source: qt.conf;       			DestDir: "{app}"; Flags: ignoreversion
 
-Source: "..\{#gui_build_dir_name}\release\*"; Excludes: "app.res,vcredist_*.exe,*.cpp,*.h,*.o,*.obj"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\{#gui_build_dir_name}\release\*"; Excludes: "app.res,GPSBabelFE.exe,vcredist_*.exe,*.cpp,*.h,*.o,*.obj"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\{#gui_build_dir_name}\release\GPSBabelFE.exe"; DestDir: "{app}"; Flags: ignoreversion sign
 Source: "..\{#gui_build_dir_name}\release\vcredist_x86.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist deleteafterinstall
 Source: "..\{#gui_build_dir_name}\release\vcredist_x64.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist deleteafterinstall
-Source: "..\..\{#gpsbabel_build_dir_name}\release\gpsbabel.exe";   	DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\{#gpsbabel_build_dir_name}\release\gpsbabel.exe";   	DestDir: "{app}"; Flags: ignoreversion sign
 ; Source: release\help\*;           	DestDir: "{app}\help"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Translation strings extracted from source code.  Include it in the dist
