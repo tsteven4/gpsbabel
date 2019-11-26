@@ -1,10 +1,10 @@
 ﻿Param(
-  [Parameter(Mandatory=$true,
-    Position=0,
-    ValueFromPipeline=$true)]
-    $thumbprint,
+  [Parameter(Mandatory = $true,
+    Position = 0,
+    ValueFromPipeline = $true)]
+  $thumbprint,
   
-  [Parameter(Position=1)]
+  [Parameter(Position = 1)]
   $certstore = 'Cert:\CurrentUser\My'
 )
 

@@ -30,20 +30,20 @@ Remove-Item "$($gpsbabel_build_dir)" -Recurse -ErrorAction Ignore
 New-Item "$($gpsbabel_build_dir)" -type directory -force | Out-Null
 Set-Location "$($gpsbabel_build_dir)"
 switch ($flow) {
-  "mingw"   { qmake "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-g++" }
+  "mingw" { qmake "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-g++" }
   # work around Qt 5.12.1, 5.12.2 qmake bug.
   #C:\Qt\5.12.1\msvc2017\bin\qmake.exe -tp vc GPSBabel.pro
   #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
   #WARNING: You can suppress these warnings with CONFIG+=suppress_vcproj_warnings.
   #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
   "msbuild" { $ErrorActionPreference = "Continue"; qmake -tp vc "$($gpsbabel_src_dir)\GPSBabel.pro"; $ErrorActionPreference = "Stop" }
-  "nmake"   { qmake "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-msvc" }
+  "nmake" { qmake "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-msvc" }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 switch ($flow) {
-  "mingw"   { ming32-make }
+  "mingw" { ming32-make }
   "msbuild" { msbuild GPSBabel.vcxproj -property:Configuration=Release }
-  "nmake"   { nmake /NOLOGO }
+  "nmake" { nmake /NOLOGO }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 # copy GPSBabel.exe for use by test_script
@@ -56,15 +56,15 @@ Remove-Item "$($gui_build_dir)" -Recurse -ErrorAction Ignore
 New-Item "$($gui_build_dir)" -type directory -force | Out-Null
 Set-Location "$($gui_build_dir)"
 switch ($flow) {
-  "mingw"   { qmake "$($gpsbabel_src_dir)\gui\app.pro" -spec "win32-g++" }
-  "msbuild" { qmake -tp vc "$($gpsbabel_src_dir)\gui\app.pro"}
-  "nmake"   { qmake "$($gpsbabel_src_dir)\gui\app.pro" -spec "win32-msvc" }
+  "mingw" { qmake "$($gpsbabel_src_dir)\gui\app.pro" -spec "win32-g++" }
+  "msbuild" { qmake -tp vc "$($gpsbabel_src_dir)\gui\app.pro" }
+  "nmake" { qmake "$($gpsbabel_src_dir)\gui\app.pro" -spec "win32-msvc" }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 switch ($flow) {
-  "mingw"   { ming32-make }
+  "mingw" { ming32-make }
   "msbuild" { msbuild GPSBabelFE.vcxproj -property:Configuration=Release }
-  "nmake"   { nmake /NOLOGO }
+  "nmake" { nmake /NOLOGO }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 # work around errors with lupdate, lrelease misprocessing qtHaveModule(webenginewidgets)
@@ -78,19 +78,19 @@ $ErrorActionPreference = "Stop"
 # use --plugindir option to locate the plugins.
 & "$($windeployqt)" --plugindir release\plugins release\GPSBabelFE.exe
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
-if ($buildinstaller -eq "true")
-{
+if ($buildinstaller -eq "true") {
   Set-Location "$($gpsbabel_src_dir)\gui"
   $certificate = & "$($gpsbabel_src_dir)\tools\import_cert.ps1"
-  if ($certificate -ne $null) {
+  if ($null -ne $certificate) {
     # ISCC will echo the signing command, including the password if it is included with the signtool /p option, unless ISCC option /Q or /Qp is included!
     # It's safer to add it to the certificate store and specify the issuer to signtool.
-    $thumbprint = $certificate | Select -ExpandProperty "Thumbprint"
+    $thumbprint = $certificate | Select-Object -ExpandProperty "Thumbprint"
     & "$($iscc)" /Ssigntool="signtool.exe sign /fd sha256 /sha1 $thumbprint /tr http://timestamp.comodoca.com/authenticode /td sha256 `$f" /Dsign /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss
     $iscc_exit_code = $LastExitCode
     & "$($gpsbabel_src_dir)\tools\delete_cert.ps1" $thumbprint
     if ($iscc_exit_code -ne 0) { $host.SetShouldExit($iscc_exit_code) }
-  } else {
+  }
+  else {
     & "$($iscc)" /Dgpsbabel_build_dir_name="$($gpsbabel_build_dir_name)" /Dgui_build_dir_name="$($gui_build_dir_name)" setup.iss
     if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
   }
