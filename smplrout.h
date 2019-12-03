@@ -62,6 +62,10 @@
 #include "defs.h"    // for route_head (ptr only), Waypoint (ptr only), ARGT...
 #include "filter.h"  // for Filter
 
+#include <QtCore/QVector>  // for QVector
+#include <utility>         // for pair
+
+
 #if FILTERS_ENABLED
 
 class SimplifyRouteFilter:public Filter
@@ -79,8 +83,11 @@ private:
   int count = 0;
   double totalerror = 0;
   double error = 0;
-  const route_head* decimation_rte = nullptr;
-  long decimation_counter = 0;
+  const route_head* current_rte = nullptr;
+  int counter = 0;
+  QVector<std::pair<double, double>> location_history;
+  double avglat;
+  double avglon;
 
   char* countopt;
   char* erroropt;
@@ -88,9 +95,10 @@ private:
   char* lenopt;
   char* relopt;
   char* decimateopt;
+  char* averageopt;
   void (*waypt_del_fnp)(route_head* rte, Waypoint* wpt);
 
-  arglist_t args[7] = {
+  arglist_t args[8] = {
     {
       "count", &countopt,  "Maximum number of points in route",
       nullptr, ARGTYPE_INT | ARGTYPE_BEGIN_REQ | ARGTYPE_BEGIN_EXCL, "1", nullptr, nullptr
@@ -113,6 +121,10 @@ private:
     },
     {
       "decimate", &decimateopt, "decimate, keeping every nth point", nullptr,
+      ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+    },
+    {
+      "average", &averageopt, "running average of n points", nullptr,
       ARGTYPE_BOOL | ARGTYPE_END_EXCL, ARG_NOMINMAX, nullptr
     },
     ARG_TERMINATOR
@@ -146,8 +158,6 @@ private:
   void routesimple_head(const route_head* rte);
   void shuffle_xte(struct xte* xte_rec);
   void routesimple_tail(const route_head* rte);
-  void decimate_waypt_pr(const Waypoint* wpt);
-  void decimate_head(const route_head* rte);
 
 };
 

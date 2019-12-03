@@ -56,12 +56,22 @@
 	2008/08/20: added "relative" option, (Carsten Allefeld, carsten.allefeld@googlemail.com)
 */
 
+#include "smplrout.h"
+
+#include <QtCore/QDateTime>     // for QDateTime
+#include <QtCore/QVector>       // for QVector
+
+#include <algorithm>            // for max
+#include <cstdlib>              // for atol, qsort
+#include <tuple>                // for tie, tuple
+#include <utility>              // for pair, make_pair
+
 #include "defs.h"
 #include "filterdefs.h"
-#include "grtcirc.h"
-#include "smplrout.h"
-#include <algorithm>
-#include <cstdlib>
+
+#include "grtcirc.h"            // for gcdist, linedist, radtometers, radtomiles, linepart
+#include "src/core/datetime.h"  // for DateTime
+
 
 #if FILTERS_ENABLED
 #define MYNAME "simplify"
@@ -74,20 +84,6 @@ void SimplifyRouteFilter::free_xte(struct xte* xte_rec)
 }
 
 #define HUGEVAL 2000000000
-
-void SimplifyRouteFilter::decimate_head(const route_head* rte)
-{
-  decimation_rte = rte;
-  count = std::max(count, 1);
-}
-
-void SimplifyRouteFilter::decimate_waypt_pr(const Waypoint* wpt)
-{
-  if ((decimation_counter % count) != 0) {
-    (*waypt_del_fnp)(const_cast<route_head*>(decimation_rte), const_cast<Waypoint*>(wpt));
-  }
-  decimation_counter++;
-}
 
 void SimplifyRouteFilter::routesimple_waypt_pr(const Waypoint* wpt)
 {
@@ -145,7 +141,7 @@ void SimplifyRouteFilter::compute_xte(struct xte* xte_rec)
     // if timestamps exist, distance to interpolated point
     if (wpt1->GetCreationTime() != wpt2->GetCreationTime()) {
       double frac = (double)(wpt3->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t()) /
-        (wpt2->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t());
+                    (wpt2->GetCreationTime().toTime_t() - wpt1->GetCreationTime().toTime_t());
       linepart(wpt1->latitude, wpt1->longitude,
                wpt2->latitude, wpt2->longitude,
                frac, &reslat, &reslon);
@@ -326,22 +322,76 @@ void SimplifyRouteFilter::routesimple_tail(const route_head* rte)
 void SimplifyRouteFilter::process()
 {
   if (decimateopt) {
-    WayptFunctor<SimplifyRouteFilter> decimate_waypt_pr_f(this, &SimplifyRouteFilter::decimate_waypt_pr);
-    RteHdFunctor<SimplifyRouteFilter> decimate_head_f(this, &SimplifyRouteFilter::decimate_head);
+    auto route_hdr =[this](const route_head* rte)->void {
+      count = std::max(count, 1);
+      counter = 0;
+      current_rte = rte;
+    };
+
+    auto waypt_cb = [this](const Waypoint* wpt)->void{
+      if (counter != 0)
+      {
+        (*waypt_del_fnp)(const_cast<route_head*>(current_rte), const_cast<Waypoint*>(wpt));
+      }
+      counter = (counter + 1) % count;
+    };
 
     waypt_del_fnp = route_del_wpt;
-    route_disp_all(decimate_head_f, nullptr, decimate_waypt_pr_f);
+    route_disp_all(route_hdr, nullptr, waypt_cb);
 
     waypt_del_fnp = track_del_wpt;
-    track_disp_all(decimate_head_f, nullptr, decimate_waypt_pr_f);
+    track_disp_all(route_hdr, nullptr, waypt_cb);
+  } else if (averageopt) {
+    auto route_hdr = [this](const route_head* rte)->void {
+      count = std::max(count, 1);
+      counter = 0;
+      current_rte = rte;
+      location_history.clear();
+      location_history.squeeze();
+    };
+
+    auto route_tlr = [this](const route_head* rte)->void {
+      location_history.clear();
+      location_history.squeeze();
+    };
+
+    auto waypt_cb = [this](const Waypoint* wpt)->void{
+      if (location_history.isEmpty())
+      {
+        location_history.fill(std::make_pair(wpt->latitude, wpt->longitude), count);
+        avglat = wpt->latitude;
+        avglon = wpt->longitude;
+      } else
+      {
+        double latold;
+        double lonold;
+        std::tie(latold, lonold) = location_history.at(counter);
+        location_history[counter] = std::make_pair(wpt->latitude, wpt->longitude);
+
+        avglat += (wpt->latitude - latold) / count;
+        avglon += (wpt->longitude - lonold) / count;
+
+        auto wptk = const_cast<Waypoint*>(wpt);
+        wptk->latitude = avglat;
+        wptk->longitude = avglon;
+
+        counter = (counter + 1) % count;
+      }
+    };
+
+    waypt_del_fnp = route_del_wpt;
+    route_disp_all(route_hdr, route_tlr, waypt_cb);
+
+    waypt_del_fnp = track_del_wpt;
+    track_disp_all(route_hdr, route_tlr, waypt_cb);
   } else {
     WayptFunctor<SimplifyRouteFilter> routesimple_waypt_pr_f(this, &SimplifyRouteFilter::routesimple_waypt_pr);
     RteHdFunctor<SimplifyRouteFilter> routesimple_head_f(this, &SimplifyRouteFilter::routesimple_head);
     RteHdFunctor<SimplifyRouteFilter> routesimple_tail_f(this, &SimplifyRouteFilter::routesimple_tail);
-  
+
     waypt_del_fnp = route_del_wpt;
     route_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
-  
+
     waypt_del_fnp = track_del_wpt;
     track_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
   }
@@ -350,19 +400,18 @@ void SimplifyRouteFilter::process()
 void SimplifyRouteFilter::init()
 {
   count = 0;
-  decimation_counter = 0;
 
   if (!!countopt == !!erroropt) {
     fatal(MYNAME ": You must specify either count or error, but not both.\n");
   }
-  if ((!!xteopt + !!lenopt + !!relopt + !!decimateopt) > 1) {
+  if ((!!xteopt + !!lenopt + !!relopt + !!decimateopt + !!averageopt) > 1) {
     fatal(MYNAME ": You may specify only one of crosstrack, length, relative or decimate.\n");
   }
   if (!xteopt && !lenopt && !relopt) {
     xteopt = (char*) "";
   }
 
-  if (countopt || decimateopt) {
+  if (countopt || decimateopt || averageopt) {
     count = atol(countopt);
   }
   if (erroropt) {
