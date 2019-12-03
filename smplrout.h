@@ -79,15 +79,18 @@ private:
   int count = 0;
   double totalerror = 0;
   double error = 0;
+  const route_head* decimation_rte = nullptr;
+  long decimation_counter = 0;
 
   char* countopt;
   char* erroropt;
   char* xteopt;
   char* lenopt;
   char* relopt;
+  char* decimateopt;
   void (*waypt_del_fnp)(route_head* rte, Waypoint* wpt);
 
-  arglist_t args[6] = {
+  arglist_t args[7] = {
     {
       "count", &countopt,  "Maximum number of points in route",
       nullptr, ARGTYPE_INT | ARGTYPE_BEGIN_REQ | ARGTYPE_BEGIN_EXCL, "1", nullptr, nullptr
@@ -106,6 +109,10 @@ private:
     },
     {
       "relative", &relopt, "Use relative error", nullptr,
+      ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+    },
+    {
+      "decimate", &decimateopt, "decimate, keeping every nth point", nullptr,
       ARGTYPE_BOOL | ARGTYPE_END_EXCL, ARG_NOMINMAX, nullptr
     },
     ARG_TERMINATOR
@@ -139,6 +146,8 @@ private:
   void routesimple_head(const route_head* rte);
   void shuffle_xte(struct xte* xte_rec);
   void routesimple_tail(const route_head* rte);
+  void decimate_waypt_pr(const Waypoint* wpt);
+  void decimate_head(const route_head* rte);
 
 };
 

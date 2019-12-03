@@ -60,6 +60,7 @@
 #include "filterdefs.h"
 #include "grtcirc.h"
 #include "smplrout.h"
+#include <algorithm>
 #include <cstdlib>
 
 #if FILTERS_ENABLED
@@ -73,6 +74,20 @@ void SimplifyRouteFilter::free_xte(struct xte* xte_rec)
 }
 
 #define HUGEVAL 2000000000
+
+void SimplifyRouteFilter::decimate_head(const route_head* rte)
+{
+  decimation_rte = rte;
+  count = std::max(count, 1);
+}
+
+void SimplifyRouteFilter::decimate_waypt_pr(const Waypoint* wpt)
+{
+  if ((decimation_counter % count) != 0) {
+    (*waypt_del_fnp)(const_cast<route_head*>(decimation_rte), const_cast<Waypoint*>(wpt));
+  }
+  decimation_counter++;
+}
 
 void SimplifyRouteFilter::routesimple_waypt_pr(const Waypoint* wpt)
 {
@@ -310,32 +325,44 @@ void SimplifyRouteFilter::routesimple_tail(const route_head* rte)
 
 void SimplifyRouteFilter::process()
 {
-  WayptFunctor<SimplifyRouteFilter> routesimple_waypt_pr_f(this, &SimplifyRouteFilter::routesimple_waypt_pr);
-  RteHdFunctor<SimplifyRouteFilter> routesimple_head_f(this, &SimplifyRouteFilter::routesimple_head);
-  RteHdFunctor<SimplifyRouteFilter> routesimple_tail_f(this, &SimplifyRouteFilter::routesimple_tail);
+  if (decimateopt) {
+    WayptFunctor<SimplifyRouteFilter> decimate_waypt_pr_f(this, &SimplifyRouteFilter::decimate_waypt_pr);
+    RteHdFunctor<SimplifyRouteFilter> decimate_head_f(this, &SimplifyRouteFilter::decimate_head);
 
-  waypt_del_fnp = route_del_wpt;
-  route_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
+    waypt_del_fnp = route_del_wpt;
+    route_disp_all(decimate_head_f, nullptr, decimate_waypt_pr_f);
 
-  waypt_del_fnp = track_del_wpt;
-  track_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
+    waypt_del_fnp = track_del_wpt;
+    track_disp_all(decimate_head_f, nullptr, decimate_waypt_pr_f);
+  } else {
+    WayptFunctor<SimplifyRouteFilter> routesimple_waypt_pr_f(this, &SimplifyRouteFilter::routesimple_waypt_pr);
+    RteHdFunctor<SimplifyRouteFilter> routesimple_head_f(this, &SimplifyRouteFilter::routesimple_head);
+    RteHdFunctor<SimplifyRouteFilter> routesimple_tail_f(this, &SimplifyRouteFilter::routesimple_tail);
+  
+    waypt_del_fnp = route_del_wpt;
+    route_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
+  
+    waypt_del_fnp = track_del_wpt;
+    track_disp_all(routesimple_head_f, routesimple_tail_f, routesimple_waypt_pr_f);
+  }
 }
 
 void SimplifyRouteFilter::init()
 {
   count = 0;
+  decimation_counter = 0;
 
   if (!!countopt == !!erroropt) {
     fatal(MYNAME ": You must specify either count or error, but not both.\n");
   }
-  if ((!!xteopt + !!lenopt + !!relopt) > 1) {
-    fatal(MYNAME ": You may specify only one of crosstrack, length, or relative.\n");
+  if ((!!xteopt + !!lenopt + !!relopt + !!decimateopt) > 1) {
+    fatal(MYNAME ": You may specify only one of crosstrack, length, relative or decimate.\n");
   }
   if (!xteopt && !lenopt && !relopt) {
     xteopt = (char*) "";
   }
 
-  if (countopt) {
+  if (countopt || decimateopt) {
     count = atol(countopt);
   }
   if (erroropt) {
