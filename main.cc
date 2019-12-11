@@ -54,7 +54,6 @@
 #include "src/core/datetime.h"      // for DateTime
 #include "src/core/file.h"          // for File
 #include "src/core/usasciicodec.h"  // for UsAsciiCodec
-#include "vecs.h"                   // for Vecs
 
 #define MYNAME "main"
 // be careful not to advance argn passed the end of the list, i.e. ensure argn < qargs.size()
@@ -153,7 +152,7 @@ usage(const char* pname, int shorter)
     fgetc(stdin);
   } else {
     printf("File Types (-i and -o options):\n");
-    Vecs::Instance().disp_vecs();
+    disp_vecs();
     printf("\nSupported data filters:\n");
     disp_filter_vecs();
   }
@@ -163,7 +162,7 @@ static void
 spec_usage(const QString& vec)
 {
   printf("\n");
-  Vecs::Instance().disp_vec(vec);
+  disp_vec(vec);
   disp_filter_vec(vec);
   printf("\n");
 }
@@ -266,7 +265,7 @@ run(const char* prog_name)
     switch (c) {
     case 'i':
       optarg = FETCH_OPTARG;
-      ivecs = Vecs::Instance().find_vec(optarg);
+      ivecs = find_vec(optarg);
       if (ivecs == nullptr) {
         fatal("Input type '%s' not recognized\n", qPrintable(optarg));
       }
@@ -276,7 +275,7 @@ run(const char* prog_name)
         warning("-o appeared before -i.   This is probably not what you want to do.\n");
       }
       optarg = FETCH_OPTARG;
-      ovecs = Vecs::Instance().find_vec(optarg);
+      ovecs = find_vec(optarg);
       if (ovecs == nullptr) {
         fatal("Output type '%s' not recognized\n", qPrintable(optarg));
       }
@@ -443,7 +442,7 @@ run(const char* prog_name)
      * Undocumented '-@' option for test.
      */
     case '@': {
-      bool format_ok = Vecs::Instance().validate_formats();
+      bool format_ok = validate_formats();
       bool filter_ok = validate_filters();
       return (format_ok && filter_ok)? 0 : 1;
     }
@@ -467,7 +466,7 @@ run(const char* prog_name)
      * this as -^^.
      */
     case '^':
-      Vecs::Instance().disp_formats(opt_version);
+      disp_formats(opt_version);
       return 0;
     case '%':
       disp_filters(opt_version);
@@ -702,7 +701,7 @@ main(int argc, char* argv[])
     global_opts.inifile = inifile_init(QString(), MYNAME);
   }
 
-  Vecs::Instance().init_vecs();
+  init_vecs();
   init_filter_vecs();
   cet_register();
   session_init();
@@ -715,7 +714,7 @@ main(int argc, char* argv[])
   waypt_flush_all();
   route_deinit();
   session_exit();
-  Vecs::Instance().exit_vecs();
+  exit_vecs();
   exit_filter_vecs();
   inifile_done(global_opts.inifile);
 

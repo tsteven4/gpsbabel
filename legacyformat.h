@@ -30,7 +30,7 @@ class LegacyFormat : public Format
 {
 public:
   LegacyFormat() = default;
-  explicit LegacyFormat(const ff_vecs_t& v) : vec(v) {}
+  explicit LegacyFormat(ff_vecs_t* v) : vec(v) {}
 
   /*******************************************************************************
   * %%%        global callbacks called by gpsbabel main process              %%% *
@@ -38,93 +38,93 @@ public:
 
   void rd_init(const QString& fname) override
   {
-    if (vec.rd_init != nullptr) {
-      vec.rd_init(fname);
+    if (vec->rd_init != nullptr) {
+      vec->rd_init(fname);
     }
   }
 
   void rd_deinit() override
   {
-    if (vec.rd_deinit != nullptr) {
-      vec.rd_deinit();
+    if (vec->rd_deinit != nullptr) {
+      vec->rd_deinit();
     }
   }
 
   void read() override
   {
-    if (vec.read != nullptr) {
-      vec.read();
+    if (vec->read != nullptr) {
+      vec->read();
     }
   }
 
   void wr_init(const QString& fname) override
   {
-    if (vec.wr_init != nullptr) {
-      vec.wr_init(fname);
+    if (vec->wr_init != nullptr) {
+      vec->wr_init(fname);
     }
   }
 
   void wr_deinit() override
   {
-    if (vec.wr_deinit != nullptr) {
-      vec.wr_deinit();
+    if (vec->wr_deinit != nullptr) {
+      vec->wr_deinit();
     }
   }
 
   void write() override
   {
-    if (vec.write != nullptr) {
-      vec.write();
+    if (vec->write != nullptr) {
+      vec->write();
     }
   }
 
   void exit() override
   {
-    if (vec.exit != nullptr) {
-      vec.exit();
+    if (vec->exit != nullptr) {
+      vec->exit();
     }
   }
 
   void rd_position_init(const QString& fname) override
   {
-    if (vec.position_ops.rd_init != nullptr) {
-      vec.position_ops.rd_init(fname);
+    if (vec->position_ops.rd_init != nullptr) {
+      vec->position_ops.rd_init(fname);
     }
   }
 
   Waypoint* rd_position(posn_status* status) override
   {
-    if (vec.position_ops.rd_position != nullptr) {
-      return vec.position_ops.rd_position(status);
+    if (vec->position_ops.rd_position != nullptr) {
+      return vec->position_ops.rd_position(status);
     }
     return nullptr;
   }
 
   void rd_position_deinit() override
   {
-    if (vec.position_ops.rd_deinit != nullptr) {
-      vec.position_ops.rd_deinit();
+    if (vec->position_ops.rd_deinit != nullptr) {
+      vec->position_ops.rd_deinit();
     }
   }
 
   void wr_position_init(const QString& fname) override
   {
-    if (vec.position_ops.wr_init != nullptr) {
-      vec.position_ops.wr_init(fname);
+    if (vec->position_ops.wr_init != nullptr) {
+      vec->position_ops.wr_init(fname);
     }
   }
 
   void wr_position(Waypoint* wpt) override
   {
-    if (vec.position_ops.wr_position != nullptr) {
-      vec.position_ops.wr_position(wpt);
+    if (vec->position_ops.wr_position != nullptr) {
+      vec->position_ops.wr_position(wpt);
     }
   }
 
   void wr_position_deinit() override
   {
-    if (vec.position_ops.wr_deinit != nullptr) {
-      vec.position_ops.wr_deinit();
+    if (vec->position_ops.wr_deinit != nullptr) {
+      vec->position_ops.wr_deinit();
     }
   }
 
@@ -134,30 +134,37 @@ public:
 
   QVector<arglist_t>* get_args() override
   {
-    return vec.args;
+    return vec->args;
   }
 
   ff_type get_type() const override
   {
-    return vec.type;
+    return vec->type;
   }
 
   QVector<ff_cap> get_cap() const override
   {
-    return vec.cap;
+    return vec->cap;
   }
   QString get_encode() const override
   {
-    return vec.encode;
+    return vec->encode;
   }
 
   int get_fixed_encode() const override
   {
-    return vec.fixed_encode;
+    return vec->fixed_encode;
   }
 
 private:
-  ff_vecs_t vec;
+  /*
+   * Be careful not to introduce the "static initialization order fiasco".
+   * The LegacyFormat constructor may be executed before the constructor
+   * for it's parameter.
+   * If the parameter is a pointer we are not sensitive to the order the
+   * two constructors run in.
+   */
+  ff_vecs_t* vec;
 
 };
 #endif // LEGACYFORMAT_H_INCLUDED_
