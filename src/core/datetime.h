@@ -42,8 +42,7 @@ class DateTime : public QDateTime {
 public:
   // As a crutch, mimic the old behaviour of an uninitialized creation time
   // being 1/1/1970.
-  DateTime() {
-    setTime_t(0);
+  DateTime() : QDateTime(DateTime::GetEpoch()) {
   }
 
   DateTime(const QDate& date, const QTime& time) : QDateTime(date, time) {}
@@ -87,6 +86,12 @@ public:
     } else {
       return toUTC().toString(QStringLiteral("yyyy-MM-ddTHH:mm:ssZ"));
     }
+  }
+
+  static QDateTime GetEpoch() {
+    /* Suprisingly this is expensive, do it once. */
+    static QDateTime dt = QDateTime::fromMSecsSinceEpoch(0, Qt::LocalTime);
+    return dt;
   }
 };
 
