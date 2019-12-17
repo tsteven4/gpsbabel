@@ -2,6 +2,8 @@
 
 GPSBABEL_FREEZE_TIME=y
 export GPSBABEL_FREEZE_TIME
+TZ=UTC+3 # argentina
+export TZ
 
 # Turn on GNU libc instrumentation.
 MALLOC_CHECK_=2

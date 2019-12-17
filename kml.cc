@@ -2001,10 +2001,8 @@ static void kml_write()
     writer->writeTextElement(QStringLiteral("name"), QStringLiteral("GPS device"));
   }
 
-  if (current_time().isValid()) {
-    writer->writeTextElement(QStringLiteral("snippet"), QStringLiteral("Created ") +
-                             current_time().toString());
-  }
+  writer->writeTextElement(QStringLiteral("snippet"), QStringLiteral("Created ") +
+                           current_time().toString());
 
   kml_write_AbstractView();
 
