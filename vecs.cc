@@ -1612,31 +1612,31 @@ static QVector<vecs_t> sort_and_unify_vecs()
     /* TODO: This needs to be reworked when xcsv isn't a LegacyFormat and
      * xcsv_vecs disappear.
      */
-    auto ffvec = ff_vecs_t(xcsv_vecs); /* Inherits xcsv opts */
+    auto ffvec = new ff_vecs_t(xcsv_vecs); /* Inherits xcsv opts */ /* LEAK */
     /* Reset file type to inherit ff_type from xcsv. */
-    ffvec.type = xcsv_file.type;
+    ffvec->type = xcsv_file.type;
     /* Skip over the first help entry for all but the
      * actual 'xcsv' format - so we don't expose the
      * 'Full path to XCSV style file' argument to any
      * GUIs for an internal format.
      */
-    ffvec.args = xcsv_args;
-    ffvec.cap.fill(ff_cap_none);
+    ffvec->args = xcsv_args;
+    ffvec->cap.fill(ff_cap_none);
     switch (xcsv_file.datatype) {
     case unknown_gpsdata:
     case wptdata:
-      ffvec.cap[ff_cap_rw_wpt] = (ff_cap)(ff_cap_read | ff_cap_write);
+      ffvec->cap[ff_cap_rw_wpt] = (ff_cap)(ff_cap_read | ff_cap_write);
       break;
     case trkdata:
-      ffvec.cap[ff_cap_rw_trk] = (ff_cap)(ff_cap_read | ff_cap_write);
+      ffvec->cap[ff_cap_rw_trk] = (ff_cap)(ff_cap_read | ff_cap_write);
       break;
     case rtedata:
-      ffvec.cap[ff_cap_rw_rte] = (ff_cap)(ff_cap_read | ff_cap_write);
+      ffvec->cap[ff_cap_rw_rte] = (ff_cap)(ff_cap_read | ff_cap_write);
       break;
     default:
       ;
     }
-    uvec.vec = new LegacyFormat(&ffvec); /* LEAK */
+    uvec.vec = new LegacyFormat(ffvec); /* LEAK */
     uvec.desc = xcsv_file.description;
     uvec.parent = "xcsv";
     svp.append(uvec);
