@@ -715,6 +715,12 @@ mklocaltime(struct tm* t)
   return result;
 }
 
+bool
+gpsbabel_testing()
+{
+  return getenv("GPSBABEL_FREEZE_TIME");
+}
+
 /*
  * Historically, when we were C, this was A wrapper for time(2) that
  * allowed us to "freeze" time for testing. The UNIX epoch
@@ -725,8 +731,10 @@ mklocaltime(struct tm* t)
 gpsbabel::DateTime
 current_time()
 {
-  if (getenv("GPSBABEL_FREEZE_TIME")) {
-    return QDateTime::fromTime_t(0);
+  if (gpsbabel_testing()) {
+    // A valid time that is different from the special UNIX epoch.
+    // Match the TimeSpec from the unfrozen case.
+    return QDateTime::fromString("1970-01-02T01:02:03.004", Qt::ISODateWithMs);
   }
 
   return QDateTime::currentDateTime();

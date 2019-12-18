@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.0" creator="GPSBabel - http://www.gpsbabel.org" xmlns="http://www.topografix.com/GPX/1/0">
-  <time>1970-01-01T00:00:00Z</time>
+  <time>1970-01-02T05:02:03.004Z</time>
   <bounds minlat="-30.765600000" minlon="150.602533333" maxlat="-30.675433333" maxlon="150.725983333"/>
   <rte>
     <name>0001</name>
     <desc>IGCDATE000000: </desc>
     <rtept lat="-30.675866667" lon="150.609033333">
+      <time>1970-01-02T05:02:03Z</time>
       <name>TAKEOFF</name>
       <cmt>BORAH</cmt>
       <desc>BORAH</desc>
     </rtept>
     <rtept lat="-30.675866667" lon="150.609033333">
+      <time>1970-01-02T05:02:03Z</time>
       <name>START</name>
       <cmt>BORAH</cmt>
       <desc>BORAH</desc>
     </rtept>
     <rtept lat="-30.729933333" lon="150.649200000">
+      <time>1970-01-02T05:02:03Z</time>
       <name>TURN01</name>
       <cmt>BALDWI</cmt>
       <desc>BALDWI</desc>
     </rtept>
     <rtept lat="-30.763683333" lon="150.723200000">
+      <time>1970-01-02T05:02:03Z</time>
       <name>FINISH</name>
       <cmt>MANAIR</cmt>
       <desc>MANAIR</desc>
     </rtept>
     <rtept lat="-30.763683333" lon="150.723200000">
+      <time>1970-01-02T05:02:03Z</time>
       <name>LANDING</name>
       <cmt>MANAIR</cmt>
       <desc>MANAIR</desc>

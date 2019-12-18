@@ -2,7 +2,7 @@
 
 GPSBABEL_FREEZE_TIME=y
 export GPSBABEL_FREEZE_TIME
-TZ=UTC+3 # argentina
+TZ=UTC+4
 export TZ
 
 # Turn on GNU libc instrumentation.

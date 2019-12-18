@@ -2002,7 +2002,7 @@ static void kml_write()
   }
 
   writer->writeTextElement(QStringLiteral("snippet"), QStringLiteral("Created ") +
-                           current_time().toString());
+                           current_time().toLocalTime().toString());
 
   kml_write_AbstractView();
 

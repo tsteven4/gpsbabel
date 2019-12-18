@@ -11,7 +11,7 @@
       <text>link2.text</text>
       <type>link2.type</type>
     </link>
-    <time>1970-01-01T00:00:00Z</time>
+    <time>1970-01-02T05:02:03.004Z</time>
     <keywords>metadata_keywords</keywords>
     <bounds minlat="45.450000000" minlon="-75.770000000" maxlat="45.460000000" maxlon="-75.760000000"/>
   </metadata>

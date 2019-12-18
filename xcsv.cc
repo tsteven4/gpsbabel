@@ -813,7 +813,7 @@ xcsv_parse_val(const char* s, Waypoint* wpt, const field_map& fmp,
     wpt->SetCreationTime(sscanftime(s, fmp.printfc.constData(), 1));
     break;
   case XT_LOCAL_TIME:
-    if (ugetenv("GPSBABEL_FREEZE_TIME").isNull()) {
+    if (!gpsbabel_testing()) {
       wpt->creation_time += sscanftime(s, fmp.printfc.constData(), 0);
     } else {
       /* Force constant time zone for test */
@@ -1766,7 +1766,7 @@ xcsv_replace_tokens(const QString& original) {
       time_t my_time = gpsbabel_time;
 
       replacement.replace("__FILE__", xcsv_file.fname);
-      replacement.replace("__VERSION__", my_time == 0 ? "" : gpsbabel_version);
+      replacement.replace("__VERSION__", gpsbabel_testing()? "" : gpsbabel_version);
 
       QDateTime dt = QDateTime::fromTime_t(my_time);
       dt = dt.toTimeSpec(Qt::UTC);

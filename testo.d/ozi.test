@@ -3,11 +3,11 @@
 rm -f ${TMPDIR}/oz.wpt ${TMPDIR}/ozi.wpt
 gpsbabel -i ozi -f ${REFERENCE}/ozi.wpt -o ozi -F ${TMPDIR}/oz.wpt
 gpsbabel -i ozi -f ${TMPDIR}/oz.wpt -o ozi -F ${TMPDIR}/ozi.wpt
-compare ${TMPDIR}/ozi.wpt ${REFERENCE}
+compare ${REFERENCE}/ozi.wpt ${TMPDIR}/ozi.wpt
 
 # Test Ozi routes.
 gpsbabel -i ozi -f ${REFERENCE}/route/ozi.rte -o gpx -F ${TMPDIR}/ozi~gpx.gpx
-compare ${TMPDIR}/ozi~gpx.gpx ${REFERENCE}/route/
+compare ${REFERENCE}/route/ozi~gpx.gpx ${TMPDIR}/ozi~gpx.gpx
 gpsbabel -i ozi -f ${REFERENCE}/route/ozi.rte -o ozi -F ${TMPDIR}/ozi~rte.rte
 compare ${REFERENCE}/route/ozi~rte.rte ${TMPDIR}/ozi~rte.rte
 
