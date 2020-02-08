@@ -712,10 +712,7 @@ static int FindIconByName(const char* name, guid_t* guid)
 {
   for (unsigned int i = 0; i < (sizeof(default_guids)/sizeof(struct defguid)); ++i) {
     if (!case_ignore_strcmp(name, default_guids[i].name)) {
-      /* don't copy any structure padding */
-      guid->l = default_guids[i].guid.l;
-      memcpy(guid->s, default_guids[i].guid.s, sizeof(guid->s));
-      memcpy(guid->c, default_guids[i].guid.c, sizeof(guid->c));
+      *guid = default_guids[i].guid;
       return 1;
     }
   }
