@@ -106,9 +106,9 @@ QVector<arglist_t> an1_args = {
 };
 
 struct guid_t {
-  unsigned long l{0};
-  unsigned short s[3]{0, 0, 0};
-  unsigned char c[6]{0, 0, 0, 0, 0, 0};
+  unsigned long l;
+  unsigned short s[3];
+  unsigned char c[6];
 };
 
 #include "an1sym.h"
@@ -181,7 +181,7 @@ struct an1_symbol_record {
   short hotspotxhi{0};
   long hotspoty{0};
   long unk1{0};
-  guid_t guid;
+  guid_t guid{};
   char* name{nullptr};
 };
 
@@ -204,7 +204,7 @@ struct an1_waypoint_record  {
   double radius{0.0}; /* in km */
   char* name{nullptr};
   char* fontname{nullptr};
-  guid_t guid;
+  guid_t guid{};
   long fontcolor{0};
   long fontstyle{0};
   long fontsize{0};
