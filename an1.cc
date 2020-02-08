@@ -107,8 +107,8 @@ QVector<arglist_t> an1_args = {
 
 struct guid_t {
   unsigned long l{0};
-  unsigned short s[3]{};
-  unsigned char c[6]{};
+  unsigned short s[3]{0, 0, 0};
+  unsigned char c[6]{0, 0, 0, 0, 0, 0};
 };
 
 #include "an1sym.h"
