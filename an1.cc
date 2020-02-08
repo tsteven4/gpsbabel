@@ -657,7 +657,7 @@ static void Write_AN1_Bitmaps(gbfile* f)
 
 static void Read_AN1_Waypoints(gbfile* f)
 {
-  char* icon = nullptr;
+  const char* icon = nullptr;
   ReadShort(f);
   unsigned long count = ReadLong(f);
   for (unsigned long i = 0; i < count; i++) {
