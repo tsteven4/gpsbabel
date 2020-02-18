@@ -180,8 +180,14 @@ private:
   };
 
   struct tag_mapping {
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910) /* !MSVC or MSVC 2017 or newer */
     tag_type type{tt_unknown};		/* enum from above for this tag */
     bool passthrough{true};		/* true if we don't generate this */
+#else
+    /* MSVC 2015 generates C2664 errors with the above. */
+    tag_type type;		/* enum from above for this tag */
+    bool passthrough;		/* true if we don't generate this */
+#endif
   };
 
 
