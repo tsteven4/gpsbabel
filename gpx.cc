@@ -71,12 +71,12 @@ GpxFormat::gpx_add_to_global(QStringList& ge, const QString& s)
 // Temporarily mock the old GPX writer's hardcoded fixed length for float/double
 // types.  This can be removed once we have time/interest in regenerating all our
 // zillion reference files.
-inline QString GpxFormat::toString(double d)
+inline QString GpxFormat::toString(double d) const
 {
   return QString::number(d, 'f', 9);
 }
 
-inline QString GpxFormat::toString(float f)
+inline QString GpxFormat::toString(float f) const
 {
   return QString::number(f, 'f', 6);
 }
@@ -103,7 +103,7 @@ GpxFormat::gpx_reset_short_handle()
 }
 
 void
-GpxFormat::gpx_write_gdata(const QStringList& ge, const QString& tag)
+GpxFormat::gpx_write_gdata(const QStringList& ge, const QString& tag) const
 {
   if (!ge.isEmpty()) {
     writer->writeStartElement(tag);
@@ -124,24 +124,11 @@ GpxFormat::gpx_write_gdata(const QStringList& ge, const QString& tag)
   }
 }
 
-GpxFormat::tag_type
-GpxFormat::get_tag(const QString& t, int* passthrough)
+GpxFormat::tag_mapping
+GpxFormat::get_tag(const QString& t) const
 {
-  tag_mapping* tm = hash[t];
-  if (tm) {
-    *passthrough = tm->tag_passthrough;
-    return tm->tag_type_;
-  }
-  *passthrough = 1;
-  return tt_unknown;
-}
-
-void
-GpxFormat::prescan_tags()
-{
-  for (tag_mapping* tm = tag_path_map; tm->tag_type_ != 0; tm++) {
-    hash[tm->tag_name] = tm;
-  }
+  // returns default constructed value if key not found.
+  return hash.value(t);
 }
 
 void
@@ -202,7 +189,7 @@ GpxFormat::tag_cache_desc(const QXmlStreamAttributes& attr)
 }
 
 void
-GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr)
+GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr) const
 {
   geocache_data* gc_data = wpt_tmp->AllocGCData();
 
@@ -294,7 +281,7 @@ GpxFormat::end_something_else()
 }
 
 void
-GpxFormat::tag_log_wpt(const QXmlStreamAttributes& attr)
+GpxFormat::tag_log_wpt(const QXmlStreamAttributes& attr) const
 {
   /* create a new waypoint */
   auto* lwp_tmp = new Waypoint;
@@ -323,15 +310,13 @@ GpxFormat::tag_log_wpt(const QXmlStreamAttributes& attr)
 void
 GpxFormat::gpx_start(const QString& el, const QXmlStreamAttributes& attr)
 {
-  int passthrough;
-
   /*
    * Reset end-of-string without actually emptying/reallocing cdatastr.
    */
   cdatastr = QString();
 
-  int tag = get_tag(current_tag, &passthrough);
-  switch (tag) {
+  tag_mapping tag = get_tag(current_tag);
+  switch (tag.type) {
   case tt_gpx:
     tag_gpx(attr);
     break;
@@ -398,7 +383,7 @@ GpxFormat::gpx_start(const QString& el, const QXmlStreamAttributes& attr)
   default:
     break;
   }
-  if (passthrough) {
+  if (tag.passthrough) {
     start_something_else(el, attr);
   }
 }
@@ -568,15 +553,14 @@ xml_parse_time(const QString& dateTimeString)
 void
 GpxFormat::gpx_end(const QString& /*unused*/)
 {
-  int passthrough;
   static QDateTime gc_log_date;
 
   // Remove leading, trailing whitespace.
   cdatastr = cdatastr.trimmed();
 
-  tag_type tag = get_tag(current_tag, &passthrough);
+  tag_mapping tag = get_tag(current_tag);
 
-  switch (tag) {
+  switch (tag.type) {
   /*
    * First, the tags that are file-global.
    */
@@ -699,7 +683,7 @@ GpxFormat::gpx_end(const QString& /*unused*/)
   case tt_garmin_wpt_country:
   case tt_garmin_wpt_postal_code:
   case tt_garmin_wpt_phone_nr:
-    garmin_fs_xml_convert(tt_garmin_wpt_extensions, tag, cdatastr, wpt_tmp);
+    garmin_fs_xml_convert(tt_garmin_wpt_extensions, tag.type, cdatastr, wpt_tmp);
     break;
 
   /*
@@ -899,7 +883,7 @@ GpxFormat::gpx_end(const QString& /*unused*/)
     break;
   }
 
-  if (passthrough) {
+  if (tag.passthrough) {
     end_something_else();
   }
 
@@ -936,8 +920,6 @@ GpxFormat::rd_init(const QString& fname)
   reader = new QXmlStreamReader(iqfile);
 
   current_tag.clear();
-
-  prescan_tags();
 
   cdatastr = QString();
 
@@ -1152,7 +1134,7 @@ GpxFormat::read()
 }
 
 void
-GpxFormat::write_attributes(const QXmlStreamAttributes& attributes)
+GpxFormat::write_attributes(const QXmlStreamAttributes& attributes) const
 {
   for (const auto& attribute : attributes) {
     writer->writeAttribute(attribute.qualifiedName().toString(), attribute.value().toString());
@@ -1195,7 +1177,7 @@ GpxFormat::fprint_xml_chain(xml_tag* tag, const Waypoint* wpt)
  * Handle the grossness of GPX 1.0 vs. 1.1 handling of linky links.
  */
 void
-GpxFormat::write_gpx_url(const UrlList& urls)
+GpxFormat::write_gpx_url(const UrlList& urls) const
 {
   if (gpx_write_version > gpx_1_0) {
     for (const auto& l : urls) {
@@ -1217,7 +1199,7 @@ GpxFormat::write_gpx_url(const UrlList& urls)
 }
 
 void
-GpxFormat::write_gpx_url(const Waypoint* waypointp)
+GpxFormat::write_gpx_url(const Waypoint* waypointp) const
 {
   if (waypointp->HasUrlLink()) {
     write_gpx_url(waypointp->urls);
@@ -1225,7 +1207,7 @@ GpxFormat::write_gpx_url(const Waypoint* waypointp)
 }
 
 void
-GpxFormat::write_gpx_url(const route_head* rh)
+GpxFormat::write_gpx_url(const route_head* rh) const
 {
   if (rh->rte_urls.HasUrlLink()) {
     write_gpx_url(rh->rte_urls);
@@ -1586,7 +1568,7 @@ GpxFormat::gpx_route_disp(const Waypoint* waypointp)
 }
 
 void
-GpxFormat::gpx_route_tlr(const route_head* /*unused*/)
+GpxFormat::gpx_route_tlr(const route_head* /*unused*/) const
 {
   writer->writeEndElement(); // Close rte tag.
 }
