@@ -127,19 +127,8 @@ GpxFormat::gpx_write_gdata(const QStringList& ge, const QString& tag) const
 GpxFormat::tag_mapping
 GpxFormat::get_tag(const QString& t) const
 {
-#if !defined(_MSC_VER) || (_MSC_VER >= 1910) /* !MSVC or MSVC 2017 or newer */
   // returns default constructed value if key not found.
   return hash.value(t);
-#else
-	// If it wasn't for MSVC 2015 we could just set the default
-	// value in the definition of tag_mapping and return
-	// hash.value(t) always.
-	if (hash.contains(t))
-	{
-		return hash.value(t);
-	}
-	return tag_mapping{tt_unknown, true};
-#endif
 }
 
 void
