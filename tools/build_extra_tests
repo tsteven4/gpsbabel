@@ -29,11 +29,17 @@ qmake "CONFIG+=debug sanitizer sanitize_address"
 make clean
 make -j 3
 make check
+# test for mangled encoding of command line arguments
+./test_encoding_latin1
+./test_encoding_utf8
 
 qmake "CONFIG+=debug sanitizer sanitize_undefined"
 make clean
 make -j 3
 make check
+# test for mangled encoding of command line arguments
+./test_encoding_latin1
+./test_encoding_utf8
 
 export CLAZY_CHECKS=level0,level1,no-non-pod-global-static
 qmake -spec linux-clang "CONFIG+=debug" "QMAKE_CXX=clazy"
