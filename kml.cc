@@ -47,6 +47,7 @@
 #include <QtCore/QtGlobal>              // for foreach, qint64, qPrintable
 
 #include "defs.h"
+#include "formspec.h"                   // for FsChainFind, kFsGpx
 #include "grtcirc.h"                    // for RAD, gcdist, radtometers
 #include "src/core/datetime.h"          // for DateTime
 #include "src/core/file.h"              // for File
@@ -314,7 +315,16 @@ const char* kml_tags_to_ignore[] = {
   "kml",
   "Document",
   "Folder",
-  nullptr,
+  nullptr
+};
+
+static
+const char* kml_tags_to_skip[] = {
+  "Camera",
+  "LookAt",
+  "styleUrl",
+  "snippet",
+  nullptr
 };
 
 // The TimeSpan/begin and TimeSpan/end DateTimes:
@@ -410,7 +420,7 @@ void wpt_icon(xg_string args, const QXmlStreamAttributes*)
 
 void trk_coord(xg_string args, const QXmlStreamAttributes*)
 {
-  route_head* trk_head = route_head_alloc();
+  auto* trk_head = new route_head;
   if (wpt_tmp && !wpt_tmp->shortname.isEmpty()) {
     trk_head->rte_name  = wpt_tmp->shortname;
   }
@@ -448,7 +458,10 @@ void trk_coord(xg_string args, const QXmlStreamAttributes*)
     // If there are some Waypoints, then distribute the TimeSpan to all Waypoints
     if (trk_head->rte_waypt_ct > 0) {
       qint64 timespan_ms = wpt_timespan_begin.msecsTo(wpt_timespan_end);
-      qint64 ms_per_waypoint = timespan_ms / trk_head->rte_waypt_ct;
+      if (trk_head->rte_waypt_ct < 2) {
+        fatal(MYNAME ": attempt to interpolate TimeSpan with too few points.");
+      }
+      qint64 ms_per_waypoint = timespan_ms / (trk_head->rte_waypt_ct - 1);
       foreach (Waypoint* trackpoint, trk_head->waypoint_list) {
         trackpoint->SetCreationTime(wpt_timespan_begin);
         wpt_timespan_begin = wpt_timespan_begin.addMSecs(ms_per_waypoint);
@@ -459,7 +472,7 @@ void trk_coord(xg_string args, const QXmlStreamAttributes*)
 
 void gx_trk_s(xg_string, const QXmlStreamAttributes*)
 {
-  gx_trk_head = route_head_alloc();
+  gx_trk_head = new route_head;
   if (wpt_tmp && !wpt_tmp->shortname.isEmpty()) {
     gx_trk_head->rte_name  = wpt_tmp->shortname;
   }
@@ -485,7 +498,7 @@ void gx_trk_e(xg_string, const QXmlStreamAttributes*)
   // In gx:Track elements all kml:when elements are required to precede all gx:coord elements.
   // For both we allow any order.  Many writers using gx:Track elements don't adhere to the schema.
   while (!gx_trk_times->isEmpty()) {
-    Waypoint* trkpt = new Waypoint;
+    auto* trkpt = new Waypoint;
     trkpt->SetCreationTime(gx_trk_times->takeFirst());
     double lat, lon, alt;
     int n;
@@ -542,8 +555,7 @@ static
 void
 kml_rd_init(const QString& fname)
 {
-  xml_init(fname, kml_map, nullptr);
-  xml_ignore_tags(kml_tags_to_ignore);
+  xml_init(fname, kml_map, nullptr, kml_tags_to_ignore, kml_tags_to_skip);
 }
 
 static
@@ -1433,7 +1445,7 @@ static QString kml_geocache_get_logs(const Waypoint* wpt)
 {
   QString r;
 
-  fs_xml* fs_gpx = (fs_xml*)fs_chain_find(wpt->fs, FS_GPX);
+  const auto* fs_gpx = reinterpret_cast<fs_xml*>(wpt->fs.FsChainFind(kFsGpx));
 
   if (!fs_gpx) {
     return r;
@@ -2147,7 +2159,7 @@ kml_wr_position(Waypoint* wpt)
   kml_wr_init(posnfilenametmp);
 
   if (!posn_trk_head) {
-    posn_trk_head = route_head_alloc();
+    posn_trk_head = new route_head;
     track_add_head(posn_trk_head);
   }
 

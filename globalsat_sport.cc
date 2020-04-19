@@ -35,166 +35,30 @@
  *
  */
 
+#include <cstdint>
+#include <cstdio>               // for printf
+#include <cstdlib>              // for free, malloc
+
+#include <QtCore/QByteArray>    // for QByteArray
+#include <QtCore/QDate>         // for QDate
+#include <QtCore/QDateTime>     // for QDateTime
+#include <QtCore/QString>       // for QString
+#include <QtCore/QTime>         // for QTime
+#include <QtCore/QTimeZone>     // for QTimeZone
+#include <QtCore/Qt>            // for LocalTime
+#include <QtCore/QtGlobal>      // for qPrintable
 
 #include "defs.h"
-#include "gbser.h"
-#include <cctype>
-#include <climits>
-#include <cstdio>
+#include "globalsat_sport.h"
+#include "gbfile.h"             // for gbfclose, gbfopen, gbfread, gbfwrite, gbfile
+#include "gbser.h"              // for gbser_deinit, gbser_flush, gbser_init, gbser_readc_wait, gbser_set_speed, gbser_writec, gbser_ERROR, gbser_NOTHING, gbser_OK
+#include "src/core/datetime.h"  // for DateTime
+
 
 #define MYNAME "GlobalsatSport"
 
-static void* serial_handle;
-static bool isSizeSwapped;
-
-static char* showlist = nullptr;               // if true show a list instead of download tracks
-static char* track = nullptr;                  // if not 0 only download this track, if 0 download all
-
-static char* opt_dump_file = nullptr;          // dump raw data to this file (optional)
-static char* opt_input_dump_file = nullptr;    // if true input is from a dump-file instead of serial console
-static gbfile* dumpfile = nullptr;             // used for creating bin/RAW datadump files, useful for testing
-static gbfile* in_file = nullptr;              // used for reading from bin/RAW datadump files, useful for testing
-
-static
-QVector<arglist_t> globalsat_args = {
-  {"showlist", &showlist, "list tracks", nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr},
-  {"track", &track, "get track", "0", ARGTYPE_INT, ARG_NOMINMAX, nullptr},
-  {"dump-file", &opt_dump_file, "Dump raw data to this file", nullptr, ARGTYPE_OUTFILE, ARG_NOMINMAX, nullptr},
-  {"input-is-dump-file", &opt_input_dump_file, "Dump raw data to this file", nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr},
-};
-
-enum globalsat_commands_e {
-  CommandWhoAmI = 0xBF,
-  CommandGetSystemInformation = 0x85,
-  CommandGetSystemConfiguration = 0x86,
-
-  CommandSetSystemConfiguration = 0x96,
-  CommandSetSystemInformation = 0x98,
-  CommandGetScreenshot = 0x83,
-
-  CommandGetWaypoints = 0x77,
-  CommandSendWaypoint = 0x76,
-  CommandDeleteWaypoints = 0x75,
-
-  CommandSendRoute = 0x93,
-  CommandDeleteAllRoutes = 0x97,
-
-  CommandGetTrackFileHeaders = 0x78,
-  CommandGetTrackFileSections = 0x80,
-  CommandGetNextTrackSection = 0x81,
-  //CommandReGetLastSection = 0x82,
-  CommandId_FINISH = 0x8A,
-  CommandSendTrackStart = 0x90,
-  CommandSendTrackSection = 0x91,
-
-  HeaderTypeLaps = 0xAA,
-  HeaderTypeTrackPoints = 0x55,
-
-  ResponseInsufficientMemory = 0x95,
-  ResponseResendTrackSection = 0x92,
-  ResponseSendTrackFinish = 0x9A
-};
-
-struct gh_date {
-  uint8_t Year;
-  uint8_t Month;
-  uint8_t Day;
-};
-
-struct gh_time {
-  uint8_t Hour;
-  uint8_t Minute;
-  uint8_t Second;
-};
-
-struct gh_trainheader {
-  gh_date dateStart;
-  gh_time timeStart;
-  uint32_t TotalPoint;		//6-9
-  uint32_t TotalTime;		//10-13
-  uint32_t TotalDistance;	//14-17
-  uint16_t LapCnts;		//18-19
-  union {
-    uint32_t Index;
-    uint32_t StartPt;
-  } gh_ptrec;			//20-23
-  union {
-    uint32_t LapIndex;
-    uint32_t EndPt;
-  } gh_laprec;			//24-27
-  uint8_t DataType;		//28
-};
-
-struct gh_db_train {
-  gh_date dateStart;
-  gh_time timeStart;
-  uint32_t TotalPoint;		//6-9
-  uint32_t TotalTime;		//10-13
-  uint32_t TotalDistance;	//14-17
-  uint16_t LapCnts;		//18-19
-  union {
-    uint32_t Index;
-    uint32_t StartPt;
-  } gh_ptrec;			//20-23
-  union {
-    uint32_t LapIndex;
-    uint32_t EndPt;
-  } gh_laprec;			//24-27
-  uint8_t MultiSport;		//28 on/off
-  uint16_t Calory;		//29-30
-  uint32_t MaxSpeed;
-  uint8_t MaxHeart;
-  uint8_t AvgHeart;
-
-  uint16_t Ascent;
-  uint16_t Descent;
-
-  int16_t MinAlti;
-  int16_t MaxAlti;
-  uint16_t AvgCadns;
-  uint16_t BestCadns;
-  uint16_t AvgPower;
-  uint16_t MaxPower;
-  uint8_t Sport1;
-  uint8_t Sport2;
-  uint8_t Sport3;
-  uint8_t Sport4;
-  uint8_t Sport5;
-};
-
-struct gh_db_lap {
-  uint32_t AccruedTime;
-  uint32_t TotalTime;
-  uint32_t TotalDistance;
-  uint16_t Calory;
-  uint32_t MaxSpeed;
-  uint8_t MaxHeart;
-  uint8_t AvgHeart;
-  int16_t MinAlti;
-  int16_t MaxAlti;
-  uint16_t AvgCadns;
-  uint16_t BestCadns;
-  uint16_t AvgPower;
-  uint16_t MaxPower;
-  uint8_t MultiSportIndex;
-  uint32_t StartPt;
-  uint32_t EndPt;
-};
-
-struct gh_recpoint {
-  uint32_t Latitude;
-  uint32_t Longitude;
-  int16_t Altitude;
-  uint32_t Speed;
-  uint8_t HeartRate;
-  uint32_t IntervalTime;
-  uint16_t Cadence;
-  uint16_t PwrCadence;
-  uint16_t Power;
-};
-
-static void
-serial_init(const char* fname)
+void
+GlobalsatSportFormat::serial_init(const char* fname)
 {
   if (serial_handle = gbser_init(fname), nullptr == serial_handle) {
     fatal(MYNAME ": Can't open port '%s'\n", fname);
@@ -206,8 +70,8 @@ serial_init(const char* fname)
   gbser_flush(serial_handle);
 }
 
-static void
-serial_deinit()
+void
+GlobalsatSportFormat::serial_deinit()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME " serial_deinit()\n");
@@ -219,8 +83,8 @@ serial_deinit()
   }
 }
 
-static int
-serial_recv_byte()
+int
+GlobalsatSportFormat::serial_recv_byte() const
 {
   /* allow for a delay of 4s */
   int result = gbser_readc_wait(serial_handle, 4000);
@@ -235,8 +99,8 @@ serial_recv_byte()
   return result;
 }
 
-static void
-serial_write_byte(uint8_t byte)
+void
+GlobalsatSportFormat::serial_write_byte(uint8_t byte) const
 {
   if (global_opts.debug_level > 1) {
     printf("0x%02x (%d), ", byte, byte);
@@ -248,8 +112,8 @@ serial_write_byte(uint8_t byte)
   }
 }
 
-static int
-recv_byte()
+int
+GlobalsatSportFormat::recv_byte()
 {
   int result=0;
   // Read from serial or dumpfile
@@ -266,8 +130,8 @@ recv_byte()
   return result;
 }
 
-static void
-write_byte(uint8_t byte)
+void
+GlobalsatSportFormat::write_byte(uint8_t byte)
 {
   // Write serial or not at all if input is a dumpfile
   if (!opt_input_dump_file) {
@@ -280,8 +144,8 @@ write_byte(uint8_t byte)
 }
 
 
-static void
-globalsat_write_package(uint8_t* payload, uint32_t size)
+void
+GlobalsatSportFormat::globalsat_write_package(uint8_t* payload, uint32_t size)
 {
   //All globalsat devices but gh561
   //2 <len_h> <len_l> <payload...> <crc>
@@ -315,8 +179,8 @@ globalsat_write_package(uint8_t* payload, uint32_t size)
   }
 }
 
-static uint8_t*
-globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand)
+uint8_t*
+GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand)
 {
   uint8_t crc;
   uint8_t calc_crc = 0;
@@ -335,7 +199,7 @@ globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand)
     printf("len=%d Payload:", length);
   }
 
-  uint8_t* payload = (uint8_t*) malloc(length);
+  auto* payload = (uint8_t*) malloc(length);
   if (payload == nullptr) {
     goto error_out;
   }
@@ -364,16 +228,16 @@ error_out:
 /*
  * Send one byte package
  */
-static void
-globalsat_send_simple(uint8_t command)
+void
+GlobalsatSportFormat::globalsat_send_simple(uint8_t command)
 {
   uint8_t payload[1];
   payload[0] = command;
   globalsat_write_package(payload, 1);
 }
 
-static void
-globalsat_probe_device()
+void
+GlobalsatSportFormat::globalsat_probe_device()
 {
   //TODO try this first if fails try with false, to support 561
   isSizeSwapped = false;		//all devices but gh561 since gh561 has swapped size.
@@ -395,8 +259,8 @@ globalsat_probe_device()
   }
 }
 
-static void
-rd_init(const QString& fname)
+void
+GlobalsatSportFormat::rd_init(const QString& fname)
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME " rd_init()\n");
@@ -419,11 +283,21 @@ rd_init(const QString& fname)
     is_fatal(!in_file, "Could not open dumpfile for input: %s", qPrintable(fname));
 
   }
+  if (opt_timezone) {
+    if (QTimeZone::isTimeZoneIdAvailable(opt_timezone)) {
+      timezn = new QTimeZone(opt_timezone);
+    } else {
+      list_timezones();
+      fatal(MYNAME ": Requested time zone \"%s\" not available.\n", opt_timezone);
+    }
+  } else {
+    timezn = nullptr;
+  }
   globalsat_probe_device();
 }
 
-static void
-rd_deinit()
+void
+GlobalsatSportFormat::rd_deinit()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME " rd_deinit()\n");
@@ -439,15 +313,17 @@ rd_deinit()
     gbfclose(dumpfile);
     dumpfile = nullptr;
   }
+  if (timezn != nullptr) {
+    delete timezn;
+    timezn = nullptr;
+  }
   if (global_opts.debug_level > 1) {
     printf(MYNAME " rd_deinit() Done\n");
   }
 }
 
-static void track_read();
-
-static void
-waypoint_read()
+void
+GlobalsatSportFormat::waypoint_read()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME "   waypoint_read()\n");
@@ -469,8 +345,8 @@ waypoint_read()
   track_read();
 }
 
-static void
-track_read()
+void
+GlobalsatSportFormat::track_read()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME "   track_read()\n");
@@ -527,11 +403,15 @@ track_read()
       }
 
       if (!showlist) {
-        route_head* trk = route_head_alloc();
+        auto* trk = new route_head;
 
-        QString str;
-        str.sprintf("%02d-%02d-%02d_%02d:%02d:%02d", header.dateStart.Year, header.dateStart.Month, header.dateStart.Day, header.timeStart.Hour, header.timeStart.Minute, header.timeStart.Second);
-        trk->rte_name = str;
+        trk->rte_name = QString::asprintf("%02d-%02d-%02d_%02d:%02d:%02d",
+                                          header.dateStart.Year,
+                                          header.dateStart.Month,
+                                          header.dateStart.Day,
+                                          header.timeStart.Hour,
+                                          header.timeStart.Minute,
+                                          header.timeStart.Second);
         trk->rte_desc = QString("GH625XT GPS tracklog data");
 
         track_add_head(trk);
@@ -547,7 +427,7 @@ track_read()
         uint8_t trackDeviceCommand;
         int track_length;
         uint8_t* track_payload = globalsat_read_package(&track_length, &trackDeviceCommand);
-        is_fatal(((track_length == 0) || (track_payload == nullptr)) , "track length is 0 bytes or payload nonexistent");
+        is_fatal(((track_length == 0) || (track_payload == nullptr)), "track length is 0 bytes or payload nonexistent");
         //      printf("Got track package!!! Train data\n");
 
         uint8_t* dbtrain = track_payload;
@@ -637,9 +517,12 @@ track_read()
            */
 
           QDate gpsDate = QDate(header.dateStart.Year+2000,header.dateStart.Month,header.dateStart.Day);
-          QTime gpsTime = QTime(header.timeStart.Hour-2,header.timeStart.Minute,header.timeStart.Second);
-          gpsDateTime = gpsbabel::DateTime(gpsDate,gpsTime);
-          gpsDateTime.setTimeSpec(Qt::UTC);
+          QTime gpsTime = QTime(header.timeStart.Hour,header.timeStart.Minute,header.timeStart.Second);
+          if (timezn != nullptr) {
+            gpsDateTime = gpsbabel::DateTime(QDateTime(gpsDate,gpsTime,*timezn).toUTC());
+          } else {
+            gpsDateTime = gpsbabel::DateTime(QDateTime(gpsDate,gpsTime,Qt::LocalTime).toUTC());
+          }
 
           int laps_in_package = header.gh_laprec.LapIndex - header.gh_ptrec.Index + 1;
 //					printf("Lap Data:\n");
@@ -736,10 +619,7 @@ track_read()
 
               //Time from last point in sec's * 10 (e.g. point.IntervalTime is sec multiplied with 10)
               // convert to millisecs
-              gpsbabel::DateTime gpsbabeltime = gpsDateTime.addMSecs(point.IntervalTime*100);
-              gpsbabeltime.setTimeSpec(Qt::UTC);
-              gpsDateTime.setDate(gpsbabeltime.date());
-              gpsDateTime.setTime(gpsbabeltime.time());
+              gpsDateTime = gpsDateTime.addMSecs(point.IntervalTime*100);
 
               // if (global_opts.debug_level > 1) {
               //   qDebug() << "DateTime2:" << gpsDateTime.toString();
@@ -751,9 +631,9 @@ track_read()
                 printf(" PwrCadense:%d Power:%d\n", point.PwrCadence,point.Power);
               }
 
-              Waypoint* wpt = new Waypoint(); // waypt_new();
+              auto* wpt = new Waypoint(); // waypt_new();
               //wpt->creation_time = mkgmtime(&gpstime);
-              wpt->SetCreationTime(gpsbabeltime);
+              wpt->SetCreationTime(gpsDateTime);
               wpt->longitude = ((int32_t) point.Longitude) / 1000000.0;
               wpt->latitude = ((int32_t) point.Latitude) / 1000000.0;
               wpt->altitude = point.Altitude;
@@ -777,19 +657,19 @@ track_read()
   }
 }
 
-static void
-route_read()
+void
+GlobalsatSportFormat::route_read()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME "   route_read() TODO\n");
   }
 }
 
-static void
-data_read()
+void
+GlobalsatSportFormat::read()
 {
   if (global_opts.debug_level > 1) {
-    printf(MYNAME " data_read()\n");
+    printf(MYNAME " read()\n");
   }
 
   if (global_opts.masked_objective & WPTDATAMASK) {
@@ -806,25 +686,3 @@ data_read()
     fatal(MYNAME ": Nothing to do.\n");
   }
 }
-
-// This used the serial communication to the watch
-ff_vecs_t globalsat_sport_vecs = {
-  ff_type_serial,			// type
-  {										// cap
-    ff_cap_none,			// waypoints
-    ff_cap_read,			// tracks
-    ff_cap_none,			// routes
-  },
-  rd_init,						// rd_init
-  nullptr,						// wr_init
-  rd_deinit,					// rd_deinit
-  nullptr,						// wr_deinit
-  data_read,					// read
-  nullptr,						// write
-  nullptr,						// exit
-  &globalsat_args,			// args
-  CET_CHARSET_ASCII,	// encode
-  0,									// fixed_encode
-  NULL_POS_OPS,				// position_ops
-  nullptr
-};

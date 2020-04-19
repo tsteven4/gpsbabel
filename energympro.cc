@@ -20,110 +20,30 @@
 
  */
 
+#include <cstdint>              // for int32_t
+#include <cstdio>               // for printf, SEEK_SET, SEEK_CUR, SEEK_END
+
+#include <QtCore/QDate>         // for QDate
+#include <QtCore/QDateTime>     // for QDateTime
+#include <QtCore/QDebug>        // for QDebug
+#include <QtCore/QString>       // for QString
+#include <QtCore/QTime>         // for QTime
+#include <QtCore/QTimeZone>     // for QTimeZone
+#include <QtCore/Qt>            // for UTC
+
 #include "defs.h"
-#include <QtCore/QDebug>
+#include "energympro.h"
+#include "gbfile.h"             // for gbfgetc, gbfseek, gbfclose, gbfopen, gbfread, gbfgetuint32, gbfcopyfrom, gbfgetuint16, gbfile, gbsize_t
+#include "src/core/datetime.h"  // for DateTime
+
 
 #define MYNAME "energympro"
-
-static gbfile* file_in;
-
-struct tw_date {
-  uint8_t Year;
-  uint8_t Month;
-  uint8_t Day;
-};
-
-struct tw_time {
-  uint8_t Hour;
-  uint8_t Minute;
-  uint8_t Second;
-};
-
-struct tw_workout {
-  tw_date       dateStart;            // start date
-  tw_time       timeStart;            // start time
-  uint16_t      TotalRecPt;           // Total record Point
-  uint32_t      TotalTime;            // Total Time
-  uint32_t      TotalDist;            // Total Distance
-  uint16_t      LapNumber;            // Lap Number
-  uint16_t      Calory;               // Calory
-  uint32_t      MaxSpeed;             // Max Speed
-  uint32_t      AvgSpeed;             // average Speed
-  uint8_t       MaxHeart;             // Max Heartrate
-  uint8_t       AvgHeart;             // average Heart
-  uint16_t      Ascent;               // Ascent
-  uint16_t      Descent;              // Descent
-  int16_t       MinAlti;              // Min Altitude
-  int16_t       MaxAlti;              // Max Altitude
-  uint8_t       AvgCad;               // average Cadence
-  uint8_t       MaxCad;               // Best Cadence
-  uint16_t      AvgPower;             // average Power
-  uint16_t      MaxPower;             // Max Power
-  char          VersionProduct[15];
-  uint8_t       reserved1;
-  uint8_t       VersionVerNum;
-  uint8_t       reserved2[17];
-};
-
-
-struct tw_point {
-  uint32_t  Latitude;
-  uint32_t  Longitude;
-  int16_t   Altitude;
-  uint16_t  reserved1;
-  uint32_t  Speed;
-  uint16_t  IntervalDist;          // Interval Distance
-  uint16_t  reserved2;
-  uint32_t  lntervalTime;          // Interval time
-  uint8_t   Status;                //Status (0 = ok, 1 = miss, 2 = no good, 3 = bad)
-  uint8_t   HR_Heartrate;
-  uint8_t   HR_Status;
-  uint8_t   reserved3;
-  uint32_t  Speed_Speed;
-  uint8_t   Speed_Status;
-  uint8_t   reserved4;
-  uint8_t   reserved5;
-  uint8_t   reserved6;
-  uint8_t   Cadence_Cadence;
-  uint8_t   Cadence_Status;
-  uint16_t  Power_Cadence;
-  uint16_t  Power_Power;
-  uint8_t   Power_Status;
-  uint8_t   reserved7;
-  uint8_t   Temp;
-  uint8_t   reserved8;
-  uint8_t   reserved9;
-  uint8_t   reserved10;
-};
-
-struct tw_lap {
-  uint32_t       splitTime;        // split time
-  uint32_t       TotalTime;        // Total Time
-  uint16_t       Number;           // Number
-  uint16_t       reserved1;
-  uint32_t       lDistance;        // Distance
-  uint16_t       Calorie;          // Calorie
-  uint16_t       reserved2;
-  uint32_t       MaxSpeed;         // Max Speed
-  uint32_t       AvgSpeed;         // average Speed
-  uint8_t        MaxHeartrate;     // Max Heartrate
-  uint8_t        AvgHeartrate;     // average Heartrate
-  int16_t        MinAlti;          // Min Altitude
-  int16_t        MaxAlti;          // Max Altitude
-  uint8_t        AvgCad;           // average Cadence
-  uint8_t        MaxCad;           // Max Cadence
-  uint16_t       AvgPower;         // average Power
-  uint16_t       MaxPower;         // Max Power
-  uint16_t       StartRecPt;       // start record point
-  uint16_t       FinishRecPt;      // Finish record point
-};
-
 
 //*******************************************************************************
 //           local helper functions
 //*******************************************************************************
-static void
-read_point(route_head* gpsbabel_route,gpsbabel::DateTime& gpsDateTime)
+void
+EnergymproFormat::read_point(route_head* gpsbabel_route,gpsbabel::DateTime& gpsDateTime) const
 {
   tw_point point{};
   gbfread(&point,sizeof(tw_point),1,file_in);
@@ -141,14 +61,7 @@ read_point(route_head* gpsbabel_route,gpsbabel::DateTime& gpsDateTime)
 
   //Time from last point in sec's * 10 (e.g. point.lntervalTime is sec multiplied with 10)
   // convert to millisecs
-  gpsbabel::DateTime gpsbabeltime = gpsDateTime.addMSecs(point.lntervalTime*100);
-  gpsDateTime.setDate(gpsbabeltime.date());
-  gpsDateTime.setTime(gpsbabeltime.time());
-
-  //remove parts of sec (on purpose) on reported time, we keep track of parts of sec in
-  // global structure so we don't drift
-  qint64 mSecsSinceEpoc = gpsbabeltime.toMSecsSinceEpoch();
-  gpsbabeltime.setMSecsSinceEpoch(mSecsSinceEpoc-mSecsSinceEpoc%1000);
+  gpsDateTime = gpsDateTime.addMSecs(point.lntervalTime*100);
 
   auto waypt = new Waypoint;
   waypt->latitude = (point.Latitude / 1000000.0);
@@ -159,7 +72,7 @@ read_point(route_head* gpsbabel_route,gpsbabel::DateTime& gpsDateTime)
     qDebug() << "DateTime2:" << gpsDateTime.toString();
   }
 
-  waypt->SetCreationTime(gpsbabeltime);
+  waypt->SetCreationTime(gpsDateTime);
 
   if (point.Speed_Status == 0) {
     WAYPT_SET(waypt, speed, point.Speed_Speed / 100.0f);
@@ -178,8 +91,8 @@ read_point(route_head* gpsbabel_route,gpsbabel::DateTime& gpsDateTime)
 }
 
 
-static void
-read_lap()
+void
+EnergymproFormat::read_lap() const
 {
   tw_lap lap{};
   gbfread(&lap,sizeof(tw_lap),1,file_in);
@@ -198,8 +111,8 @@ read_lap()
 //           global callbacks called by gpsbabel main process
 //*******************************************************************************
 
-static void
-rd_init(const QString& fname)
+void
+EnergymproFormat::rd_init(const QString& fname)
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME " rd_deinit()\n");
@@ -213,19 +126,33 @@ rd_init(const QString& fname)
     printf(MYNAME "  filesize=%d\n",size);
   }
   gbfclose(fileorg_in);
+  if (opt_timezone) {
+    if (QTimeZone::isTimeZoneIdAvailable(opt_timezone)) {
+      timezn = new QTimeZone(opt_timezone);
+    } else {
+      list_timezones();
+      fatal(MYNAME ": Requested time zone \"%s\" is not available.\n", opt_timezone);
+    }
+  } else {
+    timezn = nullptr;
+  }
 }
 
-static void
-rd_deinit()
+void
+EnergymproFormat::rd_deinit()
 {
+  if (timezn != nullptr) {
+    delete timezn;
+    timezn = nullptr;
+  }
   if (global_opts.debug_level > 1) {
     printf(MYNAME " rd_deinit()\n");
   }
   gbfclose(file_in);
 }
 
-static void
-track_read()
+void
+EnergymproFormat::track_read()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME "  waypoint_read()\n");
@@ -261,9 +188,14 @@ track_read()
    */
   QDate gpsDate = QDate(workout.dateStart.Year+2000,workout.dateStart.Month,workout.dateStart.Day);
   QTime gpsTime = QTime(workout.timeStart.Hour,workout.timeStart.Minute,workout.timeStart.Second);
-  gpsbabel::DateTime gpsDateTime = gpsbabel::DateTime(gpsDate,gpsTime);
-  gpsDateTime.setTimeSpec(Qt::UTC);
-  route_head* gpsbabel_route = route_head_alloc();
+  gpsbabel::DateTime gpsDateTime;
+  if (timezn != nullptr) {
+    gpsDateTime = gpsbabel::DateTime(QDateTime(gpsDate,gpsTime,*timezn).toUTC());
+  } else {
+    gpsDateTime = gpsbabel::DateTime(QDateTime(gpsDate,gpsTime,Qt::LocalTime).toUTC());
+  }
+
+  auto* gpsbabel_route = new route_head;
 
   track_add_head(gpsbabel_route);
   gbfseek(file_in, 0L, SEEK_SET);
@@ -278,8 +210,8 @@ track_read()
   }
 }
 
-static void
-data_read()
+void
+EnergymproFormat::read()
 {
   if (global_opts.debug_level > 1) {
     printf(MYNAME " data_read()\n");
@@ -287,24 +219,3 @@ data_read()
 
   track_read();
 }
-
-
-ff_vecs_t energympro_vecs = {
-  ff_type_file,
-  {
-    ff_cap_none,  // waypoints
-    ff_cap_read,  // tracks
-    ff_cap_none   // routes
-  },
-  rd_init,      // rd_init
-  nullptr,      // wr_init
-  rd_deinit,    // rd_deinit
-  nullptr,      // wr_deinit
-  data_read,    // read
-  nullptr,      // write
-  nullptr,      // exit
-  nullptr,      // args
-  CET_CHARSET_ASCII, 0,  // encode, fixed_encode
-  NULL_POS_OPS,
-  nullptr
-};
