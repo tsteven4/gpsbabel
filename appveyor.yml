@@ -35,17 +35,11 @@ environment:
 
 init:
   - set PATH=C:\Qt\%qt%\bin;%PATH%
-  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015"
-      call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %arch%
-  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017"
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch%
-  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019"
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch% -vcvars_ver=%msvc%
-  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" {
-      set issc C:\Program Files (x86)\Inno Setup 6\ISCC.exe
-    } else {
-      set issc C:\Program Files (x86)\Inno Setup 5\ISCC.exe
-    }
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %arch%
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch%
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch% -vcvars_ver=%msvc%
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" set issc C:\Program Files (x86)\Inno Setup 6\ISCC.exe
+  - if NOT "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" set issc C:\Program Files (x86)\Inno Setup 5\ISCC.exe
 
 build_script:
   - ps: |
