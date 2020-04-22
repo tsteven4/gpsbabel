@@ -54,18 +54,19 @@ constexpr int GarminFitFormat::kCoursePointTypeLeft;
 constexpr int GarminFitFormat::kCoursePointTypeRight;
 #endif
 
+int GarminFitFormat::Reader::lap_ct = 0;
 /*******************************************************************************
 * %%%        global callbacks called by gpsbabel main process              %%% *
 *******************************************************************************/
 
 void
-GarminFitFormat::rd_init(const QString& fname)
+GarminFitFormat::Reader::rd_init(const QString& fname)
 {
   fin = gbfopen_le(fname, "rb", MYNAME);
 }
 
 void
-GarminFitFormat::rd_deinit()
+GarminFitFormat::Reader::rd_deinit()
 {
   for (auto& local_id : fit_data.message_def) {
     // QList::clear() will not deallocate
@@ -76,13 +77,13 @@ GarminFitFormat::rd_deinit()
 }
 
 void
-GarminFitFormat::wr_init(const QString& fname)
+GarminFitFormat::Writer::wr_init(const QString& fname)
 {
   fout = gbfopen_le(fname, "w+b", MYNAME);
 }
 
 void
-GarminFitFormat::wr_deinit()
+GarminFitFormat::Writer::wr_deinit()
 {
   gbfclose(fout);
 }
@@ -91,7 +92,7 @@ GarminFitFormat::wr_deinit()
 * fit_parse_header- parse the global FIT header
 *******************************************************************************/
 void
-GarminFitFormat::fit_parse_header()
+GarminFitFormat::Reader::fit_parse_header()
 {
   char sig[4];
 
@@ -136,7 +137,7 @@ GarminFitFormat::fit_parse_header()
 }
 
 uint8_t
-GarminFitFormat::fit_getuint8()
+GarminFitFormat::Reader::fit_getuint8()
 {
   if (fit_data.len == 0) {
     // fail gracefully for GARMIN Edge 800 with newest firmware, seems to write a wrong record length
@@ -156,7 +157,7 @@ GarminFitFormat::fit_getuint8()
 }
 
 uint16_t
-GarminFitFormat::fit_getuint16()
+GarminFitFormat::Reader::fit_getuint16()
 {
   char buf[2];
 
@@ -174,7 +175,7 @@ GarminFitFormat::fit_getuint16()
 }
 
 uint32_t
-GarminFitFormat::fit_getuint32()
+GarminFitFormat::Reader::fit_getuint32()
 {
   char buf[4];
 
@@ -192,7 +193,7 @@ GarminFitFormat::fit_getuint32()
 }
 
 void
-GarminFitFormat::fit_parse_definition_message(uint8_t header)
+GarminFitFormat::Reader::fit_parse_definition_message(uint8_t header)
 {
   int local_id = header & 0x0f;
   fit_message_def* def = &fit_data.message_def[local_id];
@@ -282,7 +283,7 @@ GarminFitFormat::fit_parse_definition_message(uint8_t header)
 }
 
 uint32_t
-GarminFitFormat::fit_read_field(const fit_field_t& f)
+GarminFitFormat::Reader::fit_read_field(const fit_field_t& f)
 {
   /* https://forums.garmin.com/showthread.php?223645-Vivoactive-problems-plus-suggestions-for-future-firmwares&p=610929#post610929
    * Per section 4.2.1.4.2 of the FIT Protocol the size of a field may be a
@@ -351,7 +352,7 @@ GarminFitFormat::fit_read_field(const fit_field_t& f)
 }
 
 void
-GarminFitFormat::fit_parse_data(const fit_message_def& def, int time_offset)
+GarminFitFormat::Reader::fit_parse_data(const fit_message_def& def, int time_offset)
 {
   uint32_t timestamp = fit_data.last_timestamp + time_offset;
   int32_t lat = 0x7fffffff;
@@ -594,7 +595,7 @@ GarminFitFormat::fit_parse_data(const fit_message_def& def, int time_offset)
   }
   break;
   case kIdRecord: { // record message
-    if ((lat == 0x7fffffff || lon == 0x7fffffff) && !opt_allpoints) {
+    if ((lat == 0x7fffffff || lon == 0x7fffffff) && !parent->opt_allpoints) {
       break;
     }
 
@@ -644,14 +645,14 @@ GarminFitFormat::fit_parse_data(const fit_message_def& def, int time_offset)
 }
 
 void
-GarminFitFormat::fit_parse_data_message(uint8_t header)
+GarminFitFormat::Reader::fit_parse_data_message(uint8_t header)
 {
   int local_id = header & 0x0f;
   fit_parse_data(fit_data.message_def[local_id], 0);
 }
 
 void
-GarminFitFormat::fit_parse_compressed_message(uint8_t header)
+GarminFitFormat::Reader::fit_parse_compressed_message(uint8_t header)
 {
   int local_id = (header >> 5) & 3;
   fit_parse_data(fit_data.message_def[local_id], header & 0x1f);
@@ -661,7 +662,7 @@ GarminFitFormat::fit_parse_compressed_message(uint8_t header)
 * fit_parse_record- parse each record in the file
 *******************************************************************************/
 void
-GarminFitFormat::fit_parse_record()
+GarminFitFormat::Reader::fit_parse_record()
 {
   uint8_t header = fit_getuint8();
   // high bit 7 set -> compressed message (0 for normal)
@@ -699,7 +700,7 @@ GarminFitFormat::fit_parse_record()
 * - parse all the records in the file
 *******************************************************************************/
 void
-GarminFitFormat::read()
+GarminFitFormat::Reader::read()
 {
   fit_parse_header();
 
@@ -718,7 +719,7 @@ GarminFitFormat::read()
 *******************************************************************************/
 
 void
-GarminFitFormat::fit_write_message_def(uint8_t local_id, uint16_t global_id, const std::vector<fit_field_t>& fields) const
+GarminFitFormat::Writer::fit_write_message_def(uint8_t local_id, uint16_t global_id, const std::vector<fit_field_t>& fields) const
 {
   gbfputc(0x40 | local_id, fout); // Local ID
   gbfputc(0, fout); // Reserved
@@ -733,7 +734,7 @@ GarminFitFormat::fit_write_message_def(uint8_t local_id, uint16_t global_id, con
 }
 
 uint16_t
-GarminFitFormat::fit_crc16(uint8_t data, uint16_t crc)
+GarminFitFormat::Writer::fit_crc16(uint8_t data, uint16_t crc)
 {
   static const uint16_t crc_table[] = {
     0x0000, 0xcc01, 0xd801, 0x1400, 0xf001, 0x3c00, 0x2800, 0xe401,
@@ -746,7 +747,7 @@ GarminFitFormat::fit_crc16(uint8_t data, uint16_t crc)
 }
 
 void
-GarminFitFormat::fit_write_timestamp(const gpsbabel::DateTime& t) const
+GarminFitFormat::Writer::fit_write_timestamp(const gpsbabel::DateTime& t) const
 {
   uint32_t t_fit;
   if (t.isValid() && t.toTime_t() >= (unsigned int)GPS_Math_Gtime_To_Utime(0)) {
@@ -758,7 +759,7 @@ GarminFitFormat::fit_write_timestamp(const gpsbabel::DateTime& t) const
 }
 
 void
-GarminFitFormat::fit_write_fixed_string(const QString& s, unsigned int len) const
+GarminFitFormat::Writer::fit_write_fixed_string(const QString& s, unsigned int len) const
 {
   QString trimmed(s);
   QByteArray u8buf;
@@ -781,7 +782,7 @@ GarminFitFormat::fit_write_fixed_string(const QString& s, unsigned int len) cons
 }
 
 void
-GarminFitFormat::fit_write_position(double pos) const
+GarminFitFormat::Writer::fit_write_position(double pos) const
 {
   if (pos >= -180 && pos < 180) {
     gbfputint32(GPS_Math_Deg_To_Semi(pos), fout);
@@ -793,7 +794,7 @@ GarminFitFormat::fit_write_position(double pos) const
 // Note: The data fields written using fit_write_msg_*() below need to match
 // the message field definitions in fit_msg_fields_* above!
 void
-GarminFitFormat::fit_write_msg_file_id(uint8_t type, uint16_t manufacturer, uint16_t product,
+GarminFitFormat::Writer::fit_write_msg_file_id(uint8_t type, uint16_t manufacturer, uint16_t product,
                                        const gpsbabel::DateTime& time_created) const
 {
   gbfputc(kWriteLocalIdFileId, fout);
@@ -804,7 +805,7 @@ GarminFitFormat::fit_write_msg_file_id(uint8_t type, uint16_t manufacturer, uint
 }
 
 void
-GarminFitFormat::fit_write_msg_course(const QString& name, uint8_t sport) const
+GarminFitFormat::Writer::fit_write_msg_course(const QString& name, uint8_t sport) const
 {
   gbfputc(kWriteLocalIdCourse, fout);
   fit_write_fixed_string(name, 0x10);
@@ -812,7 +813,7 @@ GarminFitFormat::fit_write_msg_course(const QString& name, uint8_t sport) const
 }
 
 void
-GarminFitFormat::fit_write_msg_lap(const gpsbabel::DateTime& timestamp, const gpsbabel::DateTime& start_time,
+GarminFitFormat::Writer::fit_write_msg_lap(const gpsbabel::DateTime& timestamp, const gpsbabel::DateTime& start_time,
                                    double start_position_lat, double start_position_long,
                                    double end_position_lat, double end_position_long,
                                    uint32_t total_elapsed_time_s, double total_distance_m,
@@ -850,7 +851,7 @@ GarminFitFormat::fit_write_msg_lap(const gpsbabel::DateTime& timestamp, const gp
 }
 
 void
-GarminFitFormat::fit_write_msg_event(const gpsbabel::DateTime& timestamp,
+GarminFitFormat::Writer::fit_write_msg_event(const gpsbabel::DateTime& timestamp,
                                      uint8_t event, uint8_t event_type, uint8_t event_group) const
 {
   gbfputc(kWriteLocalIdEvent, fout);
@@ -861,7 +862,7 @@ GarminFitFormat::fit_write_msg_event(const gpsbabel::DateTime& timestamp,
 }
 
 void
-GarminFitFormat::fit_write_msg_course_point(const gpsbabel::DateTime& timestamp,
+GarminFitFormat::Writer::fit_write_msg_course_point(const gpsbabel::DateTime& timestamp,
     double position_lat, double position_long,
     double distance_m, const QString& name,
     uint8_t type) const
@@ -880,7 +881,7 @@ GarminFitFormat::fit_write_msg_course_point(const gpsbabel::DateTime& timestamp,
 }
 
 void
-GarminFitFormat::fit_write_msg_record(const gpsbabel::DateTime& timestamp,
+GarminFitFormat::Writer::fit_write_msg_record(const gpsbabel::DateTime& timestamp,
                                       double position_lat, double position_long,
                                       double distance_m, double altitude,
                                       double speed_ms) const
@@ -907,7 +908,7 @@ GarminFitFormat::fit_write_msg_record(const gpsbabel::DateTime& timestamp,
 }
 
 void
-GarminFitFormat::fit_write_file_header(uint32_t file_size, uint16_t crc) const
+GarminFitFormat::Writer::fit_write_file_header(uint32_t file_size, uint16_t crc) const
 {
   gbfputc(kWriteHeaderCrcLen, fout); // Header+CRC length
   gbfputc(0x10, fout);               // Protocol version
@@ -918,7 +919,7 @@ GarminFitFormat::fit_write_file_header(uint32_t file_size, uint16_t crc) const
 }
 
 void
-GarminFitFormat::fit_write_header_msgs(const gpsbabel::DateTime& ctime, const QString& name) const
+GarminFitFormat::Writer::fit_write_header_msgs(const gpsbabel::DateTime& ctime, const QString& name) const
 {
   fit_write_message_def(kWriteLocalIdFileId, kIdFileId, fit_msg_fields_file_id);
   fit_write_message_def(kWriteLocalIdCourse, kIdCourse, fit_msg_fields_course);
@@ -932,7 +933,7 @@ GarminFitFormat::fit_write_header_msgs(const gpsbabel::DateTime& ctime, const QS
 }
 
 void
-GarminFitFormat::fit_write_file_finish() const
+GarminFitFormat::Writer::fit_write_file_finish() const
 {
   // Update data records size in file header
   gbsize_t file_size = gbftell(fout);
@@ -969,20 +970,20 @@ GarminFitFormat::fit_write_file_finish() const
 }
 
 void
-GarminFitFormat::fit_collect_track_hdr(const route_head* rte)
+GarminFitFormat::Writer::fit_collect_track_hdr(const route_head* rte)
 {
   (void)rte;
   course.clear();
 }
 
 void
-GarminFitFormat::fit_collect_trackpt(const Waypoint* waypointp)
+GarminFitFormat::Writer::fit_collect_trackpt(const Waypoint* waypointp)
 {
   course.push_back(FitCourseRecordPoint(*waypointp, false));
 }
 
 void
-GarminFitFormat::fit_collect_track_tlr(const route_head* rte)
+GarminFitFormat::Writer::fit_collect_track_tlr(const route_head* rte)
 {
   // Prepare for writing a course corresponding to a track.
   // For this, we need to check for/synthesize missing information
@@ -1111,7 +1112,7 @@ GarminFitFormat::fit_collect_track_tlr(const route_head* rte)
 }
 
 void
-GarminFitFormat::fit_collect_waypt(const Waypoint* waypointp)
+GarminFitFormat::Writer::fit_collect_waypt(const Waypoint* waypointp)
 {
   FitCourseRecordPoint crpt(*waypointp, true);
 
@@ -1131,7 +1132,7 @@ GarminFitFormat::fit_collect_waypt(const Waypoint* waypointp)
 * fit_write- global entry point
 *******************************************************************************/
 void
-GarminFitFormat::write()
+GarminFitFormat::Writer::write()
 {
   fit_write_file_header(0, 0);
   write_header_msgs = true;

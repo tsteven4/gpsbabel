@@ -71,59 +71,219 @@ public:
     return 0;
   }
 
-  void rd_init(const QString& fname) override;
-  void read() override;
-  void rd_deinit() override;
-  void wr_init(const QString& fname) override;
-  void write() override;
-  void wr_deinit() override;
+  void rd_init(const QString& fname) override
+  {
+    reader = new Reader(this);
+    reader->rd_init(fname);
+  }
+  void read() override
+  {
+    reader->read();
+  }
+  void rd_deinit() override
+  {
+    reader->rd_deinit();
+    delete reader;
+    reader = nullptr;
+  }
+  void wr_init(const QString& fname) override
+  {
+    writer = new Writer(this);
+    writer->wr_init(fname);
+  }
+  void write() override
+  {
+    writer->write();
+  }
+  void wr_deinit() override
+  {
+    writer->wr_deinit();
+    delete writer;
+    writer = nullptr;
+  }
 
 private:
   /* Types */
 
   struct fit_field_t {
-  /* MSVC 2015 generates C2664 errors without some help. */
+    /* MSVC 2015 generates C2664 errors without some help. */
 #if defined(_MSC_VER) && (_MSC_VER < 1910) /* MSVC 2015 or earlier */
     fit_field_t() = default;
     fit_field_t(int i, int s, int t) : id(i), size(s), type(t) {}
 #endif
-    int id{};
+    int id {};
     int size{};
     int type{};
   };
 
-  struct fit_message_def {
-    int endian{};
-    int global_id{};
-    QList<fit_field_t> fields;
+  class Reader
+  {
+  public:
+    explicit Reader(GarminFitFormat* p) : parent(p) {}
+
+    void rd_init(const QString& fname);
+    void read();
+    void rd_deinit();
+
+  private:
+    /* Types */
+
+    struct fit_message_def {
+      int endian{};
+      int global_id{};
+      QList<fit_field_t> fields;
+    };
+
+    struct fit_data_t {
+      int len{};
+      int endian{};
+      route_head* track{nullptr};
+      uint32_t last_timestamp{};
+      uint32_t global_utc_offset{};
+      fit_message_def message_def[16];
+    };
+
+    /* Member Functions */
+
+    void fit_parse_header();
+    uint8_t fit_getuint8();
+    uint16_t fit_getuint16();
+    uint32_t fit_getuint32();
+    void fit_parse_definition_message(uint8_t header);
+    uint32_t fit_read_field(const fit_field_t& f);
+    void fit_parse_data(const fit_message_def& def, int time_offset);
+    void fit_parse_data_message(uint8_t header);
+    void fit_parse_compressed_message(uint8_t header);
+    void fit_parse_record();
+
+    /* Data Members */
+
+    static int lap_ct;
+    bool new_trkseg{false};
+    fit_data_t fit_data;
+    gbfile* fin{nullptr};
+    GarminFitFormat* parent;
   };
 
-  struct fit_data_t {
-    int len{};
-    int endian{};
-    route_head* track{nullptr};
-    uint32_t last_timestamp{};
-    uint32_t global_utc_offset{};
-    fit_message_def message_def[16];
-  };
+  class Writer
+  {
+  public:
+    explicit Writer(GarminFitFormat* p) : parent(p) {}
 
-  struct FitCourseRecordPoint {
-    FitCourseRecordPoint(const Waypoint& wpt, bool is_course_point, unsigned int course_point_type = kCoursePointTypeGeneric)
-      : lat(wpt.latitude),
-        lon(wpt.longitude),
-        altitude(wpt.altitude),
-        speed(WAYPT_HAS((&wpt), speed) ? wpt.speed : -1),
-        odometer_distance(wpt.odometer_distance),
-        creation_time(wpt.creation_time),
-        shortname(wpt.shortname),
-        is_course_point(is_course_point),
-        course_point_type(course_point_type) { }
-    double lat, lon, altitude;
-    double speed, odometer_distance;
-    gpsbabel::DateTime creation_time;
-    QString shortname;
-    bool is_course_point;
-    unsigned int course_point_type;
+    void wr_init(const QString& fname);
+    void write();
+    void wr_deinit();
+
+  private:
+    /* Types */
+
+    struct FitCourseRecordPoint {
+      FitCourseRecordPoint(const Waypoint& wpt, bool is_course_point, unsigned int course_point_type = kCoursePointTypeGeneric)
+        : lat(wpt.latitude),
+          lon(wpt.longitude),
+          altitude(wpt.altitude),
+          speed(WAYPT_HAS((&wpt), speed) ? wpt.speed : -1),
+          odometer_distance(wpt.odometer_distance),
+          creation_time(wpt.creation_time),
+          shortname(wpt.shortname),
+          is_course_point(is_course_point),
+          course_point_type(course_point_type) { }
+      double lat, lon, altitude;
+      double speed, odometer_distance;
+      gpsbabel::DateTime creation_time;
+      QString shortname;
+      bool is_course_point;
+      unsigned int course_point_type;
+    };
+
+    /* Member Functions */
+
+    void fit_write_message_def(uint8_t local_id, uint16_t global_id, const std::vector<fit_field_t>& fields) const;
+    static uint16_t fit_crc16(uint8_t data, uint16_t crc);
+    void fit_write_timestamp(const gpsbabel::DateTime& t) const;
+    void fit_write_fixed_string(const QString& s, unsigned int len) const;
+    void fit_write_position(double pos) const;
+    void fit_write_msg_file_id(uint8_t type, uint16_t manufacturer, uint16_t product, const gpsbabel::DateTime& time_created) const;
+    void fit_write_msg_course(const QString& name, uint8_t sport) const;
+    void fit_write_msg_lap(const gpsbabel::DateTime& timestamp, const gpsbabel::DateTime& start_time, double start_position_lat, double start_position_long, double end_position_lat, double end_position_long, uint32_t total_elapsed_time_s, double total_distance_m, double avg_speed_ms, double max_speed_ms) const;
+    void fit_write_msg_event(const gpsbabel::DateTime& timestamp, uint8_t event, uint8_t event_type, uint8_t event_group) const;
+    void fit_write_msg_course_point(const gpsbabel::DateTime& timestamp, double position_lat, double position_long, double distance_m, const QString& name, uint8_t type) const;
+    void fit_write_msg_record(const gpsbabel::DateTime& timestamp, double position_lat, double position_long, double distance_m, double altitude, double speed_ms) const;
+    void fit_write_file_header(uint32_t file_size, uint16_t crc) const;
+    void fit_write_header_msgs(const gpsbabel::DateTime& ctime, const QString& name) const;
+    void fit_write_file_finish() const;
+    void fit_collect_track_hdr(const route_head* rte);
+    void fit_collect_trackpt(const Waypoint* waypointp);
+    void fit_collect_track_tlr(const route_head* rte);
+    void fit_collect_waypt(const Waypoint* waypointp);
+
+    /* Data Members */
+
+    const std::vector<fit_field_t> fit_msg_fields_file_id = {
+      // field id,            size, type
+      { kFieldType,           0x01, kTypeEnum   },
+      { kFieldManufacturer,   0x02, kTypeUint16 },
+      { kFieldProduct,        0x02, kTypeUint16 },
+      { kFieldTimeCreated,    0x04, kTypeUint32 },
+    };
+    const std::vector<fit_field_t> fit_msg_fields_course = {
+      { kFieldName,           0x10, kTypeString },
+      { kFieldSport,          0x01, kTypeEnum   },
+    };
+    const std::vector<fit_field_t> fit_msg_fields_lap = {
+      { kFieldTimestamp,      0x04, kTypeUint32 },
+      { kFieldStartTime,      0x04, kTypeUint32 },
+      { kFieldStartLatitude,  0x04, kTypeSint32 },
+      { kFieldStartLongitude, 0x04, kTypeSint32 },
+      { kFieldEndLatitude,    0x04, kTypeSint32 },
+      { kFieldEndLongitude,   0x04, kTypeSint32 },
+      { kFieldElapsedTime,    0x04, kTypeUint32 },
+      { kFieldTotalTimerTime, 0x04, kTypeUint32 },
+      { kFieldTotalDistance,  0x04, kTypeUint32 },
+      { kFieldAvgSpeed,       0x02, kTypeUint16 },
+      { kFieldMaxSpeed,       0x02, kTypeUint16 },
+    };
+    const std::vector<fit_field_t> fit_msg_fields_event = {
+      { kFieldTimestamp,      0x04, kTypeUint32 },
+      { kFieldEvent,          0x01, kTypeEnum   },
+      { kFieldEventType,      0x01, kTypeEnum   },
+      { kFieldEventGroup,     0x01, kTypeUint8  },
+    };
+    const std::vector<fit_field_t> fit_msg_fields_course_point = {
+      { kFieldCPTimeStamp,    0x04, kTypeUint32 },
+      { kFieldCPPositionLat,  0x04, kTypeSint32 },
+      { kFieldCPPositionLong, 0x04, kTypeSint32 },
+      { kFieldCPDistance,     0x04, kTypeUint32 },
+      { kFieldCPName,         0x10, kTypeString },
+      { kFieldCPType,         0x01, kTypeEnum   },
+    };
+    const std::vector<fit_field_t> fit_msg_fields_record = {
+      { kFieldTimestamp,      0x04, kTypeUint32 },
+      { kFieldLatitude,       0x04, kTypeSint32 },
+      { kFieldLongitude,      0x04, kTypeSint32 },
+      { kFieldDistance,       0x04, kTypeUint32 },
+      { kFieldAltitude,       0x02, kTypeUint16 },
+      { kFieldSpeed,          0x02, kTypeUint16 },
+    };
+
+    const std::vector<std::pair<QString, int> > kCoursePointTypeMapping = {
+      {"left", kCoursePointTypeLeft},
+      {"links", kCoursePointTypeLeft},
+      {"gauche", kCoursePointTypeLeft},
+      {"izquierda", kCoursePointTypeLeft},
+      {"sinistra", kCoursePointTypeLeft},
+
+      {"right", kCoursePointTypeRight},
+      {"rechts", kCoursePointTypeRight},
+      {"droit", kCoursePointTypeRight},
+      {"derecha", kCoursePointTypeRight},
+      {"destro", kCoursePointTypeRight},
+    };
+
+    bool write_header_msgs{false};
+    std::deque<FitCourseRecordPoint> course, waypoints;
+    gbfile* fout{nullptr};
+    GarminFitFormat* parent{nullptr};
   };
 
   /* Constants */
@@ -223,41 +383,9 @@ private:
 
   /* Member Functions */
 
-  void fit_parse_header();
-  uint8_t fit_getuint8();
-  uint16_t fit_getuint16();
-  uint32_t fit_getuint32();
-  void fit_parse_definition_message(uint8_t header);
-  uint32_t fit_read_field(const fit_field_t& f);
-  void fit_parse_data(const fit_message_def& def, int time_offset);
-  void fit_parse_data_message(uint8_t header);
-  void fit_parse_compressed_message(uint8_t header);
-  void fit_parse_record();
-  void fit_write_message_def(uint8_t local_id, uint16_t global_id, const std::vector<fit_field_t>& fields) const;
-  static uint16_t fit_crc16(uint8_t data, uint16_t crc);
-  void fit_write_timestamp(const gpsbabel::DateTime& t) const;
-  void fit_write_fixed_string(const QString& s, unsigned int len) const;
-  void fit_write_position(double pos) const;
-  void fit_write_msg_file_id(uint8_t type, uint16_t manufacturer, uint16_t product, const gpsbabel::DateTime& time_created) const;
-  void fit_write_msg_course(const QString& name, uint8_t sport) const;
-  void fit_write_msg_lap(const gpsbabel::DateTime& timestamp, const gpsbabel::DateTime& start_time, double start_position_lat, double start_position_long, double end_position_lat, double end_position_long, uint32_t total_elapsed_time_s, double total_distance_m, double avg_speed_ms, double max_speed_ms) const;
-  void fit_write_msg_event(const gpsbabel::DateTime& timestamp, uint8_t event, uint8_t event_type, uint8_t event_group) const;
-  void fit_write_msg_course_point(const gpsbabel::DateTime& timestamp, double position_lat, double position_long, double distance_m, const QString& name, uint8_t type) const;
-  void fit_write_msg_record(const gpsbabel::DateTime& timestamp, double position_lat, double position_long, double distance_m, double altitude, double speed_ms) const;
-  void fit_write_file_header(uint32_t file_size, uint16_t crc) const;
-  void fit_write_header_msgs(const gpsbabel::DateTime& ctime, const QString& name) const;
-  void fit_write_file_finish() const;
-  void fit_collect_track_hdr(const route_head* rte);
-  void fit_collect_trackpt(const Waypoint* waypointp);
-  void fit_collect_track_tlr(const route_head* rte);
-  void fit_collect_waypt(const Waypoint* waypointp);
-
   /* Data Members */
 
-  char* opt_allpoints = nullptr;
-  int lap_ct = 0;
-  bool new_trkseg = false;
-  bool write_header_msgs = false;
+  char* opt_allpoints{nullptr};
 
   QVector<arglist_t> fit_args = {
     {
@@ -267,76 +395,7 @@ private:
     },
   };
 
-  const std::vector<std::pair<QString, int> > kCoursePointTypeMapping = {
-    {"left", kCoursePointTypeLeft},
-    {"links", kCoursePointTypeLeft},
-    {"gauche", kCoursePointTypeLeft},
-    {"izquierda", kCoursePointTypeLeft},
-    {"sinistra", kCoursePointTypeLeft},
-
-    {"right", kCoursePointTypeRight},
-    {"rechts", kCoursePointTypeRight},
-    {"droit", kCoursePointTypeRight},
-    {"derecha", kCoursePointTypeRight},
-    {"destro", kCoursePointTypeRight},
-  };
-
-  fit_data_t fit_data;
-
-  std::deque<FitCourseRecordPoint> course, waypoints;
-
-  gbfile* fin{nullptr};
-  gbfile* fout{nullptr};
-
-  /*******************************************************************************
-  * FIT writing
-  *******************************************************************************/
-
-  const std::vector<fit_field_t> fit_msg_fields_file_id = {
-    // field id,            size, type
-    { kFieldType,           0x01, kTypeEnum   },
-    { kFieldManufacturer,   0x02, kTypeUint16 },
-    { kFieldProduct,        0x02, kTypeUint16 },
-    { kFieldTimeCreated,    0x04, kTypeUint32 },
-  };
-  const std::vector<fit_field_t> fit_msg_fields_course = {
-    { kFieldName,           0x10, kTypeString },
-    { kFieldSport,          0x01, kTypeEnum   },
-  };
-  const std::vector<fit_field_t> fit_msg_fields_lap = {
-    { kFieldTimestamp,      0x04, kTypeUint32 },
-    { kFieldStartTime,      0x04, kTypeUint32 },
-    { kFieldStartLatitude,  0x04, kTypeSint32 },
-    { kFieldStartLongitude, 0x04, kTypeSint32 },
-    { kFieldEndLatitude,    0x04, kTypeSint32 },
-    { kFieldEndLongitude,   0x04, kTypeSint32 },
-    { kFieldElapsedTime,    0x04, kTypeUint32 },
-    { kFieldTotalTimerTime, 0x04, kTypeUint32 },
-    { kFieldTotalDistance,  0x04, kTypeUint32 },
-    { kFieldAvgSpeed,       0x02, kTypeUint16 },
-    { kFieldMaxSpeed,       0x02, kTypeUint16 },
-  };
-  const std::vector<fit_field_t> fit_msg_fields_event = {
-    { kFieldTimestamp,      0x04, kTypeUint32 },
-    { kFieldEvent,          0x01, kTypeEnum   },
-    { kFieldEventType,      0x01, kTypeEnum   },
-    { kFieldEventGroup,     0x01, kTypeUint8  },
-  };
-  const std::vector<fit_field_t> fit_msg_fields_course_point = {
-    { kFieldCPTimeStamp,    0x04, kTypeUint32 },
-    { kFieldCPPositionLat,  0x04, kTypeSint32 },
-    { kFieldCPPositionLong, 0x04, kTypeSint32 },
-    { kFieldCPDistance,     0x04, kTypeUint32 },
-    { kFieldCPName,         0x10, kTypeString },
-    { kFieldCPType,         0x01, kTypeEnum   },
-  };
-  const std::vector<fit_field_t> fit_msg_fields_record = {
-    { kFieldTimestamp,      0x04, kTypeUint32 },
-    { kFieldLatitude,       0x04, kTypeSint32 },
-    { kFieldLongitude,      0x04, kTypeSint32 },
-    { kFieldDistance,       0x04, kTypeUint32 },
-    { kFieldAltitude,       0x02, kTypeUint16 },
-    { kFieldSpeed,          0x02, kTypeUint16 },
-  };
+  Reader* reader{nullptr};
+  Writer* writer{nullptr};
 };
 #endif // GARMIN_FIT_H_INCLUDED_
