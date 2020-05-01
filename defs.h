@@ -417,16 +417,18 @@ public:
   unsigned int trait_temperature:1;
 };
 
+constexpr double unknown_alt = -99999999.0;
+constexpr double unknown_latlon = -9999.0;
 /*
  *  Bounding box information.
  */
 struct bounds_t {
-  double max_lat;
-  double max_lon;
-  double max_alt;	/*  unknown_alt => invalid */
-  double min_lat;
-  double min_lon;
-  double min_alt;	/* -unknown_alt => invalid */
+  double max_lat{unknown_latlon};
+  double max_lon{unknown_latlon};
+  double max_alt{unknown_alt};	/*  unknown_alt => invalid */
+  double min_lat{-unknown_latlon};
+  double min_lon{-unknown_latlon};
+  double min_alt{-unknown_alt};	/* -unknown_alt => invalid */
 };
 
 #define WAYPT_SET(wpt,member,val) do { (wpt)->member = (val); wpt->wpt_flags.member = 1; } while (0)
@@ -1253,7 +1255,6 @@ int color_to_bbggrr(const char* cname);
  * A constant for unknown altitude.   It's tempting to just use zero
  * but that's not very nice for the folks near sea level.
  */
-#define unknown_alt 	-99999999.0
 #define unknown_color	-1
 
 // TODO: this is a (probably temporary) shim for the C->QString conversion.

@@ -216,7 +216,7 @@ private:
   gpsbabel::XmlStreamWriter* writer{nullptr};
 
   int realtime_positioning{};
-  bounds_t kml_bounds{};
+  bounds_t kml_bounds;
   gpsbabel::DateTime kml_time_max;
   gpsbabel::DateTime kml_time_min;
 

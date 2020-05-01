@@ -269,7 +269,7 @@ private:
   route_head* rte_head{};
   const route_head* current_trk_head{};		// Output.
   /* used for bounds calculation on output */
-  bounds_t all_bounds{};
+  bounds_t all_bounds;
   int next_trkpt_is_new_seg{};
 
   FormatSpecificDataList* fs_ptr{};

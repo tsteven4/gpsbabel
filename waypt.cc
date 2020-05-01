@@ -99,19 +99,14 @@ void
 waypt_init_bounds(bounds_t* bounds)
 {
   /* Set data out of bounds so that even one waypoint will reset */
-  bounds->max_lat = -9999;
-  bounds->max_lon = -9999;
-  bounds->min_lat = 9999;
-  bounds->min_lon = 9999;
-  bounds->max_alt = unknown_alt;
-  bounds->min_alt = -unknown_alt;
+  *bounds = bounds_t();
 }
 
 int
 waypt_bounds_valid(bounds_t* bounds)
 {
   /* Returns true if bb has any 'real' data in it */
-  return bounds->max_lat > -9999;
+  return bounds->max_lat > unknown_latlon;
 }
 
 /*
