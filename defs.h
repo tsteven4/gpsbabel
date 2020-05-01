@@ -420,7 +420,7 @@ public:
 /*
  *  Bounding box information.
  */
-struct bounds {
+struct bounds_t {
   double max_lat;
   double max_lon;
   double max_alt;	/*  unknown_alt => invalid */
@@ -559,7 +559,7 @@ public:
   // FIXME: Generally it is inefficient to use an element pointer or reference to define the element to be deleted, use iterator instead,
   //        and/or implement pop_back() a.k.a. removeLast(), and/or pop_front() a.k.a. removeFirst().
   void del_rte_waypt(Waypoint* wpt);
-  void waypt_compute_bounds(bounds* bounds) const;
+  void waypt_compute_bounds(bounds_t* bounds) const;
   Waypoint* find_waypt_by_name(const QString& name) const;
   void flush(); // a.k.a. clear()
   void copy(WaypointList** dst) const;
@@ -600,10 +600,10 @@ unsigned int waypt_count();
 void waypt_status_disp(int total_ct, int myct);
 //void waypt_disp_all(waypt_cb); /* template */
 //void waypt_disp_session(const session_t* se, waypt_cb cb); /* template */
-void waypt_init_bounds(bounds* bounds);
-int waypt_bounds_valid(bounds* bounds);
-void waypt_add_to_bounds(bounds* bounds, const Waypoint* waypointp);
-void waypt_compute_bounds(bounds* bounds);
+void waypt_init_bounds(bounds_t* bounds);
+int waypt_bounds_valid(bounds_t* bounds);
+void waypt_add_to_bounds(bounds_t* bounds, const Waypoint* waypointp);
+void waypt_compute_bounds(bounds_t* bounds);
 Waypoint* find_waypt_by_name(const QString& name);
 void waypt_flush_all();
 void waypt_deinit();

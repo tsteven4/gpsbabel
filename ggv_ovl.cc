@@ -74,7 +74,7 @@ static gbfile* fout;
 static int symbol_ct;	/* Number of symbols written */
 static int group_ct;	/* Group number during write */
 static int track_ct, route_ct;
-static bounds all_bounds;
+static bounds_t all_bounds;
 static OVL_COLOR_TYP color;
 
 /*******************************************************************************

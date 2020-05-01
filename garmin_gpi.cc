@@ -162,7 +162,7 @@ struct writer_data_t {
   QList<Waypoint*> waypt_list;
   int sz{0};
   int alert{0};
-  bounds bds;
+  bounds_t bds;
   writer_data_t* top_left{nullptr};
   writer_data_t* top_right{nullptr};
   writer_data_t* bottom_left{nullptr};

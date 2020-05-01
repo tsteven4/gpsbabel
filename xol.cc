@@ -32,7 +32,7 @@
 
 static Waypoint* wpt;
 static route_head* trk;
-static bounds all_bounds;
+static bounds_t all_bounds;
 static short_handle short_h;
 
 static gpsbabel::File* oqfile;

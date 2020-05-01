@@ -96,7 +96,7 @@ waypt_status_disp(int total_ct, int myct)
 }
 
 void
-waypt_init_bounds(bounds* bounds)
+waypt_init_bounds(bounds_t* bounds)
 {
   /* Set data out of bounds so that even one waypoint will reset */
   bounds->max_lat = -9999;
@@ -108,7 +108,7 @@ waypt_init_bounds(bounds* bounds)
 }
 
 int
-waypt_bounds_valid(bounds* bounds)
+waypt_bounds_valid(bounds_t* bounds)
 {
   /* Returns true if bb has any 'real' data in it */
   return bounds->max_lat > -9999;
@@ -118,7 +118,7 @@ waypt_bounds_valid(bounds* bounds)
  * Recompute bounding box based on new position point.
  */
 void
-waypt_add_to_bounds(bounds* bounds, const Waypoint* waypointp)
+waypt_add_to_bounds(bounds_t* bounds, const Waypoint* waypointp)
 {
   if (waypointp->latitude > bounds->max_lat) {
     bounds->max_lat = waypointp->latitude;
@@ -149,7 +149,7 @@ waypt_add_to_bounds(bounds* bounds, const Waypoint* waypointp)
  */
 
 void
-waypt_compute_bounds(bounds* bounds)
+waypt_compute_bounds(bounds_t* bounds)
 {
   global_waypoint_list->waypt_compute_bounds(bounds);
 }
@@ -681,7 +681,7 @@ WaypointList::del_rte_waypt(Waypoint* wpt)
  */
 
 void
-WaypointList::waypt_compute_bounds(bounds* bounds) const
+WaypointList::waypt_compute_bounds(bounds_t* bounds) const
 {
   waypt_init_bounds(bounds);
   foreach (const Waypoint* waypointp, *this) {

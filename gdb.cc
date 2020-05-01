@@ -656,7 +656,7 @@ static route_head*
 read_route()
 {
   char buf[128];
-  bounds bounds;
+  bounds_t bounds;
 
   rte_ct++;
   int warnings = 0;
@@ -1321,7 +1321,7 @@ write_waypoint(
 }
 
 static void
-route_compute_bounds(const route_head* rte, bounds* bounds)
+route_compute_bounds(const route_head* rte, bounds_t* bounds)
 {
   waypt_init_bounds(bounds);
   foreach (Waypoint* wpt, rte->waypoint_list) {
@@ -1331,7 +1331,7 @@ route_compute_bounds(const route_head* rte, bounds* bounds)
 }
 
 static void
-route_write_bounds(bounds* bounds)
+route_write_bounds(bounds_t* bounds)
 {
   if (waypt_bounds_valid(bounds)) {
     FWRITE_C(0);
@@ -1349,7 +1349,7 @@ route_write_bounds(bounds* bounds)
 static void
 write_route(const route_head* rte, const QString& rte_name)
 {
-  bounds bounds;
+  bounds_t bounds;
   char zbuf[32], ffbuf[32];
 
   memset(zbuf, 0, sizeof(zbuf));
