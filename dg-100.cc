@@ -398,7 +398,7 @@ Dg100Format::dg100_recv_frame(const dg100_command** cmdinfo_result, uint8_t** pa
    */
 
   /* read Payload Length, Command ID, and two further bytes */
-  int i = dg100_read_wait(serial_handle, &buf[2], 5, 1000);
+  int i = dg100_read_wait(serial_handle, &buf[2], 5, 5000);
   if (i < 5) {
     fatal("Expected to read 5 bytes, but got %d\n", i);
   }
@@ -450,7 +450,7 @@ Dg100Format::dg100_recv_frame(const dg100_command** cmdinfo_result, uint8_t** pa
           frame_len, FRAME_MAXLEN);
   }
 
-  i = dg100_read_wait(serial_handle, &buf[7], frame_len - 7, 1000);
+  i = dg100_read_wait(serial_handle, &buf[7], frame_len - 7, 5000);
   if (i < frame_len - 7) {
     fatal("Expected to read %d bytes, but got %d\n",
           frame_len - 7, i);
