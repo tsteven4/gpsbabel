@@ -26,400 +26,31 @@
 #include <QtCore/QHash>                 // for QHash
 #include <QtCore/QLatin1String>         // for QLatin1String
 #include <QtCore/QPair>                 // for QPair, operator==
-#include <QtCore/QString>               // for QString, operator+, operator==
+#include <QtCore/QString>               // for QString, operator==, operator+
 #include <QtCore/QStringRef>            // for QStringRef
-#include <QtCore/QVector>               // for QVector
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes
-#include <QtCore/QtGlobal>              // for qPrintable
+#include <QtCore/QtGlobal>              // for qPrintable, QAddConst<>::Type
 
 #include "defs.h"
-#include "gbfile.h"                     // for gbfprintf, gbfclose, gbfopen, gbfile
+#include "osm.h"
+#include "gbfile.h"                     // for gbfprintf, gbfclose, gbfopen
 #include "src/core/datetime.h"          // for DateTime
-#include "xmlgeneric.h"                 // for cb_start, cb_end, xg_callback, xg_string, xg_cb_type, xml_deinit, xml_init, xml_read, xg_tag_mapping
+#include "xmlgeneric.h"                 // for xg_string, build_xg_tag_map, xml_deinit, xml_init, xml_read
 
-static char* opt_tag, *opt_tagnd, *created_by;
-
-static QVector<arglist_t> osm_args = {
-  { "tag", &opt_tag, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
-  { "tagnd", &opt_tagnd,	"Write additional node tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
-  { "created_by", &created_by, "Use this value as custom created_by value","GPSBabel", ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
-};
 
 #define MYNAME "osm"
 
-static QHash<QString, const Waypoint*> waypoints;
-
-static QHash<QString, int> keys;
-struct osm_icon_mapping_t;
-static QHash<QPair<int, QString>, const osm_icon_mapping_t*> values;
-static QHash<QString, const osm_icon_mapping_t*> icons;
-
-static gbfile* fout;
-static int node_id;
-static int skip_rte;
-
-static route_head* rte;
-static Waypoint* wpt;
-
-static xg_callback	osm_node, osm_node_tag, osm_node_end;
-static xg_callback	osm_way, osm_way_nd, osm_way_tag, osm_way_center, osm_way_end;
-
-static
-xg_tag_mapping osm_map[] = {
-  { osm_node,	cb_start,	"/osm/node" },
-  { osm_node_tag,	cb_start,	"/osm/node/tag" },
-  { osm_node_end,	cb_end,		"/osm/node" },
-  { osm_way,	cb_start,	"/osm/way" },
-  { osm_way_nd,	cb_start,	"/osm/way/nd" },
-  { osm_way_tag,	cb_start,	"/osm/way/tag" },
-  { osm_way_center,	cb_start,	"/osm/way/center" },
-  { osm_way_end,	cb_end,		"/osm/way" },
-  { nullptr,	(xg_cb_type)0,		nullptr }
-};
-
-static const char* osm_features[] = {
-  "- dummy -",	/*  0 */
-  "aeroway",	/*  1 */
-  "amenity",	/*  2 */
-  "building",	/*  3 */
-  "cycleway",	/*  4 */
-  "railway",	/*  5 */
-  "highway",	/*  6 */
-  "historic",	/*  7 */
-  "landuse",	/*  8 */
-  "leisure",	/*  9 */
-  "man_made",	/* 10 */
-  "military",	/* 11 */
-  "natural",	/* 12 */
-  "place",	/* 13 */
-  "power",	/* 14 */
-  "shop",		/* 15 */
-  "sport",	/* 16 */
-  "tourism",	/* 17 */
-  "waterway",	/* 18 */
-  "aerialway",	/* 19 */
-  nullptr
-};
-
-struct osm_icon_mapping_t {
-  int key;
-  const char* value;
-  const char* icon;
-};
-
-
-/* based on <http://wiki.openstreetmap.org/index.php/Map_Features> */
-
-static const osm_icon_mapping_t osm_icon_mappings[] = {
-
-  /* cycleway ...*/
-
-  /* highway ...*/
-
-//	{ 6, "mini_roundabout",		"?" },
-//	{ 6, "stop",			"?" },
-//	{ 6, "traffic_signals",		"?" },
-//	{ 6, "crossing",		"?" },
-//	{ 6, "gate",			"?" },
-//	{ 6, "stile",			"?" },
-//	{ 6, "cattle_grid",		"?" },
-//	{ 6, "toll_booth",		"?" },
-//	{ 6, "incline",			"?" },
-//	{ 6, "incline_steep",		"?" },
-//	{ 6, "viaduct",			"?" },
-//	{ 6, "motorway_junction",	"?" },
-//	{ 6, "services",		"?" },
-//	{ 6, "ford",			"?" },
-//	{ 6, "bus_stop",		"?" },
-//	{ 6, "turning_circle",		"?" },
-//	{ 6, "User Defined",		"?" },
-
-  /* waterway ... */
-
-  { 18, "dock",			"Dock" },
-//	{ 18, "lock_gate",		"?" },
-//	{ 18, "turning_point",		"?" },
-//	{ 18, "aqueduct",		"?" },
-//	{ 18, "boatyard",		"?" },
-//	{ 18, "water_point",		"?" },
-//	{ 18, "waste_disposal",		"?" },
-//	{ 18, "mooring",		"?" },
-//	{ 18, "weir",			"?" },
-//	{ 18, "User Defined",		"?" },
-
-  /* railway ... */
-
-//	{ 5, "station",			"?" },
-//	{ 5, "halt",			"?" },
-//	{ 5, "tram_stop",		"?" },
-//	{ 5, "viaduct",			"?" },
-  { 5, "crossing",		"Crossing" },
-//	{ 5, "level_crossing",		"?" },
-//	{ 5, "subway_entrance",		"?" },
-//	{ 5, "turntable",		"?" },
-//	{ 5, "User Defined",		"?" },
-
-  /* aeroway ... */
-
-  { 1, "aerodrome",		"Airport" },
-  { 1, "terminal",		"Airport" },
-  { 1, "helipad",			"Heliport" },
-//	{ 1, "User Defined",		"?" },
-
-  /* aerialway ... */
-
-//	{ 19, "User Defined",		"?" },
-
-  /* power ... */
-
-//	{ 14, "tower",			"?" },
-//	{ 14, "sub_station",		"?" },
-//	{ 14, "generator",		"?" },
-
-  /* man_made ... */
-
-//	{ 10, "works",			"?" },
-//	{ 10, "beacon",			"?" },
-//	{ 10, "survey_point",		"?" },
-//	{ 10, "power_wind",		"?" },
-//	{ 10, "power_hydro",		"?" },
-//	{ 10, "power_fossil",		"?" },
-//	{ 10, "power_nuclear",		"?" },
-//	{ 10, "tower",			"?" },
-//	{ 10, "water_tower",		"?" },
-//	{ 10, "gasometer",		"?" },
-//	{ 10, "reservoir_covered",	"?" },
-//	{ 10, "lighthouse",		"?" },
-//	{ 10, "windmill",		"?" },
-//	{ 10, "wastewater_plant",	"?" },
-//	{ 10, "crane",			"?" },
-//	{ 10, "User Defined",		"?" },
-
-  /* building ... */
-
-  { 3, "yes",			"Building" },
-//	{ 3, "User Defined",		"?" },
-
-  /* leisure ... */
-
-//	{ 9, "sports_centre",		"?" },
-  { 9, "golf_course",		"Golf Course" },
-  { 9, "stadium",			"Stadium" },
-//	{ 9, "track",			"?" },
-//	{ 9, "pitch",			"?" },
-//	{ 9, "water_park",		"?" },
-  { 9, "marina",			"Marina" },
-//	{ 9, "slipway",			"?" },
-  { 9, "fishing",			"Fishing Area" },
-//	{ 9, "nature_reserve",		"?" },
-  { 9, "park",			"Park" },
-//	{ 9, "playground",		"?" },
-//	{ 9, "garden",			"?" },
-//	{ 9, "common",			"?" },
-//	{ 9, "User Defined",		"?" },
-
-  /* amenity ... */
-
-  { 2, "pub",			"Bar" },
-//	{ 2, "biergarten",		"?" },
-  { 2, "nightclub",		"Bar" },
-//	{ 2, "cafe",			"?" },
-  { 2, "restaurant",		"Restaurant" },
-  { 2, "fast_food",		"Fast Food" },
-  { 2, "parking",			"Parking Area" },
-//	{ 2, "bicycle_parking",		"?" },
-//	{ 2, "bicycle_rental",		"?" },
-  { 2, "car_rental",		"Car Rental" },
-//	{ 2, "car_sharing",		"?" },
-//	{ 2, "taxi",			"?" },
-  { 2, "fuel",			"Gas Station" },
-  { 2, "telephone",		"Telephone" },
-  { 2, "toilets",			"Restroom" },
-//	{ 2, "recycling",		"?" },
-//	{ 2, "public_building",		"?" },
-  { 2, "townhall",		"City Hall" },
-//	{ 2, "place_of_worship",	"?" },
-//	{ 2, "grave_yard",		"?" },
-  { 2, "post_office",		"Post Office" },
-//	{ 2, "post_box",		"?" },
-  { 2, "school",			"School" },
-//	{ 2, "university",		"?" },
-//	{ 2, "college",			"?" },
-  { 2, "pharmacy",		"Pharmacy" },
-  { 2, "hospital",		"Medical Facility" },
-//	{ 2, "library",			"?" },
-  { 2, "police",			"Police Station" },
-//	{ 2, "fire_station",		"?" },
-//	{ 2, "bus_station",		"?" },
-//	{ 2, "theatre",			"?" },
-//	{ 2, "cinema",			"?" },
-//	{ 2, "arts_centre",		"?" },
-//	{ 2, "courthouse",		"?" },
-//	{ 2, "prison",			"?" },
-  { 2, "bank",			"Bank" },
-//	{ 2, "bureau_de_change",	"?" },
-//	{ 2, "atm",			"?" },
-//	{ 2, "fountain",		"?" },
-//	{ 2, "User Defined",		"?" },
-
-  /* shop ... */
-
-//	{ 15, "supermarket",		"?" },
-  { 15, "convenience",		"Convenience Store" },
-//	{ 15, "butcher",		"?" },
-//	{ 15, "bicycle",		"?" },
-//	{ 15, "doityourself",		"?" },
-//	{ 15, "dry_cleaning",		"?" },
-//	{ 15, "laundry",		"?" },
-//	{ 15, "outdoor",		"?" },
-//	{ 15, "kiosk",			"?" },
-//	{ 15, "User Defined",		"?" },
-
-  /* tourism ... */
-
-  { 17, "information",		"Information" },
-  { 17, "hotel",			"Hotel" },
-  { 17, "motel",			"Lodging" },
-  { 17, "guest_house",		"Lodging" },
-  { 17, "hostel",			"Lodging" },
-  { 17, "camp_site",		"Campground" },
-  { 17, "caravan_site",		"RV Park" },
-  { 17, "picnic_site",		"Picnic Area" },
-  { 17, "viewpoint",		"Scenic Area" },
-//	{ 17, "theme_park",		"?" },
-//	{ 17, "attraction",		"?" },
-  { 17, "zoo",			"Zoo" },
-//	{ 17, "artwork",		"?" },
-  { 17, "museum",			"Museum" },
-//	{ 17, "User Defined",		"?" },
-
-  /* historic ... */
-
-//	{ 7, "castle",			"?" },
-//	{ 7, "monument",		"?" },
-//	{ 7, "memorial",		"?" },
-//	{ 7, "archaeological_site",	"?" },
-//	{ 7, "ruins",			"?" },
-//	{ 7, "battlefield",		"?" },
-//	{ 7, "User Defined",		"?" },
-
-  /* landuse ... */
-
-//	{ 8, "farm",			"?" },
-//	{ 8, "quarry",			"?" },
-//	{ 8, "landfill",		"?" },
-//	{ 8, "basin",			"?" },
-//	{ 8, "reservoir",		"?" },
-  { 8, "forest",			"Forest" },
-//	{ 8, "allotments",		"?" },
-//	{ 8, "residential",		"?" },
-//	{ 8, "retail",			"?" },
-//	{ 8, "commercial",		"?" },
-//	{ 8, "industrial",		"?" },
-//	{ 8, "brownfield",		"?" },
-//	{ 8, "greenfield",		"?" },
-//	{ 8, "railway",			"?" },
-//	{ 8, "construction",		"?" },
-  { 8, "military",		"Military" },
-  { 8, "cemetery",		"Cemetery" },
-//	{ 8, "village_green",		"?" },
-//	{ 8, "recreation_ground",	"?" },
-//	{ 8, "User Defined",		"?" },
-
-  /* military ... */
-
-//	{ 11, "airfield",		"?" },
-//	{ 11, "bunker",			"?" },
-//	{ 11, "barracks",		"?" },
-//	{ 11, "danger_area",		"?" },
-//	{ 11, "range",			"?" },
-//	{ 11, "naval_base",		"?" },
-//	{ 11, "User Defined",		"?" },
-
-  /* natural ... */
-
-//	{ 12, "spring",			"?" },
-//	{ 12, "peak",			"?" },
-//	{ 12, "glacier",		"?" },
-//	{ 12, "volcano",		"?" },
-//	{ 12, "cliff",			"?" },
-//	{ 12, "scree",			"?" },
-//	{ 12, "scrub",			"?" },
-//	{ 12, "fell",			"?" },
-//	{ 12, "heath",			"?" },
-//	{ 12, "wood",			"?" },
-//	{ 12, "marsh",			"?" },
-//	{ 12, "water",			"?" },
-//	{ 12, "coastline",		"?" },
-//	{ 12, "mud",			"?" },
-  { 12, "beach",			"Beach" },
-//	{ 12, "bay",			"?" },
-//	{ 12, "land",			"?" },
-//	{ 12, "cave_entrance",		"?" },
-//	{ 12, "User Defined",		"?" },
-
-  /* sport ... */
-
-//	{ 16, "10pin",			"?" },
-//	{ 16, "athletics",		"?" },
-//	{ 16, "australian_football",	"?" },
-//	{ 16, "baseball",		"?" },
-//	{ 16, "basketball",		"?" },
-//	{ 16, "boules",			"?" },
-//	{ 16, "bowls",			"?" },
-//	{ 16, "climbing",		"?" },
-//	{ 16, "cricket",		"?" },
-//	{ 16, "cricket_nets",		"?" },
-//	{ 16, "croquet",		"?" },
-//	{ 16, "cycling",		"?" },
-//	{ 16, "dog_racing",		"?" },
-//	{ 16, "equestrian",		"?" },
-//	{ 16, "football",		"?" },
-//	{ 16, "golf",			"?" },
-//	{ 16, "gymnastics",		"?" },
-//	{ 16, "hockey",			"?" },
-//	{ 16, "horse_racing",		"?" },
-//	{ 16, "motor",			"?" },
-//	{ 16, "multi",			"?" },
-//	{ 16, "pelota",			"?" },
-//	{ 16, "racquet",		"?" },
-//	{ 16, "rugby",			"?" },
-//	{ 16, "skating",		"?" },
-//	{ 16, "skateboard",		"?" },
-//	{ 16, "soccer",			"?" },
-  { 16, "swimming",		"Swimming Area" },
-  { 16, "skiing",			"Skiing Area" },
-//	{ 16, "table_tennis",		"?" },
-//	{ 16, "tennis",			"?" },
-//	{ 16, "orienteering",		"?" },
-//	{ 16, "User Defined",		"?" },
-
-  /* place ... */
-
-//	{ 13, "continent",		"?" },
-//	{ 13, "country",		"?" },
-//	{ 13, "state",			"?" },
-//	{ 13, "region",			"?" },
-//	{ 13, "county",			"?" },
-  { 13, "city",			"City (Large)" },
-  { 13, "town",			"City (Medium)" },
-  { 13, "village",		"City (Small)" },
-//	{ 13, "hamlet",			"?" },
-//	{ 13, "suburb",			"?" },
-//	{ 13, "locality",		"?" },
-//	{ 13, "island",			"?" },
-//	{ 13, "User Defined",		"?" },
-
-  { -1, nullptr, nullptr }
-};
-
-
+// Until c++17 we have to define odr-used constexpr static data members at namespace scope.
+#if __cplusplus < 201703L
+constexpr const char* OsmFormat::osm_features[];
+constexpr OsmFormat::osm_icon_mapping_t OsmFormat::osm_icon_mappings[];
+#endif
 /*******************************************************************************/
 /*                                   READER                                    */
 /*-----------------------------------------------------------------------------*/
 
-static void
-osm_features_init()
+void
+OsmFormat::osm_features_init()
 {
   /* the first of osm_features is a place holder */
   for (int i = 1; osm_features[i]; ++i) {
@@ -432,16 +63,14 @@ osm_features_init()
   }
 }
 
-
-static char
-osm_feature_ikey(const QString& key)
+char
+OsmFormat::osm_feature_ikey(const QString& key) const
 {
   return keys.value(key, -1);
 }
 
-
-static QString
-osm_feature_symbol(const int ikey, const char* value)
+QString
+OsmFormat::osm_feature_symbol(const int ikey, const char* value) const
 {
   QPair<int, QString> key(ikey, value);
 
@@ -454,16 +83,15 @@ osm_feature_symbol(const int ikey, const char* value)
   return result;
 }
 
-
-static char*
-osm_strip_html(const char* str)
+char*
+OsmFormat::osm_strip_html(const char* str)
 {
   utf_string utf(true, str);
   return strip_html(&utf);	// util.cc
 }
 
-static QString
-osm_strip_html(const QString& str)
+QString
+OsmFormat::osm_strip_html(const QString& str) const
 {
   char* r = osm_strip_html(CSTR(str));
   QString rv(r);
@@ -471,9 +99,8 @@ osm_strip_html(const QString& str)
   return rv;
 }
 
-
-static void
-osm_node_end(xg_string, const QXmlStreamAttributes*)
+void
+OsmFormat::osm_node_end(xg_string /*unused*/, const QXmlStreamAttributes* /*unused*/)
 {
   if (wpt) {
     if (wpt->wpt_flags.fmt_use) {
@@ -485,9 +112,8 @@ osm_node_end(xg_string, const QXmlStreamAttributes*)
   }
 }
 
-
-static void
-osm_node(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_node(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   wpt = new Waypoint;
 
@@ -517,9 +143,8 @@ osm_node(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-
-static void
-osm_node_tag(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_node_tag(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   QString key, value;
   signed char ikey;
@@ -571,9 +196,8 @@ osm_node_tag(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-
-static void
-osm_way(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_way(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   rte = new route_head;
   // create a wpt to represent the route center if it has a center tag
@@ -583,8 +207,8 @@ osm_way(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-static void
-osm_way_nd(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_way_nd(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   if (attrv->hasAttribute("ref")) {
     QString atstr = attrv->value("ref").toString();
@@ -599,8 +223,8 @@ osm_way_nd(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-static void
-osm_way_tag(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_way_tag(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   QString key, value;
   signed char ikey;
@@ -636,8 +260,8 @@ osm_way_tag(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-static void
-osm_way_center(xg_string, const QXmlStreamAttributes* attrv)
+void
+OsmFormat::osm_way_center(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
   wpt->wpt_flags.fmt_use = 1;
 
@@ -649,8 +273,8 @@ osm_way_center(xg_string, const QXmlStreamAttributes* attrv)
   }
 }
 
-static void
-osm_way_end(xg_string, const QXmlStreamAttributes*)
+void
+OsmFormat::osm_way_end(xg_string /*unused*/, const QXmlStreamAttributes* /*unused*/)
 {
   if (rte) {
     route_add_head(rte);
@@ -661,14 +285,14 @@ osm_way_end(xg_string, const QXmlStreamAttributes*)
     if (wpt->wpt_flags.fmt_use) {
       waypt_add(wpt);
     } else {
-      delete(wpt);
+      delete wpt;
       wpt = nullptr;
     }
   }
 }
 
-static void
-osm_rd_init(const QString& fname)
+void
+OsmFormat::rd_init(const QString& fname)
 {
   wpt = nullptr;
   rte = nullptr;
@@ -678,17 +302,17 @@ osm_rd_init(const QString& fname)
     osm_features_init();
   }
 
-  xml_init(fname, osm_map, nullptr);
+  xml_init(fname, build_xg_tag_map(this, osm_map), nullptr, nullptr, nullptr, true);
 }
 
-static void
-osm_read()
+void
+OsmFormat::read()
 {
   xml_read();
 }
 
-static void
-osm_rd_deinit()
+void
+OsmFormat::rd_deinit()
 {
   xml_deinit();
   waypoints.clear();
@@ -698,8 +322,8 @@ osm_rd_deinit()
 /*                                   WRITER                                    */
 /*-----------------------------------------------------------------------------*/
 
-static void
-osm_init_icons()
+void
+OsmFormat::osm_init_icons()
 {
   if (!icons.isEmpty()) {
     return;
@@ -710,8 +334,8 @@ osm_init_icons()
   }
 }
 
-static void
-osm_write_tag(const QString& key, const QString& value)
+void
+OsmFormat::osm_write_tag(const QString& key, const QString& value) const
 {
   if (!value.isEmpty()) {
     char* str = xml_entitize(CSTR(value));
@@ -720,8 +344,8 @@ osm_write_tag(const QString& key, const QString& value)
   }
 }
 
-static void
-osm_disp_feature(const Waypoint* waypoint)
+void
+OsmFormat::osm_disp_feature(const Waypoint* waypoint) const
 {
   if (icons.contains(waypoint->icon_descr)) {
     const osm_icon_mapping_t* map = icons.value(waypoint->icon_descr);
@@ -729,8 +353,8 @@ osm_disp_feature(const Waypoint* waypoint)
   }
 }
 
-static void
-osm_write_opt_tag(const char* atag)
+void
+OsmFormat::osm_write_opt_tag(const char* atag)
 {
   char* cin;
 
@@ -758,18 +382,17 @@ osm_write_opt_tag(const char* atag)
   xfree(tag);
 }
 
-static void
-osm_release_ids(const Waypoint* waypoint)
+void
+OsmFormat::osm_release_ids(const Waypoint* waypoint)
 {
   if (waypoint && waypoint->extra_data) {
-    auto* tmp = const_cast<Waypoint*>(waypoint);
-    xfree(tmp->extra_data);
-    tmp->extra_data = nullptr;
+    delete static_cast<int*>(waypoint->extra_data);
+    const_cast<Waypoint*>(waypoint)->extra_data = nullptr;
   }
 }
 
-static QString
-osm_name_from_wpt(const Waypoint* waypoint)
+QString
+OsmFormat::osm_name_from_wpt(const Waypoint* waypoint)
 {
   QString name = QString("%1\01%2\01%3")
                  .arg(waypoint->shortname)
@@ -778,8 +401,8 @@ osm_name_from_wpt(const Waypoint* waypoint)
   return name;
 }
 
-static void
-osm_waypt_disp(const Waypoint* waypoint)
+void
+OsmFormat::osm_waypt_disp(const Waypoint* waypoint)
 {
   QString name = osm_name_from_wpt(waypoint);
 
@@ -789,9 +412,9 @@ osm_waypt_disp(const Waypoint* waypoint)
 
   waypoints.insert(name, waypoint);
 
-  int* id = (int*) xmalloc(sizeof(*id));
+  auto* id = new int;
   *id = --node_id;
-  (const_cast<Waypoint*>(waypoint))->extra_data = id;
+  const_cast<Waypoint*>(waypoint)->extra_data = id;
 
   gbfprintf(fout, "  <node id='%d' visible='true' lat='%0.7f' lon='%0.7f'", *id, waypoint->latitude, waypoint->longitude);
   if (waypoint->creation_time.isValid()) {
@@ -844,7 +467,7 @@ osm_waypt_disp(const Waypoint* waypoint)
   }
 
   osm_write_tag("name", waypoint->shortname);
-  osm_write_tag("note", (waypoint->notes.isEmpty()) ? waypoint->description : waypoint->notes);
+  osm_write_tag("note", waypoint->notes.isEmpty() ? waypoint->description : waypoint->notes);
   if (!waypoint->icon_descr.isNull()) {
     osm_disp_feature(waypoint);
   }
@@ -854,10 +477,10 @@ osm_waypt_disp(const Waypoint* waypoint)
   gbfprintf(fout, "  </node>\n");
 }
 
-static void
-osm_rte_disp_head(const route_head* route)
+void
+OsmFormat::osm_rte_disp_head(const route_head* route)
 {
-  skip_rte = (route->rte_waypt_ct <= 0);
+  skip_rte = route->rte_waypt_ct <= 0;
 
   if (skip_rte) {
     return;
@@ -866,8 +489,8 @@ osm_rte_disp_head(const route_head* route)
   gbfprintf(fout, "  <way id='%d' visible='true'>\n", --node_id);
 }
 
-static void
-osm_rtept_disp(const Waypoint* wpt_ref)
+void
+OsmFormat::osm_rtept_disp(const Waypoint* wpt_ref) const
 {
   QString name = osm_name_from_wpt(wpt_ref);
 
@@ -877,13 +500,13 @@ osm_rtept_disp(const Waypoint* wpt_ref)
 
   if (waypoints.contains(name)) {
     const Waypoint* waypoint = waypoints.value(name);
-    int* id = (int*) waypoint->extra_data;
+    auto* id = static_cast<int*>(waypoint->extra_data);
     gbfprintf(fout, "    <nd ref='%d'/>\n", *id);
   }
 }
 
-static void
-osm_rte_disp_trail(const route_head* route)
+void
+OsmFormat::osm_rte_disp_trail(const route_head* route)
 {
   if (skip_rte) {
     return;
@@ -910,8 +533,8 @@ osm_rte_disp_trail(const route_head* route)
 
 /*-----------------------------------------------------------------------------*/
 
-static void
-osm_wr_init(const QString& fname)
+void
+OsmFormat::wr_init(const QString& fname)
 {
   fout = gbfopen(fname, "w", MYNAME);
 
@@ -920,8 +543,8 @@ osm_wr_init(const QString& fname)
   node_id = 0;
 }
 
-static void
-osm_write()
+void
+OsmFormat::write()
 {
   gbfprintf(fout, "<?xml version='1.0' encoding='UTF-8'?>\n");
   gbfprintf(fout, "<osm version='0.6' generator='GPSBabel");
@@ -930,30 +553,45 @@ osm_write()
   }
   gbfprintf(fout, "'>\n");
 
-  waypt_disp_all(osm_waypt_disp);
-  route_disp_all(nullptr, nullptr, osm_waypt_disp);
-  track_disp_all(nullptr, nullptr, osm_waypt_disp);
+  auto osm_waypt_disp_lambda = [this](const Waypoint* waypointp)->void {
+    osm_waypt_disp(waypointp);
+  };
+  waypt_disp_all(osm_waypt_disp_lambda);
+  route_disp_all(nullptr, nullptr, osm_waypt_disp_lambda);
+  track_disp_all(nullptr, nullptr, osm_waypt_disp_lambda);
 
-  route_disp_all(osm_rte_disp_head, osm_rte_disp_trail, osm_rtept_disp);
-  track_disp_all(osm_rte_disp_head, osm_rte_disp_trail, osm_rtept_disp);
+  auto osm_rte_disp_head_lambda = [this](const route_head* rte)->void {
+    osm_rte_disp_head(rte);
+  };
+  auto osm_rte_disp_trail_lambda = [this](const route_head* rte)->void {
+    osm_rte_disp_trail(rte);
+  };
+  auto osm_rtept_disp_lambda = [this](const Waypoint* waypointp)->void {
+    osm_rtept_disp(waypointp);
+  };
+  route_disp_all(osm_rte_disp_head_lambda, osm_rte_disp_trail_lambda, osm_rtept_disp_lambda);
+  track_disp_all(osm_rte_disp_head_lambda, osm_rte_disp_trail_lambda, osm_rtept_disp_lambda);
 
   gbfprintf(fout, "</osm>\n");
 }
 
-static void
-osm_wr_deinit()
+void
+OsmFormat::wr_deinit()
 {
   gbfclose(fout);
 
-  waypt_disp_all(osm_release_ids);
-  route_disp_all(nullptr, nullptr, osm_release_ids);
-  track_disp_all(nullptr, nullptr, osm_release_ids);
+  auto osm_release_ids_lambda = [](const Waypoint* waypointp)->void {
+    osm_release_ids(waypointp);
+  };
+  waypt_disp_all(osm_release_ids_lambda);
+  route_disp_all(nullptr, nullptr, osm_release_ids_lambda);
+  track_disp_all(nullptr, nullptr, osm_release_ids_lambda);
 
   waypoints.clear();
 }
 
-static void
-osm_exit()
+void
+OsmFormat::exit()
 {
   keys.clear();
   values.clear();
@@ -961,22 +599,3 @@ osm_exit()
 }
 
 /*-----------------------------------------------------------------------------*/
-
-ff_vecs_t osm_vecs = {
-  ff_type_file,
-  {
-    (ff_cap)(ff_cap_read | ff_cap_write)	/* waypoints */,
-    ff_cap_write 			/* tracks */,
-    (ff_cap)(ff_cap_read | ff_cap_write) 	/* routes */,
-  },
-  osm_rd_init,
-  osm_wr_init,
-  osm_rd_deinit,
-  osm_wr_deinit,
-  osm_read,
-  osm_write,
-  osm_exit,
-  &osm_args,
-  CET_CHARSET_UTF8, 0
-  , NULL_POS_OPS,
-  nullptr};
