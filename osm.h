@@ -86,69 +86,14 @@ private:
     const char* icon;
   };
 
-  /* Member Functions */
+  /* Constants */
 
-  void osm_features_init();
-  char osm_feature_ikey(const QString& key) const;
-  QString osm_feature_symbol(int ikey, const char* value) const;
-  static char* osm_strip_html(const char* str);
-  QString osm_strip_html(const QString& str) const;
-  void osm_node_end(xg_string /* unused */, const QXmlStreamAttributes* /* unused */);
-  void osm_node(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_node_tag(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_way(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_way_nd(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_way_tag(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_way_center(xg_string /* unused */, const QXmlStreamAttributes* attrv);
-  void osm_way_end(xg_string /* unused */, const QXmlStreamAttributes* /* unused */);
-  void osm_init_icons();
-  void osm_write_tag(const QString& key, const QString& value) const;
-  void osm_disp_feature(const Waypoint* waypoint) const;
-  void osm_write_opt_tag(const char* atag);
-  static void osm_release_ids(const Waypoint* waypoint);
-  static QString osm_name_from_wpt(const Waypoint* waypoint);
-  void osm_waypt_disp(const Waypoint* waypoint);
-  void osm_rte_disp_head(const route_head* route);
-  void osm_rtept_disp(const Waypoint* wpt_ref) const;
-  void osm_rte_disp_trail(const route_head* route);
-
-  /* Data Members */
-
-  char* opt_tag{};
-  char* opt_tagnd{};
-  char* created_by{};
-
-  QVector<arglist_t> osm_args = {
-    { "tag", &opt_tag, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
-    { "tagnd", &opt_tagnd,	"Write additional node tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
-    { "created_by", &created_by, "Use this value as custom created_by value","GPSBabel", ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
-  };
-
-  QHash<QString, const Waypoint*> waypoints;
-
-  QHash<QString, int> keys;
-  QHash<QPair<int, QString>, const osm_icon_mapping_t*> values;
-  QHash<QString, const osm_icon_mapping_t*> icons;
-
-  gbfile* fout{};
-  int node_id{};
-  int skip_rte{};
-
-  route_head* rte{};
-  Waypoint* wpt{};
-
-  QList<xg_functor_map_entry<OsmFormat>> osm_map = {
-    {&OsmFormat::osm_node,	cb_start,	"/osm/node"},
-    {&OsmFormat::osm_node_tag,	cb_start,	"/osm/node/tag"},
-    {&OsmFormat::osm_node_end,	cb_end,		"/osm/node"},
-    {&OsmFormat::osm_way,	cb_start,	"/osm/way"},
-    {&OsmFormat::osm_way_nd,	cb_start,	"/osm/way/nd"},
-    {&OsmFormat::osm_way_tag,	cb_start,	"/osm/way/tag"},
-    {&OsmFormat::osm_way_center,	cb_start,	"/osm/way/center"},
-    {&OsmFormat::osm_way_end,	cb_end,		"/osm/way"}
-  };
-
+  // MSVC 2015 will error with C2373 if the array length isn't explicitly included.
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910) /* !MSVC or MSVC 2017 or newer */
   static constexpr const char* osm_features[] = {
+#else
+  static constexpr const char* osm_features[21] = {
+#endif
     "- dummy -",	/*  0 */
     "aeroway",	/*  1 */
     "amenity",	/*  2 */
@@ -174,7 +119,12 @@ private:
 
   /* based on <http://wiki.openstreetmap.org/index.php/Map_Features> */
 
+  // MSVC 2015 will error with C2373 if the array length isn't explicitly included.
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910) /* !MSVC or MSVC 2017 or newer */	
   static constexpr osm_icon_mapping_t osm_icon_mappings[] = {
+#else
+  static constexpr osm_icon_mapping_t osm_icon_mappings[49] = {
+#endif
 
     /* cycleway ...*/
 
@@ -475,6 +425,68 @@ private:
 //	{ 13, "User Defined",		"?" },
 
     { -1, nullptr, nullptr }
+  };
+
+  /* Member Functions */
+
+  void osm_features_init();
+  char osm_feature_ikey(const QString& key) const;
+  QString osm_feature_symbol(int ikey, const char* value) const;
+  static char* osm_strip_html(const char* str);
+  QString osm_strip_html(const QString& str) const;
+  void osm_node_end(xg_string /* unused */, const QXmlStreamAttributes* /* unused */);
+  void osm_node(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_node_tag(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_way(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_way_nd(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_way_tag(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_way_center(xg_string /* unused */, const QXmlStreamAttributes* attrv);
+  void osm_way_end(xg_string /* unused */, const QXmlStreamAttributes* /* unused */);
+  void osm_init_icons();
+  void osm_write_tag(const QString& key, const QString& value) const;
+  void osm_disp_feature(const Waypoint* waypoint) const;
+  void osm_write_opt_tag(const char* atag);
+  static void osm_release_ids(const Waypoint* waypoint);
+  static QString osm_name_from_wpt(const Waypoint* waypoint);
+  void osm_waypt_disp(const Waypoint* waypoint);
+  void osm_rte_disp_head(const route_head* route);
+  void osm_rtept_disp(const Waypoint* wpt_ref) const;
+  void osm_rte_disp_trail(const route_head* route);
+
+  /* Data Members */
+
+  char* opt_tag{};
+  char* opt_tagnd{};
+  char* created_by{};
+
+  QVector<arglist_t> osm_args = {
+    { "tag", &opt_tag, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
+    { "tagnd", &opt_tagnd,	"Write additional node tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
+    { "created_by", &created_by, "Use this value as custom created_by value","GPSBabel", ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
+  };
+
+  QHash<QString, const Waypoint*> waypoints;
+
+  QHash<QString, int> keys;
+  QHash<QPair<int, QString>, const osm_icon_mapping_t*> values;
+  QHash<QString, const osm_icon_mapping_t*> icons;
+
+  gbfile* fout{};
+  int node_id{};
+  int skip_rte{};
+
+  route_head* rte{};
+  Waypoint* wpt{};
+
+  QList<xg_functor_map_entry<OsmFormat>> osm_map = {
+    {&OsmFormat::osm_node,	cb_start,	"/osm/node"},
+    {&OsmFormat::osm_node_tag,	cb_start,	"/osm/node/tag"},
+    {&OsmFormat::osm_node_end,	cb_end,		"/osm/node"},
+    {&OsmFormat::osm_way,	cb_start,	"/osm/way"},
+    {&OsmFormat::osm_way_nd,	cb_start,	"/osm/way/nd"},
+    {&OsmFormat::osm_way_tag,	cb_start,	"/osm/way/tag"},
+    {&OsmFormat::osm_way_center,	cb_start,	"/osm/way/center"},
+    {&OsmFormat::osm_way_end,	cb_end,		"/osm/way"}
   };
 };
 #endif // OSM_H_INCLUDED_

@@ -42,8 +42,14 @@
 
 // Until c++17 we have to define odr-used constexpr static data members at namespace scope.
 #if __cplusplus < 201703L
+// MSVC 2015 will error with C2373 if the array length isn't explicitly included.
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910) /* !MSVC or MSVC 2017 or newer */
 constexpr const char* OsmFormat::osm_features[];
 constexpr OsmFormat::osm_icon_mapping_t OsmFormat::osm_icon_mappings[];
+#else
+constexpr const char* OsmFormat::osm_features[21];
+constexpr OsmFormat::osm_icon_mapping_t OsmFormat::osm_icon_mappings[49];
+#endif
 #endif
 /*******************************************************************************/
 /*                                   READER                                    */
