@@ -225,7 +225,7 @@ v900_read()
   v900_log("header line: %s",line.text);
   v900_log("is_advance_mode=%d\n",is_advanced_mode);
 
-  route_head* track = route_head_alloc();
+  auto* track = new route_head;
   track->rte_name = "V900 tracklog";
   track->rte_desc = "V900 GPS tracklog data";
   track_add_head(track);
@@ -288,7 +288,7 @@ v900_read()
       line.bas.cr = 0;	/* null terminate vox field */
     }
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     /* lat is a string in the form: 31.768380N */
     char c = line.bas.common.latitude_NS;	/* N/S */
@@ -328,11 +328,11 @@ v900_read()
       wpt->pdop = atof(line.adv.pdop);
 
       /* handle fix mode (2d, 3d, etc.) */
-      if (!strcmp(line.adv.valid,"DGPS")) {
+      if (!strncmp(line.adv.valid,"DGPS", sizeof line.adv.valid)) {
         wpt->fix = fix_dgps;
-      } else if (!strcmp(line.adv.fixmode,"3D")) {
+      } else if (!strncmp(line.adv.fixmode,"3D", sizeof line.adv.fixmode)) {
         wpt->fix = fix_3d;
-      } else if (!strcmp(line.adv.fixmode,"2D")) {
+      } else if (!strncmp(line.adv.fixmode,"2D", sizeof line.adv.fixmode)) {
         wpt->fix = fix_2d;
       } else
         /* possible values: fix_unknown,fix_none,fix_2d,fix_3d,fix_dgps,fix_pps */
@@ -348,7 +348,7 @@ v900_read()
       // thread on gpsbabel-misc with Jamie Robertson.
       assert(line.bas.common.tag == 'C' || line.bas.common.tag == 'G' ||
              line.bas.common.tag == 'V');
-      Waypoint* wpt2 = new Waypoint(*wpt);
+      auto* wpt2 = new Waypoint(*wpt);
       if (line.bas.common.tag == 'V') {	// waypoint with voice recording?
         char vox_file_name[sizeof(line.adv.vox)+5];
         const char* vox = is_advanced_mode ? line.adv.vox : line.bas.vox;

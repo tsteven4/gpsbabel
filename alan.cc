@@ -24,8 +24,18 @@
 
  */
 
+#include <cctype>                  // for isprint
+#include <cstdio>                  // for snprintf, sprintf, SEEK_SET, size_t
+#include <cstdint>                 // for int16_t, int32_t, uint8_t, uint32_t, uint16_t, int8_t
+#include <cstring>                 // for memset, strlen, strncpy, memcpy, strncmp
+#include <ctime>                   // for gmtime, time, time_t
+
+#include <QtCore/QString>          // for QString
+#include <QtCore/QVector>          // for QVector
+
 #include "defs.h"
-#include <cstdio>
+#include "gbfile.h"                // for gbfwrite, gbfile, gbfread, gbfclose, gbfopen, gbfseek
+#include "src/core/datetime.h"     // for DateTime
 
 #define MYNAME "alan"
 
@@ -178,28 +188,33 @@ static gbfile* fin = nullptr, *fout = nullptr;
 static struct wprdata WPR;
 static struct trldata TRL;
 
-static arglist_t wpr_args[] = {
+static QVector<arglist_t> wpr_args = {
   /*
   {"os3", &osversion, "Operating system version 3",
           NULL, ARGTYPE_BOOL, ARGNOMINMAX },
   */
-  ARG_TERMINATOR
 };
-static arglist_t trl_args[] = {
+static QVector<arglist_t> trl_args = {
   /*
   {"os3", &osversion, "Operating system version 3",
           NULL, ARGTYPE_BOOL, ARGNOMINMAX },
   */
-  ARG_TERMINATOR
 };
 
 /**************************************************************************/
 // FIXME: Why is this code doing its own byte order conversion?
 static unsigned int byte_order()
 {
-  unsigned long test = BYTEORDER_TEST;
+  // avoid cppcheck error: The address of local variable 'test' is accessed at non-zero index.
+  // avoid undefined behavior accessing inactive union member.
+  // avoid  "strict aliasing" warnings.
+  // see https://en.cppreference.com/w/cpp/language/reinterpret_cast#Notes
+  uint32_t test = BYTEORDER_TEST;
+  unsigned char ptr[4];
 
-  unsigned char* ptr = (unsigned char*)(&test);
+  static_assert(sizeof ptr == sizeof test, "byte order test construction failure.");
+  memcpy(&ptr[0], &test, sizeof test);
+
   unsigned int order = (ptr[0] << 12) | (ptr[1] << 8) | (ptr[2] << 4) | ptr[3];
 
   return order;
@@ -207,22 +222,22 @@ static unsigned int byte_order()
 
 static void sw_bytes(void* word)
 {
-  uint8_t* p = (uint8_t*) word;
-  uint16_t* r = (uint16_t*) word;
+  auto* p = (uint8_t*) word;
+  auto* r = (uint16_t*) word;
 
   *r = (uint16_t)(p[1] << 8 | p[0]);
 }
 static void sw_words(void* dword)
 {
-  uint16_t* p = (uint16_t*) dword;
-  uint32_t* r = (uint32_t*) dword;
+  auto* p = (uint16_t*) dword;
+  auto* r = (uint32_t*) dword;
 
   *r = (uint32_t)(p[0] << 16 | p[1]);
 }
 static void rev_bytes(void* dword)
 {
-  uint8_t* p = (uint8_t*) dword;
-  uint32_t* r = (uint32_t*) dword;
+  auto* p = (uint8_t*) dword;
+  auto* r = (uint32_t*) dword;
 
   *r = (uint32_t)(p[3] << 24 | p[2] << 16 | p[1] << 8 | p[0]);
 }
@@ -486,7 +501,7 @@ static Waypoint* get_wpt(struct wprdata* wprdata, unsigned n)
   }
   struct wpt* wpt = &(wprdata->wpt[idx]);
 
-  Waypoint* WP = new Waypoint;
+  auto* WP = new Waypoint;
   WP->latitude  = -pt2deg(wpt->pt.y);
   WP->longitude =  pt2deg(wpt->pt.x);
   WP->SetCreationTime(unpack_time(wpt->date, wpt->time));
@@ -496,9 +511,9 @@ static Waypoint* get_wpt(struct wprdata* wprdata, unsigned n)
   xfree(s);
   for (j=WPT_COMMENT_LEN-1; j >= 0 && wpt->comment[j] == ' '; j--) {}
   if (j >= 0) {
-    char *s = xstrndup(wpt->comment, j+1);
-    WP->description = s;
-    xfree(s);
+    char *descr = xstrndup(wpt->comment, j+1);
+    WP->description = descr;
+    xfree(descr);
   } else {
     WP->description = "";
   }
@@ -539,7 +554,7 @@ static void wpr_read()
     }
     struct rte* rte = &(wprdata.rte[idx]);
 
-    route_head* RT = route_head_alloc();
+    auto* RT = new route_head;
     RT->rte_num = i;
     for (j=RTE_NAME_LEN-1; j >= 0 && rte->name[j] == ' '; j--) {}
     char *s = xstrndup(rte->name,j+1);
@@ -547,9 +562,9 @@ static void wpr_read()
     xfree(s);
     for (j=RTE_COMMENT_LEN-1; j >= 0 && rte->comment[j] == ' '; j--) {}
     if (j >= 0) {
-      char *s = xstrndup(rte->comment,j+1);
-      RT->rte_desc = s;
-      xfree(s);
+      char *desc = xstrndup(rte->comment,j+1);
+      RT->rte_desc = desc;
+      xfree(desc);
     } else {
       RT->rte_desc = "";
     }
@@ -592,7 +607,7 @@ static void trl_read()
     if (trkhdr->occupied == TRK_UNUSED) {
       continue;
     }
-    route_head* TL = route_head_alloc();
+    auto* TL = new route_head;
     for (j=TRK_NAME_LEN-1;
          j >= 0 && (trkhdr->name[j] == ' ' || trkhdr->name[j] == '\0');
          j--) {}
@@ -614,12 +629,12 @@ static void trl_read()
     /* track points */
     struct trklog* trklog = &(trldata.trklog[i]);
     for (j=0; j<trkhdr->totalpt; j++) {
-      Waypoint* WP = new Waypoint;
+      auto* WP = new Waypoint;
       WP->latitude  = -pt2deg(trklog->pt[j].y);
       WP->longitude =  pt2deg(trklog->pt[j].x);
       WP->altitude  =  hgt2m(trklog->sh[j].height);
       if (trklog->sh[j].speed >= 0)
-        WAYPT_SET(WP, speed, sp2mps(trklog->sh[j].speed))
+        WAYPT_SET(WP, speed, sp2mps(trklog->sh[j].speed));
         else {			/* bad speed < 0 - set to 0.0 */
           WAYPT_UNSET(WP, speed);
         }
@@ -796,24 +811,23 @@ static void trl_track_hdr(const route_head* TL)
     fatal(MYNAME ": Can't store more than %u tracklogs", MAXTRK);
   }
 
-  if (TL->rte_name != nullptr) {
-    strncpy(trkhdr[idx].name, CSTRc(TL->rte_name), TRK_NAME_LEN);
+  if (!TL->rte_name.isEmpty()) {
+    strncpy(trkhdr[idx].name, CSTRc(TL->rte_name), TRK_NAME_LEN - 1);
   }
   if (*(trkhdr[idx].name) == '\0') {
     sprintf(trkhdr[idx].name, "T%03d", idx);
   }
   trkhdr[idx].name[TRK_NAME_LEN-1] = '\0';
 
-  if (TL->rte_desc != nullptr) {
-    strncpy(trkhdr[idx].comment, CSTRc(TL->rte_desc), TRK_COMMENT_LEN);
+  if (!TL->rte_desc.isEmpty()) {
+    strncpy(trkhdr[idx].comment, CSTRc(TL->rte_desc), TRK_COMMENT_LEN - 1);
     int l = strlen(CSTRc(TL->rte_desc));
     if (l < TRK_COMMENT_LEN-1) {
-      memset(trkhdr[idx].comment + l, ' ', TRK_COMMENT_LEN - l);
+      memset(trkhdr[idx].comment + l, ' ', TRK_COMMENT_LEN - 1 - l);
     }
   }
   trkhdr[idx].comment[TRK_COMMENT_LEN-1] = '\0';
 
-  trkhdr[idx].comment[TRK_COMMENT_LEN-1] = '\0';
   trkhdr[idx].occupied = TRK_USED;
   trkhdr[idx].totalpt = 0;
   trkhdr[idx].next = 0;
@@ -935,11 +949,6 @@ static void alan_wr_deinit()
   fout = nullptr;
 }
 
-
-static void alan_exit()
-{
-}
-
 /**************************************************************************/
 
 ff_vecs_t alanwpr_vecs = {
@@ -955,8 +964,8 @@ ff_vecs_t alanwpr_vecs = {
   alan_wr_deinit,
   wpr_read,
   wpr_write,
-  alan_exit,
-  wpr_args,
+  nullptr,
+  &wpr_args,
   CET_CHARSET_ASCII, 0, /* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   NULL_POS_OPS,
@@ -976,8 +985,8 @@ ff_vecs_t alantrl_vecs = {
   alan_wr_deinit,
   trl_read,
   trl_write,
-  alan_exit,
-  trl_args,
+  nullptr,
+  &trl_args,
   CET_CHARSET_ASCII, 0, /* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   NULL_POS_OPS,

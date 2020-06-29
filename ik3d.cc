@@ -25,8 +25,7 @@
 #include "xmlgeneric.h"
 #include <QtCore/QXmlStreamAttributes>
 
-static arglist_t ikt_args[] = {
-  ARG_TERMINATOR
+static QVector<arglist_t> ikt_args = {
 };
 
 #define MYNAME "ikt"
@@ -112,7 +111,7 @@ iktobj_type(xg_string args, const QXmlStreamAttributes*)
     waypt = new Waypoint;
     break;
   case 1:
-    track = route_head_alloc();
+    track = new route_head;
     break;
   default:
     fatal(MYNAME ": Unknown object type %s!\n", qPrintable(args));
@@ -157,7 +156,7 @@ ff_vecs_t ik3d_vecs = {
   ikt_read,
   nullptr,
   nullptr,
-  ikt_args,
+  &ikt_args,
   CET_CHARSET_UTF8, 1
   , NULL_POS_OPS,
   nullptr

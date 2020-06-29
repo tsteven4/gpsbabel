@@ -35,8 +35,7 @@ static route_head* trk_head;
 #define MYNAME "hiketech"
 
 static
-arglist_t hiketech_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> hiketech_args = {
 };
 
 /* Waypoints */
@@ -236,14 +235,13 @@ void  	ht_wpt_e(xg_string, const QXmlStreamAttributes*)
 static
 void	ht_trk_s(xg_string, const QXmlStreamAttributes*)
 {
-  trk_head = route_head_alloc();
+  trk_head = new route_head;
   track_add_head(trk_head);
 }
 
 static
 void	ht_trk_e(xg_string, const QXmlStreamAttributes*)
 {
-
 }
 
 static
@@ -304,7 +302,7 @@ void	ht_trk_alt(xg_string args, const QXmlStreamAttributes*)
 
 ff_vecs_t hiketech_vecs = {
   ff_type_file,
-  { (ff_cap)(ff_cap_read | ff_cap_write), (ff_cap)(ff_cap_read | ff_cap_write) },
+  { (ff_cap)(ff_cap_read | ff_cap_write), (ff_cap)(ff_cap_read | ff_cap_write), ff_cap_none },
   hiketech_rd_init,
   hiketech_wr_init,
   hiketech_rd_deinit,
@@ -312,7 +310,7 @@ ff_vecs_t hiketech_vecs = {
   hiketech_read,
   hiketech_write,
   nullptr,
-  hiketech_args,
+  &hiketech_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

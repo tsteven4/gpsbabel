@@ -52,13 +52,12 @@ static char* mapsend_opt_trkver = nullptr;
 #define MAPSEND_TRKVER_MAX 4
 
 static
-arglist_t mapsend_args[] = {
+QVector<arglist_t> mapsend_args = {
   {
     "trkver", &mapsend_opt_trkver,
     "MapSend version TRK file to generate (3,4)",
     "4", ARGTYPE_INT, "3", "4", nullptr
   },
-  ARG_TERMINATOR
 };
 
 static void
@@ -154,7 +153,7 @@ mapsend_wpt_read()
   int rte_count = gbfgetint32(mapsend_file_in);
 
   while (rte_count--) {
-    route_head* rte_head = route_head_alloc();
+    auto* rte_head = new route_head;
     route_add_head(rte_head);
 
     /* route name */
@@ -196,14 +195,14 @@ mapsend_wpt_read()
 static void
 mapsend_track_read()
 {
-  route_head* track_head = route_head_alloc();
+  auto* track_head = new route_head;
   track_head->rte_name = gbfgetpstr(mapsend_file_in);
   track_add_head(track_head);
 
   unsigned int trk_count = gbfgetuint32(mapsend_file_in);
 
   while (trk_count--) {
-    Waypoint* wpt_tmp = new Waypoint;
+    auto* wpt_tmp = new Waypoint;
 
     wpt_tmp->longitude = gbfgetdbl(mapsend_file_in);
     wpt_tmp->latitude = -gbfgetdbl(mapsend_file_in);
@@ -365,12 +364,6 @@ mapsend_route_hdr(const route_head* rte)
 }
 
 static void
-mapsend_noop(const route_head*)
-{
-  /* no-op */
-}
-
-static void
 mapsend_route_disp(const Waypoint* waypointp)
 {
   unsigned char c;
@@ -496,7 +489,7 @@ static void mapsend_track_disp(const Waypoint* wpt)
 static void
 mapsend_track_write()
 {
-  track_disp_all(mapsend_track_hdr, mapsend_noop, mapsend_track_disp);
+  track_disp_all(mapsend_track_hdr, nullptr, mapsend_track_disp);
 }
 
 static void
@@ -521,7 +514,7 @@ mapsend_wpt_write()
       gbfputint32(route_waypt_count(), mapsend_file_out);
 
       /* write points - all routes */
-      route_disp_all(mapsend_noop, mapsend_noop, mapsend_waypt_pr);
+      route_disp_all(nullptr, nullptr, mapsend_waypt_pr);
     }
 
     int n = route_count();
@@ -529,7 +522,7 @@ mapsend_wpt_write()
     gbfputint32(n, mapsend_file_out);
 
     if (n) {
-      route_disp_all(mapsend_route_hdr, mapsend_noop, mapsend_route_disp);
+      route_disp_all(mapsend_route_hdr, nullptr, mapsend_route_disp);
     }
   }
 }
@@ -546,7 +539,7 @@ ff_vecs_t mapsend_vecs = {
   mapsend_read,
   mapsend_wpt_write,
   nullptr,
-  mapsend_args,
+  &mapsend_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

@@ -22,6 +22,8 @@
 #ifndef RADIUS_H_INCLUDED_
 #define RADIUS_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for ARG_NOMINMAX, ARGTYPE_FLOAT, ARGTYPE_REQUIRED
 #include "filter.h"  // for Filter
 
@@ -30,16 +32,16 @@
 class RadiusFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
   void deinit() override;
 
 private:
-  double pos_dist;
+  double pos_dist{};
   char* distopt = nullptr;
   char* latopt = nullptr;
   char* lonopt = nullptr;
@@ -47,15 +49,15 @@ private:
   char* nosort = nullptr;
   char* maxctarg = nullptr;
   char* routename = nullptr;
-  int maxct;
+  int maxct{};
 
-  Waypoint* home_pos;
+  Waypoint* home_pos{};
 
   struct extra_data {
     double distance;
   };
 
-  arglist_t args[8] = {
+  QVector<arglist_t> args = {
     {
       "lat", &latopt,       "Latitude for center point (D.DDDDD)",
       nullptr, ARGTYPE_FLOAT | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr
@@ -84,11 +86,9 @@ private:
       "asroute", &routename,"Put resulting waypoints in route of this name",
       nullptr, ARGTYPE_STRING, nullptr, nullptr, nullptr
     },
-    ARG_TERMINATOR
   };
 
   double gc_distance(double lat1, double lon1, double lat2, double lon2);
-  static int dist_comp(const void* a, const void* b);
 
 };
 #endif // FILTERS_ENABLED

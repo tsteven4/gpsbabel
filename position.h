@@ -22,6 +22,8 @@
 #ifndef POSITION_H_INCLUDED_
 #define POSITION_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for route_head (ptr only), ARG_NOMINMAX, ARGTYPE_FLOAT
 #include "filter.h"  // for Filter
 
@@ -30,9 +32,9 @@
 class PositionFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -40,14 +42,14 @@ public:
 private:
   route_head* cur_rte = nullptr;
 
-  double pos_dist;
-  double max_diff_time;
+  double pos_dist{};
+  double max_diff_time{};
   char* distopt = nullptr;
   char* timeopt = nullptr;
   char* purge_duplicates = nullptr;
-  bool check_time;
+  bool check_time{};
 
-  arglist_t args[4] = {
+  QVector<arglist_t> args = {
     {
       "distance", &distopt, "Maximum positional distance",
       nullptr, ARGTYPE_FLOAT | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr
@@ -61,7 +63,6 @@ private:
       "time", &timeopt, "Maximum time in seconds between two points",
       nullptr, ARGTYPE_FLOAT | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   class WptRecord

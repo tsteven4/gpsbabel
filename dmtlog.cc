@@ -60,12 +60,11 @@ static char* opt_index;
 static int track_index, this_index;
 
 static
-arglist_t dmtlog_args[] = {
+QVector<arglist_t> dmtlog_args = {
   {
     "index", &opt_index,
     "Index of track (if more than one in source)", "1", ARGTYPE_INT, "1", nullptr, nullptr
   },
-  ARG_TERMINATOR
 };
 
 
@@ -173,20 +172,12 @@ tlog3a_xgcb_data(xg_string args, const QXmlStreamAttributes*)
   char* bin;
   char* cin, *cout;
   char cl, ch;
-#if NEW_STRINGS
-// This function needs rethinking.
+  //TODO This function needs rethinking.
   len = args.length();
-#else
-  len = strlen(args);
-#endif
   bin = (char*) xmalloc((len >> 1) + 1);
 
-#if NEW_STRINGS
   char* cincopy  = xstrdup(args);
   cin = cincopy;
-#else
-  cin = (char*)args;
-#endif
   cout = bin;
 
   cl = 0x10;
@@ -215,9 +206,7 @@ tlog3a_xgcb_data(xg_string args, const QXmlStreamAttributes*)
   }
   xmlbin = bin;
   xmlbinsize = (cout - bin);
-#if NEW_STRINGS
   xfree(cincopy);
-#endif
 }
 #endif
 
@@ -226,7 +215,7 @@ static void
 tlog3b_xgcb_tfna(xg_string args, const QXmlStreamAttributes*)
 {
   if (xmltrk == nullptr) {
-    xmltrk = route_head_alloc();
+    xmltrk = new route_head;
     track_add_head(xmltrk);
   }
   xmltrk->rte_name = args;
@@ -237,7 +226,7 @@ static void
 tlog3b_xgcb_tfdes(xg_string args, const QXmlStreamAttributes*)
 {
   if (xmltrk == nullptr) {
-    xmltrk = route_head_alloc();
+    xmltrk = new route_head;
     track_add_head(xmltrk);
   }
   xmltrk->rte_desc = args;
@@ -266,7 +255,7 @@ tlog3b_xgcb_tpten(xg_string, const QXmlStreamAttributes*)
   finalize_pt(xmlwpt);
 
   if (xmltrk == nullptr) {
-    xmltrk = route_head_alloc();
+    xmltrk = new route_head;
     track_add_head(xmltrk);
   }
   track_add_wpt(xmltrk, xmlwpt);
@@ -410,11 +399,9 @@ read_datum(gbfile* f)
 static void
 read_CTrackFile(const int version)
 {
-  char buf[128];
-  int i;
-
   int16_t u1 = gbfgetint16(fin);
 
+  char buf[128];
   gbfread(buf, 1, 10, fin);
   if ((u1 != 0x0a) || (strncmp("CTrackFile", buf, 10) != 0)) {
     fatal(MYNAME ": Unknown or invalid track file.\n");
@@ -433,11 +420,11 @@ read_CTrackFile(const int version)
   (void) gbfgetint32(fin); // Unknown 3
   (void) gbfgetint32(fin); // Unknown 4
 
-  route_head* track = route_head_alloc();
+  auto* track = new route_head;
   track_add_head(track);
 
   /* S1 .. S9: comments, hints, jokes, aso */
-  for (i = 0; i < 9; i++) {
+  for (int i = 0; i < 9; i++) {
     char* s = read_str(fin);
     xfree(s);
   }
@@ -460,7 +447,7 @@ read_CTrackFile(const int version)
       datum = read_datum(fin);
     }
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     wpt->latitude = gbfgetdbl(fin);
     wpt->longitude = gbfgetdbl(fin);
@@ -480,7 +467,7 @@ read_CTrackFile(const int version)
 
   if (version == 8) {
 
-    i = gbfgetint16(fin);
+    int i = gbfgetint16(fin);
     i = gbfgetc(fin);
     if (i == 0) {
       return;
@@ -507,7 +494,7 @@ read_CTrackFile(const int version)
       gbfungetc(i, fin);
       datum = read_datum(fin);
 
-      Waypoint* wpt = new Waypoint;
+      auto* wpt = new Waypoint;
 
       wpt->latitude = gbfgetdbl(fin);
       wpt->longitude = gbfgetdbl(fin);
@@ -534,7 +521,7 @@ read_CTrackFile(const int version)
   while (wcount > 0) {
     wcount--;
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     wpt->latitude = gbfgetdbl(fin);
     wpt->longitude = gbfgetdbl(fin);
@@ -597,7 +584,8 @@ inflate_buff(const char* buff, const size_t size, char** out_buff)
 
     switch (res) {
     case Z_NEED_DICT:
-      res = Z_DATA_ERROR;     /* and fall through */
+      res = Z_DATA_ERROR;
+      /* fallthrough */
     case Z_DATA_ERROR:
     case Z_MEM_ERROR:
       (void)inflateEnd(&strm);
@@ -758,11 +746,6 @@ track_hdr_cb(const route_head* trk)
 }
 
 static void
-track_tlr_cb(const route_head*)
-{
-}
-
-static void
 track_wpt_cb(const Waypoint* wpt)
 {
   if (this_index != track_index) {
@@ -808,7 +791,7 @@ dmtlog_write()
 
   header_written = 0;
   this_index = 0;
-  track_disp_all(track_hdr_cb, track_tlr_cb, track_wpt_cb);
+  track_disp_all(track_hdr_cb, nullptr, track_wpt_cb);
   if (!header_written) {
     write_header(nullptr);
   }
@@ -836,7 +819,7 @@ ff_vecs_t dmtlog_vecs = {
   dmtlog_read,
   dmtlog_write,
   nullptr,
-  dmtlog_args,
+  &dmtlog_args,
   CET_CHARSET_ASCII, 0
   , NULL_POS_OPS,
   nullptr

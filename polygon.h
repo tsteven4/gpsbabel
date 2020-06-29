@@ -22,6 +22,8 @@
 #ifndef POLYGON_H_INCLUDED_
 #define POLYGON_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for ARG_NOMINMAX, arglist_t, ARGTYPE_BOOL, ARGTYPE_FILE
 #include "filter.h"  // for Filter
 
@@ -30,9 +32,9 @@
 class PolygonFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void process() override;
 
@@ -45,7 +47,7 @@ private:
     unsigned short override;
   };
 
-  arglist_t args[3] = {
+  QVector<arglist_t> args = {
     {
       "file", &polyfileopt,  "File containing vertices of polygon",
       nullptr, ARGTYPE_FILE | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr
@@ -54,7 +56,6 @@ private:
       "exclude", &exclopt, "Exclude points inside the polygon",
       nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   void polytest(double lat1, double lon1,

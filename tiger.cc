@@ -63,7 +63,7 @@ static char* clickmap = NULL;
 
 
 static
-arglist_t tiger_args[] = {
+QVector<arglist_t> tiger_args = {
   {
     "nolabels", &nolabels, "Suppress labels on generated pins",
     nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
@@ -121,7 +121,6 @@ arglist_t tiger_args[] = {
     NULL, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
   },
 #endif
-  ARG_TERMINATOR
 };
 
 
@@ -167,7 +166,7 @@ data_read()
     }
     if (sscanf(ibuf, "%lf,%lf:%100[^:]:%100[^\n]",
                &lon, &lat, icon, desc)) {
-      Waypoint* wpt_tmp = new Waypoint;
+      auto* wpt_tmp = new Waypoint;
 
       wpt_tmp->longitude = lon;
       wpt_tmp->latitude = lat;
@@ -323,7 +322,7 @@ ff_vecs_t tiger_vecs = {
   data_read,
   data_write,
   nullptr,
-  tiger_args,
+  &tiger_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

@@ -28,7 +28,7 @@ include_directories(AFTER SYSTEM ${Qt5Core_INCLUDE_DIRS})
 add_definitions(${Qt5Core_DEFINITIONS})
 
 set(MINIMAL_FMTS
-  magproto.cc explorist_ini.cc gpx.cc geo.cc mapsend.cc mapsource.cc garmin.cc
+  magproto.cc explorist_ini.cc gpx.cc geo.cc mapsend.cc garmin.cc
   garmin_device_xml.cc garmin_tables.cc internal_styles.cc nmea.cc
   kml.cc wbt-200.cc
 )
@@ -37,7 +37,7 @@ set(ALL_FMTS
   ${MINIMAL_FMTS} gtm.cc gpsutil.cc pcx.cc
   skytraq.cc holux.cc tmpro.cc tpg.cc tpo.cc
   xcsv.cc tiger.cc easygps.cc
-  saroute.cc navicache.cc psitrex.cc delgpl.cc
+  saroute.cc navicache.cc delgpl.cc
   ozi.cc text.cc html.cc netstumbler.cc
   igc.cc brauniger_iq.cc shape.cc hiketech.cc glogbook.cc
   vcf.cc lowranceusr.cc an1.cc tomtom.cc
@@ -53,10 +53,10 @@ set(ALL_FMTS
   vpl.cc teletype.cc jogmap.cc bushnell.cc bushnell_trl.cc wintec_tes.cc
   subrip.cc garmin_xt.cc garmin_fit.cc
   mtk_locus.cc googledir.cc mapbar_track.cc mapfactor.cc f90g_track.cc
-  energympro.cc mynav.cc ggv_bin.cc globalsat_sport.cc geojson.cc
+  energympro.cc mynav.cc ggv_bin.cc globalsat_sport.cc geojson.cc qstarz_bl_1000.cc
 )
 
-#DEPRECATED_FMTS=cetus.cc copilot.cc gpspilot.cc magnav.cc psp.cc gcdb.cc quovadis.cc gpilots.cc geoniche.cc palmdoc.cc hsa_ndv.cc coastexp.cc pathaway.cc coto.cc msroute.cc mag_pdb.cc axim_gpb.cc delbin.cc google.cc
+#DEPRECATED_FMTS=cetus.cc copilot.cc gpspilot.cc magnav.cc psp.cc gcdb.cc quovadis.cc gpilots.cc geoniche.cc palmdoc.cc hsa_ndv.cc coastexp.cc pathaway.cc coto.cc msroute.cc mag_pdb.cc axim_gpb.cc delbin.cc google.cc psitrex.cc
 
 #DEPRECATED_HEADERS=geo.h quovadis.h
 #DEPRECATED_SHAPE=pdbfile.cc
@@ -104,23 +104,30 @@ set(SUPPORT
 set(HEADERS
   an1sym.h
   cet.h
-  cet/ansi_x3_4_1968.h
-  cet/cp1252.h
-  cet/iso_8859_8.h
   cet_util.h
   csv_util.h
   defs.h
+  dg-100.h
+  energympro.h
   explorist_ini.h
   filter.h
-  filterdefs.h
+  filter_vecs.h
+  format.h
+  formspec.h
   garmin_device_xml.h
+  garmin_fit.h
   garmin_fs.h
   garmin_gpi.h
+  garmin_icon_tables.h
   garmin_tables.h
   gbfile.h
   gbser.h
   gbser_private.h
   gbversion.h
+  geojson.h
+  ggv_bin.h
+  globalsat_sport.h
+  gpx.h
   grtcirc.h
   heightgrid.h
   holux.h
@@ -143,14 +150,27 @@ set(HEADERS
   jeeps/gpsusbcommon.h
   jeeps/gpsusbint.h
   jeeps/gpsutil.h
+  kml.h
+  legacyformat.h
+  lowranceusr.h
   magellan.h
   mapsend.h
+  mynav.h
   navilink.h
+  nmea.h
+  osm.h
+  random.h
   session.h
+  shape.h
   shapelib/shapefil.h
   strptime.h
+  subrip.h
+  unicsv.h
+  units.h
+  vecs.h
   xcsv.h
   xmlgeneric.h
+  yahoo.h
   zlib/crc32.h
   zlib/deflate.h
   zlib/gzguts.h
@@ -165,6 +185,7 @@ set(HEADERS
   src/core/datetime.h
   src/core/file.h
   src/core/logging.h
+  src/core/optional.h
   src/core/textstream.h
   src/core/usasciicodec.h
   src/core/xmlstreamwriter.h
@@ -214,7 +235,6 @@ if(MSVC)
 endif()
 
 if (UNIX AND NOT APPLE)
-  add_definitions(-DHAVE_LINUX_HID)
   set(LIBS ${LIBS} usb-1.0)
 endif()
 
@@ -248,7 +268,6 @@ endif()
 set(SOURCES
   ${SOURCES} ${ALL_FMTS} ${FILTERS} ${SUPPORT} ${SHAPE} ${ZLIB} ${JEEPS}
 )
-add_definitions(-DNEW_STRINGS)
 
 # We don't care about stripping things out of the build.  Full monty, baby.
 add_definitions(-DMAXIMAL_ENABLED)
@@ -256,8 +275,8 @@ add_definitions(-DFILTERS_ENABLED)
 add_definitions(-DSHAPELIB_ENABLED)
 add_definitions(-DCSVFMTS_ENABLED)
 
-add_executable(GPSBabel ${SOURCES} ${HEADERS})
-target_link_libraries(GPSBabel ${Qt5Core_LIBRARIES} ${LIBS})
+add_executable(gpsbabel ${SOURCES} ${HEADERS})
+target_link_libraries(gpsbabel ${Qt5Core_LIBRARIES} ${LIBS})
 
 message("Sources are:")
 message("${SOURCES}")
@@ -271,5 +290,5 @@ message("${LIBS}")
 
 if(UNIX)
   # the tests only work if the pwd is top level source dir due to the file name getting embedded in the file nonexistent.err.
-  add_custom_target(check cd ${CMAKE_SOURCE_DIR}\; PNAME=${CMAKE_BINARY_DIR}/GPSBabel ./testo DEPENDS GPSBabel)
+  add_custom_target(check cd ${CMAKE_SOURCE_DIR}\; PNAME=${CMAKE_BINARY_DIR}/gpsbabel ./testo DEPENDS gpsbabel)
 endif()

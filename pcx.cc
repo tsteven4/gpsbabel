@@ -43,12 +43,12 @@ static int lon_col;
 
 #define MYNAME "PCX"
 
-static arglist_t pcx_args[] = {{"deficon", &deficon, "Default icon name",
+static QVector<arglist_t> pcx_args = {{"deficon", &deficon, "Default icon name",
                                 "Waypoint", ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
                                {"cartoexploreur", &cartoexploreur,
                                 "Write tracks compatible with Carto Exploreur",
                                 nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr},
-                               ARG_TERMINATOR};
+                               };
 
 static void rd_init(const QString& fname) {
   file_in = gbfopen(fname, "rb", MYNAME);
@@ -117,7 +117,7 @@ static void data_read() {
       case 'W': {
         QStringList tokens =
             line.split(QRegExp("\\s+"), QString::KeepEmptyParts);
-        if (tokens.size() < 5) {
+        if (tokens.size() < 6) {
           fatal(MYNAME
                 ": Unable to parse waypoint, not all required columns "
                 "contained\n");
@@ -199,25 +199,25 @@ static void data_read() {
         }
         if (track == nullptr) {
           if (ibuf[3] == 'L' && ibuf[4] == 'A') {
-            track = route_head_alloc();
+            track = new route_head;
             track->rte_name = "track";
             track_add_head(track);
           } else if (ibuf[3] == 'T' && ibuf[4] == 'N') {
-            track = route_head_alloc();
+            track = new route_head;
             track->rte_name = &ibuf[6];
             track_add_head(track);
           }
         }
         break;
       case 'R':
-        route = route_head_alloc();
+        route = new route_head;
         route->rte_name = QString(&ibuf[1]).trimmed();
         route_add_head(route);
         break;
       case 'T': {
         QStringList tokens =
             line.split(QRegExp("\\s+"), QString::KeepEmptyParts);
-        if (tokens.size() < 5) {
+        if (tokens.size() < 6) {
           fatal(MYNAME
                 ": Unable to parse trackpoint, not all required columns "
                 "contained\n");
@@ -256,7 +256,7 @@ static void data_read() {
 
         /* Did we get a track point before a track header? */
         if (track == nullptr) {
-          track = route_head_alloc();
+          track = new route_head;
           track->rte_name = "Default";
           track_add_head(track);
         }
@@ -321,7 +321,7 @@ static void gpsutil_disp(const Waypoint* wpt) {
 static void pcx_track_hdr(const route_head* trk) {
   route_ctr++;
 
-  QString default_name = QString().sprintf("Trk%03d", route_ctr);
+  QString default_name = QString::asprintf("Trk%03d", route_ctr);
   QString name =
       mkshort(mkshort_handle2,
               trk->rte_name.isEmpty() ? CSTR(default_name) : trk->rte_name);
@@ -337,7 +337,7 @@ static void pcx_track_hdr(const route_head* trk) {
 
 static void pcx_route_hdr(const route_head* rte) {
   route_ctr++;
-  QString default_name = QString().sprintf("Rte%03d", route_ctr);
+  QString default_name = QString::asprintf("Rte%03d", route_ctr);
 
   QString name = mkshort(
       mkshort_handle2, rte->rte_name.isEmpty() ? default_name : rte->rte_name);
@@ -403,7 +403,7 @@ static void data_write() {
 
 ff_vecs_t pcx_vecs = {
     ff_type_file,      FF_CAP_RW_ALL, rd_init,    wr_init, rd_deinit,
-    wr_deinit,         data_read,     data_write, nullptr,    pcx_args,
+    wr_deinit,         data_read,     data_write, nullptr,    &pcx_args,
     CET_CHARSET_ASCII, 1 /* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

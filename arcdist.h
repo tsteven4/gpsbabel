@@ -22,6 +22,8 @@
 #ifndef ARCDIST_H_INCLUDED_
 #define ARCDIST_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for ARG_NOMINMAX, ARGTYPE_BOOL, Waypoint (ptr only)
 #include "filter.h"  // for Filter
 
@@ -30,15 +32,15 @@
 class ArcDistanceFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
 
 private:
-  double pos_dist;
+  double pos_dist{};
   char* distopt = nullptr;
   char* arcfileopt = nullptr;
   char* rteopt = nullptr;
@@ -49,12 +51,14 @@ private:
 
   struct extra_data {
     double distance;
-    double prjlatitude, prjlongitude;
+    double prjlatitude;
+    double prjlongitude;
     double frac;
-    Waypoint* arcpt1, * arcpt2;
+    const Waypoint* arcpt1;
+    const Waypoint* arcpt2;
   };
 
-  arglist_t args[8] = {
+  QVector<arglist_t> args = {
     {
       "file", &arcfileopt,  "File containing vertices of arc",
       nullptr, ARGTYPE_FILE, ARG_NOMINMAX, nullptr
@@ -83,7 +87,6 @@ private:
       "project", &projectopt, "Move waypoints to its projection on lines or vertices",
       nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   void arcdist_arc_disp_wpt_cb(const Waypoint* arcpt2);

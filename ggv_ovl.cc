@@ -21,9 +21,9 @@
  */
 
 #include <cmath>            // for sin, cos, acos
-#include <cstdio>           // for snprintf
 
 #include <QtCore/QString>   // for QString
+#include <QtCore/QVector>   // for QVector
 #include <QtCore/QtGlobal>  // for foreach
 
 #include "defs.h"
@@ -35,8 +35,7 @@
 #define MYNAME "ggv_ovl"
 
 static
-arglist_t ggv_ovl_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> ggv_ovl_args = {
 };
 
 enum OVL_SYMBOL_TYP {
@@ -102,10 +101,9 @@ ggv_ovl_read()
 {
   int symbols = inifile_readint_def(inifile, "Overlay", "Symbols", -1);
 
-  for (int i = 1; i <= symbols; i++) {
-    char symbol[32];
+  for (int i = 1; i <= symbols; ++i) {
 
-    snprintf(symbol, sizeof(symbol), "Symbol %d", i);
+    QString symbol = QString("Symbol %1").arg(i);
 
     OVL_SYMBOL_TYP type = (OVL_SYMBOL_TYP) inifile_readint_def(inifile, symbol, "Typ", 0);
     int points = inifile_readint_def(inifile, symbol, "Punkte", -1);
@@ -114,7 +112,6 @@ ggv_ovl_read()
     QString lon;
     switch (type) {
 
-      char coord[32];
       Waypoint* wpt;
       int group;
 
@@ -128,7 +125,7 @@ ggv_ovl_read()
       if (points > 0) {
         route_head* trk;
 
-        route_head* rte = trk = route_head_alloc();
+        auto* rte = trk = new route_head;
         if (group > 1) {
           route_add_head(rte);
           route_ct++;
@@ -139,25 +136,23 @@ ggv_ovl_read()
           trk->rte_name = QString("Track %1").arg(track_ct);
         }
 
-        for (int j = 0; j < points; j++) {
+        for (int j = 0; j < points; ++j) {
 
           wpt = new Waypoint;
 
-          snprintf(coord, sizeof(coord), "YKoord%d", j);
-          lat = inifile_readstr(inifile, symbol, coord);
-          if (!lat.isNull()) {
-            wpt->latitude = lat.toDouble();
-          } else {
+          lat = inifile_readstr(inifile, symbol, QString("YKoord%1").arg(j));
+          if (lat.isNull()) {
+            delete wpt;
             continue;
           }
+          wpt->latitude = lat.toDouble();
 
-          snprintf(coord, sizeof(coord), "XKoord%d", j);
-          lon = inifile_readstr(inifile, symbol, coord);
-          if (!lon.isNull()) {
-            wpt->longitude = lon.toDouble();
-          } else {
+          lon = inifile_readstr(inifile, symbol, QString("XKoord%1").arg(j));
+          if (lon.isNull()) {
+            delete wpt;
             continue;
           }
+          wpt->longitude = lon.toDouble();
 
           if (group > 1) {
             route_add_wpt(rte, wpt);
@@ -175,17 +170,17 @@ ggv_ovl_read()
       wpt->shortname = symbol;
 
       lat = inifile_readstr(inifile, symbol, "YKoord");
-      if (!lat.isNull()) {
-        wpt->latitude = lat.toDouble();
-      } else {
+      if (lat.isNull()) {
+        delete wpt;
         continue;
       }
+      wpt->latitude = lat.toDouble();
       lon = inifile_readstr(inifile, symbol, "XKoord");
-      if (!lon.isNull()) {
-        wpt->longitude = lon.toDouble();
-      } else {
+      if (lon.isNull()) {
+        delete wpt;
         continue;
       }
+      wpt->longitude = lon.toDouble();
 
       waypt_add(wpt);
       break;
@@ -361,14 +356,15 @@ write_bounds()
 }
 
 static void
-draw_symbol_basics(const OVL_SYMBOL_TYP typ, const int art, const OVL_COLOR_TYP color, const Waypoint* wpt)
+draw_symbol_basics(const OVL_SYMBOL_TYP typ, const int art, 
+                   const OVL_COLOR_TYP point_color, const Waypoint* wpt)
 {
   symbol_ct++;
 
   gbfprintf(fout, "[Symbol %d]\n", symbol_ct);
   gbfprintf(fout, "Typ=%d\n", typ);
   gbfprintf(fout, "Group=%d\n", group_ct);
-  gbfprintf(fout, "Col=%d\n", color);
+  gbfprintf(fout, "Col=%d\n", point_color);
   if (art >= 0) {
     gbfprintf(fout, "Art=%d\n", art);
   }
@@ -445,7 +441,7 @@ ff_vecs_t ggv_ovl_vecs = {
   ggv_ovl_read,
   ggv_ovl_write,
   nullptr,
-  ggv_ovl_args,
+  &ggv_ovl_args,
   CET_CHARSET_MS_ANSI, 0
   , NULL_POS_OPS,
   nullptr

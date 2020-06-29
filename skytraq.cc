@@ -73,7 +73,7 @@ static char* opt_gps_utc_offset = nullptr;
 static char* opt_gps_week_rollover = nullptr;
 
 static
-arglist_t skytraq_args[] = {
+QVector<arglist_t> skytraq_args = {
   {
     "erase", &opt_erase, "Erase device data after download",
     "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
@@ -122,11 +122,10 @@ arglist_t skytraq_args[] = {
     "gps-week-rollover", &opt_gps_week_rollover, "GPS week rollover period we're in (-1: best guess)",
     "-1", ARGTYPE_INT, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR,
 };
 
 static
-arglist_t skytraq_fargs[] = {
+QVector<arglist_t> skytraq_fargs = {
   {
     "first-sector", &opt_first_sector, "First sector to be read from the file",
     "0", ARGTYPE_INT, "0", "65535", nullptr
@@ -143,7 +142,6 @@ arglist_t skytraq_fargs[] = {
     "gps-week-rollover", &opt_gps_week_rollover, "GPS week rollover period we're in (-1: best guess)",
     "-1", ARGTYPE_INT, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 static void
@@ -677,7 +675,7 @@ struct read_state {
 static void
 state_init(struct read_state* pst)
 {
-  route_head* track = route_head_alloc();
+  auto* track = new route_head;
   track->rte_name = "SkyTraq tracklog";
   track->rte_desc = "SkyTraq GPS tracklog data";
   track_add_head(track);
@@ -696,9 +694,9 @@ state_init(struct read_state* pst)
 static Waypoint*
 make_trackpoint(struct read_state* st, double lat, double lon, double alt)
 {
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
-  wpt->shortname = QString().sprintf("TP%04d", ++st->tpn);
+  wpt->shortname = QString::asprintf("TP%04d", ++st->tpn);
 
   wpt->latitude       = lat;
   wpt->longitude      = lon;
@@ -787,7 +785,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
 
   case 0xc:	/* POI item (same structure as full) */
     poi = 1;
-    /* fall through: */
+    /* fallthrough */
 
   case 0x2:	/* Multi HZ item */
     if (len < MULTI_HZ_ITEM_LEN) {
@@ -824,7 +822,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
 
   case 0x6:	/* POI item (same structure as full) */
     poi = 1;
-    /* fall through: */
+    /* fallthrough */
 
   case 0x4:	/* full item */
     if (len < FULL_ITEM_LEN) {
@@ -901,7 +899,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
 
     if (nullptr == pst->route_head_) {
       db(1, MYNAME ": New Track\n");
-      pst->route_head_ = route_head_alloc();
+      pst->route_head_ = new route_head;
       track_add_head(pst->route_head_);
     }
 
@@ -1117,7 +1115,7 @@ skytraq_read_tracks()
     }
   }
 
-  uint8_t* buffer = (uint8_t*) xmalloc(SECTOR_SIZE*read_at_once+sizeof(SECTOR_READ_END)+6);
+  auto* buffer = (uint8_t*) xmalloc(SECTOR_SIZE*read_at_once+sizeof(SECTOR_READ_END)+6);
   // m.ad/090930: removed code that tried reducing read_at_once if necessary since doesn't work with xmalloc
 
   if (opt_dump_file) {
@@ -1393,7 +1391,7 @@ file_read()
   int opt_last_sector_val = atoi(opt_last_sector);
 
   state_init(&st);
-  uint8_t* buffer = (uint8_t*) xmalloc(SECTOR_SIZE);
+  auto* buffer = (uint8_t*) xmalloc(SECTOR_SIZE);
 
   if (opt_first_sector_val > 0) {
     db(4, MYNAME ": Seeking to first-sector index %i\n", opt_first_sector_val*SECTOR_SIZE);
@@ -1437,7 +1435,7 @@ ff_vecs_t skytraq_vecs = {
   skytraq_read,
   nullptr,
   nullptr,
-  skytraq_args,
+  &skytraq_args,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything */
  , NULL_POS_OPS,
  nullptr
@@ -1457,7 +1455,7 @@ ff_vecs_t skytraq_fvecs = {
   file_read,
   nullptr,
   nullptr,
-  skytraq_fargs,
+  &skytraq_fargs,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything */
  , NULL_POS_OPS,
  nullptr
@@ -1477,7 +1475,7 @@ static char* opt_set_poi_car = nullptr;	/* set if a "poi" option was used */
 static char* opt_set_poi_boat = nullptr;	/* set if a "poi" option was used */
 static char* opt_set_poi_heart = nullptr;	/* set if a "poi" option was used */
 static char* opt_set_poi_bar = nullptr;	/* set if a "poi" option was used */
-static arglist_t miniHomer_args[] = {
+static QVector<arglist_t> miniHomer_args = {
   { "baud",         &opt_dlbaud,        "Baud rate used for download", "115200", ARGTYPE_INT, "0", "115200", nullptr },
   { "dump-file",    &opt_dump_file,     "Dump raw data to this file", nullptr, ARGTYPE_OUTFILE, ARG_NOMINMAX, nullptr },
   { "erase",        &opt_erase,         "Erase device data after download", "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr },
@@ -1499,7 +1497,6 @@ static arglist_t miniHomer_args[] = {
     "gps-week-rollover", &opt_gps_week_rollover, "GPS week rollover period we're in (-1: best guess)",
     "-1", ARGTYPE_INT, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 /*
  * Names of the POIs on miniHomer
@@ -1564,9 +1561,9 @@ static void miniHomer_get_poi()
     } else {
       ECEF_to_LLA(ecef_x, ecef_y, ecef_z, &lat, &lng, &alt);
 
-      Waypoint* wpt = new Waypoint;
-      wpt->shortname      = QString().sprintf("POI_%s", poinames[poi]);
-      wpt->description    = QString().sprintf("miniHomer points to this coordinates if the %s symbol is on", poinames[poi]);
+      auto* wpt = new Waypoint;
+      wpt->shortname      = QString::asprintf("POI_%s", poinames[poi]);
+      wpt->description    = QString::asprintf("miniHomer points to this coordinates if the %s symbol is on", poinames[poi]);
       wpt->latitude       = lat;
       wpt->longitude      = lng;
       wpt->altitude       = alt;
@@ -1690,7 +1687,7 @@ ff_vecs_t miniHomer_vecs = {
   miniHomer_read,
   nullptr,
   nullptr,
-  miniHomer_args,
+  &miniHomer_args,
   CET_CHARSET_UTF8, 1,         /* master process: don't convert anything */
   NULL_POS_OPS,
   nullptr

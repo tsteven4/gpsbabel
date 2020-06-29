@@ -68,7 +68,7 @@ static char* radius_opt;
 static char* prefer_shortnames_opt;
 
 static
-arglist_t bcr_args[] = {
+QVector<arglist_t> bcr_args = {
   {
     "index", &rtenum_opt, "Index of route to write (if more than one in source)",
     nullptr, ARGTYPE_INT, "1", nullptr, nullptr
@@ -85,7 +85,6 @@ arglist_t bcr_args[] = {
     "prefer_shortnames", &prefer_shortnames_opt, "Use shortname instead of description",
     nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 struct bcr_icon_mapping_t {
@@ -245,19 +244,15 @@ bcr_mercator_to_wgs84(const int north, const int east, double* lat, double* lon)
 static void
 bcr_data_read()
 {
-  QString str;
-
-  route_head* route = route_head_alloc();
-
-  str = inifile_readstr(ini, "client", "routename");
-  if (!str.isNull()) {
-    route->rte_name = str;
-  }
-
+  auto* route = new route_head;
   route_add_head(route);
 
-  for (int index = 1; index > 0; index ++) {
+  QString routename = inifile_readstr(ini, "client", "routename");
+  if (!routename.isNull()) {
+    route->rte_name = routename;
+  }
 
+  for (int index = 1; index > 0; index ++) {
     char station[32];
     QString str;
     int mlat, mlon;		/* mercator data */
@@ -272,7 +267,7 @@ bcr_data_read()
       fatal(MYNAME ": structure error at %s (Coordinates)!\n", station);
     }
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     wpt->shortname = station;
     bcr_mercator_to_wgs84(mlat, mlon, &wpt->latitude, &wpt->longitude);
@@ -324,27 +319,17 @@ bcr_wr_deinit()
   gbfclose(fout);
 }
 
-static void
-bcr_route_trailer(const route_head*)
+static void bcr_write_line(gbfile* fileout, const QString& key,
+    const int* index, const QString& value)
 {
-}
-
-static void
-bcr_write_wpt(const Waypoint*)
-{
-}
-
-static void bcr_write_line(gbfile* fout, const QString& key, const int* index, const QString& value)
-{
-  if (value.isEmpty()) {			/* this is mostly used in the world of windows */
-    /* so we respectfully add a CR/LF on each line */
-    gbfprintf(fout, "%s\r\n", CSTR(key));
+  if (value.isEmpty()) { // Windows. Add CR/LF on output.
+    gbfprintf(fileout, "%s\r\n", CSTR(key));
   } else {
     char* tmp = (value != nullptr) ? xstrdup(value) : xstrdup("");
     if (index != nullptr) {
-      gbfprintf(fout, "%s%d=%s\r\n", CSTR(key), *index, tmp);
+      gbfprintf(fileout, "%s%d=%s\r\n", CSTR(key), *index, tmp);
     } else {
-      gbfprintf(fout, "%s=%s\r\n", CSTR(key), tmp);
+      gbfprintf(fileout, "%s=%s\r\n", CSTR(key), tmp);
     }
     xfree(tmp);
   }
@@ -474,7 +459,7 @@ bcr_data_write()
             target_rte_num, route_count());
   }
   curr_rte_num = 0;
-  route_disp_all(bcr_route_header, bcr_route_trailer, bcr_write_wpt);
+  route_disp_all(bcr_route_header, nullptr, nullptr);
 }
 
 ff_vecs_t bcr_vecs = {
@@ -487,7 +472,7 @@ ff_vecs_t bcr_vecs = {
   bcr_data_read,
   bcr_data_write,
   nullptr,
-  bcr_args,
+  &bcr_args,
   CET_CHARSET_MS_ANSI, 0,	/* CET-REVIEW */
   NULL_POS_OPS,
   nullptr

@@ -30,7 +30,7 @@ static char* 	ahoicon =nullptr;
 static char* 	snmac	=nullptr;
 
 static
-arglist_t wfff_xml_args[] = {
+QVector<arglist_t> wfff_xml_args = {
   {
     "aicicon", &aicicon, "Infrastructure closed icon name",
     "Red Square", ARGTYPE_STRING, ARG_NOMINMAX, nullptr
@@ -48,7 +48,6 @@ arglist_t wfff_xml_args[] = {
     "Green Diamond", ARGTYPE_STRING, ARG_NOMINMAX, nullptr
   },
   {"snmac", &snmac, "Shortname is MAC address", nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr },
-  ARG_TERMINATOR
 };
 
 #define xfreez(p) { if (p) xfree(p); p=0; }
@@ -153,7 +152,7 @@ void wfff_e(xg_string, const QXmlStreamAttributes*)
   char		desc[255]	="\0";
 
   if ((ap_hdop>=1)&&(ap_hdop<50)) { // Discard invalid GPS fix
-    Waypoint*	wpt_tmp = new Waypoint;
+    auto*	wpt_tmp = new Waypoint;
 
     if (snmac) {
       wpt_tmp->shortname = ap_mac;
@@ -234,7 +233,7 @@ ff_vecs_t wfff_xml_vecs = {
   wfff_xml_read,
   nullptr,
   nullptr,
-  wfff_xml_args,
+  &wfff_xml_args,
   CET_CHARSET_UTF8, 0,
   NULL_POS_OPS,
   nullptr

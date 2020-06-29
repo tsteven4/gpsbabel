@@ -42,8 +42,7 @@ static route_head* track = nullptr;
 
 
 static
-arglist_t f90g_track_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> f90g_track_args = {
 };
 
 /*******************************************************************************
@@ -68,7 +67,7 @@ f90g_track_rd_init(const QString& fname)
       fatal(MYNAME ": bad header");
     }
     // start the track list
-    track = route_head_alloc();
+    track = new route_head;
     is_fatal((track == nullptr), MYNAME ": memory non-enough");
     track->rte_name = fname;
     track_add_head(track);
@@ -119,7 +118,7 @@ f90g_track_read()
         && velocityMark == 'M') {
 
       // create the Waypoint and fill it in
-      Waypoint* readWaypoint = new Waypoint;
+      auto* readWaypoint = new Waypoint;
       QDateTime dt = QDateTime(QDate(year, mon, mday), QTime(hour, min, sec), Qt::UTC);
 
       readWaypoint->SetCreationTime(dt);
@@ -151,7 +150,7 @@ ff_vecs_t f90g_track_vecs = {
   f90g_track_read,
   nullptr,
   nullptr,
-  f90g_track_args,
+  &f90g_track_args,
   CET_CHARSET_UTF8, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

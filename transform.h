@@ -24,6 +24,8 @@
 #define TRANSFORM_H_INCLUDED_
 
 #include <QtCore/QString>  // for QString
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"          // for route_head (ptr only), ARG_NOMINMAX, ARGTY...
 #include "filter.h"        // for Filter
 
@@ -32,25 +34,25 @@
 class TransformFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void process() override;
 
 private:
-  char current_target;
-  route_head* current_trk;
-  route_head* current_rte;
+  char current_target{};
+  route_head* current_trk{};
+  route_head* current_rte{};
 
-  char* opt_routes, *opt_tracks, *opt_waypts, *opt_delete, *rpt_name_digits, *opt_rpt_name;
+  char* opt_routes{}, *opt_tracks{}, *opt_waypts{}, *opt_delete{}, *rpt_name_digits{}, *opt_rpt_name{};
   QString current_namepart;
 
-  int name_digits, use_src_name;
+  int name_digits{}, use_src_name{};
 
   const QString RPT = "RPT";
 
-  arglist_t args[7] = {
+  QVector<arglist_t> args = {
     {
       "wpt", &opt_waypts, "Transform track(s) or route(s) into waypoint(s) [R/T]", nullptr,
       ARGTYPE_STRING, ARG_NOMINMAX, nullptr
@@ -75,7 +77,6 @@ private:
       "del", &opt_delete, "Delete source data after transformation", "N",
       ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   void transform_waypoints();

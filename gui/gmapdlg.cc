@@ -95,7 +95,8 @@ void GMapDialog::appendWaypointInfo(QStandardItem* it, const GpxWaypoint& wpt)
 //------------------------------------------------------------------------
 void GMapDialog::appendTrackInfo(QStandardItem* it, const GpxTrack& trk)
 {
-  QDateTime startTime, stopTime;
+  QDateTime startTime;
+  QDateTime stopTime;
   bool first = true;
   int count = 0;
   foreach (const GpxTrackSegment& seg, trk.getTrackSegments()) {
@@ -145,7 +146,7 @@ GMapDialog::GMapDialog(QWidget* parent, const QString& gpxFileName, QPlainTextEd
   gpx_.read(gpxFileName);
 
   mapWidget_ = new Map(this, gpx_, te);
-  QHBoxLayout* lay = new QHBoxLayout(ui_.frame);
+  auto* lay = new QHBoxLayout(ui_.frame);
   lay->setContentsMargins(0, 0, 0, 0);
   lay->addWidget(mapWidget_);
 
@@ -162,7 +163,7 @@ GMapDialog::GMapDialog(QWidget* parent, const QString& gpxFileName, QPlainTextEd
     wptItem_->appendRow(it);
     it->setCheckable(true);
     it->setCheckState(Qt::Checked);
-    it->setData(qVariantFromValue((void*)&wpt));
+    it->setData(QVariant::fromValue((void*)&wpt));
     appendWaypointInfo(it, wpt);
     wptList_ << it;
   }
@@ -177,7 +178,7 @@ GMapDialog::GMapDialog(QWidget* parent, const QString& gpxFileName, QPlainTextEd
     trkItem_->appendRow(it);
     it->setCheckable(true);
     it->setCheckState(Qt::Checked);
-    it->setData(qVariantFromValue((void*)&trk));
+    it->setData(QVariant::fromValue((void*)&trk));
     appendTrackInfo(it, trk);
     trkList_ << it;
   }
@@ -192,7 +193,7 @@ GMapDialog::GMapDialog(QWidget* parent, const QString& gpxFileName, QPlainTextEd
     rteItem_->appendRow(it);
     it->setCheckable(true);
     it->setCheckState(Qt::Checked);
-    it->setData(qVariantFromValue((void*)&rte));
+    it->setData(QVariant::fromValue((void*)&rte));
     appendRouteInfo(it, rte);
     rteList_ << it;
   }
@@ -496,10 +497,10 @@ void GMapDialog::hideAllRoutes()
 //------------------------------------------------------------------------
 void GMapDialog::showOnlyThisWaypoint()
 {
-  QList <GpxWaypoint>& tlist = gpx_.getWaypoints();
-  for (int i=0; i<tlist.size(); i++) {
-    tlist[i].setVisible(i == menuIndex_);
-    trkList_[i]->setCheckState(i==menuIndex_? Qt::Checked: Qt::Unchecked);
+  QList <GpxWaypoint>& wlist = gpx_.getWaypoints();
+  for (int i=0; i<wlist.size(); i++) {
+    wlist[i].setVisible(i == menuIndex_);
+    wptList_[i]->setCheckState(i==menuIndex_? Qt::Checked: Qt::Unchecked);
   }
   wptItem_->setCheckState(Qt::Checked);
   mapWidget_->showWaypoints(gpx_.getWaypoints());

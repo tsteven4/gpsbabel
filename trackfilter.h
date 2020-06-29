@@ -24,6 +24,7 @@
 
 #include <QtCore/QDateTime>  // for QDateTime
 #include <QtCore/QList>      // for QList
+#include <QtCore/QVector>    // for QVector
 #include <QtCore/QtGlobal>   // for qint64
 
 #include "defs.h"            // for ARG_NOMINMAX, route_head (ptr only), ARG...
@@ -53,9 +54,9 @@
 class TrackFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -82,7 +83,7 @@ private:
   char* opt_minpoints = nullptr;
   int minimum_points{0};
 
-  arglist_t args[19] = {
+  QVector<arglist_t> args = {
     {
       TRACKFILTER_MOVE_OPTION, &opt_move,
       "Correct trackpoint timestamps by a delta", nullptr, ARGTYPE_STRING,
@@ -169,13 +170,12 @@ private:
       "Discard tracks with fewer than these points",
       nullptr, ARGTYPE_INT, "0", "50", nullptr
     },
-    ARG_TERMINATOR
   };
 
   QList<route_head*> track_list;
   int opt_interval = 0;
   int opt_distance = 0;
-  bool need_time;		/* initialized within trackfilter_init */
+  bool need_time{};		/* initialized within trackfilter_init */
 
   int trackfilter_opt_count();
   qint64 trackfilter_parse_time_opt(const char* arg);

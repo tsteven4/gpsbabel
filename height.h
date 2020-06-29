@@ -24,17 +24,21 @@
 #ifndef HEIGHT_H_INCLUDED_
 #define HEIGHT_H_INCLUDED_
 
-#include "defs.h"    // for ARG_NOMINMAX, Waypoint (ptr only), arglist_t
-#include "filter.h"  // for Filter
+#include <cstdint>         // for int8_t in heightgrid.h
+
+#include <QtCore/QVector>  // for QVector
+
+#include "defs.h"          // for arglist_t, ARG_NOMINMAX, ARGTYPE_BEGIN_REQ, ARGTYPE_BOOL, ARGTYPE_END_REQ, ARGTYPE_FLOAT, Waypoint
+#include "filter.h"        // for Filter
 
 #if FILTERS_ENABLED
 
 class HeightFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -42,9 +46,11 @@ public:
 private:
   char* addopt        = nullptr;
   char* wgs84tomslopt = nullptr;
-  double addf;
+  double addf{};
+  // include static constexpr data member definitions with intializers for grid as private members.
+  #include "heightgrid.h"
 
-  arglist_t args[3] = {
+  QVector<arglist_t> args = {
     {
       "add", &addopt, "Adds a constant value to every altitude (meter, append \"f\" (x.xxf) for feet)",
       nullptr, ARGTYPE_BEGIN_REQ | ARGTYPE_FLOAT, ARG_NOMINMAX, nullptr
@@ -53,7 +59,6 @@ private:
       "wgs84tomsl", &wgs84tomslopt, "Converts WGS84 ellipsoidal height to orthometric height (MSL)",
       nullptr, ARGTYPE_END_REQ | ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   double bilinear(double x1, double y1, double x2, double y2, double x, double y, double z11, double z12, double z21, double z22);

@@ -36,8 +36,7 @@ static route_head* trk_head;
 #define MYNAME "glogbook"
 
 static
-arglist_t glogbook_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> glogbook_args = {
 };
 
 /* Tracks */
@@ -141,7 +140,7 @@ glogbook_write()
 
 void	gl_trk_s(xg_string, const QXmlStreamAttributes*)
 {
-  trk_head = route_head_alloc();
+  trk_head = new route_head;
   track_add_head(trk_head);
 }
 
@@ -187,7 +186,7 @@ ff_vecs_t glogbook_vecs = {
   glogbook_read,
   glogbook_write,
   nullptr,
-  glogbook_args,
+  &glogbook_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

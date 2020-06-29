@@ -73,12 +73,11 @@ static char* optclean= nullptr;
 static double minspeed,maxspeed;
 static struct tm opt_tm;	/* converted "date" parameter */
 static
-arglist_t gopal_args[] = {
+QVector<arglist_t> gopal_args = {
   {"date", &optdate, "Complete date-free tracks with given date (YYYYMMDD).", nullptr, ARGTYPE_INT, ARG_NOMINMAX, nullptr },
   {"maxspeed", &optmaxspeed, "The maximum speed (km/h) traveling from waypoint to waypoint.", "200", ARGTYPE_INT, "1", "1000", nullptr },
   {"minspeed", &optminspeed, "The minimum speed (km/h) traveling from waypoint to waypoint. Set >0 to remove duplicate waypoints", "0", ARGTYPE_INT, "0", "999", nullptr },
   {"clean", &optclean, "Cleanup common errors in trackdata", "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr },
-  ARG_TERMINATOR
 };
 
 #define CHECK_BOOL(a) if (a && (*a == '0')) a = NULL
@@ -177,10 +176,8 @@ gopal_read()
   double lat_old = 0;
   
 
-  route_head* route = route_head_alloc();
-  QDateTime qtx;
-  qtx.setTimeSpec(Qt::UTC);
-  qtx.setTime_t(tx);
+  auto* route = new route_head;
+  QDateTime qtx = QDateTime::fromSecsSinceEpoch(tx, Qt::UTC);
   route->rte_name = "Tracklog ";
   route->rte_name += qtx.toString(Qt::ISODate);
   route_add_head(route);
@@ -203,7 +200,7 @@ gopal_read()
     if ((nfields == 8) && (tx == 0)) {
       // fatal(MYNAME ": Invalid date in filename \"%s\", try to set manually using \"date\" switch!\n", buff);
     }
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     int column = -1;
     // the format of gopal is quite simple. Unfortunately the developers forgot the date as the first element...
@@ -291,7 +288,7 @@ gopal_read()
         if (!strptime(c, "%Y%m%d", &tm2)) {
           fatal("Bad date '%s'.\n", c);
         }
-        wpt->creation_time += mkgmtime(&tm2);
+        wpt->creation_time = wpt->creation_time.addSecs(mkgmtime(&tm2));
         break;
       case 10:  // Unknown.  Ignored.
       case 11:  // Bearing.  Ignored.
@@ -319,11 +316,11 @@ gopal_read()
           ((speed>maxspeed)||(speed<minspeed)))
        ) {
       if (global_opts.debug_level > 1) {
-        fprintf(stderr,"Problem in or around line %5lu: \"%s\" %lf km/h\n",line,buff,speed);
+        fprintf(stderr,"Problem in or around line %5ld: \"%s\" %lf km/h\n",line,buff,speed);
       }
     } else {
       if (global_opts.debug_level > 1) {
-        fprintf(stderr,"valid                line %5lu: \"%s\" %lf km/h\n",line,buff,speed);
+        fprintf(stderr,"valid                line %5ld: \"%s\" %lf km/h\n",line,buff,speed);
       }
       lastwpt=wpt;
       lat_old=wpt->latitude;
@@ -334,24 +331,12 @@ gopal_read()
 }
 
 static void
-gopal_route_hdr(const route_head*)
-{
-
-}
-
-static void
-gopal_route_tlr(const route_head*)
-{
-}
-
-static void
 gopal_write_waypt(const Waypoint* wpt)
 {
-  char tbuffer[64];
   int fix=fix_unknown;
   //TICK;    TIME;   LONG;     LAT;       HEIGHT; SPEED;  UN; HDOP;     SAT
   //3801444, 080558, 2.944362, 43.262117, 295.28, 0.12964, 2, 2.900000, 3
-  snprintf(tbuffer, sizeof(tbuffer), "%06d", wpt->creation_time.hms());
+  QString tbuffer = wpt->creation_time.toString("HHmmss");
   if (wpt->fix!=fix_unknown) {
     switch (wpt->fix) {
     case fix_none:
@@ -367,7 +352,7 @@ gopal_write_waypt(const Waypoint* wpt)
   }
   //MSVC handles time_t as int64, gcc and mac only int32, so convert it:
   unsigned long timestamp = (unsigned long)wpt->GetCreationTime().toTime_t();
-  gbfprintf(fout, "%lu, %s, %lf, %lf, %5.1lf, %8.5lf, %d, %lf, %d\n",timestamp,tbuffer,  wpt->longitude, wpt->latitude,wpt->altitude,
+  gbfprintf(fout, "%lu, %s, %lf, %lf, %5.1lf, %8.5lf, %d, %lf, %d\n",timestamp, CSTR(tbuffer),  wpt->longitude, wpt->latitude,wpt->altitude,
             wpt->speed,fix,wpt->hdop,wpt->sat);
 }
 
@@ -387,12 +372,7 @@ gopal_wr_deinit()
 static void
 gopal_write()
 {
-  route_disp_all(gopal_route_hdr, gopal_route_tlr, gopal_write_waypt);
-}
-
-static void
-gopal_exit()		/* optional */
-{
+  route_disp_all(nullptr, nullptr, gopal_write_waypt);
 }
 
 /**************************************************************************/
@@ -413,8 +393,8 @@ ff_vecs_t gopal_vecs = {
   gopal_wr_deinit,
   gopal_read,
   gopal_write,
-  gopal_exit,
-  gopal_args,
+  nullptr,
+  &gopal_args,
   CET_CHARSET_ASCII, 0	/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

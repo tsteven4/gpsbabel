@@ -26,8 +26,7 @@
 
 
 static
-arglist_t teletype_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> teletype_args = {
 };
 
 /*******************************************************************************
@@ -58,7 +57,7 @@ static void
 teletype_read()
 {
   for (uint32_t i = 0; i < tty_wpt_count; i++) {
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
     wpt->shortname = (gbfgetcstr(fin));
     wpt->description = (gbfgetcstr(fin));
 
@@ -71,27 +70,14 @@ teletype_read()
 
     if (true) {  // need bit value of NEWFORMAT
       int len = gbfgetuint16(fin);
-      // probably could treat as a pascal string
-      char* junk = (char*) xmalloc(len);
-      gbfread(junk, len, 1, fin);
-      xfree(junk);
+      gbfseek(fin, len, SEEK_CUR);
     }
     wpt->latitude = gbfgetint32(fin) / 1000000.0 ;
     wpt->longitude = gbfgetint32(fin) / 1000000.0 ;
-
-    {
-      char jibberish[21];
-      gbfread(jibberish, sizeof(jibberish), 1, fin);
-    }
-
+    gbfseek(fin, 21, SEEK_CUR);
 
     waypt_add(wpt);
   }
-}
-
-static void
-teletype_exit()		/* optional */
-{
 }
 
 /**************************************************************************/
@@ -112,8 +98,8 @@ ff_vecs_t teletype_vecs = {
   nullptr,
   teletype_read,
   nullptr,
-  teletype_exit,
-  teletype_args,
+  nullptr,
+  &teletype_args,
   CET_CHARSET_ASCII, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

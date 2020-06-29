@@ -17,42 +17,43 @@
 
  */
 
-#include <clocale>                  // for setlocale, LC_NUMERIC, LC_TIME
-#include <csignal>                  // for signal, SIGINT, SIG_ERR
-#include <cstdio>                   // for printf, fgetc, stdin
-#include <cstdlib>                  // for exit
-#include <cstring>                  // for strcmp
-#include <ctime>                    // for time
+#include <clocale>                    // for setlocale, LC_NUMERIC, LC_TIME
+#include <csignal>                    // for signal, SIGINT, SIG_ERR
+#include <cstdio>                     // for printf, fflush, fgetc, fprintf, stderr, stdin, stdout
+#include <cstring>                    // for strcmp
 
-#include <QtCore/QByteArray>        // for QByteArray
-#include <QtCore/QChar>             // for QChar
-#include <QtCore/QCoreApplication>  // for QCoreApplication
-#include <QtCore/QFile>             // for QFile
-#include <QtCore/QIODevice>         // for QIODevice::ReadOnly
-#include <QtCore/QLocale>           // for QLocale
-#include <QtCore/QStack>            // for QStack
-#include <QtCore/QString>           // for QString
-#include <QtCore/QStringList>       // for QStringList
-#include <QtCore/QSysInfo>          // for QSysInfo
-#include <QtCore/QTextCodec>        // for QTextCodec
-#include <QtCore/QTextStream>       // for QTextStream
-#include <QtCore/QtConfig>          // for QT_VERSION_STR
-#include <QtCore/QtGlobal>          // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK
+#include <QtCore/QByteArray>          // for QByteArray
+#include <QtCore/QChar>               // for QChar
+#include <QtCore/QCoreApplication>    // for QCoreApplication
+#include <QtCore/QFile>               // for QFile
+#include <QtCore/QIODevice>           // for QIODevice::ReadOnly
+#include <QtCore/QLocale>             // for QLocale
+#include <QtCore/QMessageLogContext>  // for QMessageLogContext
+#include <QtCore/QStack>              // for QStack
+#include <QtCore/QString>             // for QString
+#include <QtCore/QStringList>         // for QStringList
+#include <QtCore/QSysInfo>            // for QSysInfo
+#include <QtCore/QTextCodec>          // for QTextCodec
+#include <QtCore/QTextStream>         // for QTextStream
+#include <QtCore/QtConfig>            // for QT_VERSION_STR
+#include <QtCore/QtGlobal>            // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK
 
 #ifdef AFL_INPUT_FUZZING
 #include "argv-fuzz-inl.h"
 #endif
 
 #include "defs.h"
-#include "cet_util.h"               // for cet_convert_init, cet_convert_strings, cet_convert_deinit, cet_deregister, cet_register, cet_cs_vec_utf8
-#include "csv_util.h"               // for csv_linesplit
-#include "filter.h"                 // for Filter
-#include "filterdefs.h"             // for disp_filter_vec, disp_filter_vecs, disp_filters, exit_filter_vecs, find_filter_vec, free_filter_vec, init_filter_vecs
-#include "inifile.h"                // for inifile_done, inifile_init
-#include "session.h"                // for start_session, session_exit, session_init
-#include "src/core/datetime.h"      // for DateTime
-#include "src/core/file.h"          // for File
-#include "src/core/usasciicodec.h"  // for UsAsciiCodec
+#include "cet_util.h"                 // for cet_convert_init, cet_convert_deinit
+#include "csv_util.h"                 // for csv_linesplit
+#include "filter.h"                   // for Filter
+#include "filter_vecs.h"              // for FilterVecs
+#include "format.h"                   // for Format
+#include "inifile.h"                  // for inifile_done, inifile_init
+#include "session.h"                  // for start_session, session_exit, session_init
+#include "src/core/datetime.h"        // for DateTime
+#include "src/core/file.h"            // for File
+#include "src/core/usasciicodec.h"    // for UsAsciiCodec
+#include "vecs.h"                     // for Vecs
 
 #define MYNAME "main"
 // be careful not to advance argn passed the end of the list, i.e. ensure argn < qargs.size()
@@ -108,7 +109,7 @@ load_args(const QString& filename, const QString& arg0)
 static void
 usage(const char* pname, int shorter)
 {
-  printf("GPSBabel Version %s.  http://www.gpsbabel.org\n\n",
+  printf("GPSBabel Version %s.  https://www.gpsbabel.org\n\n",
          gpsbabel_version);
   printf(
     "Usage:\n"
@@ -151,9 +152,9 @@ usage(const char* pname, int shorter)
     fgetc(stdin);
   } else {
     printf("File Types (-i and -o options):\n");
-    disp_vecs();
+    Vecs::Instance().disp_vecs();
     printf("\nSupported data filters:\n");
-    disp_filter_vecs();
+    FilterVecs::Instance().disp_filter_vecs();
   }
 }
 
@@ -161,8 +162,8 @@ static void
 spec_usage(const QString& vec)
 {
   printf("\n");
-  disp_vec(vec);
-  disp_filter_vec(vec);
+  Vecs::Instance().disp_vec(vec);
+  FilterVecs::Instance().disp_filter_vec(vec);
   printf("\n");
 }
 
@@ -190,6 +191,13 @@ print_extended_info()
     "\n");
 }
 
+static void MessageHandler(QtMsgType /* type */, const QMessageLogContext& /* context */, const QString& msg)
+{
+  /* flush any buffered standard output */
+  fflush(stdout);
+  fprintf(stderr, "%s\n", qPrintable(msg));
+}
+
 static void
 signal_handler(int sig)
 {
@@ -197,22 +205,57 @@ signal_handler(int sig)
   tracking_status.request_terminate = 1;
 }
 
+class FallbackOutput
+{
+public:
+  FallbackOutput() : mkshort_handle(mkshort_new_handle()) {}
+  // delete copy and move constructors and assignment operators.
+  // The defaults are not appropriate, and we haven't implemented proper ones.
+  FallbackOutput(const FallbackOutput&) = delete;
+  FallbackOutput& operator=(const FallbackOutput&) = delete;
+  FallbackOutput(FallbackOutput&&) = delete;
+  FallbackOutput& operator=(FallbackOutput&&) = delete;
+  ~FallbackOutput() {mkshort_del_handle(&mkshort_handle);}
+
+  void waypt_disp(const Waypoint* wpt)
+  {
+    if (wpt->GetCreationTime().isValid()) {
+      printf("%s ", qPrintable(wpt->creation_time.toString()));
+    }
+    printposn(wpt->latitude,1);
+    printposn(wpt->longitude,0);
+    if (!wpt->description.isEmpty()) {
+      printf("%s/%s",
+             global_opts.synthesize_shortnames ?
+             qPrintable(mkshort(mkshort_handle, wpt->description)) :
+             qPrintable(wpt->shortname),
+             qPrintable(wpt->description));
+    }
+  
+    if (wpt->altitude != unknown_alt) {
+      printf(" %f", wpt->altitude);
+    }
+    printf("\n");
+  }
+
+private:
+  short_handle mkshort_handle;
+};
+
 static int
 run(const char* prog_name)
 {
   int argn;
-  ff_vecs_t* ivecs = nullptr;
-  ff_vecs_t* ovecs = nullptr;
+  Format* ivecs = nullptr;
+  Format* ovecs = nullptr;
   Filter* filter = nullptr;
   QString fname;
   QString ofname;
   int opt_version = 0;
   bool did_something = false;
-  WaypointList* wpt_head_bak;
-  RouteList* rte_head_bak;
-  RouteList* trk_head_bak;
-  bool lists_backedup;
   QStack<QargStackElement> qargs_stack;
+  FallbackOutput fbOutput;
+
 
   // Use QCoreApplication::arguments() to process the command line.
   QStringList qargs = QCoreApplication::arguments();
@@ -227,7 +270,7 @@ run(const char* prog_name)
    */
   argn = 1;
   while (argn < qargs.size()) {
-    QString optarg;
+    QString argument;
 
 //  we must check the length for afl input fuzzing to work.
 //    if (qargs.at(argn).at(0).toLatin1() != '-') {
@@ -263,33 +306,30 @@ run(const char* prog_name)
 
     switch (c) {
     case 'i':
-      optarg = FETCH_OPTARG;
-      ivecs = find_vec(optarg);
+      argument = FETCH_OPTARG;
+      ivecs = Vecs::Instance().find_vec(argument);
       if (ivecs == nullptr) {
-        fatal("Input type '%s' not recognized\n", qPrintable(optarg));
+        fatal("Input type '%s' not recognized\n", qPrintable(argument));
       }
       break;
     case 'o':
       if (ivecs == nullptr) {
         warning("-o appeared before -i.   This is probably not what you want to do.\n");
       }
-      optarg = FETCH_OPTARG;
-      ovecs = find_vec(optarg);
+      argument = FETCH_OPTARG;
+      ovecs = Vecs::Instance().find_vec(argument);
       if (ovecs == nullptr) {
-        fatal("Output type '%s' not recognized\n", qPrintable(optarg));
+        fatal("Output type '%s' not recognized\n", qPrintable(argument));
       }
       break;
     case 'f':
-      optarg = FETCH_OPTARG;
-      fname = optarg;
+      argument = FETCH_OPTARG;
+      fname = argument;
       if (fname.isEmpty()) {
         fatal("No file or device name specified.\n");
       }
       if (ivecs == nullptr) {
         fatal("No valid input type specified\n");
-      }
-      if (ivecs->rd_init == nullptr) {
-        fatal("Format does not support reading.\n");
       }
       if (global_opts.masked_objective & POSNDATAMASK) {
         did_something = true;
@@ -300,21 +340,20 @@ run(const char* prog_name)
         global_opts.masked_objective |= WPTDATAMASK;
       }
 
-      cet_convert_init(ivecs->encode, ivecs->fixed_encode);	/* init by module vec */
+      cet_convert_init(ivecs->get_encode(), ivecs->get_fixed_encode());	/* init by module vec */
 
-      start_session(ivecs->name, fname);
+      start_session(ivecs->get_name(), fname);
       ivecs->rd_init(fname);
       ivecs->read();
       ivecs->rd_deinit();
 
-      cet_convert_strings(global_opts.charset, nullptr, nullptr);
       cet_convert_deinit();
 
       did_something = true;
       break;
     case 'F':
-      optarg = FETCH_OPTARG;
-      ofname = optarg;
+      argument = FETCH_OPTARG;
+      ofname = argument;
       if (ofname.isEmpty()) {
         fatal("No output file or device name specified.\n");
       }
@@ -323,50 +362,14 @@ run(const char* prog_name)
         if (doing_nothing) {
           global_opts.masked_objective |= WPTDATAMASK;
         }
-        if (ovecs->wr_init == nullptr) {
-          fatal("Format does not support writing.\n");
-        }
 
-        cet_convert_init(ovecs->encode, ovecs->fixed_encode);
-
-        lists_backedup = false;
-        wpt_head_bak = nullptr;
-        rte_head_bak = nullptr;
-        trk_head_bak = nullptr;
+        cet_convert_init(ovecs->get_encode(), ovecs->get_fixed_encode());
 
         ovecs->wr_init(ofname);
-
-        if (global_opts.charset != &cet_cs_vec_utf8) {
-          /*
-           * Push and pop verbose_status so
-                          		 * we don't get dual progress bars
-           * when doing characterset
-           * transformation.
-           */
-          int saved_status = global_opts.verbose_status;
-          global_opts.verbose_status = 0;
-          lists_backedup = true;
-          waypt_backup(&wpt_head_bak);
-          route_backup(&rte_head_bak);
-          track_backup(&trk_head_bak);
-
-          cet_convert_strings(nullptr, global_opts.charset, nullptr);
-          global_opts.verbose_status = saved_status;
-        }
-
         ovecs->write();
         ovecs->wr_deinit();
 
         cet_convert_deinit();
-
-        if (lists_backedup) {
-          waypt_restore(wpt_head_bak);
-          delete wpt_head_bak;
-          route_restore(rte_head_bak);
-          delete rte_head_bak;
-          track_restore(trk_head_bak);
-          delete trk_head_bak;
-        }
       }
       break;
     case 's':
@@ -403,23 +406,23 @@ run(const char* prog_name)
       }
       break;
     case 'x':
-      optarg = FETCH_OPTARG;
-      filter = find_filter_vec(optarg);
+      argument = FETCH_OPTARG;
+      filter = FilterVecs::Instance().find_filter_vec(argument);
 
       if (filter) {
         filter->init();
         filter->process();
         filter->deinit();
-        free_filter_vec(filter);
+        FilterVecs::free_filter_vec(filter);
       }  else {
-        fatal("Unknown filter '%s'\n",qPrintable(optarg));
+        fatal("Unknown filter '%s'\n",qPrintable(argument));
       }
       break;
     case 'D':
-      optarg = FETCH_OPTARG;
+      argument = FETCH_OPTARG;
       {
         bool ok;
-        global_opts.debug_level = optarg.toInt(&ok);
+        global_opts.debug_level = argument.toInt(&ok);
         if (!ok) {
           fatal("the -D option requires an integer value to specify the debug level, i.e. -D level\n");
         }
@@ -447,8 +450,8 @@ run(const char* prog_name)
      * Undocumented '-@' option for test.
      */
     case '@': {
-      bool format_ok = validate_formats();
-      bool filter_ok = validate_filters();
+      bool format_ok = Vecs::Instance().validate_formats();
+      bool filter_ok = FilterVecs::Instance().validate_filters();
       return (format_ok && filter_ok)? 0 : 1;
     }
 
@@ -471,28 +474,28 @@ run(const char* prog_name)
      * this as -^^.
      */
     case '^':
-      disp_formats(opt_version);
+      Vecs::Instance().disp_formats(opt_version);
       return 0;
     case '%':
-      disp_filters(opt_version);
+      FilterVecs::Instance().disp_filters(opt_version);
       return 0;
     case 'h':
     case '?':
       usage(prog_name,0);
       return 0;
     case 'p':
-      optarg = FETCH_OPTARG;
+      argument = FETCH_OPTARG;
       inifile_done(global_opts.inifile);
-      if (optarg.isEmpty()) {	/* from GUI to preserve inconsistent options */
+      if (argument.isEmpty()) {	/* from GUI to preserve inconsistent options */
         global_opts.inifile = nullptr;
       } else {
-        global_opts.inifile = inifile_init(optarg, MYNAME);
+        global_opts.inifile = inifile_init(argument, MYNAME);
       }
       break;
     case 'b':
-      optarg = FETCH_OPTARG;
+      argument = FETCH_OPTARG;
       qargs_stack.push(QargStackElement(argn, qargs));
-      qargs = load_args(optarg, qargs.at(0));
+      qargs = load_args(argument, qargs.at(0));
       if (qargs.empty()) {
         QargStackElement ele = qargs_stack.pop();
         argn = ele.argn;
@@ -531,26 +534,23 @@ run(const char* prog_name)
       global_opts.masked_objective |= WPTDATAMASK;
     }
 
-    cet_convert_init(ivecs->encode, 1);
+    /* reinitialize xcsv in case two formats that use xcsv were given */
+    (void) Vecs::Instance().find_vec(ivecs->get_name());
 
-    start_session(ivecs->name, qargs.at(0));
-    if (ivecs->rd_init == nullptr) {
-      fatal("Format does not support reading.\n");
-    }
+    cet_convert_init(ivecs->get_encode(), 1);
+
+    start_session(ivecs->get_name(), qargs.at(0));
     ivecs->rd_init(qargs.at(0));
     ivecs->read();
     ivecs->rd_deinit();
 
-    cet_convert_strings(global_opts.charset, nullptr, nullptr);
     cet_convert_deinit();
 
     if (qargs.size() == 2 && ovecs) {
-      cet_convert_init(ovecs->encode, 1);
-      cet_convert_strings(nullptr, global_opts.charset, nullptr);
+      /* reinitialize xcsv in case two formats that use xcsv were given */
+      (void) Vecs::Instance().find_vec(ovecs->get_name());
 
-      if (ovecs->wr_init == nullptr) {
-        fatal("Format does not support writing.\n");
-      }
+      cet_convert_init(ovecs->get_encode(), 1);
 
       ovecs->wr_init(qargs.at(1));
       ovecs->write();
@@ -563,16 +563,11 @@ run(const char* prog_name)
     return 0;
   }
   if (ovecs == nullptr) {
-    /*
-     * Push and pop verbose_status so we don't get dual
-     * progress bars when doing characterset transformation.
-     */
-    int saved_status = global_opts.verbose_status;
-    global_opts.verbose_status = 0;
     cet_convert_init(CET_CHARSET_ASCII, 1);
-    cet_convert_strings(nullptr, global_opts.charset, nullptr);
-    waypt_disp_all(waypt_disp);
-    global_opts.verbose_status = saved_status;
+    auto waypt_disp_lambda = [&fbOutput](const Waypoint* wpt)->void {
+      fbOutput.waypt_disp(wpt);
+    };
+    waypt_disp_all(waypt_disp_lambda);
   }
 
   /*
@@ -588,40 +583,27 @@ run(const char* prog_name)
       fatal("Realtime tracking (-T) requires an input type (-t)i such as Garmin or NMEA.\n");
     }
 
-    if (!ivecs->position_ops.rd_position) {
-      fatal("Realtime tracking (-T) is not suppored by this input type.\n");
+    if (fname.isEmpty()) {
+      fatal("An input file (-f) must be specified.\n");
     }
-
-
-    if (ivecs->position_ops.rd_init) {
-      if (fname.isEmpty()) {
-        fatal("An input file (-f) must be specified.\n");
-      }
-      start_session(ivecs->name, fname);
-      ivecs->position_ops.rd_init(fname);
-    }
+    start_session(ivecs->get_name(), fname);
+    ivecs->rd_position_init(fname);
 
     if (global_opts.masked_objective & ~POSNDATAMASK) {
       fatal("Realtime tracking (-T) is exclusive of other modes.\n");
-    }
-
-    if (ovecs) {
-      if (!ovecs->position_ops.wr_position) {
-        fatal("This output format does not support output of realtime positioning.\n");
-      }
     }
 
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
       fatal("Couldn't install the exit signal handler.\n");
     }
 
-    if (ovecs && ovecs->position_ops.wr_init) {
-      ovecs->position_ops.wr_init(ofname);
+    if (ovecs) {
+      ovecs->wr_position_init(ofname);
     }
 
     tracking_status.request_terminate = 0;
     while (!tracking_status.request_terminate) {
-      Waypoint* wpt = ivecs->position_ops.rd_position(&tracking_status);
+      Waypoint* wpt = ivecs->rd_position(&tracking_status);
 
       if (tracking_status.request_terminate) {
         delete wpt;
@@ -629,21 +611,19 @@ run(const char* prog_name)
       }
       if (wpt) {
         if (ovecs) {
-//					ovecs->position_ops.wr_init(ofname);
-          ovecs->position_ops.wr_position(wpt);
-//					ovecs->position_ops.wr_deinit();
+//          ovecs->wr_position_init(ofname);
+          ovecs->wr_position(wpt);
+//          ovecs->wr_position_deinit();
         } else {
           /* Just print to screen */
-          waypt_disp(wpt);
+          fbOutput.waypt_disp(wpt);
         }
         delete wpt;
       }
     }
-    if (ivecs->position_ops.rd_deinit) {
-      ivecs->position_ops.rd_deinit();
-    }
-    if (ovecs && ovecs->position_ops.wr_deinit) {
-      ovecs->position_ops.wr_deinit();
+    ivecs->rd_position_deinit();
+    if (ovecs) {
+      ovecs->wr_position_deinit();
     }
     return 0;
   }
@@ -714,36 +694,34 @@ main(int argc, char* argv[])
 #endif
   }
 
+  qInstallMessageHandler(MessageHandler);
+
   (void) new gpsbabel::UsAsciiCodec(); /* make sure a US-ASCII codec is available */
 
   global_opts.objective = wptdata;
   global_opts.masked_objective = NOTHINGMASK;	/* this makes the default mask behaviour slightly different */
-  global_opts.charset_name.clear();
   global_opts.inifile = nullptr;
 
-  gpsbabel_now = time(nullptr);			/* gpsbabel startup-time */
-  gpsbabel_time = current_time().toTime_t();			/* same like gpsbabel_now, but frozen at zero during testo */
+  gpsbabel_time = current_time().toTime_t();			/* frozen in testmode */
 
-  if (gpsbabel_time != 0) {	/* within testo ? */
+  if (!gpsbabel_testmode()) {	/* within testo ? */
     global_opts.inifile = inifile_init(QString(), MYNAME);
   }
 
-  init_vecs();
-  init_filter_vecs();
-  cet_register();
+  Vecs::Instance().init_vecs();
+  FilterVecs::Instance().init_filter_vecs();
   session_init();
   waypt_init();
   route_init();
 
   rc = run(prog_name);
 
-  cet_deregister();
-  waypt_flush_all();
   route_deinit();
+  waypt_deinit();
   session_exit();
-  exit_vecs();
-  exit_filter_vecs();
+  FilterVecs::Instance().exit_filter_vecs();
+  Vecs::Instance().exit_vecs();
   inifile_done(global_opts.inifile);
 
-  exit(rc);
+  return rc;
 }

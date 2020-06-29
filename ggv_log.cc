@@ -43,8 +43,7 @@ static gbfile* fin, *fout;
 static int ggv_log_ver;
 
 static
-arglist_t ggv_log_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> ggv_log_args = {
 };
 
 /*******************************************************************************
@@ -109,7 +108,7 @@ ggv_log_read()
     break;
   }
 
-  signed char* buf = (signed char*) xmalloc(bufsz);
+  auto* buf = (signed char*) xmalloc(bufsz);
 
   while ((len = gbfread(buf, 1, bufsz, fin))) {
     struct tm tm;
@@ -119,13 +118,13 @@ ggv_log_read()
     }
 
     if (trk == nullptr) {
-      trk = route_head_alloc();
+      trk = new route_head;
       track_add_head(trk);
     }
 
     memset(&tm, 0, sizeof(tm));
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     int deg = (int16_t) le_read16(&buf[0]);
     int min = le_read16(&buf[2]);
@@ -280,7 +279,7 @@ ff_vecs_t ggv_log_vecs = {
   ggv_log_read,
   ggv_log_write,
   nullptr,
-  ggv_log_args,
+  &ggv_log_args,
   CET_CHARSET_ASCII, 1
   , NULL_POS_OPS,
   nullptr

@@ -65,9 +65,8 @@ static char* opt_location;
 #define MYNAME "raymarine"
 
 static
-arglist_t raymarine_args[] = {
+QVector<arglist_t> raymarine_args = {
   { "location", &opt_location, "Default location", "My Waypoints", ARGTYPE_STRING, ARG_NOMINMAX , nullptr},
-  ARG_TERMINATOR
 };
 
 /* from csv_util.c: convert excel time (days since 1900) to time_t and back again */
@@ -185,7 +184,7 @@ raymarine_read()
     QString str, name, lat, lon;
 
     /* built section identifier */
-    snprintf(sect, sizeof(sect), "Wp%d", ix);
+    snprintf(sect, sizeof(sect), "Wp%u", ix);
 
     /* try to read our most expected values */
     name = inifile_readstr(fin, sect, "Name");
@@ -201,7 +200,7 @@ raymarine_read()
       break;
     }
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
     wpt->shortname = name;
     wpt->latitude = lat.toDouble();
     wpt->longitude = lon.toDouble();
@@ -239,7 +238,7 @@ raymarine_read()
       break;
     }
 
-    route_head* rte = route_head_alloc();
+    auto* rte = new route_head;
     rte->rte_name = name;
     route_add_head(rte);
 
@@ -280,7 +279,7 @@ same_points(const Waypoint* A, const Waypoint* B)
 static void
 register_waypt(const Waypoint* ref, const char)
 {
-  Waypoint* wpt = const_cast<Waypoint*>(ref);
+  auto* wpt = const_cast<Waypoint*>(ref);
 
   for (int i = 0; i < waypt_table_ct; i++) {
     Waypoint* cmp = waypt_table[i];
@@ -300,7 +299,7 @@ register_waypt(const Waypoint* ref, const char)
     }
   }
 
-  wpt->extra_data = (void*)mkshort(hshort_wpt, CSTRc(wpt->shortname));
+  wpt->extra_data = (void*)mkshort(hshort_wpt, CSTRc(wpt->shortname), false);
 
   waypt_table[waypt_table_ct] = wpt;
   waypt_table_ct++;
@@ -326,8 +325,9 @@ qsort_cb(const void* a, const void* b)
   return wa->shortname.compare(wb->shortname);
 }
 
+// TODO: this first arg is both a global and a param. That's weird.
 static void
-write_waypoint(gbfile* fout, const Waypoint* wpt, const int waypt_no, const char* location)
+write_waypoint(gbfile* fileout, const Waypoint* wpt, const int waypt_no, const char* location)
 {
   QString notes = wpt->notes;
   if (notes == nullptr) {
@@ -340,14 +340,14 @@ write_waypoint(gbfile* fout, const Waypoint* wpt, const int waypt_no, const char
   double time = wpt->creation_time.isValid() ? TIMET_TO_EXCEL(wpt->GetCreationTime().toTime_t()) : TIMET_TO_EXCEL(gpsbabel_time);
   char* name = (char*)wpt->extra_data;
 
-  gbfprintf(fout, "[Wp%d]" LINE_FEED
+  gbfprintf(fileout, "[Wp%d]" LINE_FEED
             "Loc=%s" LINE_FEED
             "Name=%s" LINE_FEED
             "Lat=%.15f" LINE_FEED
             "Long=%.15f" LINE_FEED,
             waypt_no, location, name, wpt->latitude, wpt->longitude
            );
-  gbfprintf(fout, "Rng=%.15f" LINE_FEED
+  gbfprintf(fileout, "Rng=%.15f" LINE_FEED
             "Bear=%.15f" LINE_FEED
             "Bmp=%d" LINE_FEED
             "Fixed=1" LINE_FEED
@@ -357,7 +357,7 @@ write_waypoint(gbfile* fout, const Waypoint* wpt, const int waypt_no, const char
             find_symbol_num(wpt->icon_descr),
             CSTR(notes)
            );
-  gbfprintf(fout, "Rel=" LINE_FEED
+  gbfprintf(fileout, "Rel=" LINE_FEED
             "RelSet=0" LINE_FEED
             "RcCount=0" LINE_FEED
             "RcRadius=%.15f" LINE_FEED
@@ -508,7 +508,7 @@ ff_vecs_t raymarine_vecs = {
   raymarine_read,
   raymarine_write,
   nullptr,
-  raymarine_args,
+  &raymarine_args,
   CET_CHARSET_ASCII, 0	/* should we force this to 1 ? */
   , NULL_POS_OPS,
   nullptr

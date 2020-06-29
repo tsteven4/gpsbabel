@@ -43,8 +43,7 @@ static route_head* temp_route;
 /* placeholders for options */
 
 static
-arglist_t cst_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> cst_args = {
 };
 
 /* helpers */
@@ -64,7 +63,7 @@ cst_add_wpt(route_head* track, Waypoint* wpt)
     wpt->urls.clear();
 
     if (temp_route == nullptr) {
-      temp_route = route_head_alloc();
+      temp_route = new route_head;
       route_add_head(temp_route);
     }
     route_add_wpt(temp_route, new Waypoint(*wpt));
@@ -268,10 +267,10 @@ cst_data_read()
         data_lines++;
 
         if (strcmp(name, "1") == 0) {
-          track = route_head_alloc();
+          track = new route_head;
           track_add_head(track);
         } else if (strncmp(name, "NAME:", 5) == 0) {
-          wpt->shortname = QString::fromLatin1(((char*)&name) + 5);
+          wpt->shortname = QString::fromLatin1(name + 5);
         }
 
         QString time_string(cin);
@@ -324,7 +323,7 @@ ff_vecs_t cst_vecs = {
   cst_data_read,
   nullptr,		/* cst_data_write, */
   nullptr,
-  cst_args,
+  &cst_args,
   CET_CHARSET_MS_ANSI, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

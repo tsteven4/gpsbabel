@@ -106,12 +106,11 @@ static char* opt_route_index;
 static int opt_route_index_value;
 
 static
-arglist_t stmsdf_args[] = {
+QVector<arglist_t> stmsdf_args = {
   {
     "index", &opt_route_index,
     "Index of route (if more than one in source)", "1", ARGTYPE_INT, "1", nullptr, nullptr
   },
-  ARG_TERMINATOR
 };
 
 
@@ -150,7 +149,7 @@ parse_header(char* line)
       } else if (key == "TYPE") {
         filetype = qstr.toInt(&ok);
         if (!ok) {
-          Fatal() << MYNAME << "Unknown file type " << key;
+          fatal(FatalMsg() << MYNAME << "Unknown file type " << key);
         }
         switch (filetype) {
         case 4:	/* M9 TrackLog (Suunto Sail Manager) */
@@ -204,7 +203,7 @@ finalize_tracks()
       track = nullptr;
     }
     if (track == nullptr) {
-      track = route_head_alloc();
+      track = new route_head;
       track_add_head(track);
       trackno++;
       if (rte_name != nullptr) {
@@ -279,7 +278,7 @@ parse_point(char *line) {
           auto year = v[2].toInt();
           dt = QDate(year, month, day);
         } else {
-          Fatal() << MYNAME << "Invalid date" << qstr;
+          fatal(FatalMsg() << MYNAME << "Invalid date" << qstr);
         }
         break;
       }
@@ -292,20 +291,20 @@ parse_point(char *line) {
           auto sec = v[2].toInt();
           tm = QTime(hour, min, sec);
         } else {
-          Fatal() << MYNAME << "Invalid Time" << qstr;
+          fatal(FatalMsg() << MYNAME << "Invalid Time" << qstr);
         }
         break;
       }
       case 4:
         wpt->latitude = qstr.toDouble(&ok);
         if (!ok) {
-          Fatal() << MYNAME << "Invalid latitude" << qstr;
+          fatal(FatalMsg() << MYNAME << "Invalid latitude" << qstr);
         }
         break;
       case 5:
         wpt->longitude = qstr.toDouble(&ok);
         if (!ok) {
-          Fatal() << MYNAME << "Invalid longitude" << qstr;
+          fatal(FatalMsg() << MYNAME << "Invalid longitude" << qstr);
         }
         break;
       case 6: {
@@ -366,7 +365,7 @@ parse_point(char *line) {
     case 2:
     case 3:
       if (route == nullptr) {
-        route = route_head_alloc();
+        route = new route_head;
         route_add_head(route);
       }
       route_add_wpt(route, wpt);
@@ -820,7 +819,7 @@ ff_vecs_t stmsdf_vecs = {
   data_read,
   data_write,
   nullptr,
-  stmsdf_args,
+  &stmsdf_args,
   CET_CHARSET_MS_ANSI, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

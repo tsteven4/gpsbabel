@@ -29,8 +29,7 @@
 
 static route_head* trk;
 
-static arglist_t jogmap_args[] = {
-  ARG_TERMINATOR
+static QVector<arglist_t> jogmap_args = {
 };
 
 #define MYNAME "xol"
@@ -45,14 +44,14 @@ static arglist_t jogmap_args[] = {
 static void
 jogmap_markers(xg_string, const QXmlStreamAttributes*)
 {
-  trk = route_head_alloc();
+  trk = new route_head;
   track_add_head(trk);
 }
 
 static void
 jogmap_marker(xg_string, const QXmlStreamAttributes* attrv)
 {
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
   if (attrv->hasAttribute("lat")) {
     wpt->latitude = attrv->value("lat").toString().toDouble();
@@ -107,7 +106,7 @@ ff_vecs_t jogmap_vecs = {
   jogmap_read,
   nullptr,
   nullptr,
-  jogmap_args,
+  &jogmap_args,
   CET_CHARSET_UTF8, 0
   , NULL_POS_OPS,
   nullptr

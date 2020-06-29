@@ -42,9 +42,8 @@ static int curr_rte_num, target_rte_num;
 static char* index_opt;
 
 static
-arglist_t nmn4_args[] = {
+QVector<arglist_t> nmn4_args = {
   {"index", &index_opt, "Index of route to write (if more than one in source)", nullptr, ARGTYPE_INT, "1", nullptr , nullptr},
-  ARG_TERMINATOR
 };
 
 
@@ -69,7 +68,7 @@ nmn4_read_data()
 
   QString zip2, city, street, number;
 
-  route_head* route = route_head_alloc();
+  auto* route = new route_head;
   route_add_head(route);
 
   while ((buff = gbfgetstr(fin))) {
@@ -86,7 +85,7 @@ nmn4_read_data()
     /* for a quiet compiler */
     QString zip1 = zip2 = city = street = number = QString();
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     int column = -1;
     QString c = csv_lineparse(str, "|", "", column++);
@@ -184,11 +183,6 @@ nmn4_route_hdr(const route_head*)
 }
 
 static void
-nmn4_route_tlr(const route_head*)
-{
-}
-
-static void
 nmn4_write_waypt(const Waypoint* wpt)
 {
   char city[128], street[128], zipc[32], number[32];
@@ -231,7 +225,7 @@ nmn4_write_data()
   }
 
   curr_rte_num = 0;
-  route_disp_all(nmn4_route_hdr, nmn4_route_tlr, nmn4_write_waypt);
+  route_disp_all(nmn4_route_hdr, nullptr, nmn4_write_waypt);
 }
 
 
@@ -285,7 +279,7 @@ ff_vecs_t nmn4_vecs = {
   nmn4_read,
   nmn4_write,
   nullptr,
-  nmn4_args,
+  &nmn4_args,
   CET_CHARSET_MS_ANSI, 1	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

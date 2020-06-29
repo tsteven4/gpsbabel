@@ -88,7 +88,7 @@ static char* option_radius;
 static char* option_snlen;
 
 static
-arglist_t compegps_args[] = {
+QVector<arglist_t> compegps_args = {
   {
     "deficon", &option_icon, "Default icon name",
     nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
@@ -105,7 +105,6 @@ arglist_t compegps_args[] = {
     "snlen", &option_snlen, "Length of generated shortnames (default 16)",
     "16", ARGTYPE_INT, "1", nullptr, nullptr
   },
-  ARG_TERMINATOR
 };
 
 static
@@ -156,7 +155,7 @@ parse_wpt(char* buff)
 {
   int col = -1;
   char* cx;
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
   struct tm tm;
   int has_time = 0;
   memset(&tm, 0, sizeof(tm));
@@ -273,7 +272,7 @@ parse_trkpt(char* buff)
 {
   int col = -1;
   struct tm tm;
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
   char* c = strstr(buff, "A ");
   if (c == buff) {
@@ -388,7 +387,6 @@ compegps_data_read()
 {
   char* buff;
   int line = 0;
-  int input_datum;
   Waypoint* wpt = nullptr;
   route_head* route = nullptr;
   route_head* track = nullptr;
@@ -426,7 +424,7 @@ compegps_data_read()
       }
       break;
     case 'R':
-      route = route_head_alloc();
+      route = new route_head;
       route_add_head(route);
       parse_rte_info(ctail, route);
       break;
@@ -450,7 +448,7 @@ compegps_data_read()
       wpt = parse_trkpt(ctail);
       if (wpt != nullptr) {
         if (track == nullptr) {
-          track = route_head_alloc();
+          track = new route_head;
           track_add_head(track);
         }
         track_add_wpt(track, wpt);
@@ -691,7 +689,7 @@ ff_vecs_t compegps_vecs = {
   compegps_data_read,
   compegps_data_write,
   nullptr,
-  compegps_args,
+  &compegps_args,
   CET_CHARSET_MS_ANSI, 1
   , NULL_POS_OPS,
   nullptr

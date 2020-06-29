@@ -19,55 +19,34 @@
 #ifndef gpsbabel_logging_h_included
 #define gpsbabel_logging_h_included
 
-// A wrapper for QTextStream that provides a sensible Warning() and Fatal()
-// with convenient stream operators.
+// A wrapper for QDebug that provides a sensible Warning() and FatalMsg()
+// with convenient functions, stream operators and manipulators.
 
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <cstdlib> //exit()
+#include <QtCore/QDebug>     // for QDebug
+#include <QtCore/QtGlobal>   // for QtCriticalMsg, QtWarningMsg
 
-class Warning {
- public:
-    explicit Warning(bool fatal = false) :
-   fatal_(fatal) {
-    file_.open(stderr, QIODevice::WriteOnly);
-    fileStream_.setDevice(&file_);
-  }
-  ~Warning() {
-    fileStream_ << '\n';
-    if (fatal_) {
-      fileStream_.flush();
-      exit(1);
-    }
-  }
-  inline Warning& operator << (char d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (signed short d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (unsigned short d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (signed int d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (unsigned int d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (signed long d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (unsigned long d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (qint64 d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (quint64 d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (float d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (double d) { fileStream_ << d; return optionalSpace(); }
-  inline Warning& operator << (const char* d) { fileStream_ << QString::fromUtf8(d); return optionalSpace(); }
-  inline Warning& operator << (const QString& d) { fileStream_ << '\"' << d << '\"'; return optionalSpace(); }
-  inline Warning& operator << (const void* d) { fileStream_ << '\"' << d << '\"'; return optionalSpace(); }
 
-  inline Warning& optionalSpace() {
-    fileStream_ << ' ';
-    return *this;
-  }
-private:
-  QFile file_;
-  QTextStream fileStream_;
-  bool fatal_;
+class Warning : public QDebug
+{
+public:
+  explicit Warning() : QDebug(QtWarningMsg) {}
 };
 
-class Fatal : public Warning {
- public:
-  Fatal() : Warning(true) {}
+/*
+ * To use a FatalMsg pass it to fatal(), e.g.
+ * fatal(FatalMsg() << "bye bye");
+ *
+ * This
+ * 1) allows the noreturn attribute on fatal to be use by analysis
+ *    tools such as cppcheck.
+ * 2) allows fatal to throw an exception instead of calling exit.
+ *    This could be caught by main for a cleaner exit from a fatal error.
+ */ 
+class FatalMsg : public QDebug
+{
+public:
+  // We don't use QtFatalMsg here because we don't want the destructor to call abort.
+  explicit FatalMsg() : QDebug(QtCriticalMsg) {}
 };
 
 #endif //  gpsbabel_logging_h_included

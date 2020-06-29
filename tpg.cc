@@ -39,9 +39,8 @@ static int tpg_datum_idx;
 static unsigned int waypt_out_count;
 
 static
-arglist_t tpg_args[] = {
+QVector<arglist_t> tpg_args = {
   {"datum", &tpg_datum_opt, "Datum (default=NAD27)", "N. America 1927 mean", ARGTYPE_STRING, ARG_NOMINMAX , nullptr},
-  ARG_TERMINATOR
 };
 
 static int
@@ -114,7 +113,7 @@ tpg_read()
 
 
   while (pointcount--) {
-    Waypoint* wpt_tmp = new Waypoint;
+    auto* wpt_tmp = new Waypoint;
 
     /* pascal-like shortname */
     wpt_tmp->shortname = gbfgetpstr(tpg_file_in);
@@ -223,7 +222,7 @@ tpg_waypt_pr(const Waypoint* wpt)
   lon *= -1.0;
 
   /* convert meters back to feets */
-  short int elev = (short int) METERS_TO_FEET(wpt->altitude);
+  auto elev = (short int) METERS_TO_FEET(wpt->altitude);
 
   /* 1 bytes stringsize for shortname */
   char c = shortname.length();
@@ -315,7 +314,7 @@ ff_vecs_t tpg_vecs = {
   tpg_read,
   tpg_write,
   nullptr,
-  tpg_args,
+  &tpg_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr};

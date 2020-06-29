@@ -81,7 +81,7 @@ static void
 read_tracks()
 {
   breadcrumb bc;
-  route_head* trk_head = route_head_alloc();
+  auto* trk_head = new route_head;
   trk_head->rte_num = 1;
   trk_head->rte_name = "PocketFMS";
   trk_head->rte_desc = "Breadcrumb";
@@ -103,7 +103,7 @@ read_tracks()
     tm.tm_min = le_readu16(&bc.minute);
     tm.tm_sec = le_readu16(&bc.second);
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
     wpt->latitude = le_read_float(&bc.latitude);
     wpt->longitude = le_read_float(&bc.longitude);
     wpt->altitude = FEET_TO_METERS(le_read_float(&bc.altitude));
@@ -120,11 +120,6 @@ read_tracks()
 }
 
 static void
-route_head_noop(const route_head*)
-{
-}
-
-static void
 pocketfms_waypt_disp(const Waypoint* wpt)
 {
   breadcrumb bc;
@@ -133,8 +128,10 @@ pocketfms_waypt_disp(const Waypoint* wpt)
   const time_t tt = wpt->GetCreationTime().toTime_t();
   struct tm* tm = localtime(&tt);
   if (wpt->creation_time.isValid()) {
-    const time_t tt = wpt->GetCreationTime().toTime_t();
-    tm = gmtime(&tt);
+    // It seems odd to reread waypoint time here, but this whole format
+    // is likely short-lived.
+    const time_t tt2 = wpt->GetCreationTime().toTime_t();
+    tm = gmtime(&tt2);
   }
 
   strcpy(bc.id, header_id);
@@ -169,7 +166,7 @@ data_read()
 static void
 data_write()
 {
-  track_disp_all(route_head_noop, route_head_noop, pocketfms_waypt_disp);
+  track_disp_all(nullptr, nullptr, pocketfms_waypt_disp);
 }
 
 ff_vecs_t pocketfms_bc_vecs = {

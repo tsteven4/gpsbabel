@@ -22,7 +22,6 @@
 #include "defs.h"
 #include "csv_util.h"
 #include "magellan.h"
-#include "xmlgeneric.h"
 #include <QtCore/QXmlStreamAttributes>
 #include <cmath>
 #include <cstdio>
@@ -97,7 +96,7 @@ maggeo_read()
     buff += 9; /* skip field no. 1 */
     int fld = 1;
 
-    Waypoint* wpt_tmp = new Waypoint;
+    auto* wpt_tmp = new Waypoint;
     geocache_data* gcdata = wpt_tmp->AllocGCData();
 
     while ((s = csv_lineparse(buff, ",", "", fld++))) {

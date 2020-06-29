@@ -62,13 +62,11 @@
 #include <QtCore/QVector>       // for QVector
 
 #include <algorithm>            // for max
-#include <cstdlib>              // for atol, qsort
+#include <cstdlib>              // for qsort, strtol
 #include <tuple>                // for tie, tuple
-#include <utility>              // for pair, make_pair
+#include <utility>              // for pair, make_pair, swap
 
 #include "defs.h"
-#include "filterdefs.h"
-
 #include "grtcirc.h"            // for gcdist, linedist, radtometers, radtomiles, linepart
 #include "src/core/datetime.h"  // for DateTime
 
@@ -80,7 +78,7 @@
 
 void SimplifyRouteFilter::free_xte(struct xte* xte_rec)
 {
-  xfree(xte_rec->intermed);
+  delete xte_rec->intermed;
 }
 
 #define HUGEVAL 2000000000
@@ -90,8 +88,7 @@ void SimplifyRouteFilter::routesimple_waypt_pr(const Waypoint* wpt)
   if (!cur_rte) {
     return;
   }
-  xte_recs[xte_count].ordinal=xte_count;
-  xte_recs[xte_count].intermed = (struct xte_intermed*) xmalloc(sizeof(struct xte_intermed));
+  xte_recs[xte_count].intermed = new struct xte_intermed;
   xte_recs[xte_count].intermed->wpt = wpt;
   xte_recs[xte_count].intermed->xte_rec = xte_recs+xte_count;
   xte_recs[xte_count].intermed->next = nullptr;
@@ -163,25 +160,27 @@ void SimplifyRouteFilter::compute_xte(struct xte* xte_rec)
 
 int SimplifyRouteFilter::compare_xte(const void* a, const void* b)
 {
-  double distdiff = ((struct xte*)a)->distance -
-                    ((struct xte*)b)->distance;
-  int priodiff = ((struct xte*)a)->intermed->wpt->route_priority -
-                 ((struct xte*)b)->intermed->wpt->route_priority;
+  const auto* xte_a = static_cast<const struct xte*>(a);
+  const auto* xte_b = static_cast<const struct xte*>(b);
 
-  if (HUGEVAL == ((struct xte*)a)->distance) {
+  if (HUGEVAL == xte_a->distance) {
     return -1;
   }
 
-  if (HUGEVAL == ((struct xte*)b)->distance) {
+  if (HUGEVAL == xte_b->distance) {
     return 1;
   }
 
+  int priodiff = xte_a->intermed->wpt->route_priority -
+                 xte_b->intermed->wpt->route_priority;
   if (priodiff < 0) {
     return 1;
   }
   if (priodiff > 0) {
     return -1;
   }
+
+  double distdiff = xte_a->distance - xte_b->distance;
   if (distdiff < 0) {
     return 1;
   }
@@ -209,42 +208,25 @@ void SimplifyRouteFilter::routesimple_head(const route_head* rte)
     return;
   }
 
-  xte_recs = (struct xte*) xcalloc(rte->rte_waypt_ct, sizeof(struct xte));
+  xte_recs = new struct xte[rte->rte_waypt_ct];
   cur_rte = rte;
 
 }
 
 void SimplifyRouteFilter::shuffle_xte(struct xte* xte_rec)
 {
-  struct xte tmp_xte;
   while (xte_rec > xte_recs && compare_xte(xte_rec, xte_rec-1) < 0) {
-    tmp_xte.distance = xte_rec->distance;
-    tmp_xte.ordinal = xte_rec->ordinal;
-    tmp_xte.intermed = xte_rec->intermed;
-    xte_rec->distance = xte_rec[-1].distance;
-    xte_rec->ordinal = xte_rec[-1].ordinal;
-    xte_rec->intermed = xte_rec[-1].intermed;
-    xte_rec->intermed->xte_rec = xte_rec;
+    std::swap(xte_rec[0], xte_rec[-1]);
+    xte_rec[0].intermed->xte_rec = &xte_rec[0];
+    xte_rec[-1].intermed->xte_rec = &xte_rec[-1];
     xte_rec--;
-    xte_rec->distance = tmp_xte.distance;
-    xte_rec->ordinal = tmp_xte.ordinal;
-    xte_rec->intermed = tmp_xte.intermed;
-    xte_rec->intermed->xte_rec = xte_rec;
   }
   while (xte_rec - xte_recs < xte_count-2 &&
          compare_xte(xte_rec, xte_rec+1) > 0) {
-    tmp_xte.distance = xte_rec->distance;
-    tmp_xte.ordinal = xte_rec->ordinal;
-    tmp_xte.intermed = xte_rec->intermed;
-    xte_rec->distance = xte_rec[1].distance;
-    xte_rec->ordinal = xte_rec[1].ordinal;
-    xte_rec->intermed = xte_rec[1].intermed;
-    xte_rec->intermed->xte_rec = xte_rec;
+    std::swap(xte_rec[0], xte_rec[1]);
+    xte_rec[0].intermed->xte_rec = &xte_rec[0];
+    xte_rec[1].intermed->xte_rec = &xte_rec[1];
     xte_rec++;
-    xte_rec->distance = tmp_xte.distance;
-    xte_rec->ordinal = tmp_xte.ordinal;
-    xte_rec->intermed = tmp_xte.intermed;
-    xte_rec->intermed->xte_rec = xte_rec;
   }
 }
 
@@ -292,9 +274,9 @@ void SimplifyRouteFilter::routesimple_tail(const route_head* rte)
         totalerror += xte_recs[i].distance;
       }
     }
-    (*waypt_del_fnp)((route_head*)(void*)rte,
-                     (Waypoint*)(void*)(xte_recs[i].intermed->wpt));
-    delete (Waypoint*)(void*)(xte_recs[i].intermed->wpt);
+    (*waypt_del_fnp)(const_cast<route_head*>(rte),
+                     const_cast<Waypoint*>(xte_recs[i].intermed->wpt));
+    delete xte_recs[i].intermed->wpt;
 
     if (xte_recs[i].intermed->prev) {
       xte_recs[i].intermed->prev->next = xte_recs[i].intermed->next;
@@ -316,7 +298,7 @@ void SimplifyRouteFilter::routesimple_tail(const route_head* rte)
       free_xte(xte_recs+xte_count);
     } while (xte_count);
   }
-  xfree(xte_recs);
+  delete[] xte_recs;
 }
 
 void SimplifyRouteFilter::process()
@@ -412,7 +394,7 @@ void SimplifyRouteFilter::init()
   }
 
   if (countopt || decimateopt || averageopt) {
-    count = atol(countopt);
+    count = strtol(countopt, nullptr, 10);
   }
   if (erroropt) {
     int res = parse_distance(erroropt, &error, 1.0, MYNAME);

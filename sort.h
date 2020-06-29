@@ -22,6 +22,8 @@
 #ifndef SORT_H_INCLUDED_
 #define SORT_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for ARGTYPE_BOOL, ARG_NOMINMAX, arglist_t, ARG_TERMI...
 #include "filter.h"  // for Filter
 
@@ -30,9 +32,9 @@
 class SortFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -58,11 +60,11 @@ private:
   SortModeRteHd rte_sort_mode = SortModeRteHd::none;	/* How are we sorting these? */
   SortModeRteHd trk_sort_mode = SortModeRteHd::none;	/* How are we sorting these? */
 
-  char* opt_sm_gcid, *opt_sm_shortname, *opt_sm_description, *opt_sm_time;
-  char* opt_sm_rtenum, *opt_sm_rtename, *opt_sm_rtedesc;
-  char* opt_sm_trknum, *opt_sm_trkname, *opt_sm_trkdesc;
+  char* opt_sm_gcid{}, *opt_sm_shortname{}, *opt_sm_description{}, *opt_sm_time{};
+  char* opt_sm_rtenum{}, *opt_sm_rtename{}, *opt_sm_rtedesc{};
+  char* opt_sm_trknum{}, *opt_sm_trkname{}, *opt_sm_trkdesc{};
 
-  arglist_t args[11] = {
+  QVector<arglist_t> args = {
     {
       "description", &opt_sm_description, "Sort waypoints by description",
       nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
@@ -103,7 +105,6 @@ private:
       "trknum", &opt_sm_trknum, "Sort tracks by number",
       nullptr, ARGTYPE_BEGIN_EXCL | ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   static bool sort_comp_wpt_by_description(const Waypoint* a, const Waypoint* b);

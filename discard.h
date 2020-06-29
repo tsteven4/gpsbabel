@@ -24,6 +24,8 @@
 
 // Can't use QRegularExpression because Linux won't get Qt 5 for years.
 #include <QtCore/QRegExp>  // for QRegExp
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"          // for ARG_NOMINMAX, ARGTYPE_BEGIN_REQ, ARGTYPE_S...
 #include "filter.h"        // for Filter
 
@@ -31,9 +33,9 @@
 class DiscardFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -56,15 +58,15 @@ private:
   char* iconopt = nullptr;
   QRegExp icon_regex;
 
-  double hdopf;
-  double vdopf;
-  int satpf;
-  int eleminpf;
-  int elemaxpf;
+  double hdopf{};
+  double vdopf{};
+  int satpf{};
+  int eleminpf{};
+  int elemaxpf{};
   gpsdata_type what;
-  route_head* head;
+  route_head* head{};
 
-  arglist_t args[13] = {
+  QVector<arglist_t> args = {
     {
       "hdop", &hdopopt, "Suppress points with higher hdop",
       "-1.0", ARGTYPE_BEGIN_REQ | ARGTYPE_FLOAT, ARG_NOMINMAX, nullptr
@@ -117,7 +119,6 @@ private:
       "Suppress points where type matches given name", nullptr, ARGTYPE_STRING,
       ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   void fix_process_wpt(const Waypoint* wpt);

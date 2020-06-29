@@ -48,7 +48,6 @@
 #include <QtCore/QtGlobal>                 // for qAsConst, foreach, qPrintable, QAddConst<>::Type, qint64
 
 #include "defs.h"
-#include "filterdefs.h"
 #include "trackfilter.h"
 
 #include "grtcirc.h"                       // for RAD, gcdist, radtometers, heading_true_degrees
@@ -65,13 +64,11 @@
 int TrackFilter::trackfilter_opt_count()
 {
   int res = 0;
-  arglist_t* a = args;
 
-  while (a->argstring) {
-    if (*a->argval != nullptr) {
+  for (const auto& arg : qAsConst(args)) {
+    if (*arg.argval != nullptr) {
       res++;
     }
-    a++;
   }
   return res;
 }
@@ -477,7 +474,7 @@ void TrackFilter::trackfilter_split()
           distance *= 1000.0;
           break;
         case 'm': /* miles */
-          distance *= 1609.344;
+          distance *= kMetersPerMile;
           break;
         default:
           fatal(MYNAME ": invalid distance unit specified.\n");
@@ -550,7 +547,7 @@ void TrackFilter::trackfilter_split()
 #ifdef TRACKF_DBG
         printf(MYNAME ": splitting new track\n");
 #endif
-        curr = route_head_alloc();
+        curr = new route_head;
         trackfilter_split_init_rte_name(curr, buff.at(j)->GetCreationTime());
         track_add_head(curr);
         track_list.append(curr);
@@ -755,7 +752,7 @@ void TrackFilter::trackfilter_seg2trk()
       foreach (Waypoint* wpt, src->waypoint_list) {
         if (wpt->wpt_flags.new_trkseg && !first) {
 
-          dest = route_head_alloc();
+          dest = new route_head;
           dest->rte_num = src->rte_num;
           /* name in the form TRACKNAME #n */
           if (!src->rte_name.isEmpty()) {

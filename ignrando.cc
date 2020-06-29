@@ -38,9 +38,8 @@ static int xmlpoints;
 /* options */
 static char* index_opt = nullptr;
 
-static arglist_t ignr_args[] = {
+static QVector<arglist_t> ignr_args = {
   {"index", &index_opt, "Index of track to write (if more than one in source)", nullptr, ARGTYPE_INT, "1", nullptr , nullptr},
-  ARG_TERMINATOR
 };
 
 
@@ -76,7 +75,7 @@ ignr_start(xg_string, const QXmlStreamAttributes*)
 {
   ignr_xml_error((track != nullptr));
 
-  track = route_head_alloc();
+  track = new route_head;
   track_add_head(track);
 }
 
@@ -172,7 +171,7 @@ ignr_rw_deinit()
 }
 
 static void
-ignr_write_track_hdr(const route_head* track)
+ignr_write_track_hdr(const route_head* track_hdr)
 {
   track_num++;
 
@@ -181,29 +180,24 @@ ignr_write_track_hdr(const route_head* track)
   }
 
   gbfprintf(fout, "\t<INFORMATIONS>\n");
-  gbfprintf(fout, "\t\t<NB_ETAPES>%d</NB_ETAPES>\n", track->rte_waypt_ct);
-  if (track->rte_desc != nullptr) {
-    gbfprintf(fout, "\t\t<DESCRIPTION>%s</DESCRIPTION>\n", CSTRc(track->rte_desc));
+  gbfprintf(fout, "\t\t<NB_ETAPES>%d</NB_ETAPES>\n", track_hdr->rte_waypt_ct);
+  if (!track_hdr->rte_desc.isEmpty()) {
+    gbfprintf(fout, "\t\t<DESCRIPTION>%s</DESCRIPTION>\n", CSTRc(track_hdr->rte_desc));
   }
   gbfprintf(fout, "\t</INFORMATIONS>\n");
 }
 
 static void
-ignr_write_track_trl(const route_head*)
-{
-}
-
-static void
-ignr_write_waypt(const Waypoint* wpt)
+ignr_write_waypt(const Waypoint* waypoint)
 {
   if (track_num != track_index) {
     return;
   }
 
   gbfprintf(fout, "\t<ETAPE>\n");
-  gbfprintf(fout, "\t\t<POSITION>%3.6f,%3.6f</POSITION>\n", wpt->latitude, wpt->longitude);
-  if (wpt->altitude != unknown_alt) {
-    gbfprintf(fout, "\t\t<ALTITUDE>%3.6f</ALTITUDE>\n", wpt->altitude);
+  gbfprintf(fout, "\t\t<POSITION>%3.6f,%3.6f</POSITION>\n", waypoint->latitude, waypoint->longitude);
+  if (waypoint->altitude != unknown_alt) {
+    gbfprintf(fout, "\t\t<ALTITUDE>%3.6f</ALTITUDE>\n", waypoint->altitude);
   }
   gbfprintf(fout, "\t</ETAPE>\n");
 }
@@ -240,7 +234,7 @@ ignr_write()
   gbfprintf(fout, "\t\t<HEURE>%s</HEURE>\n", buff);
 
   gbfprintf(fout, "\t</ENTETE>\n");
-  track_disp_all(ignr_write_track_hdr, ignr_write_track_trl, ignr_write_waypt);
+  track_disp_all(ignr_write_track_hdr, nullptr, ignr_write_waypt);
   gbfprintf(fout, "</RANDONNEE>\n");
 }
 
@@ -254,7 +248,7 @@ ff_vecs_t ignr_vecs = {
   ignr_read,
   ignr_write,
   nullptr,
-  ignr_args,
+  &ignr_args,
   CET_CHARSET_MS_ANSI, 1
   , NULL_POS_OPS,
   nullptr

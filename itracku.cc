@@ -97,9 +97,9 @@ static void itracku_device_write_string(const char* s);
 static const char* itracku_device_read_string();
 
 /* global variables */
-static void* fd;  /* serial fd */
-static gbfile* fin; /* input file handle */
-static gbfile* fout; /* output file handle */
+static void* fd_;  /* serial fd */
+static gbfile* fin_; /* input file handle */
+static gbfile* fout_; /* output file handle */
 static gbfile* fbackup; /* backup file handle */
 static uint32_t backup_last_creation_time; /* time of last data record in backup file */
 static uint32_t new_waypoint_count; /* count of new waypoints */
@@ -126,7 +126,7 @@ itracku_device_write_string(const char* s)
 {
   int size = strlen(s) + 1;
   dbg(1, "write to device: %s", s);
-  gbser_write(fd, s, size);
+  gbser_write(fd_, s, size);
 }
 
 static const char*
@@ -134,7 +134,7 @@ itracku_device_read_string()
 {
   const int size = 1024;
   char* s = (char*) xmalloc(size);
-  gbser_read_line(fd, s, size, 1000, 0, 0);
+  gbser_read_line(fd_, s, size, 1000, 0, 0);
   dbg(1, "read from device: %s", s);
   return s;
 }
@@ -165,7 +165,7 @@ itracku_device_update_data_read(void* buf, int len)
     update_data_buffer_read = update_data_buffer;
   }
 
-  int rc = gbser_read_wait(fd, update_data_buffer_write, update_data_buffer_end - update_data_buffer_write, timeout);
+  int rc = gbser_read_wait(fd_, update_data_buffer_write, update_data_buffer_end - update_data_buffer_write, timeout);
   if (rc == gbser_ERROR) {
     return 0;
   }
@@ -303,7 +303,7 @@ encode_itracku_time(time_t time)
 static Waypoint*
 to_waypoint(itracku_data_record* d)
 {
-  Waypoint* wp = new Waypoint;
+  auto* wp = new Waypoint;
   wp->longitude = deg_min_to_deg(le_read32(d->longitude));
   wp->latitude = deg_min_to_deg(le_read32(d->latitude));
   wp->SetCreationTime(decode_itracku_time(le_read32(d->creation_time)));
@@ -339,7 +339,7 @@ init_device()
   dbg(1, "verifying device on port %s", port);
 
   itracku_device_write_string("WP AP-Exit");
-  gbser_flush(fd);
+  gbser_flush(fd_);
   itracku_device_write_string("W'P Camera Detect");
   const char* greeting = itracku_device_read_string();
 
@@ -359,11 +359,10 @@ init_device()
 // Values for ARGTYPE_xxx can be found in defs.h and are used to
 // select the type of option.
 static
-arglist_t itracku_args[] = {
+QVector<arglist_t> itracku_args = {
   { "backup", &backup_file_name, "Appends the input to a backup file", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
   { "new", &only_new, "Only waypoints that are not the backup file", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
 //   "default", ARGYTPE_STRING, ARG_NOMINMAX} ,
-  ARG_TERMINATOR
 };
 
 /*******************************************************************************
@@ -391,13 +390,13 @@ itracku_rd_ser_init(const QString& fname)
 #if LATER
   if (0 == strcmp(qPrintable(fname), port_auto_detect_filename)) {
     dbg(1, "auto detecting port for iTrackU device");
-    for (int i=1; !fd && i<port_auto_detect_max_port; ++i) {
+    for (int i=1; !fd_ && i<port_auto_detect_max_port; ++i) {
       xasprintf(&port, "com%d", i);
       if (!gbser_is_serial(port)) {
         break;
       }
       dbg(1, "trying port %s", port);
-      if ((fd = gbser_init(port)) == NULL) {
+      if ((fd_ = gbser_init(port)) == NULL) {
         dbg(1, "port %s not available.", port);
         continue;
       }
@@ -406,17 +405,17 @@ itracku_rd_ser_init(const QString& fname)
         break;
       }
 
-      gbser_deinit(fd);
-      fd = NULL;
+      gbser_deinit(fd_);
+      fd_ = NULL;
       xfree(port);
     }
-    for (int i=0; !fd && i<port_auto_detect_max_port; ++i) {
+    for (int i=0; !fd_ && i<port_auto_detect_max_port; ++i) {
       xasprintf(&port, "/dev/ttyUSB%d", i);
       if (!gbser_is_serial(port)) {
         break;
       }
       dbg(1, "trying port %s", port);
-      if ((fd = gbser_init(port)) == NULL) {
+      if ((fd_ = gbser_init(port)) == NULL) {
         dbg(1, "port %s not available.", port);
         continue;
       }
@@ -425,11 +424,11 @@ itracku_rd_ser_init(const QString& fname)
         break;
       }
 
-      gbser_deinit(fd);
-      fd = NULL;
+      gbser_deinit(fd_);
+      fd_ = NULL;
       xfree(port);
     }
-    if (fd == NULL) {
+    if (fd_ == NULL) {
       fatal(MYNAME ": could not find device");
     }
   } else
@@ -440,7 +439,7 @@ itracku_rd_ser_init(const QString& fname)
       port = xstrdup(qPrintable(fname));
 
       dbg(1, "opening port %s", qPrintable(fname));
-      if ((fd = gbser_init(port)) == nullptr) {
+      if ((fd_ = gbser_init(port)) == nullptr) {
         fatal(MYNAME ": can't initialise port \"%s\"", port);
       }
 
@@ -458,7 +457,7 @@ itracku_rd_ser_init(const QString& fname)
 static void
 itracku_rd_init(const QString& fname)
 {
-  fin = gbfopen(fname, "r", MYNAME);
+  fin_ = gbfopen(fname, "r", MYNAME);
   itracku_rd_init_common(fname);
 }
 
@@ -466,16 +465,16 @@ static void
 itracku_rd_deinit()
 {
   dbg(1, "%d new waypoints", new_waypoint_count);
-  if (fd) {
+  if (fd_) {
     dbg(3, "closing port %s", port);
-    gbser_deinit(fd);
-    fd = nullptr;
+    gbser_deinit(fd_);
+    fd_ = nullptr;
     xfree(port);
     port = nullptr;
   }
-  if (fin) {
-    gbfclose(fin);
-    fin = nullptr;
+  if (fin_) {
+    gbfclose(fin_);
+    fin_ = nullptr;
   }
   if (fbackup) {
     gbfclose(fbackup);
@@ -582,10 +581,10 @@ itracku_file_write_waypt(gbfile* fout, const Waypoint* wpt)
 static void
 itracku_waypt_input(void (*waypt_add)(Waypoint*))
 {
-  if (fd) {
-    itracku_device_dump_waypts(fd, waypt_add);
+  if (fd_) {
+    itracku_device_dump_waypts(fd_, waypt_add);
   } else {
-    itracku_file_read_waypts(fin, waypt_add);
+    itracku_file_read_waypts(fin_, waypt_add);
   }
 }
 
@@ -606,7 +605,7 @@ itracku_read_trk_waypt_add(Waypoint* wpt)
 static void
 itracku_read_trk()
 {
-  itracku_read_trk_track = route_head_alloc();
+  itracku_read_trk_track = new route_head;
   track_add_head(itracku_read_trk_track);
   itracku_waypt_input(&itracku_read_trk_waypt_add);
 }
@@ -633,30 +632,25 @@ itracku_read()
 static void
 itracku_wr_init(const QString& fname)
 {
-  fout = gbfopen(fname, "w", MYNAME);
+  fout_ = gbfopen(fname, "w", MYNAME);
 }
 
 static void
 itracku_wr_deinit()
 {
-  gbfclose(fout);
+  gbfclose(fout_);
 }
 
 static void
 itracku_output_waypoint(const Waypoint* wp)
 {
-  itracku_file_write_waypt(fout, wp);
+  itracku_file_write_waypt(fout_, wp);
 }
 
 static void
 itracku_write()
 {
   waypt_disp_all(itracku_output_waypoint);
-}
-
-static void
-itracku_exit()		/* optional */
-{
 }
 
 static void
@@ -716,7 +710,7 @@ gprmc_parse(char* ibuf)
   dmy = dmy / 100;
   tm.tm_mday = dmy;
 
-  Waypoint* waypt = new Waypoint;
+  auto* waypt = new Waypoint;
 
   WAYPT_SET(waypt, speed, KNOTS_TO_MPS(speed));
 
@@ -749,7 +743,7 @@ itracku_rt_position(posn_status*)
 {
   char line[1024];
   while (true) {
-    gbser_read_line(fd, line, sizeof(line), 5000, 13, 10);
+    gbser_read_line(fd_, line, sizeof(line), 5000, 13, 10);
     dbg(1, line);
     Waypoint* wpt = gprmc_parse(line);
     if (wpt) {
@@ -780,8 +774,8 @@ ff_vecs_t itracku_vecs = {
   nullptr,
   itracku_read,
   nullptr,
-  itracku_exit,
-  itracku_args,
+  nullptr,
+  &itracku_args,
   CET_CHARSET_ASCII, 0, /* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   { itracku_rt_init, itracku_rt_position, itracku_rt_deinit, nullptr, nullptr, nullptr },
@@ -801,8 +795,8 @@ ff_vecs_t itracku_fvecs = {
   itracku_wr_deinit,
   itracku_read,
   itracku_write,
-  itracku_exit,
-  itracku_args,
+  nullptr,
+  &itracku_args,
   CET_CHARSET_ASCII, 0, /* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr },

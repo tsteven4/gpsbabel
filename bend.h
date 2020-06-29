@@ -23,6 +23,8 @@
 #ifndef BEND_H_INCLUDED_
 #define BEND_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for route_head (ptr only), ARGTYPE_FLOAT, ARG_NOMINMAX
 #include "filter.h"  // for Filter
 
@@ -31,9 +33,9 @@
 class BendFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -43,12 +45,12 @@ private:
   char* distopt = nullptr;
   char* minangleopt = nullptr;
 
-  double maxDist;
-  double minAngle;
+  double maxDist{};
+  double minAngle{};
 
   RouteList* routes_orig = nullptr;
 
-  arglist_t args[3] = {
+  QVector<arglist_t> args = {
     {
       "distance", &distopt, "Distance to the bend in meters where the new points will be added",
       "25", ARGTYPE_FLOAT, ARG_NOMINMAX, nullptr
@@ -57,7 +59,6 @@ private:
       "minangle", &minangleopt, "Minimum bend angle in degrees", "5",
       ARGTYPE_FLOAT, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   Waypoint* create_wpt_dest(const Waypoint* wpt_orig, double lat_orig,

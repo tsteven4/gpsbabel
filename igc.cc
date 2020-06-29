@@ -153,7 +153,7 @@ inline state_t& operator++(state_t& s) // prefix
 {
   return s = static_cast<state_t>(s + 1);
 }
-inline const state_t operator++(state_t& s, int) // postfix
+inline state_t operator++(state_t& s, int) // postfix
 {
   state_t ret(s);
   s = ++s;
@@ -185,7 +185,7 @@ static void igc_task_rec(const char* rec)
   // First task record identifies the task to follow
   if (id == state) {
     task_desc[0] = '\0';
-    if (sscanf(rec, "C%2u%2u%2u%2u%2u%2u%6[0-9]%4c%2u%79[^\r]\r\n",
+    if (sscanf(rec, "C%2u%2u%2u%2u%2u%2u%6[0-9]%4c%2u%78[^\r]\r\n",
                &tm.tm_mday, &tm.tm_mon, &tm.tm_year,
                &tm.tm_hour, &tm.tm_min, &tm.tm_sec,
                flight_date, task_num, &num_tp, task_desc) < 9) {
@@ -200,7 +200,7 @@ static void igc_task_rec(const char* rec)
     creation = mkgmtime(&tm);
 
     // Create a route to store the task data in.
-    rte_head = route_head_alloc();
+    rte_head = new route_head;
     rte_head->rte_name = task_num;
     rte_head->rte_desc = QStringLiteral(DATEMAGIC) + flight_date + QStringLiteral(": ") + task_desc;
     route_add_head(rte_head);
@@ -209,13 +209,13 @@ static void igc_task_rec(const char* rec)
   }
   // Get the waypoint
   tmp_str[0] = '\0';
-  if (sscanf(rec, "C%2u%2u%3u%1[NS]%3u%2u%3u%1[WE]%79[^\r]\r\n",
+  if (sscanf(rec, "C%2u%2u%3u%1[NS]%3u%2u%3u%1[WE]%78[^\r]\r\n",
              &lat_deg, &lat_min, &lat_frac, lat_hemi,
              &lon_deg, &lon_min, &lon_frac, lon_hemi, tmp_str) < 8) {
     fatal(MYNAME ": task waypoint (C) record parse error\n%s", rec);
   }
 
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
   wpt->latitude = ('N' == lat_hemi[0] ? 1 : -1) *
                   (lat_deg + (lat_min * 1000 + lat_frac) / 1000.0 / 60);
 
@@ -305,7 +305,7 @@ static void data_read()
 
     case rec_header:
       // Get the header sub type
-      if (sscanf(ibuf, "H%*1[FOP]%3s", tmp_str) != 1) {
+      if (sscanf(ibuf, "H%*1[FOPS]%3s", tmp_str) != 1) {
         fatal(MYNAME ": header (H) record parse error\n%s\n%s\n", ibuf, tmp_str);
       }
       // Optional long name of record sub type is followed by a
@@ -331,9 +331,10 @@ static void data_read()
       } else {
         // Store other header data in the track descriptions
         if (strlen(trk_desc) < MAXDESCLEN) {
-          strcat(ibuf, HDRDELIM);
           remain = MAXDESCLEN - strlen(trk_desc);
           strncat(trk_desc, ibuf, remain);
+          remain = MAXDESCLEN - strlen(trk_desc);
+          strncat(trk_desc, HDRDELIM, remain);
         }
       }
       break;
@@ -345,14 +346,14 @@ static void data_read()
       }
       // Create a track for pressure altitude waypoints
       if (!pres_head) {
-        pres_head = route_head_alloc();
+        pres_head = new route_head;
         pres_head->rte_name = PRESTRKNAME;
         pres_head->rte_desc = trk_desc;
         track_add_head(pres_head);
       }
       // Create a second track for GNSS altitude waypoints
       if (!gnss_head) {
-        gnss_head = route_head_alloc();
+        gnss_head = new route_head;
         gnss_head->rte_name = GNSSTRKNAME;
         gnss_head->rte_desc = trk_desc;
         track_add_head(gnss_head);
@@ -611,7 +612,6 @@ static void wr_header()
   gbfprintf(file_out, "HFDTE%s\r\n", date2str(tm));
 
   // Other header data may have been stored in track description
-#if NEW_STRINGS
   if (track && track->rte_desc.startsWith(HDRMAGIC)) {
     char *rd = xstrdup(track->rte_desc);
     for (str = strtok(rd + strlen(HDRMAGIC) + strlen(HDRDELIM), HDRDELIM);
@@ -620,25 +620,13 @@ static void wr_header()
     }
     xfree(rd);
     rd = nullptr;
-#else
-  if (track && track->rte_desc && strncmp(track->rte_desc, HDRMAGIC, strlen(HDRMAGIC)) == 0) {
-    for (str = strtok(CSTRc(track->rte_desc) + strlen(HDRMAGIC) + strlen(HDRDELIM), HDRDELIM);
-         str; str = strtok(NULL, HDRDELIM)) {
-      gbfprintf(file_out, "%s\r\n", str);
-    }
-#endif
   } else {
-#if NEW_STRINGS
 // FIXME: This almost certainly introduces a memory leak because str
 // is a c string that's used for totally too many things.  Just let it
 // leak for now. 2013-12-31 robertl
     if (nullptr != (wpt = find_waypt_by_name("PILOT")) && !wpt->description.isEmpty()) {
       xfree(str);
       str = xstrdup(CSTRc(wpt->description));
-#else
-    if (NULL != (wpt = find_waypt_by_name("PILOT")) && wpt->description) {
-      str = CSTRc(wpt->description);
-#endif
     } else {
       // IGC header info not found so synthesise it.
       // If a waypoint is supplied with a short name of "PILOT", use
@@ -938,13 +926,12 @@ static void data_write()
 }
 
 
-static arglist_t igc_args[] = {
+static QVector<arglist_t> igc_args = {
   {
     "timeadj", &timeadj,
     "(integer sec or 'auto') Barograph to GPS time diff",
     nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 ff_vecs_t igc_vecs = {
@@ -957,7 +944,7 @@ ff_vecs_t igc_vecs = {
   data_read,
   data_write,
   nullptr,
-  igc_args,
+  &igc_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

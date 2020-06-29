@@ -31,8 +31,7 @@
 
 
 static
-arglist_t skyforce_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> skyforce_args = {
 };
 
 static gbfile* fin, *fout;
@@ -48,7 +47,7 @@ skyforce_parse_coords(const char* str)
     fatal(MYNAME ": Incomplete line!\n");
   }
 
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
   wpt->latitude = atof(str + 21);
   if (str[20] == 'S') {
@@ -67,7 +66,7 @@ skyforce_parse_coords(const char* str)
 
 
 static Waypoint*
-skyforce_parse_wpt(const char* str, int* rte_num)
+skyforce_parse_wpt(const char* str, int* rte_num_out)
 {
   Waypoint* wpt = skyforce_parse_coords(str);
   if (wpt == nullptr) {
@@ -79,8 +78,8 @@ skyforce_parse_wpt(const char* str, int* rte_num)
   // Grab "BEARHILL" and whack trailing space.
   wpt->shortname = QString(str).mid(10,9).trimmed();
 
-  if (rte_num) {
-    *rte_num = atoi(str + 2);
+  if (rte_num_out) {
+    *rte_num_out = atoi(str + 2);
   }
 
   return wpt;
@@ -283,7 +282,7 @@ skyforce_read()
       }
 
       if (rte == nullptr) {
-        rte = route_head_alloc();
+        rte = new route_head;
         route_add_head(rte);
         rte->rte_num = rte_num;
       }
@@ -296,7 +295,7 @@ skyforce_read()
         continue;
       }
       if (trk == nullptr) {
-        trk = route_head_alloc();
+        trk = new route_head;
         track_add_head(trk);
       }
       track_add_wpt(trk, wpt);
@@ -378,7 +377,7 @@ ff_vecs_t skyforce_vecs = {
   skyforce_read,
   skyforce_write,
   nullptr,
-  skyforce_args,
+  &skyforce_args,
   CET_CHARSET_ASCII, 1
   , NULL_POS_OPS,
   nullptr

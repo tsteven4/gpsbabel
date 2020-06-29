@@ -29,8 +29,7 @@
 static gbfile* fin;
 
 static
-arglist_t mapbar_track_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> mapbar_track_args = {
 };
 
 /*******************************************************************************
@@ -70,7 +69,7 @@ read_waypoint()
   int longitude = gbfgetint32(fin);
   int latitude = gbfgetint32(fin);
 
-  Waypoint* ret = new Waypoint;
+  auto* ret = new Waypoint;
 
   ret->latitude = double(latitude)/DIV_RATE;
   ret->longitude = double(longitude)/DIV_RATE;
@@ -81,7 +80,7 @@ read_waypoint()
 static void
 mapbar_track_read()
 {
-  route_head* track = route_head_alloc();
+  auto* track = new route_head;
   is_fatal((track == nullptr), MYNAME ": memory non-enough");
   track_add_head(track);
 
@@ -140,7 +139,7 @@ ff_vecs_t mapbar_track_vecs = {
   mapbar_track_read,
   nullptr,
   nullptr,
-  mapbar_track_args,
+  &mapbar_track_args,
   CET_CHARSET_UTF8, 0
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

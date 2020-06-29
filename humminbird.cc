@@ -189,17 +189,16 @@ static const char* humminbird_icons[] = {
   "Snapshot"      /* 29 */
 };
 
-static gbfile* fin;
-static gbfile* fout;
+static gbfile* fin_;
+static gbfile* fout_;
 static int waypoint_num;
 static short_handle wptname_sh, rtename_sh, trkname_sh;
 static humminbird_rte_t* humrte;
-static int rte_num;
+static int rte_num_;
 static QMap<QString, Waypoint*> map;
 
 static
-arglist_t humminbird_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> humminbird_args = {
 };
 
 /* Takes a latitude in degrees,
@@ -252,13 +251,13 @@ inverse_gudermannian_i1924(const double x)
 static void
 humminbird_rd_init(const QString& fname)
 {
-  fin = gbfopen_be(fname, "rb", MYNAME);
+  fin_ = gbfopen_be(fname, "rb", MYNAME);
 }
 
 static void
 humminbird_rd_deinit()
 {
-  gbfclose(fin);
+  gbfclose(fin_);
 }
 
 static void
@@ -280,7 +279,7 @@ humminbird_read_wpt(gbfile* fin)
 
   /* All right! Copy the data to the gpsbabel struct... */
 
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
   // Could probably find a way to eliminate the alloc/copy.
   char* s = xstrndup(w.name, sizeof(w.name));
@@ -353,7 +352,7 @@ humminbird_read_route(gbfile* fin)
       if ((map.value(buff))) {
         const Waypoint* wpt = map.value(buff);
         if (rte == nullptr) {
-          rte = route_head_alloc();
+          rte = new route_head;
           route_add_head(rte);
           // TODO: find a way to eliminate the copy.
           char* s = xstrndup(hrte.name, sizeof(hrte.name));
@@ -404,7 +403,7 @@ humminbird_read_track(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  humminbird_trk_point_t* points = (humminbird_trk_point_t*) xcalloc(th.num_points, sizeof(humminbird_trk_point_t));
+  auto* points = (humminbird_trk_point_t*) xcalloc(th.num_points, sizeof(humminbird_trk_point_t));
   if (! gbfread(points, sizeof(humminbird_trk_point_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -412,7 +411,7 @@ humminbird_read_track(gbfile* fin)
   int32_t accum_east = th.start_east;
   int32_t accum_north = th.start_north;
 
-  route_head* trk = route_head_alloc();
+  auto* trk = new route_head;
   track_add_head(trk);
 
   // TODO: find a way to eliminate the copy.
@@ -423,7 +422,7 @@ humminbird_read_track(gbfile* fin)
 
   /* We create one wpt for the info in the header */
 
-  Waypoint* first_wpt = new Waypoint;
+  auto* first_wpt = new Waypoint;
   double g_lat = gudermannian_i1924(accum_north);
   first_wpt->latitude  = geocentric_to_geodetic_hwr(g_lat);
   first_wpt->longitude = accum_east/EAST_SCALE * 180.0;
@@ -432,7 +431,7 @@ humminbird_read_track(gbfile* fin)
   track_add_wpt(trk, first_wpt);
 
   for (int i = 0 ; i<th.num_points-1 ; i++) {
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     points[i].depth      = be_read16(&points[i].depth);
     points[i].deltaeast  = be_read16(&points[i].deltaeast);
@@ -511,7 +510,7 @@ humminbird_read_track_old(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  humminbird_trk_point_old_t* points = (humminbird_trk_point_old_t*)xcalloc(th.num_points, sizeof(humminbird_trk_point_old_t));
+  auto* points = (humminbird_trk_point_old_t*)xcalloc(th.num_points, sizeof(humminbird_trk_point_old_t));
   if (! gbfread(points, sizeof(humminbird_trk_point_old_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -519,7 +518,7 @@ humminbird_read_track_old(gbfile* fin)
   int32_t accum_east = th.start_east;
   int32_t accum_north = th.start_north;
 
-  route_head* trk = route_head_alloc();
+  auto* trk = new route_head;
   track_add_head(trk);
 
   /* The name is not in the header, but at the end of the file.
@@ -533,7 +532,7 @@ humminbird_read_track_old(gbfile* fin)
 
   /* We create one wpt for the info in the header */
 
-  Waypoint* first_wpt = new Waypoint;
+  auto* first_wpt = new Waypoint;
   double g_lat = gudermannian_i1924(accum_north);
   first_wpt->latitude  = geocentric_to_geodetic_hwr(g_lat);
   first_wpt->longitude = accum_east/EAST_SCALE * 180.0;
@@ -541,7 +540,7 @@ humminbird_read_track_old(gbfile* fin)
   track_add_wpt(trk, first_wpt);
 
   for (int i = 0 ; i<th.num_points-1 ; i++) {
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     points[i].deltaeast  = be_read16(&points[i].deltaeast);
     points[i].deltanorth = be_read16(&points[i].deltanorth);
@@ -588,22 +587,22 @@ humminbird_read_track_old(gbfile* fin)
 static void
 humminbird_read()
 {
-  while (! gbfeof(fin)) {
-    uint32_t signature = gbfgetuint32(fin);
+  while (! gbfeof(fin_)) {
+    uint32_t signature = gbfgetuint32(fin_);
 
     switch (signature) {
     case WPT_MAGIC:
     case WPT_MAGIC2:
-      humminbird_read_wpt(fin);
+      humminbird_read_wpt(fin_);
       break;
     case RTE_MAGIC:
-      humminbird_read_route(fin);
+      humminbird_read_route(fin_);
       break;
     case TRK_MAGIC:
-      humminbird_read_track(fin);
+      humminbird_read_track(fin_);
       return; /* Don't continue. The rest of the file is all zeores */
     case TRK_MAGIC2:
-      humminbird_read_track_old(fin);
+      humminbird_read_track_old(fin_);
       return; /* Don't continue. The rest of the file is all zeores */
     default:
       fatal(MYNAME ": Invalid record header \"0x%08X\" (no or unknown humminbird file)!\n", signature);
@@ -617,7 +616,7 @@ humminbird_read()
 static void
 humminbird_wr_init(const QString& fname)
 {
-  fout = gbfopen_be(fname, "wb", MYNAME);
+  fout_ = gbfopen_be(fname, "wb", MYNAME);
 
   wptname_sh = mkshort_new_handle();
 
@@ -648,7 +647,7 @@ humminbird_wr_init(const QString& fname)
   setshort_defname(trkname_sh, "Track");
 
   waypoint_num = 0;
-  rte_num = 0;
+  rte_num_ = 0;
 }
 
 static void
@@ -657,7 +656,7 @@ humminbird_wr_deinit()
   mkshort_del_handle(&wptname_sh);
   mkshort_del_handle(&rtename_sh);
   mkshort_del_handle(&trkname_sh);
-  gbfclose(fout);
+  gbfclose(fout_);
 }
 
 static void
@@ -712,8 +711,8 @@ humminbird_write_waypoint(const Waypoint* wpt)
   memset(&hum.name, 0, sizeof(hum.name));
   memcpy(&hum.name, CSTR(name), name.length());
 
-  gbfputuint32(WPT_MAGIC, fout);
-  gbfwrite(&hum, sizeof(hum), 1, fout);
+  gbfputuint32(WPT_MAGIC, fout_);
+  gbfwrite(&hum, sizeof(hum), 1, fout_);
 }
 
 static humminbird_trk_header_t* trk_head;
@@ -765,10 +764,10 @@ humminbird_track_tail(const route_head*)
   /* Actually write it out */
 
 
-  gbfputuint32(TRK_MAGIC, fout);
-  gbfwrite(trk_head, 1, sizeof(humminbird_trk_header_t), fout);
-  gbfwrite(trk_points, max_points, sizeof(humminbird_trk_point_t), fout);
-  gbfputuint16(0, fout); /* Odd but true. The format doesn't fit an int nr of entries. */
+  gbfputuint32(TRK_MAGIC, fout_);
+  gbfwrite(trk_head, 1, sizeof(humminbird_trk_header_t), fout_);
+  gbfwrite(trk_points, max_points, sizeof(humminbird_trk_point_t), fout_);
+  gbfputuint16(0, fout_); /* Odd but true. The format doesn't fit an int nr of entries. */
 
   xfree(trk_head);
   xfree(trk_points);
@@ -866,7 +865,7 @@ humminbird_rte_tail(const route_head* rte)
   }
 
   if (humrte->count > 0) {
-    humrte->num = rte_num++;
+    humrte->num = rte_num_++;
     humrte->time = gpsbabel_time;
     for (int i = 0; i < humrte->count; i++) {
       be_write16(&humrte->points[i], humrte->points[i]);
@@ -878,8 +877,8 @@ humminbird_rte_tail(const route_head* rte)
     QString name = mkshort(rtename_sh, rte->rte_name);
     strncpy(humrte->name, CSTR(name), sizeof(humrte->name));
 
-    gbfputuint32(RTE_MAGIC, fout);
-    gbfwrite(humrte, sizeof(*humrte), 1, fout);
+    gbfputuint32(RTE_MAGIC, fout_);
+    gbfwrite(humrte, sizeof(*humrte), 1, fout_);
   }
 
   xfree(humrte);
@@ -951,7 +950,7 @@ ff_vecs_t humminbird_vecs = {
   humminbird_read,
   humminbird_write,
   nullptr, // humminbird_exit,
-  humminbird_args,
+  &humminbird_args,
   CET_CHARSET_ASCII, 1			/* ascii is the expected character set */
   /* currently fixed !!! */
   , NULL_POS_OPS,
@@ -976,7 +975,7 @@ ff_vecs_t humminbird_ht_vecs = {
   humminbird_read,
   humminbird_track_write,
   nullptr, // humminbird_exit,
-  humminbird_args,
+  &humminbird_args,
   CET_CHARSET_ASCII, 1			/* ascii is the expected character set */
   /* currently fixed !!! */
   , NULL_POS_OPS,

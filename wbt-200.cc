@@ -208,7 +208,7 @@ static void buf_extend(struct buf_head* h, size_t amt)
 {
   size_t sz = amt + sizeof(struct buf_chunk);
 
-  struct buf_chunk* c = (struct buf_chunk*) xmalloc(sz);
+  auto* c = (struct buf_chunk*) xmalloc(sz);
   c->next = nullptr;
   c->size = amt;
   c->used = 0;
@@ -224,7 +224,7 @@ static void buf_extend(struct buf_head* h, size_t amt)
 
 static void buf_update_checksum(struct buf_head* h, const void* data, size_t len)
 {
-  unsigned char* cp = (unsigned char*) data;
+  auto* cp = (unsigned char*) data;
 
   db(4, "Updating checksum with %p, %lu, before: %02x ",
      data, (unsigned long) len, h->checksum);
@@ -537,7 +537,7 @@ static int check_date(uint32_t tim)
 static Waypoint* make_point(double lat, double lon, double alt, time_t tim, const char* fmt, int index)
 {
   char     wp_name[20];
-  Waypoint* wpt = new Waypoint;
+  auto* wpt = new Waypoint;
 
   sprintf(wp_name, fmt, index);
 
@@ -595,7 +595,7 @@ static int wbt200_data_chunk(struct read_state* st, const void* buf, int fmt)
 
   if (nullptr == st->route_head_) {
     db(1, "New Track\n");
-    st->route_head_ = route_head_alloc();
+    st->route_head_ = new route_head;
     track_add_head(st->route_head_);
   }
 
@@ -809,7 +809,7 @@ static int wbt201_data_chunk(struct read_state* st, const void* buf)
 
   double lat = (double)((int32_t) le_read32(bp +  6)) / 10000000;
   double lon = (double)((int32_t) le_read32(bp + 10)) / 10000000;
-  double alt = (double)((int16_t) le_read16(bp + 14));
+  auto alt = (double)((int16_t) le_read16(bp + 14));
 
   time_t rtim = decode_date(tim);
 
@@ -827,7 +827,7 @@ static int wbt201_data_chunk(struct read_state* st, const void* buf)
 
     if (nullptr == st->route_head_) {
       db(1, "New Track\n");
-      st->route_head_ = route_head_alloc();
+      st->route_head_ = new route_head;
       track_add_head(st->route_head_);
     }
 
@@ -1054,12 +1054,11 @@ static void data_read()
 
 /* wbt */
 
-static arglist_t wbt_sargs[] = {
+static QVector<arglist_t> wbt_sargs = {
   {
     "erase", &erase, "Erase device data after download",
     "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 ff_vecs_t wbt_svecs = {
@@ -1072,7 +1071,7 @@ ff_vecs_t wbt_svecs = {
   data_read,
   nullptr,
   nullptr,
-  wbt_sargs,
+  &wbt_sargs,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything | CET-REVIEW */
   , NULL_POS_OPS,
   nullptr
@@ -1080,8 +1079,7 @@ ff_vecs_t wbt_svecs = {
 
 /* used for wbt-bin /and/ wbt-tk1 */
 
-static arglist_t wbt_fargs[] = {
-  ARG_TERMINATOR
+static QVector<arglist_t> wbt_fargs = {
 };
 
 ff_vecs_t wbt_fvecs = {
@@ -1094,7 +1092,7 @@ ff_vecs_t wbt_fvecs = {
   file_read,
   nullptr,
   nullptr,
-  wbt_fargs,
+  &wbt_fargs,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything | CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

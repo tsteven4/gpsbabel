@@ -36,7 +36,7 @@ static char* timesynth = nullptr;
 static int control = 0;
 
 static
-arglist_t saroute_args[] = {
+QVector<arglist_t> saroute_args = {
   {
     "turns_important", &turns_important,
     "Keep turns if simplify filter is used",
@@ -58,7 +58,6 @@ arglist_t saroute_args[] = {
     "times", &timesynth, "Synthesize track times",
     nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 #define ReadShort(f) gbfgetint16(f)
@@ -67,7 +66,7 @@ arglist_t saroute_args[] = {
 static unsigned char*
 ReadRecord(gbfile* f, gbsize_t size)
 {
-  unsigned char* result = (unsigned char*) xmalloc(size);
+  auto* result = (unsigned char*) xmalloc(size);
 
   (void)gbfread(result, size, 1, f);
   return result;
@@ -169,7 +168,7 @@ my_read()
    * here lie the route description records
    */
   if (version < 6 || (control == 1)) {
-    track_head = route_head_alloc();
+    track_head = new route_head;
     route_add_head(track_head);
     if (control) {
       track_head->rte_name = "control points";
@@ -212,30 +211,12 @@ my_read()
         int addrlen = le_read16(&record[obase]);
         int cmtlen = le_read16(&record[obase+2+addrlen]);
         (void) cmtlen;
-#if NEW_STRINGS
         // That we've had no bugreports on this strongly indicates this code
-        // is never used... 
+        // is never used... Look in revision history if anyone cares.
         wpt_tmp->shortname = "booger";
         wpt_tmp->notes = "goober";
-#else
-        wpt_tmp->shortname = (char*) xmalloc(addrlen+1);
-        wpt_tmp->shortname[addrlen]='\0';
-        wpt_tmp->notes = (char*) xmalloc(cmtlen+1);
-        wpt_tmp->notes[cmtlen] = '\0';
-        memcpy(wpt_tmp->notes,
-               record+obase+4+addrlen,
-               cmtlen);
-        memcpy(wpt_tmp->shortname,
-               record+obase+2,
-               addrlen);
-#endif
       } else {
-#if NEW_STRINGS
-        wpt_tmp->shortname = QString().sprintf("\\%5.5x", serial++);
-#else
-        wpt_tmp->shortname = (char*) xmalloc(7);
-        sprintf(wpt_tmp->shortname, "\\%5.5x", serial++);
-#endif
+        wpt_tmp->shortname = QString::asprintf("\\%5.5x", serial++);
       }
       if (control == 2) {
         waypt_add(wpt_tmp);
@@ -287,7 +268,7 @@ my_read()
      */
     count = ReadLong(infile);
     if (count) {
-      track_head = route_head_alloc();
+      track_head = new route_head;
       if (timesynth) {
         track_add_head(track_head);
       } else {
@@ -306,26 +287,16 @@ my_read()
       if (split && stringlen) {
         if (track_head->rte_waypt_ct) {
           old_track_head = track_head;
-          track_head = route_head_alloc();
+          track_head = new route_head;
           if (timesynth) {
             track_add_head(track_head);
           } else {
             route_add_head(track_head);
           }
         } // end if
-#if NEW_STRINGS
         if (track_head->rte_name.isEmpty()) {
-          track_head->rte_name = "I made this up";
+          track_head->rte_name = "Track";
         }
-#else
-        if (!track_head->rte_name) {
-          track_head->rte_name =
-            (char*)xmalloc(stringlen+1);
-          strncpy(track_head->rte_name,
-                  (const char*) record+2, stringlen);
-          track_head->rte_name[stringlen] = '\0';
-        }
-#endif
       }
 
       if (timesynth) {
@@ -335,7 +306,7 @@ my_read()
                               (record + 2 + stringlen + 0x30));
         transittime = le_read32((uint32_t*)
                                 (record + 2 + stringlen + 0x10));
-        seglen /= 5280*12*2.54/100000; /* to miles */
+        seglen *= kMilesPerKilometer; /* to miles */
       }
 
       uint16_t coordcount = le_read16((uint16_t*)
@@ -363,23 +334,9 @@ my_read()
         wpt_tmp->latitude = lat;
         wpt_tmp->longitude = -lon;
         if (stringlen && ((coordcount>1) || count)) {
-#if NEW_STRINGS
           wpt_tmp->shortname = QString(((char*)record)+2);
-#else
-          wpt_tmp->shortname = (char*) xmalloc(stringlen+1);
-          wpt_tmp->shortname[stringlen] = '\0';
-          memcpy(wpt_tmp->shortname,
-                 ((char*)record)+2,
-                 stringlen);
-#endif
         } else {
-#if NEW_STRINGS
-          wpt_tmp->shortname = QString().sprintf("\\%5.5x", serial++);
-#else
-          wpt_tmp->shortname = (char*) xmalloc(7);
-          sprintf(wpt_tmp->shortname, "\\%5.5x",
-                  serial++);
-#endif
+          wpt_tmp->shortname = QString::asprintf("\\%5.5x", serial++);
         }
         if (timesynth) {
           if (!first) {
@@ -457,7 +414,7 @@ ff_vecs_t saroute_vecs = {
   my_read,
   nullptr,
   nullptr,
-  saroute_args,
+  &saroute_args,
   CET_CHARSET_UTF8, 1	/* do nothing | CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

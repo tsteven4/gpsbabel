@@ -1,7 +1,7 @@
 /*
     Read Netstumbler data files.
 
-    Copyright (C) 2004, 2005 Robert Lipe, robertlipe+source@gpsbabel.org and
+    Copyright (C) 2004-2020 Robert Lipe, robertlipe+source@gpsbabel.org and
     John Temples; gpsns@xargs.com
 
     This program is free software; you can redistribute it and/or modify
@@ -20,20 +20,20 @@
 
  */
 
-#include <cctype>                  // for isspace
-#include <cstdio>                  // for snprintf
-#include <cstdlib>                 // for atoi, atof, qsort, strtol
-#include <cstring>                 // for strcpy, strlen, memset, strncmp, strstr
-#include <ctime>                   // for mktime
-
-#include <QtCore/QString>          // for QString
-#include <QtCore/QtGlobal>         // for foreach
-
-#include "defs.h"
-#include "cet_util.h"              // for cet_convert_init
-#include "csv_util.h"              // for csv_lineparse
-#include "gbfile.h"                // for gbfclose, gbfgetstr, gbfopen, gbfile
-
+#include <QtCore/QDate>      // for QDate
+#include <QtCore/QDateTime>  // for QDateTime
+#include <QtCore/QString>    // for QString
+#include <QtCore/QTime>      // for QTime
+#include <QtCore/QVector>    // for QVector
+#include <QtCore/Qt>         // for UTC
+#include <cctype>            // for isspace
+#include <cstdio>            // for snprintf
+#include <cstdlib>           // for atof, atoi, qsort, strtol
+#include <cstring>           // for strcpy, strlen, strncmp, strstr
+#include "cet_util.h"        // for cet_convert_init
+#include "csv_util.h"        // for csv_lineparse
+#include "defs.h"            // for arglist_t, Waypoint, ff_cap, WaypointList, ff_cap_none, ddmm2degrees, ARG_NOMINMAX, ARGTYPE_STRING, ff_cap_read, get_crc32, lrtrim, waypt_add, xfree, xmalloc, ff_type_file, ARGTYPE_BOOL, CET_CHARSET_ASCII, CET_CHARSET_UTF8, CSTR, NULL_POS_OPS, ff_vecs_t
+#include "gbfile.h"          // for gbfclose, gbfgetstr, gbfopen, gbfile
 
 static gbfile* file_in;
 static char* nseicon = nullptr;
@@ -43,12 +43,12 @@ static char* sneicon = nullptr;
 static char* snmac = nullptr;
 static int macstumbler;
 
-static void	fix_netstumbler_dupes();
+static void	fix_netstumbler_dupes(const WaypointList*);
 
 #define MYNAME "NETSTUMBLER"
 
 static
-arglist_t netstumbler_args[] = {
+QVector<arglist_t> netstumbler_args = {
   {
     "nseicon", &nseicon, "Non-stealth encrypted icon name",
     "Red Square", ARGTYPE_STRING, ARG_NOMINMAX, nullptr
@@ -69,7 +69,6 @@ arglist_t netstumbler_args[] = {
     "snmac", &snmac, "Shortname is MAC address", nullptr, ARGTYPE_BOOL,
     ARG_NOMINMAX, nullptr
   },
-  ARG_TERMINATOR
 };
 
 static void
@@ -91,20 +90,21 @@ data_read()
   char* ibuf;
   char ssid[2 + 32 + 2 + 1];			/* "( " + SSID + " )" + null */
   char mac[2 + 17 + 2 + 1];			/* "( " + MAC + " )" + null */
-  char desc[sizeof ssid - 1 + 15 + 1];	/* room for channel/speed */
+  QString desc;
   double lat = 0, lon = 0;
   int line_no = 0;
   int stealth_num = 0, whitespace_num = 0;
   long flags = 0;
   int speed = 0, channel = 0;
-  struct tm tm;
   int line = 0;
-
-  memset(&tm, 0, sizeof(tm));
+  WaypointList tmp_waypt_list;
+  QDate date;
+  QTime time;
 
   while ((ibuf = gbfgetstr(file_in))) {
     int len;
     int stealth = 0;
+
 
     if ((line++ == 0) && file_in->unicode) {
       cet_convert_init(CET_CHARSET_UTF8, 1);
@@ -116,9 +116,7 @@ data_read()
 
     if (ibuf[0] == '#') {
       if (strncmp(&ibuf[2], "$DateGMT:", 9) == 0) {
-        tm.tm_year = atoi(&ibuf[12]) - 1900;
-        tm.tm_mon = atoi(&ibuf[17]) - 1;
-        tm.tm_mday = atoi(&ibuf[20]);
+        date = QDate::fromString(ibuf + 12, "yyyy-MM-dd");
       }
 
       /*
@@ -185,9 +183,7 @@ data_read()
         break;
 
       case 5:			/* time */
-        tm.tm_hour = atoi(field);
-        tm.tm_min = atoi(&field[3]);
-        tm.tm_sec = atoi(&field[6]);
+        time = QTime::fromString(field, "hh:mm:ss");
         break;
 
       case 8:					/* flags */
@@ -219,7 +215,7 @@ data_read()
       continue;
     }
 
-    Waypoint* wpt_tmp = new Waypoint;
+    auto* wpt_tmp = new Waypoint;
 
     if (stealth) {
       if (!snmac) {
@@ -240,21 +236,26 @@ data_read()
     }
 
     if (snmac) {
-      snprintf(desc, sizeof desc, "%s/%d Mbps/Ch %d", ssid, speed, channel);
+      desc = QString("%1/%2 Mbps/Ch %3").arg(ssid).arg(speed).arg(channel);
       wpt_tmp->shortname = (mac);
     } else {
-      snprintf(desc, sizeof desc, "%d Mbps/Ch %d/%s", speed, channel, mac);
+      desc = QString("%1 Mbps/Ch %2/%3").arg(speed).arg(channel).arg(mac);
       wpt_tmp->shortname = (ssid);
     }
 
     wpt_tmp->description = desc;
     wpt_tmp->longitude = lon;
     wpt_tmp->latitude = lat;
-    wpt_tmp->SetCreationTime(mktime(&tm));
+    wpt_tmp->SetCreationTime(QDateTime(date, time, Qt::UTC));
 
-    waypt_add(wpt_tmp);
+    tmp_waypt_list.waypt_add(wpt_tmp);
   }
-  fix_netstumbler_dupes();
+
+  fix_netstumbler_dupes(&tmp_waypt_list);
+
+  for (Waypoint* wpt : tmp_waypt_list) {
+    waypt_add(wpt);
+  }
 }
 
 struct htable_t {
@@ -297,19 +298,16 @@ compare(const void* a, const void* b)
 
 static
 void
-fix_netstumbler_dupes()
+fix_netstumbler_dupes(const WaypointList* waypt_list)
 {
-  int ct = waypt_count(), serial = 0;
+  int ct = waypt_list->count(), serial = 0;
   unsigned long last_crc;
 
-  htable_t* htable = (htable_t*) xmalloc(ct * sizeof *htable);
+  auto* htable = (htable_t*) xmalloc(ct * sizeof(htable_t));
   htable_t* bh = htable;
 
   int i = 0;
-  // Why, oh, why is this format running over the entire waypoint list and
-  // modifying it?  This seems wrong.
-  extern WaypointList* global_waypoint_list;
-  foreach(Waypoint* waypointp, *global_waypoint_list) {
+  for (Waypoint* waypointp : *waypt_list) {
     bh->wpt = waypointp;
     QString snptr = bh->wpt->shortname;
     QString tmp_sn = snptr.toLower();
@@ -343,7 +341,7 @@ ff_vecs_t netstumbler_vecs = {
   data_read,
   nullptr,
   nullptr,
-  netstumbler_args,
+  &netstumbler_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

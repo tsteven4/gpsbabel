@@ -26,12 +26,12 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include "nmea.h"
 
 #define MYNAME "jtr"
 
 static
-arglist_t jtr_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> jtr_args = {
 };
 
 static gbfile* fin, *fout;
@@ -207,7 +207,7 @@ jtr_read()
       continue;
     }
 
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
 
     wpt->latitude = lat;
     wpt->longitude = lon;
@@ -237,7 +237,7 @@ jtr_read()
     }
 
     if (trk == nullptr) {
-      trk = route_head_alloc();
+      trk = new route_head;
       track_add_head(trk);
     }
 
@@ -303,11 +303,11 @@ jtr_trkpt_disp_cb(const Waypoint* wpt)
             scourse,
             CSTR(sdate));
 
-  xasprintf(&tmp, "%s*%02X", str, nmea_cksum(str));
+  xasprintf(&tmp, "%s*%02X", str, NmeaFormat::nmea_cksum(str));
   xfree(str);
   str = tmp;
 
-  xasprintf(&tmp, "%s,,,E,,E*%02X\r", str, nmea_cksum(str));
+  xasprintf(&tmp, "%s,,,E,,E*%02X\r", str, NmeaFormat::nmea_cksum(str));
   xfree(str);
   str = tmp;
 
@@ -337,7 +337,7 @@ ff_vecs_t jtr_vecs = {
   jtr_read,
   jtr_write,
   nullptr,
-  jtr_args,
+  &jtr_args,
   CET_CHARSET_ASCII, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

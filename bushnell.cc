@@ -30,8 +30,7 @@ static QString ofname;
 static short_handle mkshort_handle = nullptr;
 
 static
-arglist_t bushnell_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> bushnell_args = {
 };
 
 // Apparently, the icons are undocumented, so we made up names,
@@ -198,7 +197,7 @@ wr_deinit()
 static void
 bushnell_read()
 {
-  Waypoint* wpt_tmp = new Waypoint;
+  auto* wpt_tmp = new Waypoint;
 
   int32_t lat_tmp = gbfgetint32(file_in);
   int32_t lon_tmp = gbfgetint32(file_in);
@@ -234,7 +233,7 @@ bushnell_write_one(const Waypoint* wpt)
   gbfputc(bushnell_get_icon_from_name(wpt->icon_descr), file_out);
   gbfputc(0x01, file_out);  // Proximity alarm.  1 == "off", 3 == armed.
 
-  strncpy(tbuf, CSTRc(wpt->shortname), sizeof(tbuf));
+  strncpy(tbuf, CSTRc(wpt->shortname), sizeof(tbuf) - 1);
   tbuf[sizeof(tbuf)-1] = 0;
   gbfwrite(tbuf, sizeof(tbuf), 1, file_out);
 
@@ -260,7 +259,7 @@ ff_vecs_t bushnell_vecs = {
   bushnell_read,
   bushnell_write,
   nullptr,
-  bushnell_args,
+  &bushnell_args,
   CET_CHARSET_MS_ANSI, 0,  /* Not really sure... */
   NULL_POS_OPS,
   nullptr

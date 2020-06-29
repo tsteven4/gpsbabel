@@ -23,7 +23,6 @@
 #include <QtCore/QList>  // for QList<>::iterator
 
 #include "defs.h"
-#include "filterdefs.h"
 #include "reverse_route.h"
 
 #if FILTERS_ENABLED
@@ -37,7 +36,7 @@ void ReverseRouteFilter::reverse_route_wpt(const Waypoint* waypointp)
 {
 
   /* Cast away const-ness */
-  Waypoint* wpp = const_cast<Waypoint*>(waypointp);
+  auto* wpp = const_cast<Waypoint*>(waypointp);
 
   int curr_new_trkseg = waypointp->wpt_flags.new_trkseg;
   wpp->wpt_flags.new_trkseg = prev_new_trkseg;

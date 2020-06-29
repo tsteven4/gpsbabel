@@ -28,8 +28,7 @@
 static gbfile* file_handle = nullptr;
 
 static
-arglist_t sbp_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> sbp_args = {
 };
 
 /*******************************************************************************
@@ -99,7 +98,7 @@ sbp_read()
 {
   Waypoint* logpoint;
 
-  route_head*     track = route_head_alloc();
+  auto* track = new route_head;
   track_add_head(track);
 
   read_sbp_header(track);
@@ -107,11 +106,6 @@ sbp_read()
   while ((logpoint = read_logpoint())) {
     track_add_wpt(track, logpoint);
   }
-}
-
-static void
-sbp_exit()
-{
 }
 
 /**************************************************************************/
@@ -129,8 +123,8 @@ ff_vecs_t sbp_vecs = {
   nullptr,
   sbp_read,
   nullptr,
-  sbp_exit,
-  sbp_args,
+  nullptr,
+  &sbp_args,
   CET_CHARSET_ASCII, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,

@@ -23,6 +23,8 @@
 #ifndef NUKEDATA_H_INCLUDED_
 #define NUKEDATA_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for ARGTYPE_BOOL, ARG_NOMINMAX, arglist_t, ARG_TERMI...
 #include "filter.h"  // for Filter
 
@@ -31,18 +33,18 @@
 class NukeDataFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void process() override;
 
 private:
-  char* nukewpts;
-  char* nuketrks;
-  char* nukertes;
+  char* nukewpts{};
+  char* nuketrks{};
+  char* nukertes{};
 
-  arglist_t args[4] = {
+  QVector<arglist_t> args = {
     {
       "waypoints", &nukewpts, "Remove all waypoints from data stream",
       "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
@@ -55,7 +57,6 @@ private:
       "routes", &nukertes, "Remove all routes from data stream",
       "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
 };

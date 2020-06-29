@@ -20,16 +20,24 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include <cstdio>                  // for sscanf, snprintf
+#include <cstdlib>                 // for atof, atoi
+#include <cstring>                 // for memset
+#include <ctime>                   // for tm
+
+#include <QtCore/QDateTime>        // for QDateTime
+#include <QtCore/QString>          // for QString
+#include <QtCore/QTime>            // for QTime
+#include <QtCore/QVector>          // for QVector
 
 #include "defs.h"
+#include "cet_util.h"              // for cet_convert_init
+#include "csv_util.h"              // for csv_lineparse
+#include "gbfile.h"                // for gbfprintf, gbfclose, gbfgetstr, gbfopen, gbfile, gbfputs
+#include "src/core/datetime.h"     // for DateTime
+
 
 #if CSVFMTS_ENABLED
-
-#include "csv_util.h"
-#include "cet_util.h"
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
 
 static gbfile* fin, *fout;
 static route_head* track, *route;
@@ -50,12 +58,11 @@ static int what;
 static char* index_opt = nullptr;
 
 static
-arglist_t stmwpp_args[] = {
+QVector<arglist_t> stmwpp_args = {
   {
     "index", &index_opt, "Index of route/track to write (if more than one in source)",
     nullptr, ARGTYPE_INT, "1", nullptr, nullptr
   },
-  ARG_TERMINATOR
 };
 
 
@@ -172,7 +179,7 @@ stmwpp_data_read()
         waypt_add(wpt);
         if (global_opts.objective == rtedata) {
           if (route == nullptr) {
-            route = route_head_alloc();
+            route = new route_head;
             route_add_head(route);
           }
           route_add_wpt(route, new Waypoint(*wpt));
@@ -181,7 +188,7 @@ stmwpp_data_read()
 
       case STM_TRKPT:
         if (track == nullptr) {
-          track = route_head_alloc();
+          track = new route_head;
           track_add_head(track);
         }
         track_add_wpt(track, wpt);
@@ -228,21 +235,11 @@ stmwpp_write_double(const double val)
 }
 
 static void
-stmwpp_waypt_cb(const Waypoint* wpt)
+stmwpp_waypt_cb(const Waypoint* waypoint)
 {
-  char cdate[16], ctime[16];
-
   if (track_index != track_num) {
     return;
   }
-
-  const time_t tt = wpt->GetCreationTime().toTime_t();
-  struct tm tm = *gmtime(&tt);
-  tm.tm_year += 1900;
-  tm.tm_mon++;
-
-  snprintf(cdate, sizeof(cdate), "%02d/%02d/%04d", tm.tm_mon, tm.tm_mday, tm.tm_year);
-  snprintf(ctime, sizeof(ctime), "%02d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
 
   QString sn;
   switch (what) {
@@ -250,9 +247,9 @@ stmwpp_waypt_cb(const Waypoint* wpt)
   case STM_WAYPT:
   case STM_RTEPT:
     if (global_opts.synthesize_shortnames) {
-      sn = mkshort_from_wpt(short_h, wpt);
+      sn = mkshort_from_wpt(short_h, waypoint);
     } else {
-      sn = mkshort(short_h, wpt->shortname);
+      sn = mkshort(short_h, waypoint->shortname);
     }
     gbfprintf(fout, "WP,D,%s,", CSTRc(sn));
     break;
@@ -261,16 +258,17 @@ stmwpp_waypt_cb(const Waypoint* wpt)
     gbfprintf(fout, "TP,D,");
     break;
   }
-  stmwpp_write_double(wpt->latitude);
-  stmwpp_write_double(wpt->longitude);
-  gbfprintf(fout, "%s,%s", cdate, ctime);
+  stmwpp_write_double(waypoint->latitude);
+  stmwpp_write_double(waypoint->longitude);
+  QString datetime = waypoint->GetCreationTime().toUTC().toString("MM/dd/yyyy,HH:mm:ss");
+  gbfputs(datetime, fout);
   switch (what) {
   case STM_WAYPT:
   case STM_RTEPT:
     gbfprintf(fout, ".%02d", 0);
     break;
   case STM_TRKPT:
-    gbfprintf(fout, ".%03d", wpt->GetCreationTime().time().msec());
+    gbfprintf(fout, ".%03d", waypoint->GetCreationTime().time().msec());
     break;
   }
   gbfprintf(fout, ",\r\n");
@@ -328,7 +326,7 @@ ff_vecs_t stmwpp_vecs = {
   stmwpp_data_read,
   stmwpp_data_write,
   nullptr,
-  stmwpp_args,
+  &stmwpp_args,
   CET_CHARSET_MS_ANSI, 0
   , NULL_POS_OPS,
   nullptr

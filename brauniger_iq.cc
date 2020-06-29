@@ -51,7 +51,7 @@ inline state_t& operator++(state_t& s) // prefix
 {
   return s = static_cast<state_t>(s + 1);
 }
-inline const state_t operator++(state_t& s, int) // postfix
+inline state_t operator++(state_t& s, int) // postfix
 {
   state_t ret(s);
   s = ++s;
@@ -194,7 +194,7 @@ static int process_data(const unsigned char* data)
       printf(MYNAME ": End Time: %s", ctime(&finish));
     }
     if (remaining) {
-      track = route_head_alloc();
+      track = new route_head;
       track->rte_name = PRESTRKNAME;
       track->rte_desc = "Brauniger-IQ Barograph";
       track_add_head(track);
@@ -263,8 +263,7 @@ static void data_read()
   }
 }
 
-static arglist_t brauniger_iq_args[] = {
-  ARG_TERMINATOR
+static QVector<arglist_t> brauniger_iq_args = {
 };
 
 ff_vecs_t brauniger_iq_vecs = {
@@ -277,7 +276,7 @@ ff_vecs_t brauniger_iq_vecs = {
   data_read,
   nullptr,
   nullptr,
-  brauniger_iq_args,
+  &brauniger_iq_args,
   CET_CHARSET_UTF8, 1		/* master process: don't convert anything | CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

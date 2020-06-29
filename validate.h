@@ -23,6 +23,8 @@
 #ifndef VALIDATE_H_INCLUDED_
 #define VALIDATE_H_INCLUDED_
 
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for route_head (ptr only), ARGTYPE_BOOL, ARG_NOMINMAX
 #include "filter.h"  // for Filter
 
@@ -31,22 +33,22 @@
 class ValidateFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void process() override;
 
 private:
-  char* opt_debug;
-  bool debug;
-  char* opt_checkempty;
-  bool checkempty;
-  unsigned int point_ct;
-  unsigned int head_ct;
-  unsigned int segment_ct_start;
-  const char* segment_type;
-  arglist_t args[3] = {
+  char* opt_debug{};
+  bool debug{};
+  char* opt_checkempty{};
+  bool checkempty{};
+  unsigned int point_ct{};
+  unsigned int head_ct{};
+  unsigned int segment_ct_start{};
+  const char* segment_type{};
+  QVector<arglist_t> args = {
     {
       "checkempty", &opt_checkempty, "Check for empty input",
       "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
@@ -55,7 +57,6 @@ private:
       "debug", &opt_debug, "Output debug messages instead of possibly issuing a fatal error",
       "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   void validate_head(const route_head*);

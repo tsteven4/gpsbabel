@@ -27,7 +27,6 @@
 #include <QtCore/QtGlobal>      // for foreach
 
 #include "defs.h"
-#include "filterdefs.h"
 #include "duplicate.h"
 #include "src/core/datetime.h"  // for DateTime
 
@@ -141,7 +140,6 @@ int DuplicateFilter::compare(const void* a, const void* b)
 
 void DuplicateFilter::process()
 {
-  Waypoint* waypointp;
   btree_node* newnode, * btmp, * sup_tree = nullptr;
   btree_node* oldnode = nullptr;
   unsigned long crc = 0;
@@ -154,7 +152,7 @@ void DuplicateFilter::process()
 
   int ct = waypt_count();
 
-  wpt_ptr* htable = (wpt_ptr*) xmalloc(ct * sizeof(*htable));
+  auto* htable = (wpt_ptr*) xmalloc(ct * sizeof(wpt_ptr));
   wpt_ptr* bh = htable;
 
   int i = 0;
@@ -167,7 +165,7 @@ void DuplicateFilter::process()
   qsort(htable, ct, sizeof(*htable), compare);
 
   for (i=0; i<ct; i++) {
-    waypointp = htable[i].wpt;
+    auto waypointp = htable[i].wpt;
 
     memset(&dupe, '\0', sizeof(dupe));
 

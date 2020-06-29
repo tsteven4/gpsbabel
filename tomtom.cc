@@ -54,8 +54,7 @@ static gbfile* file_in;
 static gbfile* file_out;
 
 static
-arglist_t tomtom_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> tomtom_args = {
 };
 
 static void
@@ -252,7 +251,7 @@ data_read()
 
 
 struct hdr {
-  Waypoint* wpt;
+  const Waypoint* wpt;
 };
 
 static int compare_lon(const void* a, const void* b);
@@ -261,8 +260,8 @@ static
 int
 compare_lat(const void* a, const void* b)
 {
-  const struct hdr* wa = (const struct hdr*) a;
-  const struct hdr* wb = (const struct hdr*) b;
+  const auto* wa = (const struct hdr*) a;
+  const auto* wb = (const struct hdr*) b;
 
   double difference = wa->wpt->latitude - wb->wpt->latitude;
   if (difference < 0) {
@@ -281,8 +280,8 @@ static
 int
 compare_lon(const void* a, const void* b)
 {
-  const struct hdr* wa = (const struct hdr*)a;
-  const struct hdr* wb = (const struct hdr*)b;
+  const auto* wa = (const struct hdr*)a;
+  const auto* wb = (const struct hdr*)b;
 
   double difference = wa->wpt->longitude - wb->wpt->longitude;
   if (difference < 0) {
@@ -366,7 +365,7 @@ static struct blockheader*
 compute_blocks(struct hdr* start, int count,
                double minlon, double maxlon, double minlat, double maxlat)
 {
-  struct blockheader* newblock = (struct blockheader*)xcalloc(sizeof(*newblock), 1);
+  auto* newblock = (struct blockheader*)xcalloc(1, sizeof(struct blockheader));
   newblock->start = start;
   newblock->count = count;
   newblock->minlon = minlon;
@@ -378,7 +377,7 @@ compute_blocks(struct hdr* start, int count,
     for (int i = 0; i < count; i++) {
       newblock->size += 4 * 3 + 1;
       /* wpt const part 3 longs, 1 char */
-      Waypoint* wpt = start[i].wpt;
+      const Waypoint* wpt = start[i].wpt;
       newblock->size += wpt->description.length() + 1;
     }
   } else {
@@ -439,7 +438,7 @@ data_write()
   bh = htable;
 
   // Iterate with waypt_disp_all?
-  foreach(Waypoint* waypointp, *global_waypoint_list) {
+  for (const Waypoint* waypointp : qAsConst(*global_waypoint_list)) {
     bh->wpt = waypointp;
     if (waypointp->longitude > maxlon) {
       maxlon = waypointp->longitude;
@@ -473,7 +472,7 @@ ff_vecs_t tomtom_vecs = {
   data_read,
   data_write,
   nullptr,
-  tomtom_args,
+  &tomtom_args,
   CET_CHARSET_MS_ANSI, 0	/* CET-REVIEW */
   , NULL_POS_OPS,
   nullptr

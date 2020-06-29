@@ -21,7 +21,6 @@
 
 #include "defs.h"
 #include "discard.h"
-#include "filterdefs.h"
 #include <cstdlib>
 // Can't use QRegularExpression because Linux won't get Qt 5 for years.
 #include <QtCore/QRegExp>
@@ -39,7 +38,7 @@ void DiscardFilter::fix_process_wpt(const Waypoint* wpt)
   int delh = 0;
   int delv = 0;
 
-  Waypoint* waypointp = const_cast<Waypoint*>(wpt);
+  auto* waypointp = const_cast<Waypoint*>(wpt);
 
   if ((hdopf >= 0.0) && (waypointp->hdop > hdopf)) {
     delh = 1;

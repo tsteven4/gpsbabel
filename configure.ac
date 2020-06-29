@@ -8,7 +8,7 @@ AC_INIT([GPSBabel], [1.6.0])
 DOCVERSION=1.6.0
 
 # YYYYMMDD, please, if beta, i.e. "-beta20060413"
-#DOCVERSION=development
+DOCVERSION=development
 
 
 # Increase GBBUILD for a new release (why? Where is this ever used?)
@@ -229,13 +229,16 @@ AS_CASE(["$target"], [*-*-cygwin* | *-*-mingw32*], [
 	QT_SYSINC_OPT="-iframework"
 ], [
 	GBSER=gbser_posix.o
-	AC_MSG_CHECKING(for libusb-1.0)
+	AC_ARG_WITH([libusb],
+		[AS_HELP_STRING([--without-libusb], [disable support for libusb])],
+		[],
+		[with_libusb=yes])
 	AS_IF([test "$with_libusb" = "no"], [
-		AC_MSG_RESULT(check not done)
 		OSJEEPS=jeeps/gpsusbstub.o
 	], [
-
-		AC_CHECK_LIB([usb-1.0], [libusb_init])
+    # Die if libusb-1.0 not found. This prevents link failures later.
+		AC_CHECK_LIB([usb-1.0], [libusb_init], [],
+			[AC_MSG_FAILURE(libusb-1.0 not found (--without-libusb to disable))])
 		OSJEEPS=jeeps/gpslibusb.o
 	])
 ])
@@ -245,29 +248,6 @@ AC_SUBST(USB_DEPS)
 AC_SUBST(USB_CFLAGS)
 AC_SUBST(OSJEEPS)
 AC_SUBST(GBSER)
-
-dnl Linux HID support
-AS_CASE(["$target"], [*-linux-*], [
-	AC_MSG_CHECKING(for Linux HID interface)
-	AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-		#include <sys/ioctl.h>
-		#include <linux/types.h>
-		#include <linux/hiddev.h>
-		#include <linux/hidraw.h>
-		void f(void) {
-			struct hidraw_devinfo info;
-			struct hiddev_field_info finfo;
-			struct hiddev_usage_ref_multi urefm;
-			struct hiddev_report_info rinfo;
-			ioctl(0, HIDIOCGRAWINFO, &info);
-			ioctl(0, HIDIOCGFIELDINFO, &finfo);
-			ioctl(0, HIDIOCSUSAGES, &urefm);
-			ioctl(0, HIDIOCSREPORT, &rinfo);
-		}])],
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_LINUX_HID, 1, [Defined if you have Linux HID]),
-		AC_MSG_RESULT(no))
-])
 
 AS_CASE(["$target"], [*-*-darwin*], [
 ], [
@@ -340,7 +320,7 @@ AC_ARG_WITH([doc],
 		[--with-doc=DIR],
 		[Path where the documentation will be stored.])],
 	[DOCDIR="$withval"],
-	[DOCDIR="../babelweb/"])
+	[DOCDIR="../babelweb"])
 AC_SUBST(DOCDIR)
 AC_MSG_RESULT([$DOCDIR])
 
@@ -389,5 +369,6 @@ AS_MKDIR_P([zlib/contrib/minizip])
 AS_MKDIR_P([testo.d])
 AS_MKDIR_P([mac/libusb])
 
-AC_CONFIG_FILES([Makefile gbversion.h gui/setup.iss xmldoc/makedoc tools/mkcapabilities win32/gpsbabel.rc])
+AC_CONFIG_FILES([Makefile gbversion.h gui/setup.iss xmldoc/makedoc win32/gpsbabel.rc])
+AC_CONFIG_FILES([tools/mkcapabilities], [chmod +x tools/mkcapabilities])
 AC_OUTPUT

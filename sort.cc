@@ -24,7 +24,6 @@
 
 #include "defs.h"
 #include "src/core/datetime.h"  // for DateTime
-#include "filterdefs.h"
 #include "sort.h"
 
 #if FILTERS_ENABLED
@@ -90,7 +89,7 @@ void SortFilter::process()
   if (rte_sort_mode != SortModeRteHd::none) {
     switch (rte_sort_mode)  {
     case SortModeRteHd::description:
-      route_sort(SortFilter::sort_comp_rh_by_description);
+      route_sort(sort_comp_rh_by_description);
       break;
     case SortModeRteHd::name:
       route_sort(sort_comp_rh_by_name);

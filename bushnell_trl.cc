@@ -29,8 +29,7 @@ static int trkpt_count;
 static route_head* trk_head;
 
 static
-arglist_t bushnell_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> bushnell_args = {
 };
 
 static void
@@ -40,7 +39,7 @@ rd_init(const QString& fname)
   file_in = gbfopen_le(fname, "rb", MYNAME);
   gbfread(h, 1, sizeof(h), file_in);
 
-  trk_head = route_head_alloc();
+  trk_head = new route_head;
   track_add_head(trk_head);
 
   trk_head->rte_name = lrtrim(h);
@@ -103,7 +102,7 @@ bushnell_read()
       break;
     }
 
-    Waypoint* wpt_tmp = new Waypoint;
+    auto* wpt_tmp = new Waypoint;
     wpt_tmp->latitude  = lat_tmp / 10000000.0;
     wpt_tmp->longitude = lon_tmp / 10000000.0;
 
@@ -141,7 +140,7 @@ ff_vecs_t bushnell_trl_vecs = {
   bushnell_read,
   bushnell_write,
   nullptr,
-  bushnell_args,
+  &bushnell_args,
   CET_CHARSET_MS_ANSI, 0,  /* Not really sure... */
   NULL_POS_OPS,
   nullptr

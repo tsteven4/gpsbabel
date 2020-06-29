@@ -59,11 +59,12 @@
 #ifndef SMPLROUT_H_INCLUDED_
 #define SMPLROUT_H_INCLUDED_
 
-#include "defs.h"    // for route_head (ptr only), Waypoint (ptr only), ARGT...
-#include "filter.h"  // for Filter
-
 #include <QtCore/QVector>  // for QVector
+
 #include <utility>         // for pair
+
+#include "defs.h"
+#include "filter.h"        // for Filter
 
 
 #if FILTERS_ENABLED
@@ -71,9 +72,9 @@
 class SimplifyRouteFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
@@ -86,19 +87,19 @@ private:
   const route_head* current_rte = nullptr;
   int counter = 0;
   QVector<std::pair<double, double>> location_history;
-  double avglat;
-  double avglon;
+  double avglat{};
+  double avglon{};
 
-  char* countopt;
-  char* erroropt;
-  char* xteopt;
-  char* lenopt;
-  char* relopt;
-  char* decimateopt;
-  char* averageopt;
-  void (*waypt_del_fnp)(route_head* rte, Waypoint* wpt);
+  char* countopt = nullptr;
+  char* erroropt = nullptr;
+  char* xteopt = nullptr;
+  char* lenopt = nullptr;
+  char* relopt = nullptr;
+  char* decimateopt = nullptr;
+  char* averageopt = nullptr;
+  void (*waypt_del_fnp)(route_head* rte, Waypoint* wpt){};
 
-  arglist_t args[8] = {
+  QVector<arglist_t> args = {
     {
       "count", &countopt,  "Maximum number of points in route",
       nullptr, ARGTYPE_INT | ARGTYPE_BEGIN_REQ | ARGTYPE_BEGIN_EXCL, "1", nullptr, nullptr
@@ -127,22 +128,20 @@ private:
       "average", &averageopt, "running average of n points", nullptr,
       ARGTYPE_BOOL | ARGTYPE_END_EXCL, ARG_NOMINMAX, nullptr
     },
-    ARG_TERMINATOR
   };
 
   struct xte_intermed;
 
   struct xte {
-    double distance;
-    int ordinal;
-    struct xte_intermed* intermed;
+    double distance{0.0};
+    struct xte_intermed* intermed{nullptr};
   };
 
   struct xte_intermed {
-    struct xte* xte_rec;
-    struct xte_intermed* next;
-    struct xte_intermed* prev;
-    const Waypoint* wpt;
+    struct xte* xte_rec{nullptr};
+    struct xte_intermed* next{nullptr};
+    struct xte_intermed* prev{nullptr};
+    const Waypoint* wpt{nullptr};
   };
 
   void free_xte(struct xte* xte_rec);

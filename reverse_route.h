@@ -18,6 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
  */
+#ifndef REVERSE_ROUTE_H_INCLUDED_
+#define REVERSE_ROUTE_H_INCLUDED_
+
+#include <QtCore/QVector>  // for QVector
+
 #include "defs.h"    // for Waypoint (ptr only), arglist_t, route_head (ptr ...
 #include "filter.h"  // for Filter
 
@@ -26,17 +31,16 @@
 class ReverseRouteFilter:public Filter
 {
 public:
-  arglist_t* get_args() override
+  QVector<arglist_t>* get_args() override
   {
-    return args;
+    return &args;
   }
   void init() override;
   void process() override;
 
 private:
-  int prev_new_trkseg;
-  arglist_t args[1] = {
-    ARG_TERMINATOR
+  int prev_new_trkseg{};
+  QVector<arglist_t> args = {
   };
 
   void reverse_route_wpt(const Waypoint* waypointp);
@@ -44,3 +48,4 @@ private:
 
 };
 #endif
+#endif // REVERSE_ROUTE_H_INCLUDED_

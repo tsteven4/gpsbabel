@@ -56,7 +56,7 @@ wintec_date_to_time(uint32_t w)
 static void
 wintec_tes_read()
 {
-  route_head* trk = route_head_alloc();
+  auto* trk = new route_head;
   track_add_head(trk);
 
   while (!gbfeof(fin)) {
@@ -67,7 +67,7 @@ wintec_tes_read()
     int16_t alt = gbfgetint16(fin);  // Signed.  Meters.
 
     (void) flags; // Silence 'unused' warning until we use flags.
-    Waypoint* wpt = new Waypoint;
+    auto* wpt = new Waypoint;
     wpt->latitude = latitude / 1.0e7;
     wpt->longitude = longitude / 1.0e7;
     wpt->SetCreationTime(wintec_date_to_time(date));
@@ -84,7 +84,7 @@ wintec_tes_read()
     //  Wintec's software puts a waypoint in the track, so we
     //  mock that.
     if (flags &  0x02) {
-      Waypoint* temp = new Waypoint(*wpt);
+      auto* temp = new Waypoint(*wpt);
       waypt_add(temp);
     }
 
@@ -93,8 +93,7 @@ wintec_tes_read()
 }
 
 static
-arglist_t wintec_tes_args[] = {
-  ARG_TERMINATOR
+QVector<arglist_t> wintec_tes_args = {
 };
 
 ff_vecs_t wintec_tes_vecs = {
@@ -111,7 +110,7 @@ ff_vecs_t wintec_tes_vecs = {
   wintec_tes_read,
   nullptr,
   nullptr,
-  wintec_tes_args,
+  &wintec_tes_args,
   CET_CHARSET_ASCII, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
   , NULL_POS_OPS,
