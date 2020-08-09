@@ -69,6 +69,14 @@ jobs:
         directories:
           - $HOME/Cache
         timeout: 600
+    - os: osx
+      osx_image: xcode11.6
+      compiler: clang
+      env: QT_VERSION="5.15.0"
+      cache:
+        directories:
+          - $HOME/Cache
+        timeout: 600
     - os: linux
       dist: bionic
       compiler: gcc

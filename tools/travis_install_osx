@@ -50,9 +50,17 @@ else
   rm -fr ${CACHEDIR}
   mkdir -p ${CACHEDIR}
   pushd ${CACHEDIR}
-  # install-qt creates the install at $PWD/Qt.
-  QT_CI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.clang_64,qt.qt5.${QT_VERSION_SHORT}.qtwebengine QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
+
+  if [ "$QT_VERSION" = "5.15.0" ]; then
+    curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-5.15.0_macos.tar.xz" -o /tmp/qt-5.15.0_macos.tar.xz
+    tar -x -J -f /tmp/qt-5.15.0_macos.tar.xz --strip-components 3
+    echo "export PATH=${CACHEDIR}/Qt/5.15.0/clang_64/bin:\$PATH" > "${CACHEDIR}/qt-5.15.0.env"
+    rm -f /tmp/qt-5.15.0_macos.tar.xz
+  else
+    # install-qt creates the install at $PWD/Qt.
+    QT_CI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.clang_64,qt.qt5.${QT_VERSION_SHORT}.qtwebengine QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
+    rm ${CACHEDIR}/qt-opensource*.dmg
+  fi
   popd
   validate
-  rm ${CACHEDIR}/qt-opensource*.dmg
 fi
