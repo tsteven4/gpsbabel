@@ -138,6 +138,9 @@ EXTRA_TRANSLATIONS += coretool/gpsbabel_ru.ts
 # note that this does not seem to work with MSVC project files generated with
 # "qmake -tp vc" our make_windows_release runs lrelease and handles the
 # translations files outside of the Qt resource system.
+unix:!macx {
+  CONFIG += embed_translations
+}
 embed_translations {
   qtPrepareTool(LRELEASE_EXE, lrelease)
   TS_FILES = $$TRANSLATIONS $$EXTRA_TRANSLATIONS
