@@ -26,11 +26,14 @@
 #include <QtCore/QEvent>               // for QEvent (& QEvent::LanguageChange, QEvent::LocaleChange)
 #include <QtCore/QFile>                // for QFile
 #include <QtCore/QFileInfo>            // for QFileInfo
+#include <QtCore/QLibraryInfo>         // for QLibraryInfo, QLibraryInfo::TranslationsPath
 #include <QtCore/QLocale>              // for QLocale
 #include <QtCore/QMimeData>            // for QMimeData
 #include <QtCore/QProcess>             // for QProcess, QProcess::NotRunning
 #include <QtCore/QRegExp>              // for QRegExp
 #include <QtCore/QSettings>            // for QSettings
+#include <QtCore/QString>              // for QString
+#include <QtCore/QStringList>          // for QStringList
 #include <QtCore/QTemporaryFile>       // for QTemporaryFile
 #include <QtCore/QTime>                // for QTime
 #include <QtCore/QUrl>                 // for QUrl
@@ -219,9 +222,6 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
 
   ui_.outputWindow->setReadOnly(true);
 
-  langPath_ = QApplication::applicationDirPath();
-  langPath_.append("/translations/");
-
   // Start up in the current system language.
   loadLanguage(QLocale::system().name());
   loadFormats();
@@ -311,9 +311,20 @@ void MainWindow::switchTranslator(QTranslator& translator, const QString& filena
   // remove the old translator
   qApp->removeTranslator(&translator);
 
-  // load the new translator
-  if (translator.load(filename, langPath_)) {
-    qApp->installTranslator(&translator);
+  // Set a list of directories to search for the translation file.
+  const QStringList directories = {
+    QApplication::applicationDirPath() + "/translations",
+    ":/translations",
+    QLibraryInfo::location(QLibraryInfo::TranslationsPath)
+  };
+
+  // Load the new translator.
+  for (const auto& directory : directories) {
+    qDebug() << filename << directory;
+    if (translator.load(filename, directory)) {
+      qApp->installTranslator(&translator);
+      break;
+    }
   }
 }
 

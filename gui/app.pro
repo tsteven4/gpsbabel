@@ -125,6 +125,48 @@ TRANSLATIONS += gpsbabelfe_fr.ts
 TRANSLATIONS += gpsbabelfe_hu.ts
 TRANSLATIONS += gpsbabelfe_it.ts
 
+EXTRA_TRANSLATIONS += coretool/gpsbabel_de.ts
+EXTRA_TRANSLATIONS += coretool/gpsbabel_es.ts
+EXTRA_TRANSLATIONS += coretool/gpsbabel_fr.ts
+EXTRA_TRANSLATIONS += coretool/gpsbabel_hu.ts
+EXTRA_TRANSLATIONS += coretool/gpsbabel_it.ts
+EXTRA_TRANSLATIONS += coretool/gpsbabel_ru.ts
+
+# TODO: After Qt 5.14.2 we could probably use CONFIG+=lrelease,
+# CONFIG+=embed_resources instead of tscompiler, translationscompiler.
+
+# note that this does not seem to work with MSVC project files generated with
+# "qmake -tp vc" our make_windows_release runs lrelease and handles the
+# translations files outside of the Qt resource system.
+embed_translations {
+  qtPrepareTool(LRELEASE_EXE, lrelease)
+  TS_FILES = $$TRANSLATIONS $$EXTRA_TRANSLATIONS
+  tscompiler.commands += $$LRELEASE_EXE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_OUT}
+  tscompiler.CONFIG += no_link
+  tscompiler.depends += $$LRELEASE_EXE
+  tscompiler.input = TS_FILES
+  tscompiler.output = $${OBJECTS_DIR}/${QMAKE_FILE_BASE}.qm
+  QMAKE_EXTRA_COMPILERS += tscompiler
+
+  qtPrepareTool(RCC_EXE, rcc)
+  QM_FILES_IN = $$basename(TS_FILES)
+  QM_FILES_IN ~= s/\\.ts/.qm/g
+  for (qmfile, QM_FILES_IN) {
+    QM_FILES += $${OBJECTS_DIR}/$$qmfile
+  }
+  TR_QRC = translations.qrc
+  # paths in qrc file are relative to the location of the qrc file, so copy the
+  # qrc file over next to the generated qm files.
+  translationscompiler.commands += $(COPY_FILE) ${QMAKE_FILE_IN} $${OBJECTS_DIR}/translations.qrc;
+  translationscompiler.commands += $$RCC_EXE $${OBJECTS_DIR}/translations.qrc -o ${QMAKE_FILE_OUT}
+  translationscompiler.depends += $$RCC_EXE $$QM_FILES
+  translationscompiler.input = TR_QRC
+  translationscompiler.output = ${QMAKE_FILE_BASE}.cc
+  translationscompiler.variable_out = SOURCES
+  QMAKE_EXTRA_COMPILERS += translationscompiler
+  QMAKE_CLEAN += $${OBJECTS_DIR}/translations.qrc
+}
+
 macx|linux{
   package.commands = QMAKE=$(QMAKE) ./package_app
   package.depends = $(TARGET)
