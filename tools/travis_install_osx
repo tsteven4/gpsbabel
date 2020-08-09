@@ -6,7 +6,7 @@
 #debug failed install
 function debug() {
   cat ${CACHEDIR}/qt-${QT_VERSION}.env
-  find ${CACHEDIR}/Qt -maxdepth 3 -ls
+  find ${CACHEDIR} -maxdepth 3 -ls
   cat ${CACHEDIR}/Qt/InstallationLog.txt
   cat ${CACHEDIR}/Qt/components.xml
   echo "$1" >&2
