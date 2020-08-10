@@ -54,7 +54,7 @@ else
 
   if [ "$METHOD" = "artifactory" ]; then
     (
-      // Do not leak keys
+      # Do not leak keys
       set +x
       set -v
       curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-${QT_VERSION}_macos.tar.xz" -o /tmp/qt-${QT_VERSION}_macos.tar.xz
