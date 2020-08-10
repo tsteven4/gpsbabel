@@ -29,6 +29,7 @@ function validate() {
 
 QT_VERSION=${1:-5.12.2}
 QT_VERSION_SHORT=${QT_VERSION//./}
+METHOD=${2:-artifactory}
 
 # our expectation is that install-qt creates $QTDIR, $QTDIR/bin.
 CACHEDIR=${HOME}/Cache
@@ -51,11 +52,16 @@ else
   mkdir -p ${CACHEDIR}
   pushd ${CACHEDIR}
 
-  if [ "$QT_VERSION" = "5.15.0" ]; then
-    curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-5.15.0_macos.tar.xz" -o /tmp/qt-5.15.0_macos.tar.xz
-    tar -x -J -f /tmp/qt-5.15.0_macos.tar.xz --strip-components=4
-    echo "export PATH=${CACHEDIR}/Qt/5.15.0/clang_64/bin:\$PATH" > "${CACHEDIR}/qt-5.15.0.env"
-    rm -f /tmp/qt-5.15.0_macos.tar.xz
+  if [ "$METHOD" = "artifactory" ]; then
+    (
+      // Do not leak keys
+      set +x
+      set -v
+      curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-${QT_VERSION}_macos.tar.xz" -o /tmp/qt-${QT_VERSION}_macos.tar.xz
+    )
+    tar -x -J -f /tmp/qt-${QT_VERSION}_macos.tar.xz --strip-components=4
+    echo "export PATH=${CACHEDIR}/Qt/${QT_VERSION}/clang_64/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
+    rm -f /tmp/qt-${QT_VERSION}_macos.tar.xz
   else
     # install-qt creates the install at $PWD/Qt.
     QT_CI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.clang_64,qt.qt5.${QT_VERSION_SHORT}.qtwebengine QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
