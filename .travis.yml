@@ -79,6 +79,10 @@ jobs:
       env:
         - QT_VERSION="5.15.0"
         - QT_INSTALL_METHOD="artifactory"
+      cache:
+        directories:
+          - $HOME/Cache
+        timeout: 600
     - os: linux
       dist: bionic
       compiler: gcc

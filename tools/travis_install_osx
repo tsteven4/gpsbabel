@@ -53,15 +53,20 @@ else
   pushd ${CACHEDIR}
 
   if [ "$METHOD" = "artifactory" ]; then
-    (
-      # Do not leak keys
-      set +x
-      set -v
-      curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-${QT_VERSION}_macos.tar.xz" -o /tmp/qt-${QT_VERSION}_macos.tar.xz
-    )
-    tar -x -J -f /tmp/qt-${QT_VERSION}_macos.tar.xz --strip-components=4
-    echo "export PATH=${CACHEDIR}/Qt/${QT_VERSION}/clang_64/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
-    rm -f /tmp/qt-${QT_VERSION}_macos.tar.xz
+    if [ -z "${ARTIFACTORY_API_KEY}" ]; then
+      echo "An untrusted build cannot load cache from artifactory."
+      echo "The cache can be loaded from a trusted build of the default branch."
+      exit 1
+    else
+      (
+        # Do not leak keys
+        set +x
+        curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/qt-${QT_VERSION}_macos.tar.xz" -o /tmp/qt-${QT_VERSION}_macos.tar.xz
+      )
+      tar -x -J -f /tmp/qt-${QT_VERSION}_macos.tar.xz --strip-components=4
+      echo "export PATH=${CACHEDIR}/Qt/${QT_VERSION}/clang_64/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
+      rm -f /tmp/qt-${QT_VERSION}_macos.tar.xz
+      fi
   else
     # install-qt creates the install at $PWD/Qt.
     QT_CI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.clang_64,qt.qt5.${QT_VERSION_SHORT}.qtwebengine QT_CI_DOWNLOADER="wget -nv -c" PATH=${TRAVIS_BUILD_DIR}/tools/qtci:${PATH} install-qt ${QT_VERSION}
