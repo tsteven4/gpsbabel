@@ -38,7 +38,8 @@ make check
 export CLAZY_CHECKS=level0,level1,no-non-pod-global-static
 qmake -spec linux-clang "CONFIG+=debug" "QMAKE_CXX=clazy"
 make clean
-make -j 3 2>&1 | tee clazy.log
+make -j 3 1>clazy.log 2>&1
+cat clazy.log
 if grep -- '-Wclazy' clazy.log; then
   exit 1
 else
