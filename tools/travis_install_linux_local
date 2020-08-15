@@ -39,8 +39,13 @@ packages=( \
     docbook-xml \
     docbook-xsl \
     locales \
-    clazy \
   )
+# clazy first appeared in focal
+if apt-cache show clazy 1>/dev/null 2>&1; then
+  packages=( "${packages[@]}" \
+      clazy \
+    )
+fi
 if [ -z "${QT_VERSION}" ]; then
   packages=( "${packages[@]}" \
       qt5-default \
