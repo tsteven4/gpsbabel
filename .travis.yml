@@ -59,7 +59,7 @@ jobs:
             - qttranslations5-l10n
             - qtwebengine5-dev 
             - locales
-      before_script:
+      install:
         - sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen && locale-gen
     #- os: linux
     #  dist: xenial
@@ -127,7 +127,7 @@ jobs:
             - qt5-default
 
 install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ]; then ./tools/travis_install_linux_local ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ] && [ -n "${QT_VERSION}" ]; then ./tools/travis_install_linux_local ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./tools/travis_install_osx ${QT_VERSION} ${QT_INSTALL_METHOD} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
 
 script:
