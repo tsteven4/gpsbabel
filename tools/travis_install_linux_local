@@ -29,6 +29,7 @@ function validate() {
 
 QT_VERSION=${1}
 
+sudo apt-get update
 packages=( \
     expat \
     fop \
@@ -54,7 +55,6 @@ if [ -z "${QT_VERSION}" ]; then
       qtwebengine5-dev  \
     )
 fi
-sudo apt-get update
 sudo apt-get -y install "${packages[@]}"
 # prepare locale for test_encoding_latin1, requires locales package.
 sudo locale-gen en_US
