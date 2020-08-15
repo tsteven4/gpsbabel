@@ -2,13 +2,13 @@ language: cpp
 
 jobs:
   include:
-    - os: linux
-      dist: bionic
-      services: docker
-      compiler: gcc
-      env:
-        - BUILD_TYPE="docker"
-        - DOCKER_IMG="qtio"
+    #- os: linux
+    #  dist: bionic
+    #  services: docker
+    #  compiler: gcc
+    #  env:
+    #    - BUILD_TYPE="docker"
+    #    - DOCKER_IMG="qtio"
     - os: linux
       dist: bionic
       services: docker
@@ -38,6 +38,29 @@ jobs:
       env:
         - BUILD_TYPE="docker"
         - DOCKER_IMG="f32"
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env:
+        - BUILD_TYPE="local"
+      addons:
+        apt:
+          packages:
+            - expat
+            - fop
+            - valgrind
+            - xsltproc
+            - libxml2-utils
+            - libusb-1.0-0-dev
+            - docbook-xml
+            - docbook-xsl
+            - qt5-default
+            - qttools5-dev-tools
+            - qttranslations5-l10n
+            - qtwebengine5-dev 
+            - locales
+      before_script:
+        - sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen && locale-gen
     #- os: linux
     #  dist: xenial
     #  compiler: gcc
