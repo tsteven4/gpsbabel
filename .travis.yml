@@ -9,35 +9,37 @@ jobs:
     #  env:
     #    - BUILD_TYPE="docker"
     #    - DOCKER_IMG="qtio"
+    #- os: linux
+    #  dist: bionic
+    #  services: docker
+    #  compiler: clang
+    #  env:
+    #    - BUILD_TYPE="docker"
+    #    - DOCKER_IMG="qtio"
+    #- os: linux
+    #  dist: bionic
+    #  services: docker
+    #  compiler: gcc
+    #  env:
+    #    - BUILD_TYPE="docker"
+    #    - DOCKER_IMG=""
+    #- os: linux
+    #  dist: bionic
+    #  services: docker
+    #  compiler: gcc
+    #  env:
+    #    - BUILD_TYPE="docker"
+    #    - DOCKER_IMG="focal"
+    #    - DOCKER_SCRIPT="./tools/build_extra_tests"
+    # fedora 32, gcc, normal build
     - os: linux
-      dist: bionic
-      services: docker
-      compiler: clang
-      env:
-        - BUILD_TYPE="docker"
-        - DOCKER_IMG="qtio"
-    - os: linux
-      dist: bionic
-      services: docker
-      compiler: gcc
-      env:
-        - BUILD_TYPE="docker"
-        - DOCKER_IMG=""
-    - os: linux
-      dist: bionic
-      services: docker
-      compiler: gcc
-      env:
-        - BUILD_TYPE="docker"
-        - DOCKER_IMG="focal"
-        - DOCKER_SCRIPT="./tools/build_extra_tests"
-    - os: linux
-      dist: bionic
+      dist: focal
       services: docker
       compiler: gcc
       env:
         - BUILD_TYPE="docker"
         - DOCKER_IMG="f32"
+    # bionic, gcc, normal build
     - os: linux
       dist: bionic
       compiler: gcc
@@ -60,8 +62,76 @@ jobs:
             - qtwebengine5-dev 
             - locales
       install:
-        - sudo sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen
-        - sudo locale-gen
+        - sudo locale-gen en_US
+    # focal, gcc, normal build
+    - os: linux
+      dist: focal
+      compiler: gcc
+      env:
+        - BUILD_TYPE="local"
+      addons:
+        apt:
+          packages:
+            - expat
+            - fop
+            - valgrind
+            - xsltproc
+            - libxml2-utils
+            - libusb-1.0-0-dev
+            - docbook-xml
+            - docbook-xsl
+            - qt5-default
+            - qttools5-dev-tools
+            - qttranslations5-l10n
+            - qtwebengine5-dev 
+            - locales
+    # focal, clang, normal build
+    - os: linux
+      dist: focal
+      compiler: clang
+      env:
+        - BUILD_TYPE="local"
+      addons:
+        apt:
+          packages:
+            - expat
+            - fop
+            - valgrind
+            - xsltproc
+            - libxml2-utils
+            - libusb-1.0-0-dev
+            - docbook-xml
+            - docbook-xsl
+            - qt5-default
+            - qttools5-dev-tools
+            - qttranslations5-l10n
+            - qtwebengine5-dev 
+            - locales
+    # focal, gcc, extra_tests
+    - os: linux
+      dist: focal
+      compiler: gcc
+      env:
+        - BUILD_TYPE="local"
+      addons:
+        apt:
+          packages:
+            - expat
+            - fop
+            - valgrind
+            - xsltproc
+            - libxml2-utils
+            - libusb-1.0-0-dev
+            - docbook-xml
+            - docbook-xsl
+            - qt5-default
+            - qttools5-dev-tools
+            - qttranslations5-l10n
+            - qtwebengine5-dev 
+            - locales
+            - clazy
+      script:
+        - ./tools/build_extra_tests
     #- os: linux
     #  dist: xenial
     #  compiler: gcc
@@ -114,8 +184,9 @@ jobs:
         directories:
           - $HOME/Cache
         timeout: 600
+    # focal, gcc, coverage
     - os: linux
-      dist: bionic
+      dist: focal
       compiler: gcc
       env:
         - BUILD_TYPE="coverage"
@@ -126,6 +197,8 @@ jobs:
             - lcov
             - libusb-1.0-0-dev
             - qt5-default
+      script:
+        - ./tools/travis_script_linux_coverage
 
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${BUILD_TYPE}" = "local" ] && [ -n "${QT_VERSION}" ]; then ./tools/travis_install_linux_local ${QT_VERSION} && source ${HOME}/Cache/qt-${QT_VERSION}.env; fi
