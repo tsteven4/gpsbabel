@@ -60,7 +60,8 @@ jobs:
             - qtwebengine5-dev 
             - locales
       install:
-        - sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen && locale-gen
+        - sudo sed -i 's/^# *\(en_US ISO-8859-1\)/\1/' /etc/locale.gen
+        - sudo locale-gen
     #- os: linux
     #  dist: xenial
     #  compiler: gcc
