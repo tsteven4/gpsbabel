@@ -13,7 +13,9 @@
 /gpsbabel.fo
 /gpsbabel.html
 /gpsbabel.pdf
+/internal_styles.cc
 /Makefile
+/Makefile.GPSBabel
 /.qmake.cache
 /.qmake.stash
 /GPSBabel

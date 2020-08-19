@@ -190,25 +190,14 @@ HEADERS =  \
 
 HEADERS += $$FILTER_HEADERS
 
-win32-msvc* {
-  # avoid attempts by cmd.exe to execute mkstyle.sh
-  SOURCES += internal_styles.cc
-} else {
-  # It would be nice to do this when make runs instead of qmake, but we will
-  # monitor the style directory to catch new or deleted .style files.
-  STYLE_FILES = $$files($${PWD}/style/*.style)
-  # It's a bit tacky, but this may modify source files when doing an out of source build.
-  # The root of this is that internal_styles.cc is checked in as it can't be built on all platforms,
-  # and we want to make sure it is up to date on commit.
-  styles.commands += $${PWD}/mkstyle.sh > $${PWD}/internal_styles.cc || (rm -f $${PWD}/internal_styles.cc ; exit 1)
-  styles.CONFIG += combine no_clean
-  styles.depends += $${PWD}/mkstyle.sh
-  styles.depends += $${PWD}/style # this catches the creation/deletion of a style file.
-  styles.input = STYLE_FILES
-  styles.output = $${PWD}/internal_styles.cc
-  styles.variable_out = SOURCES
-  QMAKE_EXTRA_COMPILERS += styles
-}
+STYLE_FILES = $$files($${PWD}/style/*.style)
+styles.commands += $${OUT_PWD}/mkstyle/bin/mkstyle -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+styles.CONFIG += combine
+styles.depends += $${OUT_PWD}/mkstyle/bin/mkstyle
+styles.input = STYLE_FILES
+styles.output = internal_styles.cc
+styles.variable_out = SOURCES
+QMAKE_EXTRA_COMPILERS += styles
 
 win32-msvc* {
   # assume gperf not available.
