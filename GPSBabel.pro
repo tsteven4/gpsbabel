@@ -191,9 +191,8 @@ HEADERS =  \
 HEADERS += $$FILTER_HEADERS
 
 STYLE_FILES = $$files($${PWD}/style/*.style)
-styles.commands += $${OUT_PWD}/mkstyle/bin/mkstyle -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+styles.commands += $$shell_quote($$shell_path($${OUT_PWD}/mkstyle/bin/mkstyle)) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 styles.CONFIG += combine
-styles.depends += $${OUT_PWD}/mkstyle/bin/mkstyle
 styles.input = STYLE_FILES
 styles.output = internal_styles.cc
 styles.variable_out = SOURCES
