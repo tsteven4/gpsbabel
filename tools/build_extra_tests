@@ -19,24 +19,23 @@ git --no-pager log -n 1
 # minimal set of build tools to be used.
 # touch these targets to make sure they aren't considered out of date.
 touch xcsv_tokens.gperf
-touch internal_styles.cc
 
 # build and test keeping output within the pwd.
 export GBTEMP=$(mktemp -d -p $(pwd) GBTEMPXXXX)
 
 #note that debug will also enable assertions.
-qmake "CONFIG+=debug sanitizer sanitize_address"
+qmake -recursive top.pro "CONFIG+=debug sanitizer sanitize_address"
 make clean
 make -j 3
 make check
 
-qmake "CONFIG+=debug sanitizer sanitize_undefined"
+qmake -recursive top.pro "CONFIG+=debug sanitizer sanitize_undefined"
 make clean
 make -j 3
 make check
 
 export CLAZY_CHECKS=level0,level1,no-non-pod-global-static
-qmake -spec linux-clang "CONFIG+=debug" "QMAKE_CXX=clazy"
+qmake -recursive -spec linux-clang top.pro "CONFIG+=debug" "QMAKE_CXX=clazy"
 make clean
 make -j 3 2>&1 | tee clazy.log
 if grep -- '-Wclazy' clazy.log; then

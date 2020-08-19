@@ -18,27 +18,26 @@ git --no-pager log -n 1
 # minimal set of build tools to be used.
 # touch these targets to make sure they aren't considered out of date.
 touch xcsv_tokens.gperf
-touch internal_styles.cc
 # build and test keeping output within the pwd.
 export GBTEMP=$(pwd)/gbtemp
 mkdir -p $GBTEMP
-qmake WEB=$(pwd)/gpsbabel_docdir
+qmake -recursive top.pro WEB=$(pwd)/gpsbabel_docdir
 # As of 2018-10, all the virtualized travis build images are two cores per:
 # https://docs.travis-ci.com/user/reference/overview/
 # We'll be slightly abusive on CPU knowing that I/O is virtualized.
-make toolinfo
+make -f Makefile.GPSBabel toolinfo
 make clean
 make -j 3
-make -j 3 unix-gui
-make gpsbabel.html
-make gpsbabel.pdf
-make gpsbabel.org
+make -f Makefile.GPSBabel -j 3 unix-gui
+make -f Makefile.GPSBabel gpsbabel.html
+make -f Makefile.GPSBabel gpsbabel.pdf
+make -f Makefile.GPSBabel gpsbabel.org
 make check
 # test for mangled encoding of command line arguments
 ./test_encoding_latin1
 ./test_encoding_utf8
 #make torture
-make -k -j2 check-vtesto
+make -f Makefile.GPSBabel -k -j2 check-vtesto
 # eat the verbose output from test-all, including crash.output
 # this is a bit risky, if test-all generates an error we won't see what happened.
 echo "test-all in progress... (read/write test between all possible formats)"
