@@ -1,13 +1,12 @@
-#include <cstdio>                     // for stdout
 #include <QtCore/QCoreApplication>    // for QCoreApplication
 #include <QtCore/QDebug>              // for QDebug
 #include <QtCore/QFile>               // for QFile
 #include <QtCore/QFileInfo>           // for QFileInfo
 #include <QtCore/QIODevice>           // for QIODevice, QIODevice::ReadOnly, QIODevice::WriteOnly
 #include <QtCore/QRegularExpression>  // for QRegularExpression
+#include <QtCore/QSaveFile>           // for QSaveFile
 #include <QtCore/QString>             // for QString
 #include <QtCore/QStringList>         // for QStringList
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>         // for QTextStream
 #include <QtCore/QVector>             // for QVector
 #include <QtCore/QtGlobal>
@@ -47,12 +46,12 @@ int main(int argc, char* argv[])
     }
   }
 
-  QTemporaryFile tout;
-  if (!tout.open()) {
-    qCritical() << "Could not open tempoarary file for output.";
+  QSaveFile fout(fileout);
+  if (!fout.open(QIODevice::WriteOnly)) {
+    qCritical() << "Could not open file" << fileout << "for output.";
     return 1;
   }
-  QTextStream sout(&tout);
+  QTextStream sout(&fout);
 
   sout << "/* This file is machine-generated from the contents of style/ */\n";
   sout << "/* by mkstyle.sh.   Editing it by hand is an exceedingly bad idea. */\n";
@@ -100,11 +99,9 @@ int main(int argc, char* argv[])
   sout << "#endif /* CSVFMTS_ENABLED */\n";
 
   sout.flush();
-  tout.close();
 
-  // fiddle around such that only good files are created.
-  if (!tout.copy(fileout)) {
-    qCritical() << "Could not open" << fileout << "for output.";
+  if (!fout.commit()) {
+    qCritical() << "Could not save" << fileout << ".";
     return 1;
   }
   
