@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
   const char* prog_name = argv[0]; /* may not match QCoreApplication::arguments().at(0)! */
 
   QCoreApplication app(argc, argv);
-  QStringList qargs = QCoreApplication::arguments();
+  const QStringList qargs = QCoreApplication::arguments();
 
   if ((qargs.size() < 4) || (qargs.at(1) != "-o")) {
     qCritical().noquote() << "Usage:" << prog_name << "-o outputfile inputfile [inputfile2 [...]]";
