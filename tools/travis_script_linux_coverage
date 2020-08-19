@@ -6,8 +6,9 @@
 # as of 6/18/2018 you must use java 8, see issue #76, #83 at https://github.com/codacy/codacy-coverage-reporter/issues
 # as of 3/16/2019 with coverage reporter 4.0.3 java 8 is not required.
 
-qmake
-make -j 3 coverage
+qmake -recursive top.pro
+make sub-mkstyle-make_first
+make -f Makefile.GPSBabel -j 3 coverage
 
 # debug tokens
 "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"/ci_tokens
