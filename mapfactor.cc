@@ -22,6 +22,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
+#include <QtCore/QtGlobal>
 
 static gpsbabel::File* oqfile;
 static QXmlStreamWriter* writer;
@@ -44,9 +45,9 @@ static void MapfactorRead()
   Waypoint* wpt = nullptr;
 
   while (!reader.atEnd()) {
-    QStringRef tag_name = reader.name();
+    QStringView tag_name = reader.name();
     if (reader.tokenType()==QXmlStreamReader::StartElement) {
-      if (tag_name == "item") {
+      if (tag_name.compare(QLatin1String("item")) == 0) {
         wpt = new Waypoint;
 
         QXmlStreamAttributes a = reader.attributes();
@@ -57,7 +58,7 @@ static void MapfactorRead()
     }
 
     if (reader.tokenType() == QXmlStreamReader::EndElement) {
-      if (wpt && reader.name() == "item") {
+      if (wpt && (reader.name().compare(QLatin1String("item")) == 0)) {
         waypt_add(wpt);
       }
     }
@@ -102,8 +103,11 @@ mapfactor_wr_init(const QString& fname)
   oqfile->open(QIODevice::WriteOnly | QIODevice::Text);
   writer = new gpsbabel::XmlStreamWriter(oqfile);
 
-  // Override the "UTF-8-XML" with ... the default.
-  writer->setCodec("utf-8");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    // For Qt5 Override the "UTF-8-XML" with ... the default.
+    // For Qt6 we always use utf-8.
+    writer->setCodec("utf-8");
+#endif
 
   writer->setAutoFormatting(true);
   writer->setAutoFormattingIndent(2);

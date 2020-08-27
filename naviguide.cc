@@ -24,7 +24,7 @@
 #include "csv_util.h"
 #include "jeeps/gpsmath.h"
 #include <QtCore/QDebug>
-#include <QtCore/QTextCodec>
+#include <QtCore5Compat/QTextCodec>
 #include <cmath>
 
 #define MYNAME        "Naviguide"

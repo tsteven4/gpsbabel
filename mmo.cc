@@ -31,14 +31,13 @@
 
 #include <QtCore/QByteArray>     // for QByteArray
 #include <QtCore/QChar>          // for operator==, QChar
-#include <QtCore/QCharRef>       // for QCharRef
 #include <QtCore/QDateTime>      // for QDateTime
 #include <QtCore/QHash>          // for QHash, QHash<>::const_iterator
 #include <QtCore/QLatin1String>  // for QLatin1String
 #include <QtCore/QScopedPointer> // for QScopedPointer
 #include <QtCore/QString>        // for QString, operator==
-#include <QtCore/QTextCodec>     // for QTextCodec, QTextCodec::IgnoreHeader
-#include <QtCore/QTextEncoder>   // for QTextEncoder
+#include <QtCore5Compat/QTextCodec>     // for QTextCodec, QTextCodec::IgnoreHeader
+#include <QtCore5Compat/QTextEncoder>   // for QTextEncoder
 #include <QtCore/QVector>        // for QVector
 #include <QtCore/Qt>             // for CaseInsensitive
 #include <QtCore/QtGlobal>       // for qAsConst, QAddConst<>::Type, foreach, Q_UNUSED
@@ -1300,7 +1299,7 @@ mmo_write_rte_head_cb(const route_head* rte)
   mmo_rte = rte;
 
   foreach (const Waypoint* wpt, rte->waypoint_list) {
-    QDateTime t = wpt->GetCreationTime();
+    gpsbabel::DateTime t = wpt->GetCreationTime();
     if ((t.isValid()) && (t.toTime_t() < time)) {
       time = t.toTime_t();
     }

@@ -33,7 +33,7 @@
 #include <QtCore/QString>             // for QString
 #include <QtCore/QStringList>         // for QStringList
 #include <QtCore/QSysInfo>            // for QSysInfo
-#include <QtCore/QTextCodec>          // for QTextCodec
+#include <QtCore5Compat/QTextCodec>          // for QTextCodec
 #include <QtCore/QTextStream>         // for QTextStream
 #include <QtCore/QtConfig>            // for QT_VERSION_STR
 #include <QtCore/QtGlobal>            // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK

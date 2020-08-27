@@ -40,7 +40,7 @@ void TextStream::open(const QString& fname, QIODevice::OpenMode mode, const char
   file_ = new gpsbabel::File(fname);
   file_->open(mode);
   setDevice(file_);
-  setCodec(codec_);
+  //setCodec(codec_);
 
   if (mode & QFile::ReadOnly) {
     if (codec_->mibEnum() == 106) { // UTF-8

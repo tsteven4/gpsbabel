@@ -30,11 +30,10 @@
 
 #include <QtCore/QByteArray>    // for QByteArray
 #include <QtCore/QChar>         // for QChar, operator==, operator!=
-#include <QtCore/QCharRef>      // for QCharRef
 #include <QtCore/QDateTime>     // for QDateTime
 #include <QtCore/QDebug>        // for QDebug
 #include <QtCore/QList>         // for QList
-#include <QtCore/QString>       // for QString, QString::KeepEmptyParts
+#include <QtCore/QString>       // for QString, Qt::KeepEmptyParts
 #include <QtCore/QStringList>   // for QStringList
 #include <QtCore/QTextStream>   // for hex
 #include <QtCore/QThread>       // for QThread
@@ -343,7 +342,7 @@ NmeaFormat::gpgll_parse(char* ibuf)
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  QStringList fields = QString(ibuf).split(",", Qt::KeepEmptyParts);
 
   double latdeg = 0;
   if (fields.size() > 1) latdeg = fields[1].toDouble();
@@ -398,7 +397,7 @@ NmeaFormat::gpgga_parse(char* ibuf)
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  QStringList fields = QString(ibuf).split(",", Qt::KeepEmptyParts);
   double hms = 0;
   if (fields.size() > 1) hms = fields[1].toDouble();
   double latdeg = 0;
@@ -495,7 +494,7 @@ NmeaFormat::gprmc_parse(char* ibuf)
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  QStringList fields = QString(ibuf).split(",", Qt::KeepEmptyParts);
   double hms = 0;
   if (fields.size() > 1) hms = fields[1].toDouble();
   QChar fix = 'V'; // V == "Invalid"
@@ -590,7 +589,7 @@ NmeaFormat::gpwpl_parse(char* ibuf)
   // is a string, so we brutally whack the checksum (trailing *NN).
   QString qibuf = QString(ibuf);
   qibuf.truncate(qibuf.lastIndexOf('*'));
-  QStringList fields = qibuf.split(",", QString::KeepEmptyParts);
+  QStringList fields = qibuf.split(",", Qt::KeepEmptyParts);
 
   double latdeg = 0;
   if (fields.size() > 1) latdeg = fields[1].toDouble();
@@ -651,7 +650,7 @@ NmeaFormat::gpgsa_parse(char* ibuf) const
   int  prn[12] = {0};
   memset(prn,0xff,sizeof(prn));
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  QStringList fields = QString(ibuf).split(",", Qt::KeepEmptyParts);
   int nfields = fields.size();
   // 0 = "GPGSA"
   // 1 = Mode. Ignored
@@ -699,7 +698,7 @@ NmeaFormat::gpgsa_parse(char* ibuf) const
 void
 NmeaFormat::gpvtg_parse(char* ibuf) const
 {
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  QStringList fields = QString(ibuf).split(",", Qt::KeepEmptyParts);
   double course = 0;
   if (fields.size() > 1) course = fields[1].toDouble();
   double speed_n = 0;

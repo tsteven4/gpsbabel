@@ -23,6 +23,7 @@
 #ifndef DATETIME_H_INCLUDED_
 #define DATETIME_H_INCLUDED_
 
+#include <cstdint>
 #include <ctime>
 
 #include <QtCore/QtGlobal>
@@ -59,7 +60,7 @@ public:
 
   // Temporary: Override the standard, also handle time_t 0 as invalid.
   bool isValid() const {
-    return date().isValid() && time().isValid() && toTime_t() > 0;
+    return QDateTime::isValid() && (toSecsSinceEpoch() != 0);
   }
 
   // Like toString, but with subsecond time that's included only when
@@ -70,6 +71,17 @@ public:
     } else {
       return toUTC().toString(QStringLiteral("yyyy-MM-ddTHH:mm:ssZ"));
     }
+  }
+
+  uint32_t toTime_t() const {
+    if (!QDateTime::isValid()) {
+      return -1;
+    }
+    long long secs_since_epoch = toSecsSinceEpoch();
+    if ((secs_since_epoch < 0) || (secs_since_epoch > 0xfffffffe)) {
+      return -1;
+    }
+    return secs_since_epoch;
   }
 };
 

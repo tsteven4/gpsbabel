@@ -166,7 +166,7 @@ void	wpt_altitude(xg_string, const QXmlStreamAttributes* attrv)
     wpt_to->altitude = attrv->value("Value").toString().toDouble();
   }
   if (attrv->hasAttribute("Unit")) {
-    isFeet = (attrv->value("Unit") == "ft");
+    isFeet = attrv->value("Unit").compare(QLatin1String("ft")) == 0;
   }
   if (isFeet) {
     wpt_to->altitude = FEET_TO_METERS(wpt_to->altitude);

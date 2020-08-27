@@ -50,7 +50,7 @@
 #include <QtCore/QRegularExpression>       // for QRegularExpression
 #include <QtCore/QRegularExpressionMatch>  // for QRegularExpressionMatch
 #include <QtCore/QString>                  // for QString
-#include <QtCore/QTextCodec>               // for QTextCodec
+#include <QtCore5Compat/QTextCodec>               // for QTextCodec
 #include <QtCore/QTime>                    // for QTime
 #include <QtCore/QVariant>                 // for QVariant
 #include <QtCore/QVector>                  // for QVector

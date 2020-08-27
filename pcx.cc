@@ -24,12 +24,11 @@
 #include <cstring>                    // for strstr, strncmp
 
 #include <QtCore/QChar>               // for operator==, QChar
-#include <QtCore/QCharRef>            // for QCharRef
 #include <QtCore/QDate>               // for QDate
 #include <QtCore/QDateTime>           // for QDateTime
 #include <QtCore/QList>               // for QList
 #include <QtCore/QRegularExpression>  // for QRegularExpression
-#include <QtCore/QString>             // for QString, QString::KeepEmptyParts, QString::SectionSkipEmpty
+#include <QtCore/QString>             // for QString, Qt::KeepEmptyParts, QString::SectionSkipEmpty
 #include <QtCore/QStringList>         // for QStringList
 #include <QtCore/QStringRef>          // for QStringRef
 #include <QtCore/QTime>               // for QTime
@@ -133,7 +132,7 @@ static void data_read() {
     switch (ibuf[0]) {
       case 'W': {
         QStringList tokens =
-            line.split(sep, QString::KeepEmptyParts);
+            line.split(sep, Qt::KeepEmptyParts);
         if (tokens.size() < 6) {
           fatal(MYNAME
                 ": Unable to parse waypoint, not all required columns "
@@ -233,7 +232,7 @@ static void data_read() {
         break;
       case 'T': {
         QStringList tokens =
-            line.split(sep, QString::KeepEmptyParts);
+            line.split(sep, Qt::KeepEmptyParts);
         if (tokens.size() < 6) {
           fatal(MYNAME
                 ": Unable to parse trackpoint, not all required columns "

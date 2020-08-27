@@ -48,7 +48,7 @@ static void GeoReadLoc()
   QString current_tag;
 
   while (!reader.atEnd()) {
-    QStringRef tag_name = reader.name();
+    QStringView tag_name = reader.name();
     if (reader.tokenType()==QXmlStreamReader::StartElement) {
       current_tag.append("/");
       current_tag.append(tag_name);

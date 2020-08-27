@@ -21,7 +21,7 @@
 
 #include <QtCore/QIODevice>    // for QIODevice, QIODevice::OpenMode
 #include <QtCore/QString>      // for QString
-#include <QtCore/QTextCodec>   // for QTextCodec
+#include <QtCore5Compat/QTextCodec>   // for QTextCodec
 #include <QtCore/QTextStream>  // for QTextStream
 
 #include "src/core/file.h"     // for File

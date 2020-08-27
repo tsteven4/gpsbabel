@@ -252,7 +252,7 @@ QDateTime
 XcsvFormat::yyyymmdd_to_time(const char* s)
 {
   QDate d = QDate::fromString(s, "yyyyMMdd");
-  return QDateTime(d);
+  return d.startOfDay();
 }
 
 

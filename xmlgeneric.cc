@@ -25,7 +25,7 @@
 #include <QtCore/QLatin1Char>           // for QLatin1Char
 #include <QtCore/QList>
 #include <QtCore/QStringRef>            // for QStringRef
-#include <QtCore/QTextCodec>            // for QTextCodec
+#include <QtCore5Compat/QTextCodec>            // for QTextCodec
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes
 #include <QtCore/QXmlStreamReader>      // for QXmlStreamReader, QXmlStreamReader::Characters, QXmlStreamReader::EndElement, QXmlStreamReader::IncludeChildElements, QXmlStreamReader::StartDocument, QXmlStreamReader::StartElement
 #include <QtCore/QtGlobal>              // for qPrintable
@@ -153,7 +153,7 @@ xml_deinit()
 }
 
 static xg_shortcut
-xml_shortcut(const QStringRef& name)
+xml_shortcut(QStringView name)
 {
    QString key = name.toString();
    if (xg_shortcut_taglist->contains(key)) {

@@ -21,7 +21,7 @@
 
 #include <QtCore/QByteArray>     // for QByteArray
 #include <QtCore/QDebug>         // for QDebug
-#include <QtCore/QTextCodec>     // for QTextCodec
+#include <QtCore5Compat/QTextCodec>     // for QTextCodec
 
 #include "defs.h"
 #include "cet_util.h"

@@ -79,7 +79,6 @@
 
 #include <QtCore/QByteArray>           // for QByteArray
 #include <QtCore/QChar>                // for operator==, QChar
-#include <QtCore/QCharRef>             // for QCharRef
 #include <QtCore/QScopedArrayPointer>  // for QScopedArrayPointer
 #include <QtCore/QString>              // for QString
 #include <QtCore/QtGlobal>             // for qPrintable, Q_UNUSED

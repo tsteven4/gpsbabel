@@ -42,7 +42,7 @@
 #include <QtCore/QScopedPointer>  // for QScopedPointer
 #include <QtCore/QString>         // for QString
 #include <QtCore/QStringRef>      // for QStringRef
-#include <QtCore/QTextCodec>      // for QTextCodec
+#include <QtCore5Compat/QTextCodec>      // for QTextCodec
 #include <QtCore/QVector>         // for QVector
 #include <QtCore/Qt>              // for CaseInsensitive
 #include <QtCore/QtGlobal>        // for foreach
@@ -992,7 +992,7 @@ struct arglist_t {
   char** argval{nullptr};
   const char* helpstring{nullptr};
   const char* defaultvalue{nullptr};
-  const uint32_t argtype{ARGTYPE_UNKNOWN};
+  uint32_t argtype{ARGTYPE_UNKNOWN};
   const char* minvalue{nullptr};    /* minimum value for numeric options */
   const char* maxvalue{nullptr};    /* maximum value for numeric options */
   char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */

@@ -53,7 +53,6 @@
 #include <ctime>                   // for time, time_t, gmtime
 
 #include <QtCore/QByteArray>       // for QByteArray, operator==
-#include <QtCore/QByteRef>         // for QByteRef
 #include <QtCore/QList>            // for QList<>::iterator, QList
 #include <QtCore/QString>          // for QString, operator+, operator<
 #include <QtCore/QThread>          // for QThread

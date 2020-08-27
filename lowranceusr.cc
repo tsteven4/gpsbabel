@@ -99,8 +99,8 @@
 #include <QtCore/QList>           // for QList
 #include <QtCore/QScopedPointer>  // for QScopedPointer
 #include <QtCore/QString>         // for QString, operator+, operator==, operator!=
-#include <QtCore/QTextCodec>      // for QTextCodec, QTextCodec::IgnoreHeader
-#include <QtCore/QTextEncoder>    // for QTextEncoder
+#include <QtCore5Compat/QTextCodec>      // for QTextCodec, QTextCodec::IgnoreHeader
+#include <QtCore5Compat/QTextEncoder>    // for QTextEncoder
 #include <QtCore/QTime>           // for QTime
 #include <QtCore/Qt>              // for CaseInsensitive, UTC
 #include <QtCore/QtGlobal>        // for qPrintable, uint, qAsConst, QAddConst<>::Type
@@ -1625,7 +1625,7 @@ LowranceusrFormat::lowranceusr_route_hdr(const route_head* rte)
   } else {
     name = QString::asprintf("Babel R%d", ++lowrance_route_count);
   }
-  int text_len = std::min(name.size(), MAXUSRSTRINGSIZE);
+  int text_len = std::min(name.size(), static_cast<qsizetype>(MAXUSRSTRINGSIZE));
   name.truncate(text_len);
   gbfputint32(text_len, file_out);
   gbfputs(name, file_out);
@@ -1740,7 +1740,7 @@ LowranceusrFormat::lowranceusr_merge_trail_hdr(const route_head* trk)
       name = QString::asprintf("Babel %d", trail_count);
     }
 
-    int text_len = std::min(MAXUSRSTRINGSIZE, name.size());
+    int text_len = std::min(static_cast<qsizetype>(MAXUSRSTRINGSIZE), name.size());
     name.truncate(text_len);
     gbfputint32(text_len, file_out);
     gbfputs(name, file_out);

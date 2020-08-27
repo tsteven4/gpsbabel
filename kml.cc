@@ -34,7 +34,6 @@
 #include <QtCore/QFile>                 // for QFile
 #include <QtCore/QIODevice>             // for operator|, QIODevice, QIODevice::Text, QIODevice::WriteOnly
 #include <QtCore/QList>                 // for QList
-#include <QtCore/QStaticStringData>     // for QStaticStringData
 #include <QtCore/QString>               // for QString, QStringLiteral, operator+, operator!=
 #include <QtCore/QStringList>           // for QStringList
 #include <QtCore/QVector>               // for QVector

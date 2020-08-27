@@ -33,9 +33,9 @@
 #include <QtCore/QByteArray>       // for QByteArray
 #include <QtCore/QScopedPointer>   // for QScopedPointer
 #include <QtCore/QString>          // for QString
-#include <QtCore/QTextCodec>       // for QTextCodec, QTextCodec::IgnoreHeader
-#include <QtCore/QTextDecoder>     // for QTextDecoder
-#include <QtCore/QTextEncoder>     // for QTextEncoder
+#include <QtCore5Compat/QTextCodec>       // for QTextCodec, QTextCodec::IgnoreHeader
+#include <QtCore5Compat/QTextDecoder>     // for QTextDecoder
+#include <QtCore5Compat/QTextEncoder>     // for QTextEncoder
 #include <QtCore/QTime>            // for QTime
 #include <QtCore/QVector>          // for QVector
 

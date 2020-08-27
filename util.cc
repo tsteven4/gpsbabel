@@ -32,14 +32,13 @@
 
 #include <QtCore/QByteArray>            // for QByteArray
 #include <QtCore/QChar>                 // for QChar, operator<=, operator>=
-#include <QtCore/QCharRef>              // for QCharRef
 #include <QtCore/QDateTime>             // for QDateTime
 #include <QtCore/QFileInfo>             // for QFileInfo
 #include <QtCore/QList>                 // for QList
 #include <QtCore/QScopedPointer>        // for QScopedPointer
 #include <QtCore/QString>               // for QString
 #include <QtCore/QStringRef>            // for QStringRef
-#include <QtCore/QTextCodec>            // for QTextCodec
+#include <QtCore5Compat/QTextCodec>            // for QTextCodec
 #include <QtCore/QTextStream>           // for operator<<, QTextStream, qSetFieldWidth, endl, QTextStream::AlignLeft
 #include <QtCore/QXmlStreamAttribute>   // for QXmlStreamAttribute
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes

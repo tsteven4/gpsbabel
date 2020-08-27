@@ -30,7 +30,6 @@
 #include <QtCore/QIODevice>                        // for QIODevice, operator|, QIODevice::ReadOnly, QIODevice::Text, QIODevice::WriteOnly
 #include <QtCore/QLatin1Char>                      // for QLatin1Char
 #include <QtCore/QLatin1String>                    // for QLatin1String
-#include <QtCore/QStaticStringData>                // for QStaticStringData
 #include <QtCore/QString>                          // for QString, QStringLiteral, operator+, operator==
 #include <QtCore/QStringList>                      // for QStringList
 #include <QtCore/QStringRef>                       // for QStringRef
@@ -213,7 +212,7 @@ GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr) const
 }
 
 void
-GpxFormat::start_something_else(const QStringRef& el, const QXmlStreamAttributes& attr)
+GpxFormat::start_something_else(QStringView el, const QXmlStreamAttributes& attr)
 {
   if (!fs_ptr) {
     return;
@@ -308,7 +307,7 @@ GpxFormat::tag_log_wpt(const QXmlStreamAttributes& attr) const
 }
 
 void
-GpxFormat::gpx_start(const QStringRef& el, const QXmlStreamAttributes& attr)
+GpxFormat::gpx_start(QStringView el, const QXmlStreamAttributes& attr)
 {
   /*
    * Reset end-of-string without actually emptying/reallocing cdatastr.
@@ -551,7 +550,7 @@ xml_parse_time(const QString& dateTimeString)
 }
 
 void
-GpxFormat::gpx_end(const QStringRef& /*unused*/)
+GpxFormat::gpx_end(QStringView /*unused*/)
 {
   static QDateTime gc_log_date;
 
@@ -891,7 +890,7 @@ GpxFormat::gpx_end(const QStringRef& /*unused*/)
 
 
 void
-GpxFormat::gpx_cdata(const QStringRef& s)
+GpxFormat::gpx_cdata(QStringView s)
 {
   QString* cdata;
   cdatastr += s;

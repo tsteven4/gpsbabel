@@ -14,6 +14,7 @@ if(equals(QT_MAJOR_VERSION, $$MIN_QT_VERSION_MAJOR):equals(QT_MINOR_VERSION, $$M
 }
 
 QT -= gui
+QT += core5compat
 
 TARGET = gpsbabel
 VERSION = 1.7.0
