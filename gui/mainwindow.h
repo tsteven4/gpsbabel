@@ -28,11 +28,11 @@
 #include <QtCore/QString>         // for QString
 #include <QtCore/QStringList>     // for QStringList
 #include <QtCore/QTranslator>     // for QTranslator
+#include <QtGui/QAction>          // for QAction
 #include <QtGui/QCloseEvent>      // for QCloseEvent
 #include <QtGui/QDragEnterEvent>  // for QDragEnterEvent
 #include <QtGui/QDropEvent>       // for QDropEvent
 #include <QtGui/QPixmap>          // for QPixmap
-#include <QtWidgets/QAction>      // for QAction
 #include <QtWidgets/QComboBox>    // for QComboBox
 #include <QtWidgets/QLabel>       // for QLabel
 #include <QtWidgets/QLineEdit>    // for QLineEdit
