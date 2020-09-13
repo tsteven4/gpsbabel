@@ -41,6 +41,7 @@ jobs:
         - DOCKER_IMG="f32"
     # bionic, gcc, normal build
     - os: linux
+      arch: s390x
       dist: bionic
       compiler: gcc
       env:
