@@ -92,12 +92,12 @@ mapbar_track_read()
   // note gbfread wouldn't get this right on big endian machines.
   for (int idx=0; idx<100; idx++) {
     name[idx] = gbfgetint16(fin);
+qDebug() << hex << name[idx];
   }
   name[100] = 0;
   // At this point, name is a UCS-2 encoded, zero terminated string.
   // All our internals use Qt encoding, so convert now.
   track->rte_name = QString::fromUtf16(name);
-qDebug() << name;
 
   // skip two pair waypoint
   gbfseek(fin, 8*4, SEEK_CUR);
