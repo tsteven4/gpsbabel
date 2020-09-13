@@ -30,7 +30,6 @@
 #include <QtCore/QLocale>              // for QLocale
 #include <QtCore/QMimeData>            // for QMimeData
 #include <QtCore/QProcess>             // for QProcess, QProcess::NotRunning
-#include <QtCore/QRegExp>              // for QRegExp
 #include <QtCore/QSettings>            // for QSettings
 #include <QtCore/QString>              // for QString
 #include <QtCore/QStringList>          // for QStringList
@@ -65,7 +64,9 @@
 #include "donate.h"                    // for Donate
 #include "filterdlg.h"                 // for FilterDialog
 #include "formatload.h"                // for FormatLoad
+#ifndef DISABLE_MAPPREVIEW
 #include "gmapdlg.h"                   // for GMapDialog
+#endif
 #include "help.h"                      // for ShowHelp
 #include "optionsdlg.h"                // for OptionsDlg
 #include "preferences.h"               // for Preferences
@@ -98,8 +99,6 @@ QString MainWindow::findBabelVersion()
   isBeta_ = str.contains("-beta");
   str.replace("Version",  "");
   str.replace("GPSBabel",  "");
-  str.replace(QRegExp("^[\\s]*"),  "");
-  str.replace(QRegExp("[\\s]+$"),  "");
   str = str.simplified();
   return str;
 }
@@ -508,8 +507,8 @@ void MainWindow::outputFileNameEdited()
 QString MainWindow::filterForFormat(int idx)
 {
   QString str = formatList_[idx].getDescription();
-  str.replace(QRegExp("\\("), "[");
-  str.replace(QRegExp("\\)"), "]");
+  str.replace('(', '[');
+  str.replace(')', ']');
   QStringList extensions = formatList_[idx].getExtensions();
 
   // If we don't have any meaningful extensions available for this format,
@@ -886,9 +885,11 @@ bool MainWindow::isOkToGo()
     return false;
   }
 
-  if (babelData_.outputType_ == BabelData::noType_ && babelData_.previewGmap_) {
-  }
+#ifndef DISABLE_MAPPREVIEW
   if (babelData_.outputType_ == BabelData::noType_ && !babelData_.previewGmap_) {
+#else
+  if (babelData_.outputType_ == BabelData::noType_) {
+#endif
     QMessageBox::information(nullptr, QString(appName), tr("No valid output specified"));
     return false;
   }
@@ -1038,6 +1039,7 @@ void MainWindow::applyActionX()
     formatList_[fidx].bumpWriteUseCount(1);
   }
 
+#ifndef DISABLE_MAPPREVIEW
   // Now output for preview in google maps
   QString tempName;
   if (babelData_.previewGmap_) {
@@ -1055,6 +1057,7 @@ void MainWindow::applyActionX()
     args << "gpx";
     args << "-F" << tempName;
   }
+#endif
 
   ui_.outputWindow->clear();
   ui_.outputWindow->appendPlainText("gpsbabel " + args.join(" "));
@@ -1068,6 +1071,7 @@ void MainWindow::applyActionX()
   ui_.outputWindow->appendPlainText(outputString);
   if (x) {
     ui_.outputWindow->appendPlainText(tr("Translation successful"));
+#ifndef DISABLE_MAPPREVIEW
     if (babelData_.previewGmap_) {
       this->hide();
       GMapDialog dlg(nullptr, tempName, babelData_.debugLevel_ >=1 ? ui_.outputWindow : nullptr);
@@ -1076,6 +1080,7 @@ void MainWindow::applyActionX()
       QFile(tempName).remove();
       this->show();
     }
+#endif
   } else {
     ui_.outputWindow->appendPlainText(tr("Error running gpsbabel: %1\n").arg(errorString));
   }

@@ -19,26 +19,28 @@
 
  */
 
-
-#include "babeldata.h"
-#include "format.h"
 #include "upgrade.h"
-#include "../gbversion.h"
-
-#include <cstdio>
-
-#include <QtCore/QDebug>
-#include <QtCore/QLocale>
-#include <QtCore/QSysInfo>
-#include <QtCore/QUrl>
-#include <QtCore/QVariant>
-#include <QtCore/QVersionNumber>
-#include <QtGui/QDesktopServices>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
-#include <QtWidgets/QMessageBox>
-#include <QtXml/QDomDocument>
+#include <QtCore/qglobal.h>                 // for qDebug
+#include <QtCore/QByteArray>                // for QByteArray
+#include <QtCore/QDebug>                    // for QDebug
+#include <QtCore/QLocale>                   // for QLocale
+#include <QtCore/QSysInfo>                  // for QSysInfo
+#include <QtCore/QUrl>                      // for QUrl
+#include <QtCore/QVariant>                  // for QVariant
+#include <QtCore/QVersionNumber>            // for QVersionNumber, operator<, operator==
+#include <QtCore/Qt>                        // for ISODate, RichText
+#include <QtGui/QDesktopServices>           // for QDesktopServices
+#include <QtNetwork/QNetworkAccessManager>  // for QNetworkAccessManager
+#include <QtNetwork/QNetworkReply>          // for QNetworkReply, QNetworkReply::NoError
+#include <QtNetwork/QNetworkRequest>        // for QNetworkRequest, QNetworkRequest::ContentTypeHeader, QNetworkRequest::HttpReasonPhraseAttribute, QNetworkRequest::HttpStatusCodeAttribute, QNetworkRequest::NoLessSafeRedirectPolicy, QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::Redi...
+#include <QtWidgets/QMessageBox>            // for QMessageBox, QMessageBox::Yes, operator|, QMessageBox::No
+#include <QtXml/QDomDocument>               // for QDomDocument
+#include <QtXml/QDomElement>                // for QDomElement
+#include <QtXml/QDomNode>                   // for QDomNode
+#include <QtXml/QDomNodeList>               // for QDomNodeList
+#include "../gbversion.h"                   // for VERSION
+#include "babeldata.h"                      // for BabelData
+#include "format.h"                         // for Format
 
 
 #if 0
@@ -113,6 +115,11 @@ UpgradeCheck::updateStatus UpgradeCheck::checkForUpgrade(
           this, SLOT(httpRequestFinished(QNetworkReply*)));
 
   QNetworkRequest request = QNetworkRequest(upgradeUrl_);
+
+  // In Qt 5.6 and later, it can reissue with a redirect. With this in
+  // place, we don't see the 301 redirect, but the server has to issue
+  // one for the thousands of older clients out there.
+  request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
   request.setRawHeader("Accept-Encoding","identity");
 
@@ -171,10 +178,10 @@ UpgradeCheck::updateStatus UpgradeCheck::getStatus()
 }
 
 // GPSBabel version numbers throughout the code mostly predate QVersionNumber
-// and are stored as strings. They may be of the form "1.6.0-beta20200413" 
+// and are stored as strings. They may be of the form "1.6.0-beta20200413"
 // which, if sorted as a string, will be after "1.6.0" which is bad. Use
-// this function to sort that out. (See what I did there? Bwaaaahah!) 
-bool UpgradeCheck::suggestUpgrade(const QString& from, const QString& to) 
+// this function to sort that out. (See what I did there? Bwaaaahah!)
+bool UpgradeCheck::suggestUpgrade(const QString& from, const QString& to)
 {
   int fromIndex = 0;
   int toIndex = 0;
@@ -186,7 +193,7 @@ bool UpgradeCheck::suggestUpgrade(const QString& from, const QString& to)
   if (fromVersion < toVersion) {
     return true;
   }
-  // Just look for the presence of stuff (not even the contents) of the 
+  // Just look for the presence of stuff (not even the contents) of the
   // string. Shorter string (no "-betaXXX" wins)
   if (fromVersion == toVersion) {
     if (from.length() - fromIndex > to.length() - toIndex) {
@@ -195,7 +202,7 @@ bool UpgradeCheck::suggestUpgrade(const QString& from, const QString& to)
   }
   return false;
 }
-// Some day when we have Gunit or equiv, add unit tests for: 
+// Some day when we have Gunit or equiv, add unit tests for:
 //suggestUpgrade(updateVersion, currentVersion_);
 //suggestUpgrade("1.6.0-beta20190413", "1.6.0");
 //suggestUpgrade("1.6.0", "1.6.0-beta20190413");

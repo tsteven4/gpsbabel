@@ -26,6 +26,7 @@
 
 #include <QtCore/QByteArray>      // for QByteArray
 #include <QtCore/QDateTime>       // for QDateTime
+#include <QtCore/QHash>           // for QHash
 #include <QtCore/QList>           // for QList
 #include <QtCore/QString>         // for QString
 #include <QtCore/QStringList>     // for QStringList
@@ -49,6 +50,102 @@ class XcsvStyle
 public:
   /* Types */
 
+  /*
+   * Internal numeric value to associate with each keyword in a style file.
+   * To add new keywords, just add an entry here, add it to xcsv_tokens, and
+   * handle it in the switch statements in xcsv.cc.
+   */
+  enum xcsv_token {
+    XT_unused = 0,
+    XT_ALT_FEET,
+    XT_ALT_METERS,
+    XT_ANYNAME,
+    XT_CADENCE,
+    XT_CITY,
+    XT_CONSTANT,
+    XT_COUNTRY,
+    XT_DESCRIPTION,
+    XT_EMAIL,
+    XT_EXCEL_TIME,
+    XT_FACILITY,
+    XT_FILENAME,
+    XT_FORMAT,
+    XT_GEOCACHE_CONTAINER,
+    XT_GEOCACHE_DIFF,
+    XT_GEOCACHE_HINT,
+    XT_GEOCACHE_LAST_FOUND,
+    XT_GEOCACHE_PLACER,
+    XT_GEOCACHE_TERR,
+    XT_GEOCACHE_TYPE,
+    XT_GEOCACHE_ISAVAILABLE,
+    XT_GEOCACHE_ISARCHIVED,
+    XT_GMT_TIME,
+    XT_GPS_FIX,
+    XT_GPS_HDOP,
+    XT_GPS_PDOP,
+    XT_GPS_SAT,
+    XT_GPS_VDOP,
+    XT_HEART_RATE,
+    XT_HMSG_TIME,
+    XT_HMSL_TIME,
+    XT_ICON_DESCR,
+    XT_IGNORE,
+    XT_INDEX,
+    XT_ISO_TIME,
+    XT_ISO_TIME_MS,
+    XT_LATLON_HUMAN_READABLE,
+    XT_LAT_DECIMAL,
+    XT_LAT_DECIMALDIR,
+    XT_LAT_DIR,
+    XT_LAT_DIRDECIMAL,
+    XT_LAT_HUMAN_READABLE,
+    XT_LAT_INT32DEG,
+    XT_LAT_DDMMDIR,
+    XT_LAT_NMEA,
+    XT_LOCAL_TIME,
+    XT_LON_DECIMAL,
+    XT_LON_DECIMALDIR,
+    XT_LON_DIR,
+    XT_LON_DIRDECIMAL,
+    XT_LON_HUMAN_READABLE,
+    XT_LON_INT32DEG,
+    XT_LON_DDMMDIR,
+    XT_LON_NMEA,
+    XT_MAP_EN_BNG,
+    XT_NOTES,
+    XT_NET_TIME,
+    XT_PATH_COURSE,
+    XT_PATH_DISTANCE_KM,
+    XT_PATH_DISTANCE_METERS,
+    XT_PATH_DISTANCE_MILES,
+    XT_PATH_SPEED,
+    XT_PATH_SPEED_KNOTS,
+    XT_PATH_SPEED_KPH,
+    XT_PATH_SPEED_MPH,
+    XT_PHONE_NR,
+    XT_POSTAL_CODE,
+    XT_POWER,
+    XT_ROUTE_NAME,
+    XT_SHORTNAME,
+    XT_STATE,
+    XT_STREET_ADDR,
+    XT_TEMPERATURE,
+    XT_TEMPERATURE_F,
+    XT_TIMET_TIME,
+    XT_TIMET_TIME_MS,
+    XT_TRACK_NAME,
+    XT_TRACK_NEW,
+    XT_URL,
+    XT_UTM,
+    XT_UTM_ZONE,
+    XT_UTM_ZONEC,
+    XT_UTM_ZONEF,
+    XT_UTM_EASTING,
+    XT_UTM_NORTHING,
+    XT_URL_LINK_TEXT,
+    XT_YYYYMMDD_TIME
+  };
+
   /* something to map fields to waypts */
   struct field_map {
     // We use QByteArrays because consumers want char* data and QByteArrays supply this through constData().
@@ -58,13 +155,14 @@ public:
     QByteArray key;
     QByteArray val;
     QByteArray printfc;
-    int hashed_key{0};
+    xcsv_token hashed_key{XT_unused};
     unsigned options{0};
 
     field_map() = default;
-    field_map(QByteArray k, QByteArray v, QByteArray p, int hk) : key{std::move(k)},val{std::move(v)},printfc{std::move(p)},hashed_key{hk} {}
-    field_map(QByteArray k, QByteArray v, QByteArray p, int hk, unsigned o) : key{std::move(k)},val{std::move(v)},printfc{
-      std::move(p)},hashed_key{hk},options{o} {}
+    field_map(QByteArray k, QByteArray v, QByteArray p, xcsv_token hk) :
+      key{std::move(k)}, val{std::move(v)}, printfc{std::move(p)}, hashed_key{hk} {}
+    field_map(QByteArray k, QByteArray v, QByteArray p, xcsv_token hk, unsigned o) :
+      key{std::move(k)}, val{std::move(v)}, printfc{std::move(p)}, hashed_key{hk}, options{o} {}
   };
 
   /* Constants */
@@ -161,6 +259,8 @@ private:
   static XcsvStyle xcsv_parse_style_buff(const char* sbuff);
 
   /* Data Members */
+
+  static const QHash<QString, xcsv_token> xcsv_tokens;
 
   /* a table of config file constants mapped to chars */
   static const char_map_t xcsv_char_table[];
