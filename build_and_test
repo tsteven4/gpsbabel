@@ -28,7 +28,7 @@ qmake WEB=$(pwd)/gpsbabel_docdir
 make toolinfo
 make clean
 make -j 3
-make -j 3 unix-gui
+#make -j 3 unix-gui
 make gpsbabel.html
 make gpsbabel.pdf
 make gpsbabel.org
