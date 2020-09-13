@@ -97,6 +97,7 @@ mapbar_track_read()
   // At this point, name is a UCS-2 encoded, zero terminated string.
   // All our internals use Qt encoding, so convert now.
   track->rte_name = QString::fromUtf16(name);
+qDebug() << name;
 
   // skip two pair waypoint
   gbfseek(fin, 8*4, SEEK_CUR);
