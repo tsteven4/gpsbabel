@@ -52,8 +52,8 @@ if [ -z "${QT_VERSION}" ]; then
       qt5-default \
       qttools5-dev-tools \
       qttranslations5-l10n \
-      qtwebengine5-dev  \
     )
+#      qtwebengine5-dev  \
 fi
 sudo apt-get -y install "${packages[@]}"
 # prepare locale for test_encoding_latin1, requires locales package.
