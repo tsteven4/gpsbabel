@@ -24,7 +24,6 @@
 #include <QtCore/QHash>                 // for QHash
 #include <QtCore/QString>               // for QString
 #include <QtCore/QStringList>           // for QStringList
-#include <QtCore/QStringRef>            // for QStringRef
 #include <QtCore/QVector>               // for QVector
 #include <QtCore/QVersionNumber>        // for QVersionNumber
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes

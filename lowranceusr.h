@@ -92,7 +92,6 @@
 
 #include <QtCore/QList>         // for QList
 #include <QtCore/QString>       // for QString
-#include <QtCore/QStringRef>    // for QStringRef
 #include <QtCore5Compat/QTextCodec>    // for QTextCodec
 #include <QtCore/QVector>       // for QVector
 #include <QtCore/Qt>            // for CaseInsensitive
@@ -511,7 +510,7 @@ private:
      * Also return the icon number for descriptions of "icon-"
      * followed by a numeric icon number.
      */
-    int n = desc.midRef(desc.startsWith("icon-") ? 5 : 0).toInt();
+    int n = desc.mid(desc.startsWith("icon-") ? 5 : 0).toInt();
     if (n)  {
       return n;
     }

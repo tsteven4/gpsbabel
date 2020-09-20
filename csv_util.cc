@@ -367,7 +367,7 @@ csv_linesplit(const QString& string, const QString& delimited_by,
     const int sp = p;
 
     while (p < string.size() && !dfound) {
-      if ((elen > 0) && string.midRef(p).startsWith(enclosed_in)) {
+      if ((elen > 0) && string.mid(p).startsWith(enclosed_in)) {
         efound = true;
         p += elen;
         enclosed = !enclosed;
@@ -375,7 +375,7 @@ csv_linesplit(const QString& string, const QString& delimited_by,
       }
 
       if (!enclosed) {
-        if ((dlen > 0) && string.midRef(p).startsWith(delimiter)) {
+        if ((dlen > 0) && string.mid(p).startsWith(delimiter)) {
           dfound = true;
         } else if (hyper_whitespace_delimiter && string.at(p).isSpace()) {
           dfound = true;

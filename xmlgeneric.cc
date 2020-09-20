@@ -24,7 +24,6 @@
 #include <QtCore/QIODevice>             // for QIODevice, QIODevice::ReadOnly
 #include <QtCore/QLatin1Char>           // for QLatin1Char
 #include <QtCore/QList>
-#include <QtCore/QStringRef>            // for QStringRef
 #include <QtCore5Compat/QTextCodec>            // for QTextCodec
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes
 #include <QtCore/QXmlStreamReader>      // for QXmlStreamReader, QXmlStreamReader::Characters, QXmlStreamReader::EndElement, QXmlStreamReader::IncludeChildElements, QXmlStreamReader::StartDocument, QXmlStreamReader::StartElement

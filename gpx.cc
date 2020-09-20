@@ -32,7 +32,6 @@
 #include <QtCore/QLatin1String>                    // for QLatin1String
 #include <QtCore/QString>                          // for QString, QStringLiteral, operator+, operator==
 #include <QtCore/QStringList>                      // for QStringList
-#include <QtCore/QStringRef>                       // for QStringRef
 #include <QtCore/QTime>                            // for QTime
 #include <QtCore/QVersionNumber>                   // for QVersionNumber
 #include <QtCore/QXmlStreamAttribute>              // for QXmlStreamAttribute

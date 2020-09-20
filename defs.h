@@ -41,7 +41,6 @@
 #include <QtCore/QList>           // for QList, QList<>::const_reverse_iterator, QList<>::reverse_iterator
 #include <QtCore/QScopedPointer>  // for QScopedPointer
 #include <QtCore/QString>         // for QString
-#include <QtCore/QStringRef>      // for QStringRef
 #include <QtCore5Compat/QTextCodec>      // for QTextCodec
 #include <QtCore/QVector>         // for QVector
 #include <QtCore/Qt>              // for CaseInsensitive
@@ -1099,7 +1098,7 @@ case_ignore_strcmp(const QString& s1, const QString& s2)
 // In 95% of the callers, this could be s1.startsWith(s2)...
 inline int case_ignore_strncmp(const QString& s1, const QString& s2, int n)
 {
-  return s1.leftRef(n).compare(s2.left(n), Qt::CaseInsensitive);
+  return s1.left(n).compare(s2.left(n), Qt::CaseInsensitive);
 }
 
 int str_match(const char* str, const char* match);
