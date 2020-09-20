@@ -894,7 +894,7 @@ NmeaFormat::nmea_parse_one_line(char* ibuf)
     int ckcmp;
     sscanf(ck, "%2X", &ckcmp);
     if (ckval != ckcmp) {
-      Warning().nospace() <<  hex << "Invalid NMEA checksum.  Computed 0x" << ckval << " but found 0x" << ckcmp << ".  Ignoring sentence.";
+      Warning().nospace() <<  Qt::hex << "Invalid NMEA checksum.  Computed 0x" << ckval << " but found 0x" << ckcmp << ".  Ignoring sentence.";
       return;
     }
 
