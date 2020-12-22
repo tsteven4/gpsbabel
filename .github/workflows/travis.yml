@@ -1,0 +1,32 @@
+name: "travis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ master ]
+  schedule:
+    - cron: '27 4 * * 2'
+
+jobs:
+  basic:
+    name: Basic Build
+    runs-on: ubuntu-latest
+    container: tsteven4/gpsbabel_build_environment
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: build_and_test
+      run: |
+        pwd
+        ls
+        ./build_and_test
+
