@@ -16,12 +16,12 @@ jobs:
     container: 
       image: tsteven4/gpsbabel_build_environment
       env:
+        CC: gcc
+        CXX: gcc
         LC_ALL: C.UTF-8
 
     strategy:
       fail-fast: false
-      matrix:
-        language: [ 'cpp' ]
 
     steps:
     #- name: Checkout repository
@@ -35,7 +35,80 @@ jobs:
 
     - name: build_and_test
       run: |
-        pwd
-        ls
         ./build_and_test
 
+  qtio_gcc:
+    name: qtio gcc Build
+    runs-on: ubuntu-latest
+    container: 
+      image: tsteven4/gpsbabel_build_environment_qtio
+      env:
+        CC: gcc
+        CXX: gcc
+        LC_ALL: C.UTF-8
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    #- name: Checkout repository
+    #  uses: actions/checkout@v2
+
+    - name: checkout
+      run: |
+        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
+        git fetch origin $GITHUB_REF:temporary-ci-branch
+        git checkout $GITHUB_SHA
+
+    - name: build_and_test
+      run: |
+        ./build_and_test
+
+  qtio_clang:
+    name: qtio clang Build
+    runs-on: ubuntu-latest
+    container: 
+      image: tsteven4/gpsbabel_build_environment_qtio
+      env:
+        CC: clang
+        CXX: clang++
+        LC_ALL: C.UTF-8
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    #- name: Checkout repository
+    #  uses: actions/checkout@v2
+
+    - name: checkout
+      run: |
+        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
+        git fetch origin $GITHUB_REF:temporary-ci-branch
+        git checkout $GITHUB_SHA
+
+    - name: build_and_test
+      run: |
+        ./build_and_test
+
+  advanced:
+    name: advanced Build
+    runs-on: ubuntu-latest
+    container: 
+      image: tsteven4/gpsbabel_build_environment_focal
+      env:
+        CC: gcc
+        CXX: gcc
+        LC_ALL: C.UTF-8
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: build_and_test
+      run: |
+        ls
+        ./tools/build_extra_tests
