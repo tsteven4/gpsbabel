@@ -16,8 +16,6 @@ jobs:
     container: 
       image: tsteven4/gpsbabel_build_environment
       env:
-        CC: gcc
-        CXX: gcc
         LC_ALL: C.UTF-8
 
     strategy:
@@ -43,8 +41,6 @@ jobs:
     container: 
       image: tsteven4/gpsbabel_build_environment_qtio
       env:
-        CC: gcc
-        CXX: gcc
         LC_ALL: C.UTF-8
 
     strategy:
@@ -71,8 +67,7 @@ jobs:
     container: 
       image: tsteven4/gpsbabel_build_environment_qtio
       env:
-        CC: clang
-        CXX: clang++
+        QMAKESPEC: linux-clang
         LC_ALL: C.UTF-8
 
     strategy:
@@ -99,8 +94,6 @@ jobs:
     container: 
       image: tsteven4/gpsbabel_build_environment_focal
       env:
-        CC: gcc
-        CXX: gcc
         LC_ALL: C.UTF-8
 
     strategy:
