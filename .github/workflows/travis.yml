@@ -128,7 +128,7 @@ jobs:
 
     - name: Script
       run: |
-        xcode-select --switch /Applications/Xcode_12.1.1.app
+        sudo xcode-select --switch /Applications/Xcode_12.1.1.app
         ./tools/travis_script_osx
 
 
