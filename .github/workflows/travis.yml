@@ -2,7 +2,7 @@ name: "travis"
 
 on:
   push:
-    branches: [ master, gitactions]
+    branches: [ '**']
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ master ]
@@ -17,9 +17,6 @@ jobs:
       image: tsteven4/gpsbabel_build_environment
       env:
         LC_ALL: C.UTF-8
-
-    strategy:
-      fail-fast: false
 
     steps:
     #- name: Checkout repository
@@ -42,9 +39,6 @@ jobs:
       image: tsteven4/gpsbabel_build_environment_qtio
       env:
         LC_ALL: C.UTF-8
-
-    strategy:
-      fail-fast: false
 
     steps:
     #- name: Checkout repository
@@ -70,9 +64,6 @@ jobs:
         QMAKESPEC: linux-clang
         LC_ALL: C.UTF-8
 
-    strategy:
-      fail-fast: false
-
     steps:
     #- name: Checkout repository
     #  uses: actions/checkout@v2
@@ -96,14 +87,27 @@ jobs:
       env:
         LC_ALL: C.UTF-8
 
-    strategy:
-      fail-fast: false
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: build_extra_tests
       run: |
-        ls
         ./tools/build_extra_tests
+
+  fedora:
+    name: fedora Build
+    runs-on: ubuntu-latest
+    container: 
+      image: tsteven4/gpsbabel_build_environment_f32
+      env:
+        LC_ALL: C.UTF-8
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: build_and_test
+      run: |
+        ./build_and_test
+
