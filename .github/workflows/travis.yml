@@ -21,8 +21,12 @@ jobs:
         language: [ 'cpp' ]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    #- name: Checkout repository
+    #  uses: actions/checkout@v2
+
+    - name: checkout
+      run: |
+        git clone --depth=50 --branch=${GITHUB_REF} https://github.com/${GITHUB_REPOSITORY}
 
     - name: build_and_test
       run: |
