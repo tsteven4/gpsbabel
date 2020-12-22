@@ -111,3 +111,24 @@ jobs:
       run: |
         ./build_and_test
 
+  macos:
+    name: macos Build
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Qt install
+      run: |
+        pwd
+        echo ${GITHUB_WORKSPACE}
+        export TRAVIS_BUILD_DIR=${GITHUB_WORKSPACE}
+        ./tools/travis_install_osx 5.12.10 installer
+
+    - name: Script
+      run: |
+        xcode-select --switch /Applications/Xcode_12.1.1.app
+        ./tools/travis_script_osx
+
+
