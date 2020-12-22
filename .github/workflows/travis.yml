@@ -26,7 +26,9 @@ jobs:
 
     - name: checkout
       run: |
-        git clone --depth=50 --branch=${GITHUB_REF} https://github.com/${GITHUB_REPOSITORY}
+        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
+        git fetch origin $GITHUB_REF:temporary-ci-branch
+        git checkout $GITHUB_SHA
 
     - name: build_and_test
       run: |
