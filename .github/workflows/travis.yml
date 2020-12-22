@@ -13,7 +13,10 @@ jobs:
   basic:
     name: Basic Build
     runs-on: ubuntu-latest
-    container: tsteven4/gpsbabel_build_environment
+    container: 
+      image: tsteven4/gpsbabel_build_environment
+      env:
+        LC_ALL: C.UTF-8
 
     strategy:
       fail-fast: false
