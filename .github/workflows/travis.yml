@@ -141,6 +141,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Qt install
+      env:
+        ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
+        ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+        ARTIFACTORY_BASE_URL: ${{ secrets.ARTIFACTORY_API_KEY }}
       run: |
         pwd
         echo ${GITHUB_WORKSPACE}
