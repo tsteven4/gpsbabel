@@ -111,6 +111,21 @@ jobs:
       run: |
         ./build_and_test
 
+  coverage:
+    name: coverage Build
+    runs-on: ubuntu-20.04
+    steps:
+    - name: install
+      run: |
+        sudo apt-get install gcovr lcov libusb-1.0-0-dev qt5-default
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: script
+      run: |
+        ./tools/travis_script_linux_coverage
+
   macos_release:
     name: macos release Build
     runs-on: macos-latest
