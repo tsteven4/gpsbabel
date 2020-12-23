@@ -117,6 +117,7 @@ jobs:
     steps:
     - name: install
       run: |
+        sudo apt-get update
         sudo apt-get install gcovr lcov libusb-1.0-0-dev qt5-default
 
     - name: Checkout repository
