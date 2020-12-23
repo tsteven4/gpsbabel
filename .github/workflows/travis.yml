@@ -125,10 +125,10 @@ jobs:
         echo ${GITHUB_WORKSPACE}
         export TRAVIS_BUILD_DIR=${GITHUB_WORKSPACE}
         ./tools/travis_install_osx 5.12.10 installer
-        source ${HOME}/Cache/qt-5.12.10.env
 
     - name: Script
       run: |
+        source ${HOME}/Cache/qt-5.12.10.env
         sudo xcode-select --switch /Applications/Xcode_12.1.1.app
         ./tools/travis_script_osx
 
