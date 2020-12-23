@@ -111,8 +111,8 @@ jobs:
       run: |
         ./build_and_test
 
-  macos:
-    name: macos Build
+  macos_release:
+    name: macos release Build
     runs-on: macos-latest
 
     steps:
@@ -129,6 +129,27 @@ jobs:
     - name: Script
       run: |
         source ${HOME}/Cache/qt-5.12.10.env
+        sudo xcode-select --switch /Applications/Xcode_11.7.app
+        ./tools/travis_script_osx
+
+  macos_edge:
+    name: macos edge Build
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Qt install
+      run: |
+        pwd
+        echo ${GITHUB_WORKSPACE}
+        export TRAVIS_BUILD_DIR=${GITHUB_WORKSPACE}
+        ./tools/travis_install_osx 5.15.2 artifactory
+
+    - name: Script
+      run: |
+        source ${HOME}/Cache/qt-5.15.2.env
         sudo xcode-select --switch /Applications/Xcode_12.1.1.app
         ./tools/travis_script_osx
 
