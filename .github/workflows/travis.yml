@@ -156,6 +156,12 @@ jobs:
         source ${HOME}/Cache/qt-${QT_VERSION}.env
         sudo xcode-select --switch /Applications/Xcode_11.7.app
         ./tools/travis_script_osx
+        echo GITHUB_REF: $GITHUB_REF
+
+    - name: Deploy
+      if: ${{ ( ${{ github.ref } == 'refs/branch/gitactions' ) || ( ${{ github.ref } == 'refs/branch/master' ) || ( $${ github.base_ref } == 'refs/branch/master' ) }}
+      run: |
+        ./tools/uploadtool/upload_github.sh gui/GPSBabel-*.dmg
 
   macos_edge:
     name: macos edge Build
