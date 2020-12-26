@@ -125,7 +125,7 @@ jobs:
 
     - name: script
       env:
-        CODACY_PROJECT_TOKEN: ${{ env.CODACY_PROJECT_TOKEN }}
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
         ./tools/travis_script_linux_coverage
 
