@@ -159,7 +159,7 @@ jobs:
         echo GITHUB_REF: $GITHUB_REF
 
     - name: Deploy
-      if: ( github.ref == 'refs/branch/gitactions' ) || ( github.ref == 'refs/branch/master' ) || ( github.base_ref == 'refs/branch/master' )
+      if: ( github.ref == 'refs/heads/gitactions' ) || ( github.ref == 'refs/heads/master' ) || ( github.base_ref == 'master' )
       run: |
         ./tools/uploadtool/upload_github.sh gui/GPSBabel-*.dmg
 
