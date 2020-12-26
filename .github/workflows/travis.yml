@@ -124,6 +124,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: script
+      env:
+        CODACY_PROJECT_TOKEN: ${{ env.CODACY_PROJECT_TOKEN }}
       run: |
         ./tools/travis_script_linux_coverage
 
