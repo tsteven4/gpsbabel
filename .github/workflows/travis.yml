@@ -160,6 +160,8 @@ jobs:
 
     - name: Deploy
       if: ( github.ref == 'refs/heads/gitactions' ) || ( github.ref == 'refs/heads/master' ) || ( github.base_ref == 'master' )
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         ./tools/uploadtool/upload_github.sh gui/GPSBabel-*.dmg
 
