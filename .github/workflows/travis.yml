@@ -159,7 +159,7 @@ jobs:
         echo GITHUB_REF: $GITHUB_REF
 
     - name: Deploy
-      if: ( github.ref == 'refs/heads/gitactions' ) || ( github.ref == 'refs/heads/master' ) || ( github.base_ref == 'master' )
+      if: ( github.ref == 'refs/heads/master' ) || ( github.base_ref == 'master' )
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
