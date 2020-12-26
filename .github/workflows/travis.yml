@@ -147,7 +147,7 @@ jobs:
 
     - name: Qt install
       env:
-        TRAVIS_BUILD_DIR: ${{ env.GITHUB_WORKSPACE }}
+        TRAVIS_BUILD_DIR: ${{ github.workspace }}
       run: |
         ./tools/travis_install_osx ${QT_VERSION} installer
 
