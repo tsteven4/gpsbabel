@@ -53,14 +53,14 @@ if [ "${GITHUB_EVENT_NAME}" == "pull_request" ] ; then
 fi
 
 REPO_SLUG="${GITHUB_REPOSITORY}"
-if [ -z "${GITHUB_TOKEN}" ] ; then
-  echo "GITHUB_TOKEN missing, please set it in the GitHub Settings/Secrets of this repository."
+if [ -z "${GH_TOKEN}" ] ; then
+  echo "GH_TOKEN missing, please set it in the GitHub Settings/Secrets of this repository."
   echo "You can get one from https://github.com/settings/tokens"
   exit 1
 fi
 
 tag_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-tag_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${tag_url}")
+tag_infos=$(curl -XGET --header "Authorization: token ${GH_TOKEN}" "${tag_url}")
 echo "tag_infos: $tag_infos"
 tag_sha=$(echo "$tag_infos" | grep '"sha":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "tag_sha: $tag_sha"
@@ -68,7 +68,7 @@ echo "tag_sha: $tag_sha"
 release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 echo "Getting the release ID..."
 echo "release_url: $release_url"
-release_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${release_url}")
+release_infos=$(curl -XGET --header "Authorization: token ${GH_TOKEN}" "${release_url}")
 echo "release_infos: $release_infos"
 release_id=$(echo "$release_infos" | grep "\"id\":" | head -n 1 | tr -s " " | cut -f 3 -d" " | cut -f 1 -d ",")
 echo "release ID: $release_id"
@@ -88,7 +88,7 @@ if [ "{$GITHUB_SHA}" != "$target_commit_sha" ] ; then
     echo "Delete the release..."
     echo "delete_url: $delete_url"
     curl -XDELETE \
-        --header "Authorization: token ${GITHUB_TOKEN}" \
+        --header "Authorization: token ${GH_TOKEN}" \
         "${delete_url}"
   fi
 
@@ -99,7 +99,7 @@ if [ "{$GITHUB_SHA}" != "$target_commit_sha" ] ; then
     delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
     echo "delete_url: $delete_url"
     curl -XDELETE \
-        --header "Authorization: token ${GITHUB_TOKEN}" \
+        --header "Authorization: token ${GH_TOKEN}" \
         "${delete_url}"
   fi
 
@@ -107,7 +107,7 @@ if [ "{$GITHUB_SHA}" != "$target_commit_sha" ] ; then
 
   BODY="CI build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/run/${GITHUB_RUN_ID}"
 
-  release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+  release_infos=$(curl -H "Authorization: token ${GH_TOKEN}" \
        --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"${GITHUB_SHA}"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
@@ -132,7 +132,7 @@ echo "Upload binaries to the release..."
 for FILE in "$@" ; do
   FULLNAME="${FILE}"
   BASENAME="$(basename "${FILE}")"
-  curl -H "Authorization: token ${GITHUB_TOKEN}" \
+  curl -H "Authorization: token ${GH_TOKEN}" \
        -H "Accept: application/vnd.github.manifold-preview" \
        -H "Content-Type: application/octet-stream" \
        --data-binary @$FULLNAME \
@@ -145,7 +145,7 @@ $shatool "$@"
 if [ "${GITHUB_SHA}" != "$tag_sha" ] ; then
   echo "Publish the release..."
 
-  release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+  release_infos=$(curl -H "Authorization: token ${GH_TOKEN}" \
        --data '{"draft": false}' "$release_url")
 
   echo "$release_infos"
