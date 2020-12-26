@@ -146,10 +146,9 @@ jobs:
         key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
 
     - name: Qt install
+      env:
+        TRAVIS_BUILD_DIR: ${{ env.GITHUB_WORKSPACE }}
       run: |
-        pwd
-        echo ${GITHUB_WORKSPACE}
-        export TRAVIS_BUILD_DIR=${GITHUB_WORKSPACE}
         ./tools/travis_install_osx ${QT_VERSION} installer
 
     - name: Script
@@ -180,9 +179,6 @@ jobs:
         ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
         ARTIFACTORY_BASE_URL: ${{ secrets.ARTIFACTORY_BASE_URL }}
       run: |
-        pwd
-        echo ${GITHUB_WORKSPACE}
-        export TRAVIS_BUILD_DIR=${GITHUB_WORKSPACE}
         ./tools/travis_install_osx ${QT_VERSION} artifactory
 
     - name: Script
