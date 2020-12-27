@@ -105,7 +105,7 @@ if [ "{$GITHUB_SHA}" != "$target_commit_sha" ] ; then
 
   echo "Create release..."
 
-  BODY="CI build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/run/${GITHUB_RUN_ID}"
+  BODY="CI build log: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
   release_infos=$(curl -H "Authorization: token ${GH_TOKEN}" \
        --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"${GITHUB_SHA}"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
