@@ -167,6 +167,13 @@ jobs:
       run: |
         ./tools/uploadtool/upload_github.sh gui/GPSBabel-*.dmg
 
+    - name: 'Upload Artifacts'
+      uses: actions/upload-artifact@v2
+      with:
+        name: installer
+        path: gui/GPSBabel-*.dmg
+        retention-days: 1
+
   macos_edge:
     name: macos edge Build
     runs-on: macos-latest
