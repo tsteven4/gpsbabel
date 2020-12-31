@@ -159,9 +159,9 @@ jobs:
         echo GITHUB_REF: $GITHUB_REF
 
     - name: Deploy
-      #if: ( github.ref == 'refs/heads/master' ) || ( github.base_ref == 'master' )
-      # test
-      if: ( github.ref == 'refs/heads/gitactions' ) || ( github.base_ref == 'master' )
+      # This only handles continous releases now, for other events artifacts may be saved in
+      # the 'Upload Artifacts' step.
+      if: ( github.event_name == 'push' ) && ( github.ref == 'refs/heads/master' )
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -170,9 +170,9 @@ jobs:
     - name: 'Upload Artifacts'
       uses: actions/upload-artifact@v2
       with:
-        name: installer
+        name: MacOS_Installer
         path: gui/GPSBabel-*.dmg
-        retention-days: 1
+        retention-days: 14
 
   macos_edge:
     name: macos edge Build
