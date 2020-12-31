@@ -19,14 +19,8 @@ jobs:
         LC_ALL: C.UTF-8
 
     steps:
-    #- name: Checkout repository
-    #  uses: actions/checkout@v2
-
-    - name: checkout
-      run: |
-        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
-        git fetch origin $GITHUB_REF:temporary-ci-branch
-        git checkout $GITHUB_SHA
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: build_and_test
       run: |
@@ -41,14 +35,8 @@ jobs:
         LC_ALL: C.UTF-8
 
     steps:
-    #- name: Checkout repository
-    #  uses: actions/checkout@v2
-
-    - name: checkout
-      run: |
-        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
-        git fetch origin $GITHUB_REF:temporary-ci-branch
-        git checkout $GITHUB_SHA
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: build_and_test
       run: |
@@ -65,14 +53,8 @@ jobs:
         LC_ALL: C.UTF-8
 
     steps:
-    #- name: Checkout repository
-    #  uses: actions/checkout@v2
-
-    - name: checkout
-      run: |
-        git clone --depth 1 https://github.com/$GITHUB_REPOSITORY.git .
-        git fetch origin $GITHUB_REF:temporary-ci-branch
-        git checkout $GITHUB_SHA
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: build_and_test
       run: |
