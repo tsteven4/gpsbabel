@@ -77,22 +77,6 @@ jobs:
       run: |
         ./tools/build_extra_tests
 
-  fedora:
-    name: fedora Build
-    runs-on: ubuntu-latest
-    container: 
-      image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_f32
-      env:
-        LC_ALL: C.UTF-8
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: build_and_test
-      run: |
-        ./build_and_test
-
   coverage:
     name: coverage Build
     runs-on: ubuntu-20.04
@@ -185,5 +169,3 @@ jobs:
         source ${HOME}/Cache/qt-${QT_VERSION}.env
         sudo xcode-select --switch /Applications/Xcode_12.1.1.app
         ./tools/travis_script_osx
-
-
