@@ -1,0 +1,27 @@
+name: "windows"
+
+on:
+  push:
+    branches: [ '**']
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ master ]
+
+jobs:
+
+  windows:
+    name: windows Build
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Qt
+      run: |
+        curl -L -o qt-opensource-windows-x86-5.12.10.exe "https://download.qt.io/archive/qt/5.12/5.12.10/qt-opensource-windows-x86-5.12.10.exe"
+        netsh advfirewall firewall add rule name=dummyupqt dir=out action=block program="$Pwd\qt-opensource-windows-x86-5.12.10.exe"
+        qt-opensource-windows-x86-5.12.10.exe --verbose --platform minimal --script qt-install.qs QTCI_OUTPUT="$Home\Cache\Qt" QTCI_PACKAGES=qt.qt5.51210.win64_msvc2017_64,qt.qt5.51210.qtwebengine.win64_msvc2017_64
+        netsh advfirewall firewall delete rule name=dummyupqt
+       "$Home\Cache\Qt\5.12.10\msvc2017_64\bin\qmake" -v
+
