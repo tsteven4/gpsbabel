@@ -1,8 +1,11 @@
-/bin/bash -ex
+/bin/bash
+set -ex
+
 QT_VERSION=${1:-5.12.10}
 
 CACHEDIR=${HOME}/Cache
 QTDIR=${CACHEDIR}/Qt/${QT_VERSION}/msvc2017_64
+
 if [ -d "${QTDIR}/binxx" ]; then
   echo "Using cached Qt."
 else
