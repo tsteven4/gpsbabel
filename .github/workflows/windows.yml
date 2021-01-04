@@ -32,6 +32,6 @@ jobs:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
       run: |
-        tools\ci_install_windows.sh
+        ./tools/ci_install_windows.sh
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
