@@ -11,7 +11,7 @@ if [ -d "${QTDIR}/binxx" ]; then
 else
   rm -fr ${CACHEDIR}
   QT_VERSION_SHORT=${QT_VERSION//./}
-  curl -s -L -o qt-opensource-windows-x86-${QT_VERSION}.exe "https://download.qt.io/archive/qt/5.12/${QT_VERSION}/qt-opensource-windows-x86-${QT_VERSION}.exe"
+  curl -s -L -o qt-opensource-windows-x86-${QT_VERSION}.exe "https://download.qt.io/official_releases/qt/5.12/${QT_VERSION}/qt-opensource-windows-x86-${QT_VERSION}.exe"
   ls -l *.exe
   #netsh advfirewall firewall add rule name=dummyupqt dir=out action=block program="${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe"
   netsh advfirewall firewall add rule name=dummyupqt dir=out action=block program=$(cygpath -w "${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe")
