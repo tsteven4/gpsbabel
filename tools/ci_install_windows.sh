@@ -1,4 +1,4 @@
-/bin/bash
+#!/bin/bash
 set -ex
 
 # validate install
@@ -7,7 +7,7 @@ function validate() {
     set +e
     # shellcheck source=/dev/null
     source "${CACHEDIR}/qt.env"
-    if [ "$(qmake -query QT_INSTALL_BINS)" != "${QTDIR}/bin" ]; then
+    if [ "$(cygpath -u "$(qmake -query QT_INSTALL_BINS)")" != "${QTDIR}/bin" ]; then
       echo "ERROR: unexpected Qt location." >&2
       exit 1
     fi
@@ -20,7 +20,7 @@ function validate() {
 
 QT_VERSION=${1:-5.12.10}
 ARCH=${2:-x86_amd64}
-if [ "$ARCH" = "x86_am64" ]; then
+if [ "$ARCH" = "x86_amd64" ]; then
   PACKAGE_SUFFIX=win64_msvc2017_64
   COMPILER=msvc2017_64
 else
@@ -38,7 +38,7 @@ else
   QT_VERSION_SHORT=${QT_VERSION//./}
   curl -s -L -o qt-opensource-windows-x86-${QT_VERSION}.exe "https://download.qt.io/official_releases/qt/5.12/${QT_VERSION}/qt-opensource-windows-x86-${QT_VERSION}.exe"
   ls -l *.exe
-  netsh advfirewall firewall add rule name=dummyupqt dir=out action=block program=$(cygpath -w "${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe")
+  netsh advfirewall firewall add rule name=dummyupqt dir=out action=block program="$(cygpath -w "${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe")"
   "${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe" --verbose --script "${CI_BUILD_DIR}/tools/qtci/qt-install.qs" QTCI_OUTPUT="${CACHEDIR}/Qt" QTCI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.${PACKAGE_SUFFIX},qt.qt5.${QT_VERSION_SHORT}.qtwebengine.${PACKAGE_SUFFIX}
   netsh advfirewall firewall delete rule name=dummyupqt
   rm qt-opensource-windows-x86-${QT_VERSION}.exe
