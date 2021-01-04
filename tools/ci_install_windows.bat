@@ -2,7 +2,7 @@ echo on
 SETLOCAL
 SET CACHEDIR=%HOMEDRIVE%%HOMEPATH%\Cache
 SET QTDIR=%CACHEDIR%\Qt\%QT_VERSION%\msvc2017_64
-IF EXIST "%CACHEDIR%\bin" (
+IF EXIST "%QTDIR%\bin" (
   echo "Using cached Qt."
 ) ELSE (
   DEL /S "%CACHEDIR%"
@@ -14,7 +14,7 @@ IF EXIST "%CACHEDIR%\bin" (
   DIR "%HOMEDRIVE%%HOMEPATH%"
   DIR "%CACHEDIR%
   DIR "%QTDIR%
-  "%CACHEDIR%\bin\qmake.exe" -v
+  "%QTDIR%\bin\qmake.exe" -v
 )
 ENDLOCAL
 
