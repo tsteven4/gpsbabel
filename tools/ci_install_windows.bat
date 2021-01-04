@@ -11,9 +11,6 @@ IF EXIST "%QTDIR%\bin" (
   "%cd%\qt-opensource-windows-x86-%QT_VERSION%.exe" --verbose --script "%CI_BUILD_DIR%\tools\qtci\qt-install.qs" QTCI_OUTPUT="%CACHEDIR%\Qt" QTCI_PACKAGES=qt.qt5.%QT_VERSION:.=%.win64_msvc2017_64,qt.qt5.%QT_VERSION:.=%.qtwebengine.win64_msvc2017_64
   netsh advfirewall firewall delete rule name=dummyupqt
   DEL qt-opensource-windows-x86-%QT_VERSION%.exe
-  DIR "%HOMEDRIVE%%HOMEPATH%"
-  DIR "%CACHEDIR%
-  DIR "%QTDIR%
   "%QTDIR%\bin\qmake.exe" -v
 )
 ENDLOCAL
