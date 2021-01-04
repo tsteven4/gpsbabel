@@ -16,6 +16,7 @@ jobs:
     runs-on: windows-latest
     env:
       QT_VERSION: 5.12.10
+      ARCH: x86_amd64
 
     steps:
     - name: Checkout repository
@@ -25,13 +26,13 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/Cache
-        key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ env.ARCH }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
       run: |
-        ./tools/ci_install_windows.sh ${QT_VERSION}
+        ./tools/ci_install_windows.sh ${QT_VERSION} ${ARCH}
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
