@@ -12,15 +12,23 @@ jobs:
   windows:
     name: windows Build
     runs-on: windows-latest
+    env:
+      QT_VERSION: 5.12.10
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    #- name: Cache Qt
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: ~/Cache
+    #    key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
+
     - name: Install Qt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
-      shell: cmd
+      shell: powershell
       run: |
-        tools\ci_install_windows.bat
+        tools\ci_install_windows.ps1
 
