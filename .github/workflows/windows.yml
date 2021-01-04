@@ -30,7 +30,8 @@ jobs:
     - name: Install Qt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
-      shell: cmd
+      shell: bash
       run: |
-        tools\ci_install_windows.bat
+        tools\ci_install_windows.sh
 
+# C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
