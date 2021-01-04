@@ -20,6 +20,7 @@ jobs:
     - name: Install Qt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
+      shell: cmd
       run: |
-        tools\ci_install_windows
+        tools\ci_install_windows.bat
 
