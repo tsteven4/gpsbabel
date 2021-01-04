@@ -19,16 +19,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    #- name: Cache Qt
-    #  uses: actions/cache@v2
-    #  with:
-    #    path: ~/Cache
-    #    key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
+    - name: Cache Qt
+      uses: actions/cache@v2
+      with:
+        path: ~/Cache
+        key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
-      shell: powershell
+      shell: cmd
       run: |
-        tools\ci_install_windows.ps1
+        tools\ci_install_windows.bat
 
