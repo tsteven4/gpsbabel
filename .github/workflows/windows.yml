@@ -57,10 +57,11 @@ jobs:
       if: ( github.event_name == 'push' ) && ( github.ref == 'refs/heads/gitactions' )
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RELEASE_NAME: continuous-${{ runner.os }}
+        RELEASE_NAME: Continuous-${{ runner.os }}
       run: |
         VERSION_ID=$(date -u +%Y%m%dT%H%MZ --date=$(git show -s --format=%aI HEAD))-$(git rev-parse --short=7 HEAD)
         mv gui/release/GPSBabel-*-Setup.exe gui/release/GPSBabel-${VERSION_ID}-Setup.exe
+        mv gui/release/GPSBabel-*-Manifest.exe gui/release/GPSBabel-${VERSION_ID}-Manifest.exe
         ./tools/uploadtool/upload_github.sh gui/release/GPSBabel-${VERSION_ID}-Setup.exe
 
     - name: 'Upload Artifacts'
