@@ -46,6 +46,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
+        PATH="${HOME}/Cache/Qt/${QT_VERSION}/${COMPILER}/bin:${PATH}"
         PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./testo 2>&1
         PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./test_encoding_utf8 2>&1
 
