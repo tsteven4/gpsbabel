@@ -42,3 +42,18 @@ jobs:
         SET PATH=%HOMEDRIVE%%HOMEPATH%\Cache\Qt\%QT_VERSION%\%COMPILER%\bin;%PATH%
         CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
         powershell.exe -ExecutionPolicy Unrestricted -File tools\make_windows_release.ps1 -iscc "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" -buildinstaller true -flow nmake
+
+    - name: Test
+      shell: bash
+      run: |
+        PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./testo 2>&1
+        PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./test_encoding_utf8 2>&1
+
+    - name: 'Upload Artifacts'
+      uses: actions/upload-artifact@v2
+      with:
+        name: Windows_Installer
+        path: |
+          ./gui/release/GPSBabel-*-Setup.exe
+          ./gui/release/GPSBabel-*-Manifest.txt
+        retention-days: 14
