@@ -50,6 +50,19 @@ jobs:
         PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./testo 2>&1
         PNAME=./release/GPSBabel.exe GBTEMP=./gbtemp ./test_encoding_utf8 2>&1
 
+    - name: Deploy
+      shell: bash
+      # This only handles continous releases now, for other events artifacts may be saved in
+      # the 'Upload Artifacts' step.
+      if: ( github.event_name == 'push' ) && ( github.ref == 'refs/heads/gitactions' )
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME=continuous-${{ runner.os }}
+      run: |
+        VERSION_ID=$(date -u +%Y%m%dT%H%MZ --date=$(git show -s --format=%aI HEAD))-$(git rev-parse --short=7 HEAD)
+        ln -s gui/release/GPSBabel-*-Setup.exe GPSBabel-${VERSION_ID}-Setup.exe
+        ./tools/uploadtool/upload_github.sh GPSBabel-${VERSION_ID}-Setup.exe
+
     - name: 'Upload Artifacts'
       uses: actions/upload-artifact@v2
       with:

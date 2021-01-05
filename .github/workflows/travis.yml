@@ -130,6 +130,7 @@ jobs:
       if: ( github.event_name == 'push' ) && ( github.ref == 'refs/heads/master' )
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME=continuous-${{ runner.os }}
       run: |
         ./tools/uploadtool/upload_github.sh gui/GPSBabel-*.dmg
 

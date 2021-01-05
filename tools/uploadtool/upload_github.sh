@@ -35,7 +35,7 @@ else
 fi
 
 # Do not use "latest" as it is reserved by GitHub
-RELEASE_NAME="continuous"
+RELEASE_NAME=${RELEASE_NAME:-continuous}
 RELEASE_TITLE="Continuous build"
 is_prerelease="true"
 
