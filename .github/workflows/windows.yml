@@ -35,4 +35,9 @@ jobs:
       run: |
         ./tools/ci_install_windows.sh ${QT_VERSION} ${ARCH}
 
-# C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
+    - name: Build
+      shell: cmd
+      run: |
+        SET PATH=%HOMEDRIVE%%HOMEPATH%\Cache\Qt\%QT_VERSION%\bin;%PATH%
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
+        powershell.exe -ExecutionPolicy Unrestricted -File tools\make_windows_release.ps1 -iscc "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" -buildinstaller true -flow nmake

@@ -42,6 +42,10 @@ else
   "${PWD}/qt-opensource-windows-x86-${QT_VERSION}.exe" --verbose --script "${CI_BUILD_DIR}/tools/qtci/qt-install.qs" QTCI_OUTPUT="${CACHEDIR}/Qt" QTCI_PACKAGES=qt.qt5.${QT_VERSION_SHORT}.${PACKAGE_SUFFIX},qt.qt5.${QT_VERSION_SHORT}.qtwebengine.${PACKAGE_SUFFIX}
   netsh advfirewall firewall delete rule name=dummyupqt
   rm qt-opensource-windows-x86-${QT_VERSION}.exe
+  ls "${CACHEDIR}/Qt"
+  rm -fr "${CACHEDIR}/Qt/Docs"
+  rm -fr "${CACHEDIR}/Qt/Examples"
+  rm -fr "${CACHEDIR}/Qt/Tools"
   echo "export PATH=${QTDIR}/bin:\$PATH" > ${CACHEDIR}/qt.env
 fi
 validate
