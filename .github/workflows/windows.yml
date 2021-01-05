@@ -60,8 +60,8 @@ jobs:
         RELEASE_NAME: continuous-${{ runner.os }}
       run: |
         VERSION_ID=$(date -u +%Y%m%dT%H%MZ --date=$(git show -s --format=%aI HEAD))-$(git rev-parse --short=7 HEAD)
-        ln -s gui/release/GPSBabel-*-Setup.exe GPSBabel-${VERSION_ID}-Setup.exe
-        ./tools/uploadtool/upload_github.sh GPSBabel-${VERSION_ID}-Setup.exe
+        mv gui/release/GPSBabel-*-Setup.exe gui/release/GPSBabel-${VERSION_ID}-Setup.exe
+        ./tools/uploadtool/upload_github.sh gui/release/GPSBabel-${VERSION_ID}-Setup.exe
 
     - name: 'Upload Artifacts'
       uses: actions/upload-artifact@v2
