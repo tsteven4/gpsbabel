@@ -27,7 +27,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/Cache
-        key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ env.ARCH }}-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os }}-${{ env.QT_VERSION }}-${{ env.ARCH }}-${{ secrets.CACHE_VERSION }}-1
 
     - name: Install Qt
       env:

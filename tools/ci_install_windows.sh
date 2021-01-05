@@ -43,6 +43,7 @@ else
   netsh advfirewall firewall delete rule name=dummyupqt
   rm qt-opensource-windows-x86-${QT_VERSION}.exe
   ls "${CACHEDIR}/Qt"
+  cat "${CACHEDIR}/Qt/InstallationLog.txt"
   rm -fr "${CACHEDIR}/Qt/Docs"
   rm -fr "${CACHEDIR}/Qt/Examples"
   rm -fr "${CACHEDIR}/Qt/Tools"
