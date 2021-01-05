@@ -17,6 +17,7 @@ jobs:
     env:
       QT_VERSION: 5.12.10
       ARCH: x86_amd64
+      COMPILER: msvc2017_64
 
     steps:
     - name: Checkout repository
@@ -38,6 +39,6 @@ jobs:
     - name: Build
       shell: cmd
       run: |
-        SET PATH=%HOMEDRIVE%%HOMEPATH%\Cache\Qt\%QT_VERSION%\bin;%PATH%
+        SET PATH=%HOMEDRIVE%%HOMEPATH%\Cache\Qt\%QT_VERSION%\%COMPILER%\bin;%PATH%
         CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
         powershell.exe -ExecutionPolicy Unrestricted -File tools\make_windows_release.ps1 -iscc "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" -buildinstaller true -flow nmake
