@@ -40,7 +40,7 @@ if [ -d "${QTDIR}/bin" ]; then
   echo "Using cached Qt."
 else
   rm -fr "${CACHEDIR}"
-  python -mpip aqt install
+  python -mpip install aqtinstall --user
   aqt install -O "${CACHEDIR}/Qt" ${QT_VERSION} windows desktop ${PACKAGE_SUFFIX} -m qtwebengine
   echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
 fi
