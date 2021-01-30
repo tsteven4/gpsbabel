@@ -19,12 +19,7 @@ Param(
 # the start menu by Qt do.
 # TODO: check for an error when the bat file is run.
 function Invoke-QtEnvironment($installationPath) {
-    $Command = Join-Path $installationPath "bin\qtenv2.bat"
-    & "${env:COMSPEC}" /s /c "`"$Command`" && set" | ForEach-Object {
-        if ($_ -match '^([^=]+)=(.*)') {
-            [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
-        }
-    }
+   $Env:Path = "${installationPath}\bin;" + $Env:Path
 }
 
 # TODO: check for an error when the bat file is run.
