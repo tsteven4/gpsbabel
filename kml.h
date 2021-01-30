@@ -1,4 +1,4 @@
-/*
+ /*
 	Support for Google Earth & Keyhole "kml" format.
 
 	Copyright (C) 2005-2013 Robert Lipe, robertlipe+source@gpsbabel.org
