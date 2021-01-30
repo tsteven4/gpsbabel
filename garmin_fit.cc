@@ -47,18 +47,6 @@
 
 #define MYNAME "fit"
 
-// Until c++17 we have to define odr-used constexpr static data members at namespace scope.
-#if __cplusplus < 201703L
-constexpr int GarminFitFormat::kTypeEnum;
-constexpr int GarminFitFormat::kTypeUint8;
-constexpr int GarminFitFormat::kTypeString;
-constexpr int GarminFitFormat::kTypeUint16;
-constexpr int GarminFitFormat::kTypeSint32;
-constexpr int GarminFitFormat::kTypeUint32;
-constexpr int GarminFitFormat::kCoursePointTypeLeft;
-constexpr int GarminFitFormat::kCoursePointTypeRight;
-#endif
-
 /*******************************************************************************
 * %%%        global callbacks called by gpsbabel main process              %%% *
 *******************************************************************************/
@@ -1196,7 +1184,7 @@ GarminFitFormat::fit_collect_waypt(const Waypoint* waypointp)
 
   // Try to find a better course point type than "generic", based on the
   // course point name
-  for (auto& cptm: kCoursePointTypeMapping) {
+  for (const auto& cptm: kCoursePointTypeMapping) {
     if (crpt.shortname.contains(cptm.first, Qt::CaseInsensitive)) {
       crpt.course_point_type = cptm.second;
       break;

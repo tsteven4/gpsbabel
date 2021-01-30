@@ -785,7 +785,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
 
   case 0xc:	/* POI item (same structure as full) */
     poi = 1;
-    /* fallthrough */
+    [[fallthrough]];
 
   case 0x2:	/* Multi HZ item */
     if (len < MULTI_HZ_ITEM_LEN) {
@@ -822,7 +822,7 @@ process_data_item(struct read_state* pst, const item_frame* pitem, int len)
 
   case 0x6:	/* POI item (same structure as full) */
     poi = 1;
-    /* fallthrough */
+    [[fallthrough]];
 
   case 0x4:	/* full item */
     if (len < FULL_ITEM_LEN) {
@@ -1557,7 +1557,7 @@ static void miniHomer_get_poi()
 
     // todo - how to determine not-set POIs ?
     if (ecef_x < 100.0 && ecef_y < 100.0 && ecef_z < 100.0) {
-      db(2, MYNAME" : skipped poi %d for X=%f, y=%f, Z=%f\n", ecef_x, ecef_y, ecef_z);
+      db(2, MYNAME" : skipped poi %u for X=%f, y=%f, Z=%f\n", poi, ecef_x, ecef_y, ecef_z);
     } else {
       ECEF_to_LLA(ecef_x, ecef_y, ecef_z, &lat, &lng, &alt);
 
@@ -1604,7 +1604,7 @@ static int miniHomer_set_poi(uint16_t poinum, const char* opt_poi)
        */
       int n = sscanf(opt_poi, "%lf:%lf:%lf", &lat, &lng, &alt);
       if (n >= 2) {
-        db(3, "found %d elems '%s':poi=%s@%d, lat=%f, lng=%f, alt=%f over=%s\n", n, opt_poi, poinames[poinum], poinum, lat, lng, alt);
+        db(3, "found %d elems '%s':poi=%s@%d, lat=%f, lng=%f, alt=%f\n", n, opt_poi, poinames[poinum], poinum, lat, lng, alt);
         lla2ecef(lat, lng, alt, &ecef_x, &ecef_y, &ecef_z);
         db(1, MYNAME ": set POI[%s]='%f %f %f/%f %f %f'\n", poinames[poinum], lat, lng, alt, ecef_x, ecef_y, ecef_z);
         be_write16(MSG_SET_POI+1, poinum);
