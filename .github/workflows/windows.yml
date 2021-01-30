@@ -55,10 +55,20 @@ jobs:
             COMPILER: 'msvc2017'
             RELEASE: false
             FLOW: 'msbuild'
+          - QT_VERSION: '5.15.2'
+            ARCH: 'amd64'
+            HOST_ARCH: 'x86'
+            COMPILER: 'msvc2019_64'
+            FLOW: 'nmake'
+            RELEASE: false
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
     - name: Cache Qt
       uses: actions/cache@v2
@@ -67,8 +77,6 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt
-      env:
-        CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
       run: |
         ./tools/ci_install_windows.sh ${{ matrix.QT_VERSION }} ${{ matrix.COMPILER }}
