@@ -42,9 +42,7 @@ int main(int argc, char** argv)
   QApplication::setOrganizationDomain("gpsbabel.org");
   QApplication::setApplicationName("GPSBabel");
 
-  MainWindow mainWindow(nullptr);
+  MainWindow mainWindow;
   mainWindow.show();
-  QApplication::exec();
-
-  return 0;
+  return QApplication::exec();
 }
