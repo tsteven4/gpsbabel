@@ -23,8 +23,12 @@
 #ifndef SETTING_H
 #define SETTING_H
 
-#include <QSettings>
-#include <QDate>
+#include <QtCore/QDateTime>       // for QDateTime
+#include <QtCore/QList>           // for QList
+#include <QtCore/QSettings>       // for QSettings
+#include <QtCore/QSharedPointer>  // for QSharedPointer
+#include <QtCore/QString>         // for QString
+#include <QtCore/QVariant>        // for QVariant
 
 
 //------------------------------------------------------------------------
@@ -204,22 +208,6 @@ class SettingGroup
 {
 public:
 
-  /* Special Member Functions */
-
-  SettingGroup() = default;
-  SettingGroup(const SettingGroup&) = delete;
-  // copy assignment would need to free memory like dtor.
-  SettingGroup& operator=(const SettingGroup&) = delete;
-  SettingGroup(SettingGroup&&) = delete;
-  // move assignment would need to free memory like dtor.
-  SettingGroup& operator=(SettingGroup&&) = delete;
-  ~SettingGroup()
-  {
-    for (int i=0; i< settingGroup_.size(); i++) {
-      delete settingGroup_[i];
-    }
-  }
-
   /* Member Functions */
 
   void saveSettings(QSettings& st)
@@ -237,14 +225,15 @@ public:
 
   void addVarSetting(VarSetting* vs)
   {
-    settingGroup_ << vs;
+    /* Take ownership */
+    settingGroup_ << QSharedPointer<VarSetting>(vs);
   }
 
 private:
 
   /* Data Members */
 
-  QList <VarSetting*> settingGroup_;
+  QList<QSharedPointer<VarSetting>> settingGroup_;
 };
 
 #endif
