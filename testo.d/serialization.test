@@ -24,7 +24,9 @@ compare_nole ${REFERENCE}/filter0.txt ${TMPDIR}/filter0.txt
 # These are primarily meant for a user
 gpsbabel -h > ${TMPDIR}/help.txt
 # ahh shucks, the executable changes based on OS, and the path can change as well.
-sed 's/.*\[options\]/    .\/gpsbabel [options]/' ${TMPDIR}/help.txt > ${TMPDIR}/help.stripped.txt
+# the version and package release string can change also.
+sed 's/.*\[options\]/    .\/gpsbabel [options]/' ${TMPDIR}/help.txt |
+  sed 's/\(GPSBabel Version \)[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}[^.]*\./\11.7.0./' > ${TMPDIR}/help.stripped.txt
 compare ${REFERENCE}/help.txt ${TMPDIR}/help.stripped.txt
 gpsbabel -h gpx > ${TMPDIR}/formatusage.txt
 compare ${REFERENCE}/formatusage.txt ${TMPDIR}/formatusage.txt
@@ -34,5 +36,7 @@ gpsbabel > ${TMPDIR}/usage.txt << EOJ
 
 EOJ
 # ahh shucks, the executable changes based on OS, and the path can change as well.
-sed 's/.*\[options\]/    .\/gpsbabel [options]/' ${TMPDIR}/usage.txt > ${TMPDIR}/usage.stripped.txt
+# the version and package release string can change also.
+sed 's/.*\[options\]/    .\/gpsbabel [options]/' ${TMPDIR}/usage.txt |
+  sed 's/\(GPSBabel Version \)[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}[^.]*\./\11.7.0./' > ${TMPDIR}/usage.stripped.txt
 compare ${REFERENCE}/usage.txt ${TMPDIR}/usage.stripped.txt
