@@ -62,7 +62,7 @@ switch ($flow) {
     #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
     #WARNING: You can suppress these warnings with CONFIG+=suppress_vcproj_warnings.
     #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
-    "msbuild" { $ErrorActionPreference = "Continue"; qmake -tp vc $($gpsbabel_version_opt) $($gpsbabel_package_relase_opt) "$($gpsbabel_src_dir)\GPSBabel.pro"; $ErrorActionPreference = "Stop" }
+    "msbuild" { $ErrorActionPreference = "Continue"; qmake -tp vc $($gpsbabel_version_opt) $($gpsbabel_package_release_opt) "$($gpsbabel_src_dir)\GPSBabel.pro"; $ErrorActionPreference = "Stop" }
     "nmake" { qmake $($gpsbabel_version_opt) $($gpsbabel_package_release_opt) "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-msvc" }
     "cmake" { cmake -G "Ninja" -DCMAKE_BUILD_TYPE:STRING="Release" -DQt5_DIR:PATH="$($Qt5_DIR)" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH="$($gpsbabel_build_dir)\release" "$($gpsbabel_src_dir)" }
 }
