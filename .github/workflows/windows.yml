@@ -2,7 +2,8 @@ name: "windows"
 
 on:
   push:
-    branches: [ '**']
+    branches: [ '**' ]
+    tags: [ 'gpsbabel_[0-9]+_[0-9]+_[0-9]+' ]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ master ]
