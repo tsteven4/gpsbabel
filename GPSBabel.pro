@@ -16,7 +16,8 @@ if(equals(QT_MAJOR_VERSION, $$MIN_QT_VERSION_MAJOR):equals(QT_MINOR_VERSION, $$M
 QT -= gui
 
 TARGET = gpsbabel
-VERSION = 1.7.0
+# may be overriden on qmake command line.
+!defined(VERSION, var): VERSION = 1.7.0
 
 CONFIG += console
 CONFIG -= app_bundle
@@ -47,11 +48,18 @@ GB.BUILD = 31
 }
 
 # use undocumented QMAKE_SUBSTITUTES variable to emulate AC_CONFIG_FILES
+# tacky modification of source directory
+# influencing issues:
+# 1. gbversiion.h, gui/setup.iss are generated but checked in.
+# 2. source files, including win32/gpsbabel.rc, gui/app.rc, use relative
+# include paths.
+# 3. gbversion.h is common to the cli and gui, but their build diretories
+# might be unrelated.
 GB.versionfile.input = gbversion.h.qmake.in
-GB.versionfile.output = gbversion.h
+GB.versionfile.output = $${PWD}/gbversion.h
 QMAKE_SUBSTITUTES += GB.versionfile
 GB.setupfile.input = gui/setup.iss.qmake.in
-GB.setupfile.output = gui/setup.iss
+GB.setupfile.output = $${PWD}/gui/setup.iss
 QMAKE_SUBSTITUTES += GB.setupfile
 
 MINIMAL_FMTS =  magproto.cc explorist_ini.cc gpx.cc geo.cc mapsend.cc garmin.cc \

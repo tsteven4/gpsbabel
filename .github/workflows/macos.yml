@@ -32,6 +32,10 @@ jobs:
       run: |
         ./tools/travis_install_osx ${QT_VERSION} installer
 
+    - name: Environment
+      run: |
+        ./tools/ci_setup_env.sh ${{ github.event_name }} ${{ github.ref }} >> $GITHUB_ENV
+
     - name: Script
       run: |
         source ${HOME}/Cache/qt-${QT_VERSION}.env
@@ -79,6 +83,10 @@ jobs:
         ARTIFACTORY_BASE_URL: ${{ secrets.ARTIFACTORY_BASE_URL }}
       run: |
         ./tools/travis_install_osx ${QT_VERSION} artifactory
+
+    - name: Environment
+      run: |
+        ./tools/ci_setup_env.sh ${{ github.event_name }} ${{ github.ref }} >> $GITHUB_ENV
 
     - name: Script
       run: |

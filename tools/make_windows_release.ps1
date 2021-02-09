@@ -44,6 +44,12 @@ if ( "$flow" -eq "msbuild" ) {
 if ( "$flow" -eq "cmake" ) {
     $Qt5_DIR = "$(Join-Path "$((Get-Command qmake) | Split-Path)"  '..\lib\cmake\Qt5' -Resolve)"
 }
+if ($env:GPSBABEL_VERSION) {
+  $gpsbabel_version_opt = "VERSION=`"$env:GPSBABEL_VERSION`""
+}
+if ($env:GPSBABEL_PACKAGE_RELEASE) {
+  $gpsbabel_package_release_opt = "GB.PACKAGE_RELEASE=`"$env:GPSBABEL_PACKAGE_RELEASE`""
+}
 # mimic creator shadow build to match Inno setup file
 # make sure we are staring with a clean build directory
 Remove-Item "$($gpsbabel_build_dir)" -Recurse -ErrorAction Ignore
@@ -56,8 +62,8 @@ switch ($flow) {
     #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
     #WARNING: You can suppress these warnings with CONFIG+=suppress_vcproj_warnings.
     #WARNING: Could not parse Compiler option '-std:c++14'; added to AdditionalOptions.
-    "msbuild" { $ErrorActionPreference = "Continue"; qmake -tp vc "$($gpsbabel_src_dir)\GPSBabel.pro"; $ErrorActionPreference = "Stop" }
-    "nmake" { qmake "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-msvc" }
+    "msbuild" { $ErrorActionPreference = "Continue"; qmake -tp vc $($gpsbabel_version_opt) $($gpsbabel_package_relase_opt) "$($gpsbabel_src_dir)\GPSBabel.pro"; $ErrorActionPreference = "Stop" }
+    "nmake" { qmake $($gpsbabel_version_opt) $($gpsbabel_package_release_opt) "$($gpsbabel_src_dir)\GPSBabel.pro" -spec "win32-msvc" }
     "cmake" { cmake -G "Ninja" -DCMAKE_BUILD_TYPE:STRING="Release" -DQt5_DIR:PATH="$($Qt5_DIR)" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH="$($gpsbabel_build_dir)\release" "$($gpsbabel_src_dir)" }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }

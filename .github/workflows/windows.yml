@@ -47,14 +47,14 @@ jobs:
             ARCH: 'x86'
             HOST_ARCH: 'x86'
             COMPILER: 'msvc2017'
-            RELEASE: false
             FLOW: 'nmake'
+            RELEASE: false
           - QT_VERSION: '5.12.10'
             ARCH: 'x86'
             HOST_ARCH: 'x86'
             COMPILER: 'msvc2017'
-            RELEASE: false
             FLOW: 'msbuild'
+            RELEASE: false
 
     steps:
     - name: Checkout repository
@@ -72,6 +72,11 @@ jobs:
       shell: bash
       run: |
         ./tools/ci_install_windows.sh ${{ matrix.QT_VERSION }} ${{ matrix.COMPILER }}
+
+    - name: Environment
+      shell: bash
+      run: |
+        ./tools/ci_setup_env.sh ${{ github.event_name }} ${{ github.ref }} >> $GITHUB_ENV
 
     - name: Build
       shell: powershell
