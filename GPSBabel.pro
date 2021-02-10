@@ -57,6 +57,10 @@ GB.BUILD = 31
 # might be unrelated.
 # 4. the qmake makefile generator insists on putting the directory containing
 # the pro file in the front of the INCPATH, before OUT_PWD.
+# 5. microsoft resource compiler rc always looks in the directory with the
+# rc file first, then the current directory, then any /i path from RC_INCLUDEPATH.
+# The microsoft documentation fails to mention it ever looks in the directory
+# with the rc file.
 GB.versionfile.input = gbversion.h.qmake.in
 GB.versionfile.output = $${PWD}/gbversion.h
 QMAKE_SUBSTITUTES += GB.versionfile
