@@ -55,6 +55,8 @@ GB.BUILD = 31
 # include paths.
 # 3. gbversion.h is common to the cli and gui, but their build diretories
 # might be unrelated.
+# 4. the qmake makefile generator insists on putting the directory containing
+# the pro file in the front of the INCPATH, before OUT_PWD.
 GB.versionfile.input = gbversion.h.qmake.in
 GB.versionfile.output = $${PWD}/gbversion.h
 QMAKE_SUBSTITUTES += GB.versionfile
