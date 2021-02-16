@@ -22,7 +22,9 @@
 //------------------------------------------------------------------------
 #include "processwait.h"
 
+
 #include <QtCore/QByteArray>          // for QByteArray
+#include <QtCore/QDebug>              // for QDebug, operator<<
 #include <QtCore/QNonConstOverload>   // for QNonConstOverload
 #include <QtCore/Qt>                  // for Horizontal
 #include <QtCore/QtGlobal>            // for QOverload, qOverload
@@ -59,8 +61,9 @@ QString ProcessWaitDialog::processErrorString(QProcess::ProcessError err)
   default:
     return QString(tr("Unknown process error"));
   }
-  return QString("");
+  return QString();
 }
+
 //------------------------------------------------------------------------
 ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, const QString& program,
                                      const QStringList& arguments):
@@ -99,21 +102,13 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, const QString& program,
   connect(process_, &QProcess::readyReadStandardOutput,
           this,    &ProcessWaitDialog::readyReadStandardOutputX);
   connect(btn,     &QAbstractButton::clicked,
-          this,    &ProcessWaitDialog::stopClickedX);
-  exitStatus_ = QProcess::CrashExit;  // Assume all errors are crashes for now.
-
-  bufferedOut_ = "";
-
-  progressIndex_= 0;
+          this,    &ProcessWaitDialog::reject);
 
   timer_ = new QTimer(this);
   timer_->setInterval(100);
   timer_->setSingleShot(false);
   connect(timer_, &QTimer::timeout, this, &ProcessWaitDialog::timeoutX);
-  stopCount_ = -1;
-  ecode_ = 0;
   timer_->start();
-  errorString_ = "";
 
   process_->start(program, arguments);
 }
@@ -121,7 +116,7 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, const QString& program,
 //------------------------------------------------------------------------
 bool ProcessWaitDialog::getExitedNormally()
 {
-  return (errorString_.length() == 0);
+  return errorString_.isEmpty();
 }
 
 //------------------------------------------------------------------------
@@ -137,11 +132,25 @@ int ProcessWaitDialog::getExitCode() const
 }
 
 //------------------------------------------------------------------------
-void ProcessWaitDialog::stopClickedX()
+void ProcessWaitDialog::reject()
 {
-  process_->terminate();
-}
+// Console applications on Windows that do not run an event loop, or whose
+// event loop does not handle the WM_CLOSE message, can only be terminated
+// by calling kill().
+  process_->kill();
 
+// Don't call accept or QDialog::reject() here!
+// This will result in exec returning with the process state being
+// QProcess::Running.  
+// This can result in "QProcess: Destroyed while process ("...") is still
+// running." when ~QProcess executes."
+// This may result in a segmentation fault.
+
+// errorOccurred and finished will be emitted as a result of killing the
+// process.
+
+  qDebug() << "reject post kill" << process_->state();
+}
 //------------------------------------------------------------------------
 void ProcessWaitDialog::timeoutX()
 {
@@ -163,7 +172,11 @@ void ProcessWaitDialog::timeoutX()
 //------------------------------------------------------------------------
 void ProcessWaitDialog::errorX(QProcess::ProcessError err)
 {
+  // errorOccurred may happen without finished, e.g. if the process fails to
+  // start. (e.g. chmod ugo-x gpsbabel after mainwindow is showing.) 
+  // It may also happen with finished, e.g. if the process is killed.
   errorString_ = processErrorString(err);
+  qDebug() << "errorOccured" << err;
   timer_->stop();
   accept();
 }
@@ -171,6 +184,10 @@ void ProcessWaitDialog::errorX(QProcess::ProcessError err)
 //------------------------------------------------------------------------
 void ProcessWaitDialog::finishedX(int exitCode, QProcess::ExitStatus es)
 {
+  // finished may happen without errorOccurred, e.g. if the input file is not
+  // writable. 
+  // finished may happen with errorOccurred, e.g. if the process is killed.
+  qDebug() << "finished" << exitCode << es;
   ecode_ = exitCode;
   if (es == QProcess::CrashExit) {
     errorString_ = QString(tr("Process crashed while running"));
@@ -179,15 +196,14 @@ void ProcessWaitDialog::finishedX(int exitCode, QProcess::ExitStatus es)
   accept();
 }
 
-
 //------------------------------------------------------------------------
 // appendPlainText automatically puts in a new line with every call.  That's
 // why you have to buffer it, and only append when we get a real newline.
 //
-void ProcessWaitDialog::appendToText(const char* ptr)
+void ProcessWaitDialog::appendToText(const QByteArray& text)
 {
-  outputString_ += QString(ptr);
-  for (const char* cptr = ptr; *cptr != 0; cptr++) {
+  outputString_ += text;
+  for (const char* cptr = text.data(); *cptr != 0; cptr++) {
     if (*cptr == '\r') {
       continue;
     }
@@ -205,14 +221,14 @@ void ProcessWaitDialog::appendToText(const char* ptr)
 void ProcessWaitDialog::readyReadStandardErrorX()
 {
   QByteArray d = process_->readAllStandardError();
-  appendToText(d.data());
+  appendToText(d);
 }
 
 //------------------------------------------------------------------------
 void ProcessWaitDialog::readyReadStandardOutputX()
 {
   QByteArray d = process_->readAllStandardOutput();
-  appendToText(d.data());
+  appendToText(d);
 }
 
 void ProcessWaitDialog::closeEvent(QCloseEvent* event)

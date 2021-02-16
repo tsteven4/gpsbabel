@@ -23,6 +23,7 @@
 #ifndef PROCESSWAIT_H
 #define PROCESSWAIT_H
 
+#include <QtCore/QByteArray>           // for QByteArray
 #include <QtCore/QObject>              // for QObject
 #include <QtCore/QProcess>             // for QProcess, QProcess::ExitStatus, QProcess::ProcessError
 #include <QtCore/QString>              // for QString
@@ -56,9 +57,13 @@ public:
     return outputString_;
   }
 
+public slots:
+  // If the user presses the Esc key in a dialog, QDialog::reject() will be called.
+  void reject() override;
+
 protected:
   void closeEvent(QCloseEvent* event) override;
-  void appendToText(const char* ptr);
+  void appendToText(const QByteArray& text);
   static QString processErrorString(QProcess::ProcessError err);
 
 private slots:
@@ -67,19 +72,17 @@ private slots:
   void readyReadStandardErrorX();
   void readyReadStandardOutputX();
   void timeoutX();
-  void stopClickedX();
 
 private:
-  int progressIndex_;
-  int stopCount_;
+  int progressIndex_{0};
+  int stopCount_{-1};
   std::string bufferedOut_;
-  QProcess::ExitStatus exitStatus_;
-  int ecode_;
-  QProcess* process_;
-  QProgressBar* progressBar_;
-  QPlainTextEdit* textEdit_;
-  QDialogButtonBox* buttonBox_;
-  QTimer* timer_;
+  int ecode_{0};
+  QProcess* process_{nullptr};
+  QProgressBar* progressBar_{nullptr};
+  QPlainTextEdit* textEdit_{nullptr};
+  QDialogButtonBox* buttonBox_{nullptr};
+  QTimer* timer_{nullptr};
   QString errorString_;
   QString outputString_;
 };
