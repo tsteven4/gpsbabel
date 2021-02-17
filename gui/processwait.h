@@ -46,8 +46,7 @@ class ProcessWaitDialog: public QDialog
   Q_OBJECT
 
 public:
-  ProcessWaitDialog(QWidget* parent, QProcess* process,
-                    const QString& program, const QStringList& arguments);
+  ProcessWaitDialog(QWidget* parent, QProcess* process);
 
   bool getExitedNormally();
   [[nodiscard]] int getExitCode() const;

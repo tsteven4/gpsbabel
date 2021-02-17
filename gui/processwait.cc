@@ -65,9 +65,7 @@ QString ProcessWaitDialog::processErrorString(QProcess::ProcessError err)
 }
 
 //------------------------------------------------------------------------
-ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process,
-                                     const QString& program,
-                                     const QStringList& arguments):
+ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process):
   QDialog(parent), process_(process)
 {
   this->resize(400, 220);
@@ -124,7 +122,10 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process,
   connect(timer_, &QTimer::timeout, this, &ProcessWaitDialog::timeoutX);
   timer_->start();
 
-  process_->start(program, arguments);
+// It might seem like a good idea to start the program after the connections are
+// made.  But, on windows, this results in errrorOccurred being caught before
+// show or exec are executed.  And that results in exec never returning.
+//  process_->start(program, arguments);
 }
 
 //------------------------------------------------------------------------

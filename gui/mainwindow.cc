@@ -865,7 +865,13 @@ bool MainWindow::runGpsbabel(const QStringList& args, QString& errorString,
   QString name = "gpsbabel";
   QString program = QApplication::applicationDirPath() + '/' + name;
   QProcess proc = QProcess(nullptr);
-  ProcessWaitDialog waitDlg = ProcessWaitDialog(nullptr, &proc, program, args);
+  proc.start(program, args);
+  if (proc.state() == QProcess::NotRunning) {
+    errorString = QString(tr("Process \"%1\" did not start")).arg(name);
+    return false;
+  }
+
+  ProcessWaitDialog waitDlg = ProcessWaitDialog(nullptr, &proc);
   waitDlg.show();
   waitDlg.exec();
   bool retStatus = false;
