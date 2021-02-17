@@ -65,9 +65,10 @@ QString ProcessWaitDialog::processErrorString(QProcess::ProcessError err)
 }
 
 //------------------------------------------------------------------------
-ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, const QString& program,
+ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process,
+                                     const QString& program,
                                      const QStringList& arguments):
-  QDialog(parent)
+  QDialog(parent), process_(process)
 {
   this->resize(400, 220);
   this->setWindowTitle(QString(appName) + tr(" ... Process GPSBabel"));
@@ -90,7 +91,20 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, const QString& program,
   btn->setText(tr("Stop Process"));
   layout->addWidget(buttonBox_);
 
-  process_ = new QProcess(this);
+// It might seem reasonable to construct the QProcess instance here and add it
+// to the object tree.  Empirically this can result in segmentation faults if
+// this dialog returns from exec with the process in the QProcess::Running
+// state (regardless of if the process is actually running).  This can happen if
+// reject isn't overridden, or if our version of reject calls QDialog::reject.
+// If the process is on the object tree then in the destruction of this dialog
+// the process will be destroyed.  But if the process is still Running then its
+// destruction can result in signals being emitted that are connected to this
+// dialog.  It appears that those signals can still be received by the partially
+// destroyed dialog and result in a segmentation fault.
+// To avoid this possibility we pass the process in and destroy it after this
+// dialog is destroyed.
+//  process_ = new QProcess(this);
+
   connect(process_, &QProcess::errorOccurred,
           this,    &ProcessWaitDialog::errorX);
 // TODO: Qt6 combined the obsolete overloaded signal QProcess::finished(int exitCode)
@@ -144,7 +158,9 @@ void ProcessWaitDialog::reject()
 // QProcess::Running.  
 // This can result in "QProcess: Destroyed while process ("...") is still
 // running." when ~QProcess executes."
-// This may result in a segmentation fault.
+// This can also result in getExitedNormally presenting the wrong status.
+// This can also result in a segmentation fault if process_ is in this dialogs
+// object tree.
 
 // errorOccurred and finished will be emitted as a result of killing the
 // process.

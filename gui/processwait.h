@@ -46,8 +46,8 @@ class ProcessWaitDialog: public QDialog
   Q_OBJECT
 
 public:
-  ProcessWaitDialog(QWidget* parent, const QString& program,
-                    const QStringList& arguments);
+  ProcessWaitDialog(QWidget* parent, QProcess* process,
+                    const QString& program, const QStringList& arguments);
 
   bool getExitedNormally();
   [[nodiscard]] int getExitCode() const;
@@ -58,7 +58,7 @@ public:
   }
 
 public slots:
-  // If the user presses the Esc key in a dialog, QDialog::reject() will be called.
+  // If the user presses the Esc key in a dialog, reject() will be called.
   void reject() override;
 
 protected:

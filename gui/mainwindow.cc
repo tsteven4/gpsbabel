@@ -864,7 +864,8 @@ bool MainWindow::runGpsbabel(const QStringList& args, QString& errorString,
 {
   QString name = "gpsbabel";
   QString program = QApplication::applicationDirPath() + '/' + name;
-  ProcessWaitDialog waitDlg = ProcessWaitDialog(nullptr, program, args);
+  QProcess proc = QProcess(nullptr);
+  ProcessWaitDialog waitDlg = ProcessWaitDialog(nullptr, &proc, program, args);
   waitDlg.show();
   waitDlg.exec();
   bool retStatus = false;
