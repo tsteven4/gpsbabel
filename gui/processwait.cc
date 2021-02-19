@@ -43,23 +43,23 @@ QString ProcessWaitDialog::processErrorString(QProcess::ProcessError err)
 {
   switch (err) {
   case QProcess::FailedToStart:
-    return QString(tr("Process failed to start"));
+    return tr("Process failed to start");
     break;
   case QProcess::Crashed:
-    return QString(tr("Process crashed"));
+    return tr("Process crashed");
     break;
   case QProcess::Timedout:
-    return QString(tr("Process timedout"));
+    return tr("Process timedout");
     break;
   case QProcess::WriteError:
-    return QString(tr("Error while trying to write to process"));
+    return tr("Error while trying to write to process");
     break;
   case QProcess::ReadError:
-    return QString(tr("Error while trying to read from process"));
+    return tr("Error while trying to read from process");
     break;
   case QProcess::UnknownError:
   default:
-    return QString(tr("Unknown process error"));
+    return tr("Unknown process error");
   }
   return QString();
 }
@@ -180,7 +180,7 @@ void ProcessWaitDialog::timeoutX()
   }
   if (stopCount_ > 150) {
     process_->kill();
-    errorString_ = QString(tr("Process did not terminate successfully"));
+    errorString_ = tr("Process did not terminate successfully");
     timer_->stop();
     accept();
   }
@@ -207,7 +207,7 @@ void ProcessWaitDialog::finishedX(int exitCode, QProcess::ExitStatus es)
   qDebug() << "finished" << exitCode << es;
   ecode_ = exitCode;
   if (es == QProcess::CrashExit) {
-    errorString_ = QString(tr("Process crashed while running"));
+    errorString_ = tr("Process crashed while running");
   }
   timer_->stop();
   accept();
