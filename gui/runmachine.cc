@@ -103,13 +103,13 @@ void RunMachine::execute(SignalForwarder::SignalId id,
     QDebug debugStream = qDebug();
     debugStream << "exec entering" << state_ << id;
     if (error.has_value()) {
-      debugStream << error.value();
+      debugStream << *error;
     }
     if (exitStatus.has_value()) {
-      debugStream << exitStatus.value();
+      debugStream << *exitStatus;
     }
     if (exitCode.has_value()) {
-      debugStream << exitCode.value();
+      debugStream << *exitCode;
     }
   }
 
@@ -145,18 +145,18 @@ void RunMachine::execute(SignalForwarder::SignalId id,
     case SignalForwarder::processErrorOccurred:
       if constexpr(finishOnRunningError) {
         progress_->accept();
-        errorString_ = decodeProcessError(error.value());
+        errorString_ = decodeProcessError(*error);
         state_ = done;
         emit finished();
       }
       break;
     case SignalForwarder::processFinished:
       progress_->accept();
-      if (exitStatus.value() == QProcess::NormalExit) {
-        if (exitCode.value() != 0) {
+      if (*exitStatus == QProcess::NormalExit) {
+        if (*exitCode != 0) {
           errorString_ =
             QString(tr("Process exited unsuccessfully with code %1"))
-            .arg(exitCode.value());
+            .arg(*exitCode);
         }
       } else {
         errorString_ = tr("Process crashed while running");
