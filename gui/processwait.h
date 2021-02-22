@@ -47,7 +47,7 @@ public:
 
   QString getOutputString()
   {
-    return outputString_;
+    return QString::fromLocal8Bit(outputString_);
   }
 
 protected:

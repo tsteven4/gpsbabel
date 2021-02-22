@@ -69,8 +69,8 @@ RunMachine::RunMachine(QWidget* parent,
           forwarder_, &SignalForwarder::errorOccurredX, Qt::QueuedConnection);
   connect(process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
           forwarder_, &SignalForwarder::finishedX, Qt::QueuedConnection);
-  connect(process_, &QProcess::started, forwarder_,
-          &SignalForwarder::startedX, Qt::QueuedConnection);
+  connect(process_, &QProcess::started,
+          forwarder_, &SignalForwarder::startedX, Qt::QueuedConnection);
   connect(progress_, &ProcessWaitDialog::rejected,
           forwarder_, &SignalForwarder::abortX, Qt::QueuedConnection);
   connect(forwarder_, &SignalForwarder::forwardedSignal,
@@ -127,7 +127,6 @@ void RunMachine::execute(SignalForwarder::SignalId id,
       emit finished();
       break;
     case SignalForwarder::processStarted:
-      //progress_ = new ProcessWaitDialog(nullptr, process_);
       progress_->show();
       progress_->open();
       state_ = running;
