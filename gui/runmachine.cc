@@ -64,32 +64,32 @@ RunMachine::RunMachine(QWidget* parent,
   // is not designed for.
   connect(process_, &QProcess::errorOccurred,
   this, [this](QProcess::ProcessError error) {
-    this->execute(processErrorOccurred,
-                  std::optional<QProcess::ProcessError>(error),
-                  std::nullopt,
-                  std::nullopt);
+    execute(processErrorOccurred,
+            std::optional<QProcess::ProcessError>(error),
+            std::nullopt,
+            std::nullopt);
   }, Qt::QueuedConnection);
   // TODO: Qt6 combined the obsolete overloaded signal QProcess::finished(int exitCode)
   connect(process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
   this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
-    this->execute(processFinished,
-                  std::nullopt,
-                  std::optional<int>(exitCode),
-                  std::optional<QProcess::ExitStatus>(exitStatus));
+    execute(processFinished,
+            std::nullopt,
+            std::optional<int>(exitCode),
+            std::optional<QProcess::ExitStatus>(exitStatus));
   }, Qt::QueuedConnection);
   connect(process_, &QProcess::started,
   this, [this]() {
-    this->execute(processStarted,
-                  std::nullopt,
-                  std::nullopt,
-                  std::nullopt);
+    execute(processStarted,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt);
   }, Qt::QueuedConnection);
   connect(progress_, &ProcessWaitDialog::rejected,
   this, [this]() {
-    this->execute(abortRequested,
-                  std::nullopt,
-                  std::nullopt,
-                  std::nullopt);
+    execute(abortRequested,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt);
   }, Qt::QueuedConnection);
 }
 

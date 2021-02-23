@@ -55,8 +55,6 @@ protected:
   void appendToText(const QByteArray& text);
 
 private slots:
-  void readyReadStandardErrorX();
-  void readyReadStandardOutputX();
   void timeoutX();
 
 private:

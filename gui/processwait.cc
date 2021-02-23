@@ -62,11 +62,15 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process):
   layout->addWidget(buttonBox_);
 
   connect(process_, &QProcess::readyReadStandardError,
-          this,    &ProcessWaitDialog::readyReadStandardErrorX);
+  this, [this]() {
+    appendToText(process_->readAllStandardError());
+  });
   connect(process_, &QProcess::readyReadStandardOutput,
-          this,    &ProcessWaitDialog::readyReadStandardOutputX);
-  connect(btn,     &QAbstractButton::clicked,
-          this,    &ProcessWaitDialog::reject);
+  this, [this]() {
+    appendToText(process_->readAllStandardOutput());
+  });
+  connect(btn, &QAbstractButton::clicked,
+          this, &ProcessWaitDialog::reject);
 
   timer_ = new QTimer(this);
   timer_->setInterval(100);
@@ -111,19 +115,6 @@ void ProcessWaitDialog::appendToText(const QByteArray& text)
 }
 
 //------------------------------------------------------------------------
-void ProcessWaitDialog::readyReadStandardErrorX()
-{
-  QByteArray d = process_->readAllStandardError();
-  appendToText(d);
-}
-
-//------------------------------------------------------------------------
-void ProcessWaitDialog::readyReadStandardOutputX()
-{
-  QByteArray d = process_->readAllStandardOutput();
-  appendToText(d);
-}
-
 void ProcessWaitDialog::closeEvent(QCloseEvent* event)
 {
   event->ignore();

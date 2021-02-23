@@ -85,7 +85,7 @@ private:
 
   /* Constants */
 
-  static constexpr bool debug = true;
+  static constexpr bool debug = false;
   static constexpr bool finishOnAbort = false;
   static constexpr bool finishOnRunningError = false;
 
