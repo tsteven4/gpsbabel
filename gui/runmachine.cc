@@ -19,6 +19,7 @@
 
 #include "runmachine.h"
 
+#include <QtCore/QDebug>             // for qDebug
 #include <QtCore/QEventLoop>         // for QEventLoop
 #include <QtCore/QNonConstOverload>  // for QNonConstOverload
 #include <QtCore/QtGlobal>           // for QOverload, qOverload
@@ -26,9 +27,6 @@
 
 #include "appname.h"                 // for appName
 
-
-namespace runMachine
-{
 
 QString RunMachine::decodeProcessError(QProcess::ProcessError err)
 {
@@ -59,22 +57,40 @@ RunMachine::RunMachine(QWidget* parent,
                        const QStringList& args) :
   QWidget(parent), program_(program), args_(args)
 {
-  forwarder_ = new SignalForwarder(this);
   process_ = new QProcess(this);
   progress_ = new ProcessWaitDialog(this, process_);
   // It is important that at least some of the fowarded signals are
   // QueuedConnections to avoid reentrant use of RunMachine::execute which it
   // is not designed for.
   connect(process_, &QProcess::errorOccurred,
-          forwarder_, &SignalForwarder::errorOccurredX, Qt::QueuedConnection);
+  this, [this](QProcess::ProcessError error) {
+    this->execute(processErrorOccurred,
+                  std::optional<QProcess::ProcessError>(error),
+                  std::nullopt,
+                  std::nullopt);
+  }, Qt::QueuedConnection);
+  // TODO: Qt6 combined the obsolete overloaded signal QProcess::finished(int exitCode)
   connect(process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
-          forwarder_, &SignalForwarder::finishedX, Qt::QueuedConnection);
+  this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
+    this->execute(processFinished,
+                  std::nullopt,
+                  std::optional<int>(exitCode),
+                  std::optional<QProcess::ExitStatus>(exitStatus));
+  }, Qt::QueuedConnection);
   connect(process_, &QProcess::started,
-          forwarder_, &SignalForwarder::startedX, Qt::QueuedConnection);
+  this, [this]() {
+    this->execute(processStarted,
+                  std::nullopt,
+                  std::nullopt,
+                  std::nullopt);
+  }, Qt::QueuedConnection);
   connect(progress_, &ProcessWaitDialog::rejected,
-          forwarder_, &SignalForwarder::abortX, Qt::QueuedConnection);
-  connect(forwarder_, &SignalForwarder::forwardedSignal,
-          this, &RunMachine::execute);
+  this, [this]() {
+    this->execute(abortRequested,
+                  std::nullopt,
+                  std::nullopt,
+                  std::nullopt);
+  }, Qt::QueuedConnection);
 }
 
 int RunMachine::exec()
@@ -91,10 +107,10 @@ int RunMachine::exec()
 
 void RunMachine::open()
 {
-  execute(SignalForwarder::start, std::nullopt, std::nullopt, std::nullopt);
+  execute(start, std::nullopt, std::nullopt, std::nullopt);
 }
 
-void RunMachine::execute(SignalForwarder::SignalId id,
+void RunMachine::execute(SignalId id,
                          std::optional<QProcess::ProcessError> error,
                          std::optional<int> exitCode,
                          std::optional<QProcess::ExitStatus> exitStatus)
@@ -121,12 +137,12 @@ void RunMachine::execute(SignalForwarder::SignalId id,
 
   case starting:
     switch (id) {
-    case SignalForwarder::processErrorOccurred:
+    case processErrorOccurred:
       errorString_ = QString(tr("Process \"%1\" did not start")).arg(appName);
       state_ = done;
       emit finished();
       break;
-    case SignalForwarder::processStarted:
+    case processStarted:
       progress_->show();
       progress_->open();
       state_ = running;
@@ -141,7 +157,7 @@ void RunMachine::execute(SignalForwarder::SignalId id,
 
   case running:
     switch (id) {
-    case SignalForwarder::processErrorOccurred:
+    case processErrorOccurred:
       if constexpr(finishOnRunningError) {
         progress_->accept();
         errorString_ = decodeProcessError(*error);
@@ -149,7 +165,7 @@ void RunMachine::execute(SignalForwarder::SignalId id,
         emit finished();
       }
       break;
-    case SignalForwarder::processFinished:
+    case processFinished:
       progress_->accept();
       if (*exitStatus == QProcess::NormalExit) {
         if (*exitCode != 0) {
@@ -163,7 +179,7 @@ void RunMachine::execute(SignalForwarder::SignalId id,
       state_ = done;
       emit finished();
       break;
-    case SignalForwarder::abortRequested:
+    case abortRequested:
       if constexpr(finishOnAbort) {
         // To avoid a message from ~QProcess we need to close the process
         // instead of killing it.
@@ -200,5 +216,3 @@ void RunMachine::execute(SignalForwarder::SignalId id,
     qDebug() << "exec leaving" << state_ << id;
   }
 }
-
-} // namespace runMachine

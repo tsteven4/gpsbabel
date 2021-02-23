@@ -20,8 +20,6 @@
 #ifndef RUNMACHINE_H
 #define RUNMACHINE_H
 
-#include <QtCore/qglobal.h>    // for qDebug
-#include <QtCore/QDebug>       // for QDebug, operator<<
 #include <QtCore/QObject>      // for QObject
 #include <QtCore/QProcess>     // for QProcess, QProcess::ExitStatus, QProcess::ProcessError, qt_getEnumName
 #include <QtCore/QString>      // for QString
@@ -32,16 +30,14 @@
 
 #include "processwait.h"       // for ProcessWaitDialog
 
-namespace runMachine
-{
 
-static constexpr bool debug = false;
-
-class SignalForwarder : public QObject
+class RunMachine : public QWidget
 {
   Q_OBJECT
 
 public:
+
+  /* Types */
 
   enum SignalId {
     start,
@@ -51,66 +47,6 @@ public:
     abortRequested
   };
   Q_ENUM(SignalId)
-
-  explicit SignalForwarder(QObject* parent): QObject(parent) {}
-
-Q_SIGNALS:
-  void forwardedSignal(SignalForwarder::SignalId id,
-                       std::optional<QProcess::ProcessError>,
-                       std::optional<int> exitCode,
-                       std::optional<QProcess::ExitStatus> exitStatus);
-
-public Q_SLOTS:
-  void errorOccurredX(QProcess::ProcessError error)
-  {
-    if constexpr(debug) {
-      qDebug() << "emit error occurred" << error;
-    }
-    emit forwardedSignal(processErrorOccurred,
-                         std::optional<QProcess::ProcessError>(error),
-                         std::nullopt,
-                         std::nullopt);
-  }
-  void startedX()
-  {
-    if constexpr(debug) {
-      qDebug() << "emit started";
-    }
-    emit forwardedSignal(processStarted,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt);
-  }
-  void finishedX(int exitCode, QProcess::ExitStatus exitStatus)
-  {
-    if constexpr(debug) {
-      qDebug() << "emit finished";
-    }
-    emit forwardedSignal(processFinished,
-                         std::nullopt,
-                         std::optional<int>(exitCode),
-                         std::optional<QProcess::ExitStatus>(exitStatus));
-  }
-  void abortX()
-  {
-    if constexpr(debug) {
-      qDebug() << "emit abort";
-    }
-    emit forwardedSignal(abortRequested,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt);
-  }
-
-};
-
-class RunMachine : public QWidget
-{
-  Q_OBJECT
-
-public:
-
-  /* Types */
 
   enum State {
     init,
@@ -145,29 +81,29 @@ public:
 Q_SIGNALS:
   void finished();
 
-private Q_SLOTS:
-  void execute(SignalForwarder::SignalId id,
+private:
+
+  /* Constants */
+
+  static constexpr bool debug = true;
+  static constexpr bool finishOnAbort = false;
+  static constexpr bool finishOnRunningError = false;
+
+  /* Member Functions */
+
+  void execute(SignalId id,
                std::optional<QProcess::ProcessError> error,
                std::optional<int> exitCode,
                std::optional<QProcess::ExitStatus> exitStatus);
 
-private:
-
-  static constexpr bool finishOnAbort = false;
-  static constexpr bool finishOnRunningError = false;
-
   /* Data Members */
 
-  QObject* parent_{nullptr};
   QProcess* process_{nullptr};
   ProcessWaitDialog* progress_{nullptr};
-  SignalForwarder* forwarder_{nullptr};
   State state_{init};
   QString program_;
   QStringList args_;
   QString errorString_;
 
 };
-
-} // namespace runMachine
-#endif
+#endif // RUNMACHINE_H

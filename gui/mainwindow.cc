@@ -866,7 +866,7 @@ bool MainWindow::runGpsbabel(const QStringList& args, QString& errorString,
 {
   QString name = "gpsbabel";
   QString program = QApplication::applicationDirPath() + '/' + name;
-  runMachine::RunMachine runMachine(this, program, args);
+  RunMachine runMachine(this, program, args);
   int retStatus = runMachine.exec();
 
   errorString = runMachine.getErrorString();
