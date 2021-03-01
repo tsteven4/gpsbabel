@@ -336,14 +336,14 @@ NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, struct tm* time, double fsec)
 }
 
 void
-NmeaFormat::gpgll_parse(char* ibuf)
+NmeaFormat::gpgll_parse(const QString& ibuf)
 {
   if (trk_head == nullptr) {
     trk_head = new route_head;
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
 
   double latdeg = 0;
   if (fields.size() > 1) latdeg = fields[1].toDouble();
@@ -391,14 +391,14 @@ NmeaFormat::gpgll_parse(char* ibuf)
 }
 
 void
-NmeaFormat::gpgga_parse(char* ibuf)
+NmeaFormat::gpgga_parse(const QString& ibuf)
 {
   if (trk_head == nullptr) {
     trk_head = new route_head;
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
   double hms = 0;
   if (fields.size() > 1) hms = fields[1].toDouble();
   double latdeg = 0;
@@ -413,8 +413,8 @@ NmeaFormat::gpgga_parse(char* ibuf)
   if (fields.size() > 6) fix = fields[6].toInt();
   int nsats = 0;
   if (fields.size() > 7) nsats = fields[7].toInt();
-  double hdop = 0;
-  if (fields.size() > 8) hdop = fields[8].toDouble();
+  float hdop = 0;
+  if (fields.size() > 8) hdop = fields[8].toFloat();
   double alt = unknown_alt;
   if (fields.size() > 9) alt = fields[9].toDouble();
   QChar altunits ='M';
@@ -488,14 +488,14 @@ NmeaFormat::gpgga_parse(char* ibuf)
 }
 
 void
-NmeaFormat::gprmc_parse(char* ibuf)
+NmeaFormat::gprmc_parse(const QString& ibuf)
 {
   if (trk_head == nullptr) {
     trk_head = new route_head;
     track_add_head(trk_head);
   }
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
   double hms = 0;
   if (fields.size() > 1) hms = fields[1].toDouble();
   QChar fix = 'V'; // V == "Invalid"
@@ -513,7 +513,7 @@ NmeaFormat::gprmc_parse(char* ibuf)
   double course = 0;
   if (fields.size() > 8) course = fields[8].toDouble();
   int dmy = 0;
-  if (fields.size() > 9) dmy = fields[9].toDouble();
+  if (fields.size() > 9) dmy = fields[9].toInt();
 
   if (fix != 'A') {
     /* ignore this fix - it is invalid */
@@ -584,13 +584,9 @@ NmeaFormat::gprmc_parse(char* ibuf)
 }
 
 void
-NmeaFormat::gpwpl_parse(char* ibuf)
+NmeaFormat::gpwpl_parse(const QString& ibuf)
 {
-  // The last field isn't actually separated by a field separator and
-  // is a string, so we brutally whack the checksum (trailing *NN).
-  QString qibuf = QString(ibuf);
-  qibuf.truncate(qibuf.lastIndexOf('*'));
-  QStringList fields = qibuf.split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
 
   double latdeg = 0;
   if (fields.size() > 1) latdeg = fields[1].toDouble();
@@ -620,21 +616,28 @@ NmeaFormat::gpwpl_parse(char* ibuf)
 }
 
 void
-NmeaFormat::gpzda_parse(char* ibuf)
+NmeaFormat::gpzda_parse(const QString& ibuf)
 {
-  double hms;
-  int dd, mm, yy, lclhrs, lclmins;
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
+  if (fields.size() > 4) {
+    double hms = fields[1].toDouble();
+    int dd = fields[2].toInt();
+    int mm = fields[3].toInt();
+    int yyyy = fields[4].toInt();
 
-  sscanf(ibuf,"$%*2cZDA,%lf,%d,%d,%d,%d,%d",
-         &hms, &dd, &mm, &yy, &lclhrs, &lclmins);
-  tm.tm_sec  = (int) hms % 100;
-  tm.tm_min  = (((int) hms - tm.tm_sec) / 100) % 100;
-  tm.tm_hour = (int) hms / 10000;
-  tm.tm_mday = dd;
-  tm.tm_mon  = mm - 1;
-  tm.tm_year = yy - 1900;
-  // FIXME: why do we do all this and then do nothing with the result?
-  // This can't have worked.
+    // The tm data member might be used by nmea_fix_timestamps
+    // and nmea_set_waypoint_time.
+
+    tm.tm_sec = (long) hms % 100;
+    hms = hms / 100;
+    tm.tm_min = (long) hms % 100;
+    hms = hms / 100;
+    tm.tm_hour = (long) hms % 100;
+  
+    tm.tm_mday = dd;
+    tm.tm_mon  = mm - 1;
+    tm.tm_year = yyyy - 1900;
+  }
 }
 
 // This function has had a hard life. It began as a moderately terrifying
@@ -646,12 +649,12 @@ NmeaFormat::gpzda_parse(char* ibuf)
 // The numbering as per http://aprs.gids.nl/nmea/#gsa was the reference as
 // the field numbers conveniently match our index.
 void
-NmeaFormat::gpgsa_parse(char* ibuf) const
+NmeaFormat::gpgsa_parse(const QString& ibuf) const
 {
   int  prn[12] = {0};
   memset(prn,0xff,sizeof(prn));
 
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
   int nfields = fields.size();
   // 0 = "GPGSA"
   // 1 = Mode. Ignored
@@ -668,11 +671,7 @@ NmeaFormat::gpgsa_parse(char* ibuf) const
   float pdop = 0, hdop = 0, vdop = 0;
   if (nfields > 15) pdop = fields[15].toFloat();
   if (nfields > 16) hdop = fields[16].toFloat();
-  if (nfields > 17) {
-     // Last one is special. The checksum isn't split out above.
-    fields[17].chop(3);
-    vdop = fields[17].toFloat();
-  }
+  if (nfields > 17) vdop = fields[17].toFloat();
 
   if (curr_waypt) {
     if (curr_waypt->fix!=fix_dgps) {
@@ -697,9 +696,9 @@ NmeaFormat::gpgsa_parse(char* ibuf) const
 }
 
 void
-NmeaFormat::gpvtg_parse(char* ibuf) const
+NmeaFormat::gpvtg_parse(const QString& ibuf) const
 {
-  QStringList fields = QString(ibuf).split(",", QString::KeepEmptyParts);
+  const QStringList fields = ibuf.split(',', QString::KeepEmptyParts);
   double course = 0;
   if (fields.size() > 1) course = fields[1].toDouble();
   double speed_n = 0;
@@ -888,9 +887,9 @@ NmeaFormat::nmea_parse_one_line(char* ibuf)
 
   char* ck = strrchr(tbuf, '*');
   if (ck != nullptr) {
+    // hide checksum from cksum computation and sentence parsers.
     *ck = '\0';
     int ckval = nmea_cksum(&tbuf[1]);
-    *ck = '*';
     ck++;
     int ckcmp;
     sscanf(ck, "%2X", &ckcmp);
