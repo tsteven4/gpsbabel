@@ -164,9 +164,9 @@ private:
   bool amod_waypoint{};
 
   time_t last_time{};
-  QTime last_read_time{};   /* Last timestamp of GGA or PRMC */
+  QTime last_read_time;   /* Last timestamp of GGL, GGA or RMC */
   int datum{};
-  int had_checksum{};
+  bool had_checksum{};
 
   Waypoint* nmea_rd_posn(posn_status*);
   void nmea_rd_posn_init(const QString& fname);

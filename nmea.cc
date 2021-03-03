@@ -223,7 +223,7 @@ NmeaFormat::rd_init(const QString& fname)
   last_waypt = nullptr;
   last_time = -1;
   datum = DATUM_WGS84;
-  had_checksum = 0;
+  had_checksum = false;
 
   CHECK_BOOL(opt_gprmc);
   CHECK_BOOL(opt_gpgga);
@@ -614,10 +614,10 @@ NmeaFormat::gpzda_parse(const QString& ibuf)
     QTime time = nmea_parse_hms(fields[1]);
     QString datestr = QString("%1%2%3").arg(fields[2], fields[3], fields[4]);
     QDate date = QDate::fromString(datestr, "ddMMyyyy");
-    prev_datetime = QDateTime(date, time, Qt::UTC);
 
     // The prev_datetime data member might be used by
     // nmea_fix_timestamps and nmea_set_waypoint_time.
+    prev_datetime = QDateTime(date, time, Qt::UTC);
   }
 }
 
@@ -889,11 +889,11 @@ NmeaFormat::nmea_parse_one_line(const QByteArray& ibuf)
     }
     // hide checksum sentence parsers.
     tbuf.truncate(ckidx);
-    had_checksum = 1;
+    had_checksum = true;
   } else if (had_checksum) {
     /* we have had a checksum on all previous sentences, but not on this
     one, which probably indicates this line is truncated */
-    had_checksum = 0;
+    had_checksum = false;
     return;
   }
 
