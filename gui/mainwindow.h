@@ -53,7 +53,6 @@ class MainWindow: public QMainWindow
 
 public:
   MainWindow(QWidget* parent);
-  ~MainWindow();
 
 
 private:
@@ -75,7 +74,6 @@ private:
   void loadFormats();
   void loadLanguage(const QString& rLanguage);
   void switchTranslator(QTranslator&, const QString&);
-  void createLanguageMenu();
   QString filterForFormat(int idx);
   QString ensureExtensionPresent(const QString& nanme, int idx);
   QString findBabelVersion();

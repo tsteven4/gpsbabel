@@ -61,18 +61,6 @@ UpgradeCheck::UpgradeCheck(QWidget* parent, QList<Format>& formatList,
 {
 }
 
-UpgradeCheck::~UpgradeCheck()
-{
-  if (replyId_ != nullptr) {
-    replyId_->abort();
-    replyId_ = nullptr;
-  }
-  if (manager_ != nullptr) {
-    delete manager_;
-    manager_ = nullptr;
-  }
-}
-
 bool UpgradeCheck::isTestMode()
 {
   return testing;
@@ -96,23 +84,22 @@ QString UpgradeCheck::getCpuArchitecture()
 }
 
 UpgradeCheck::updateStatus UpgradeCheck::checkForUpgrade(
-  const QString& currentVersionIn,
+  const QString& currentVersion,
   const QDateTime& lastCheckTime,
   bool allowBeta)
 {
-  currentVersion_ = currentVersionIn;
-  currentVersion_.remove("GPSBabel Version ");
+  currentVersion_ = currentVersion;
 
   QDateTime soonestCheckTime = lastCheckTime.addDays(1);
   if (!testing && QDateTime::currentDateTime() < soonestCheckTime) {
     // Not time to check yet.
-    return UpgradeCheck::updateUnknown;
+    return updateUnknown;
   }
 
-  manager_ = new QNetworkAccessManager;
+  manager_ = new QNetworkAccessManager(this);
 
-  connect(manager_, SIGNAL(finished(QNetworkReply*)),
-          this, SLOT(httpRequestFinished(QNetworkReply*)));
+  connect(manager_, &QNetworkAccessManager::finished,
+          this, &UpgradeCheck::httpRequestFinished);
 
   QNetworkRequest request = QNetworkRequest(upgradeUrl_);
 
@@ -164,7 +151,7 @@ UpgradeCheck::updateStatus UpgradeCheck::checkForUpgrade(
 
   replyId_ = manager_->post(request, args.toUtf8());
 
-  return UpgradeCheck::updateUnknown;
+  return updateUnknown;
 }
 
 QDateTime UpgradeCheck::getUpgradeWarningTime()

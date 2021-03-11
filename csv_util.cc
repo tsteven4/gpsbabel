@@ -66,7 +66,6 @@ csv_stringtrim(const char* string, const char* enclosure, int strip_max)
   static const char* p1 = nullptr;
   char* tmp = xstrdup(string);
   size_t elen;
-  int stripped = 0;
 
   if (!strlen(string)) {
     return (tmp);
@@ -96,6 +95,7 @@ csv_stringtrim(const char* string, const char* enclosure, int strip_max)
 
   /* if we have enclosures, skip past them in pairs */
   if (elen) {
+    int stripped = 0;
     while (
       (stripped < strip_max) &&
       ((size_t)(p2 - p1 + 1) >= (elen * 2)) &&
