@@ -272,13 +272,21 @@ exif_time_str(const QDateTime& time)
   return str;
 }
 
-static char*
+static QByteArray
 exif_read_str(ExifTag* tag)
 {
   // Panasonic DMC-TZ10 stores datum with trailing spaces.
   // Kodak stores zero count ASCII tags.
-  char* buf = (tag->count == 0) ? xstrdup("") : xstrndup(tag->data.at(0).toByteArray().constData(), tag->size);
-  rtrim(buf);
+  QByteArray buf = (tag->count == 0) ? "" : tag->data.at(0).toByteArray();
+  int count = 0;
+  for (auto it = buf.crbegin(); it != buf.crend(); ++it) {
+    if (isspace(uchar(*it))) {
+      count = count + 1;
+    } else {
+      break;
+    }
+  }
+  buf.chop(count);
   return buf;
 }
 
@@ -589,9 +597,7 @@ exif_read_ifd(ExifApp* app, const uint16_t ifd_nr, const gbsize_t offs,
         printf(" v=0x%02X%02X%02X%02X", tag->raw[0], tag->raw[1], tag->raw[2], tag->raw[3]);
       }
       if (tag->type == EXIF_TYPE_ASCII) {
-        char* str = exif_read_str(tag);
-        printf(" \"%s\"", str);
-        xfree(str);
+        printf(" \"%s\"", exif_read_str(tag).constData());
       } else {
         for (unsigned idx = 0; idx < std::min(tag->count, 4u); ++idx) {
           if (tag->type == EXIF_TYPE_BYTE) {
@@ -749,13 +755,11 @@ exif_get_exif_time(ExifApp* app)
   }
 
   if (tag) {
-    char* str = exif_read_str(tag);
     // This assumes the Qt::TimeSpec is Qt::LocalTime, i.e. the current system time zone.
     // Note the assumption of local time can be problematic if the data
     // is processed in a different time zone than was used in recording
     // the time in the image.
-    res = QDateTime::fromString(str, "yyyy:MM:dd hh:mm:ss");
-    xfree(str);
+    res = QDateTime::fromString(exif_read_str(tag), "yyyy:MM:dd hh:mm:ss");
 
     // Exif 2.31 added offset tags to record the offset to UTC.
     // If these are present use them, otherwise assume local time.
@@ -773,11 +777,10 @@ exif_get_exif_time(ExifApp* app)
     }
 
     if (offset_tag) {
-      char* time_tag = exif_read_str(offset_tag);
       // string should be +HH:MM or -HH:MM
       const QRegularExpression re(R"(^([+-])(\d{2}):(\d{2})$)");
       assert(re.isValid());
-      QRegularExpressionMatch match = re.match(time_tag);
+      QRegularExpressionMatch match = re.match(exif_read_str(offset_tag));
       if (match.hasMatch()) {
         // Correct the date time by supplying the offset from UTC.
         int offset_hours = match.captured(1).append(match.captured(2)).toInt();
@@ -797,7 +800,7 @@ exif_waypt_from_exif_app(ExifApp* app)
   char lon_ref = '\0';
   char alt_ref = 0;
   char speed_ref = 'K';
-  char* datum = nullptr;
+  QByteArray datum;
   char mode = '\0';
   double gpsdop = unknown_alt;
   double alt = unknown_alt;
@@ -886,16 +889,15 @@ exif_waypt_from_exif_app(ExifApp* app)
     printf(MYNAME "-GPSLatitude =  %12.7f\n", wpt->latitude);
     printf(MYNAME "-GPSLongitude = %12.7f\n", wpt->longitude);
   }
-  if (datum) {
-    int idatum = gt_lookup_datum_index(datum, MYNAME);
+  if (!datum.isEmpty()) {
+    int idatum = gt_lookup_datum_index(datum.constData(), MYNAME);
     if (idatum < 0) {
-      fatal(MYNAME ": Unknown GPSMapDatum \"%s\"!\n", datum);
+      fatal(MYNAME ": Unknown GPSMapDatum \"%s\"!\n", datum.constData());
     }
     if (idatum != DATUM_WGS84) {
       GPS_Math_WGS84_To_Known_Datum_M(wpt->latitude, wpt->longitude, 0.0,
                                       &wpt->latitude, &wpt->longitude, &alt, idatum);
     }
-    xfree(datum);
   }
 
   if (alt != unknown_alt) {
