@@ -32,6 +32,7 @@
 #include <QtCore/QLatin1String>                    // for QLatin1String
 #include <QtCore/QString>                          // for QString, QStringLiteral, operator+, operator==
 #include <QtCore/QStringList>                      // for QStringList
+#include <QtCore/QStringView>                      // for QStringView
 #include <QtCore/QTime>                            // for QTime
 #include <QtCore/QVersionNumber>                   // for QVersionNumber
 #include <QtCore/QXmlStreamAttribute>              // for QXmlStreamAttribute
@@ -892,7 +893,7 @@ void
 GpxFormat::gpx_cdata(QStringView s)
 {
   QString* cdata;
-  cdatastr += s;
+  cdatastr += s.toString();
 
   if (!cur_tag) {
     return;

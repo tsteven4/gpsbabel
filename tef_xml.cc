@@ -25,6 +25,7 @@
 
 #include <QtCore/QLatin1String>         // for QLatin1String
 #include <QtCore/QString>               // for QString
+#include <QtCore/QStringView>           // for QStringView
 #include <QtCore/QVector>               // for QVector
 #include <QtCore/QXmlStreamAttribute>   // for QXmlStreamAttribute
 #include <QtCore/QXmlStreamAttributes>  // for QXmlStreamAttributes
