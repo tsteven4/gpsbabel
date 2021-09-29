@@ -56,7 +56,7 @@ static xg_tag_mapping xol_map[] = {
 
 static void xol_overlay(xg_string, const QXmlStreamAttributes* attrv) {
   if (attrv->hasAttribute("version")) {
-    if (attrv->value("version").compare(QLatin1String("1.0")) != 0) {
+    if (attrv->value("version") != u"1.0") {
       fatal(MYNAME ": Unsupported version %s.\n",
             qPrintable(attrv->value("version").toString()));
     }
@@ -65,9 +65,9 @@ static void xol_overlay(xg_string, const QXmlStreamAttributes* attrv) {
 
 static void xol_shape(xg_string, const QXmlStreamAttributes* attrv) {
   if (attrv->hasAttribute("type")) {
-    if (attrv->value("type").compare(QLatin1String("waypoint")) == 0) {
+    if (attrv->value("type") == u"waypoint") {
       wpt_ = new Waypoint;
-    } else if (attrv->value("type").compare(QLatin1String("polyline")) == 0) {
+    } else if (attrv->value("type") == u"polyline") {
       trk_ = new route_head;
       track_add_head(trk_);
     }
