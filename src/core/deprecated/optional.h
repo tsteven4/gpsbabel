@@ -27,10 +27,10 @@
 #define GPSBABEL_OPTIONAL_H_INCLUDED_
 
 #if __cplusplus >= 201703L
+#warning "using std::optional"
 #include <optional>
 #define gpsbabel_optional std
 #else
-#warning "emulating std::optional"
 #include <cassert>
 namespace gpsbabel_optional
 {
