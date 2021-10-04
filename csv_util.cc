@@ -20,17 +20,17 @@
 
  */
 
-#include <cctype>              // for isspace
-#include <cmath>               // for fabs
-#include <cstdio>              // for size_t
-#include <cstdlib>             // for atof, strtod
-#include <cstring>             // for strlen, strchr, strncmp, strcmp, memmove, strcpy, strcspn, strncpy
+#include <cmath>           // for fabs
+#include <cstdio>          // for size_t
+#include <cstdlib>         // for atof, strtod
+#include <cctype>          // for isspace
+#include <cstring>         // for strlen, strchr, strncmp, strcmp, memmove, strcpy, strcspn, strncpy
 
-#include <QtCore/QString>      // for QString, operator+
+#include <QString>         // for QString
 
 #include "defs.h"
 #include "csv_util.h"
-#include "src/core/logging.h"  // for Warning
+#include "src/core/logging.h"
 
 #define MYNAME "CSV_UTIL"
 

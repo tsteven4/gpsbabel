@@ -23,7 +23,7 @@
 #include "discard.h"
 #include <cstdlib>
 // Can't use QRegularExpression because Linux won't get Qt 5 for years.
-#include <QtCore5Compat/QRegExp>
+#include <QRegExp>
 #include <cstdio>
 #include <cstdlib>
 
