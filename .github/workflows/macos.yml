@@ -86,5 +86,5 @@ jobs:
     - name: Script
       run: |
         source ${HOME}/Cache/qt-${QT_VERSION}.env
-        sudo xcode-select --switch /Applications/Xcode_12.5.1.app
+        sudo xcode-select --switch /Applications/Xcode_12.4.app
         ./tools/travis_script_osx
