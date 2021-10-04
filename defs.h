@@ -580,6 +580,7 @@ public:
   using QList<Waypoint*>::count; // a.k.a. size()
   using QList<Waypoint*>::crbegin;
   using QList<Waypoint*>::crend;
+  using QList<Waypoint*>::detach; // silence Qt6 foreach warnings
   using QList<Waypoint*>::empty; // a.k.a. isEmpty()
   using QList<Waypoint*>::end;
   using QList<Waypoint*>::front; // a.k.a. first()
@@ -758,6 +759,7 @@ public:
   using QList<route_head*>::count; // a.k.a. size()
   using QList<route_head*>::crbegin;
   using QList<route_head*>::crend;
+  using QList<route_head*>::detach; // silence Qt6 foreach warnings
   using QList<route_head*>::empty; // a.k.a. isEmpty()
   using QList<route_head*>::end;
   using QList<route_head*>::front; // a.k.a. first()
@@ -973,7 +975,7 @@ struct arglist_t {
   char** argval{nullptr};
   const char* helpstring{nullptr};
   const char* defaultvalue{nullptr};
-  uint32_t argtype{ARGTYPE_UNKNOWN};
+  const uint32_t argtype{ARGTYPE_UNKNOWN};
   const char* minvalue{nullptr};    /* minimum value for numeric options */
   const char* maxvalue{nullptr};    /* maximum value for numeric options */
   char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
