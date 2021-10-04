@@ -80,7 +80,7 @@ jobs:
     - name: Qt install
       run: |
         pip3 install aqtinstall>=2.0.0
-        aqt install-qt mac desktop ${QT_VERSION} clang_64 O ${HOME}/Cache/Qt -m qtwebengine qt5compat qtpositioning qtwebchannel
+        aqt install-qt mac desktop ${QT_VERSION} clang_64 -O ${HOME}/Cache/Qt -m qtwebengine qt5compat qtpositioning qtwebchannel
         echo "export PATH=${HOME}/Cache/Qt/${QT_VERSION}/macos/bin:\$PATH" > "${HOME}/Cache/qt-${QT_VERSION}.env"
 
     - name: Script
