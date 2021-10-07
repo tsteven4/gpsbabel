@@ -107,6 +107,7 @@ SUPPORT = route.cc waypt.cc filter_vecs.cc util.cc vecs.cc mkshort.cc \
           formspec.cc xmltag.cc cet.cc cet_util.cc fatal.cc rgbcolors.cc \
           inifile.cc garmin_fs.cc units.cc gbser.cc \
           gbfile.cc parse.cc session.cc main.cc globals.cc \
+          src/core/codecdevice.cc \
           src/core/textstream.cc \
           src/core/usasciicodec.cc \
           src/core/xmlstreamwriter.cc
@@ -179,6 +180,7 @@ HEADERS =  \
 	xcsv.h \
 	xmlgeneric.h \
 	yahoo.h \
+	src/core/codecdevice.h \
 	src/core/datetime.h \
 	src/core/file.h \
 	src/core/logging.h \

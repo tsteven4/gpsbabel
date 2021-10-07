@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 Robert Lipe, gpsbabel.org
+    Copyright (C) 2019-2021 Robert Lipe, gpsbabel.org
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,13 +17,18 @@
 
  */
 
-#include <QFile>               // for QFile
-#include <QFlags>            // for QFlags
-#include <QIODevice>         // for QIODevice, QIODevice::OpenMode, QIODevice::ReadOnly, QIODevice::WriteOnly
+#include <optional>          // for optional
 
-#include "defs.h"              // for fatal, list_codecs
+#include <QByteArrayView>    // for QByteArrayView
+#include <QFile>             // for QFile
+#include <QFlags>            // for QFlags
+#include <QIODevice>         // for QIODevice
+#include <QStringConverter>  // for QStringConverter, QStringConverter::Utf8, QStringConverter::Encoding, QStringConverter::Utf16
+#include <QtCore>            // for QIODeviceBase::ReadOnly, QIODeviceBase::OpenMode, QIODeviceBase::WriteOnly, qint64
+
+#include "defs.h"            // for fatal, list_codecs
+#include "src/core/file.h"   // for File
 #include "src/core/textstream.h"
-#include "src/core/file.h"     // for File
 
 
 namespace gpsbabel
@@ -31,29 +36,53 @@ namespace gpsbabel
 
 void TextStream::open(const QString& fname, QIODevice::OpenMode mode, const char* module, const char* codec_name)
 {
-  codec_ = QTextCodec::codecForName(codec_name);
-  if (codec_ == nullptr) {
-    list_codecs();
-    fatal("%s: Unsupported codec '%s'.\n", module, codec_name);
-  }
+  std::optional<QStringConverter::Encoding> encoding = QStringConverter::encodingForName(codec_name);
+  bool use_stringconverter = encoding.has_value();
 
-  file_ = new gpsbabel::File(fname);
-  file_->open(mode);
-  setDevice(file_);
-  //setCodec(codec_);
-
-  if (mode & QFile::ReadOnly) {
-    if (codec_->mibEnum() == 106) { // UTF-8
-      setAutoDetectUnicode(true);
+  /* When reading autodetect unicode.
+   * The requested codec may not be supported by QStringConverter,
+   * but autodetection may switch to a converter that is.
+   */
+  if (!use_stringconverter && (mode & QFile::ReadOnly)) {
+    QFile file = QFile(fname);
+    file.open(mode);
+    char data[4];
+    qint64 bytesread = file.read(data, 4);
+    file.close();
+    encoding = QStringConverter::encodingForData(QByteArrayView(data, bytesread));
+    if (encoding.has_value()) {
+      use_stringconverter = true;
     }
   }
 
-  if (mode & QFile::WriteOnly) {
-    // enable bom for all UTF codecs except UTF-8
-    if (codec_->mibEnum() != 106) {
-      setGenerateByteOrderMark(true);
+  if (use_stringconverter) {
+    file_ = new gpsbabel::File(fname);
+    file_->open(mode);
+    setDevice(file_);
+    setEncoding(encoding.value());
+
+    if (mode & QFile::ReadOnly) {
+      if (encoding.value() == QStringConverter::Utf8) {
+        setAutoDetectUnicode(true);
+      }
     }
+
+    if (mode & QFile::WriteOnly) {
+      // enable bom for all UTF codecs except UTF-8
+      if (encoding.value() != QStringConverter::Utf8) {
+        setGenerateByteOrderMark(true);
+      }
+    }
+  } else {
+    device_ = new gpsbabel::CodecDevice(fname, module, codec_name);
+    bool status = device_->open(mode);
+    if (!status) {
+      fatal("%s: device not open %d\n", module, status);
+    }
+    setDevice(device_);
+    setEncoding(QStringConverter::Utf16);
   }
+
 }
 
 void TextStream::close()
@@ -64,7 +93,11 @@ void TextStream::close()
     delete file_;
     file_ = nullptr;
   }
-  codec_ = nullptr;
+  if (device_ != nullptr) {
+    device_->close();
+    delete device_;
+    device_ = nullptr;
+  }
 }
 
 } // namespace

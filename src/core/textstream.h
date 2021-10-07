@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 Robert Lipe, gpsbabel.org
+    Copyright (C) 2019-2021 Robert Lipe, gpsbabel.org
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,13 @@
 #ifndef SRC_CORE_TEXTSTREAM_INCLUDED_H_
 #define SRC_CORE_TEXTSTREAM_INCLUDED_H_
 
-#include <QIODevice>           // for QIODevice, QIODevice::OpenMode
-#include <QString>             // for QString
-#include <QTextCodec>          // for QTextCodec
-#include <QTextStream>         // for QTextStream
+#include <QIODevice>               // for QIODevice
+#include <QIODeviceBase>           // for QIODeviceBase::OpenMode
+#include <QString>                 // for QString
+#include <QTextStream>             // for QTextStream
 
-#include "src/core/file.h"     // for File
+#include "src/core/codecdevice.h"  // for CodecDevice
+#include "src/core/file.h"         // for File
 
 
 namespace gpsbabel
@@ -37,8 +38,8 @@ public:
   void close();
 
 private:
+  gpsbabel::CodecDevice* device_{nullptr};
   gpsbabel::File* file_{nullptr};
-  QTextCodec* codec_{nullptr};
 };
 
 } // namespace
