@@ -44,7 +44,6 @@ CodecDevice::~CodecDevice()
 bool CodecDevice::open(QIODevice::OpenMode mode)
 {
   codec_ = QTextCodec::codecForName(codec_name_);
-  decoder_ = codec_->makeDecoder();
   if (codec_ == nullptr) {
     list_codecs();
     fatal("%s: Unsupported codec '%s'.\n", module_, codec_name_);
@@ -73,7 +72,6 @@ qint64 CodecDevice::readData(char* data, qint64 maxlen)
   constexpr qint64 chunksize = 1024;
   char chunk[chunksize];
   qint64 bytesdelivered = 0;
-
 
   while (bytesdelivered < maxlen) {
     if (unicodebuffer_bytes_ > 0) {
@@ -115,10 +113,9 @@ qint64 CodecDevice::writeData(const char* data, qint64 len)
     charbuffer_bytes_free_ -= bytes;
     data += bytes;
 
-
     if (charbuffer_bytes_free_ == 0) {
-      assert(charbuffer_size_%2 == 0);
-      QByteArray ba = encoder_->fromUnicode(reinterpret_cast<const QChar*>(charbuffer_), charbuffer_size_/2); //TODO: odd?
+      static_assert(charbuffer_size_%sizeof(QChar) == 0);
+      QByteArray ba = encoder_->fromUnicode(reinterpret_cast<const QChar*>(charbuffer_), charbuffer_size_/sizeof(QChar));
       file_->write(ba);
       charbuffer_data_ = charbuffer_;
       charbuffer_bytes_free_ = charbuffer_size_;
@@ -131,14 +128,27 @@ void CodecDevice::close()
 {
   if (charbuffer_bytes_free_ < charbuffer_size_) {
     qint64 bytes = charbuffer_size_ - charbuffer_bytes_free_;
-    assert(bytes%2 == 0);
-    QByteArray ba = encoder_->fromUnicode(reinterpret_cast<const QChar*>(charbuffer_), bytes/2); //TODO; odd?
+    assert(bytes%sizeof(QChar) == 0);
+    QByteArray ba = encoder_->fromUnicode(reinterpret_cast<const QChar*>(charbuffer_), bytes/sizeof(QChar));
     file_->write(ba);
     charbuffer_data_ = charbuffer_;
     charbuffer_bytes_free_ = charbuffer_size_;
   }
   file_->close();
   QIODevice::close();
+
+  if (file_ != nullptr) {
+    delete file_;
+    file_ = nullptr;
+  }
+  if (encoder_ != nullptr) {
+    delete encoder_;
+    encoder_ = nullptr;
+  }
+  if (decoder_ != nullptr) {
+    delete decoder_;
+    decoder_ = nullptr;
+  }
 }
 
 bool CodecDevice::isSequential() const
