@@ -69,8 +69,6 @@ bool CodecDevice::open(QIODevice::OpenMode mode)
 
 qint64 CodecDevice::readData(char* data, qint64 maxlen)
 {
-  constexpr qint64 chunksize = 1024;
-  char chunk[chunksize];
   qint64 bytesdelivered = 0;
 
   while (bytesdelivered < maxlen) {
@@ -86,7 +84,7 @@ qint64 CodecDevice::readData(char* data, qint64 maxlen)
       }
     }
 
-    qint64 bytesread = file_->read(chunk, chunksize);
+    qint64 bytesread = file_->read(charbuffer_, charbuffer_size_);
     if (bytesread <= 0) { // no more data is available or error.
       if (bytesdelivered > 0) {
         break;
@@ -94,7 +92,7 @@ qint64 CodecDevice::readData(char* data, qint64 maxlen)
       return -1;
     }
 
-    unicodebuffer_ = decoder_->toUnicode(chunk, bytesread);
+    unicodebuffer_ = decoder_->toUnicode(charbuffer_, bytesread);
     unicodebuffer_bytes_ = unicodebuffer_.size() * sizeof(QChar);
     unicodebuffer_data_ = reinterpret_cast<const char*>(unicodebuffer_.constData());
   }
