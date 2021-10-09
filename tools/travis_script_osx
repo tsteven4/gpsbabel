@@ -25,7 +25,7 @@ make check
 
 # build the GUI
 pushd gui
-$QMAKE app.pro $ARCHS
+$QMAKE app.pro "$ARCHS"
 make -j 3
 make package
 popd
