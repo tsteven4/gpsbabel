@@ -16,15 +16,15 @@ VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z $(git show -s --format=
 "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"/ci_tokens
 
 # build and test the CLI
-$QMAKE GPSBabel.pro
+if version_ge $($QMAKE -query QT_VERSION) 6.0.0; then
+  ARCHS='QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"'
+fi
+$QMAKE GPSBabel.pro "$ARCHS"
 make -j 3
 make check
 
 # build the GUI
 pushd gui
-if version_ge $($QMAKE -query QT_VERSION) 6.0.0; then
-  ARCHS="QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"
-fi
 $QMAKE app.pro $ARCHS
 make -j 3
 make package
