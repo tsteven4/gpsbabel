@@ -2,6 +2,8 @@
 #
 # this script is run on travis for the script stage of mac builds
 #
+ 
+function version_ge() { test "$(printf "%s\n%s" $1 $2 | sort -rV | head -n 1)" == "$1"; }
 
 QMAKE=${QMAKE:-qmake}
 LUPDATE=${LUPDATE:-lupdate}
@@ -20,7 +22,10 @@ make check
 
 # build the GUI
 pushd gui
-$QMAKE app.pro
+if version_ge $($QMAKE -query QT_VERSION) 6.0.0; then
+  ARCHS="QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"
+fi
+$QMAKE app.pro $ARCHS
 make -j 3
 make package
 popd
