@@ -17,7 +17,7 @@ VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z $(git show -s --format=
 
 # build and test the CLI
 if version_ge $($QMAKE -query QT_VERSION) 6.0.0; then
-  ARCHS='QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"'
+  ARCHS="QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"
 fi
 $QMAKE GPSBabel.pro "$ARCHS"
 make -j 3
