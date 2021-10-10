@@ -7,7 +7,7 @@ fi
 version=${1}
 
 scriptdir="$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
-sourcetype=tar
+sourcetype=git
 #flavor=debug
 flavor=release
 #flavor=debug-and-release
@@ -72,23 +72,30 @@ excludes+=( \
 qtpurchasing \
 qtscript \
 qtxmlpatterns \
+qtactiveqt \
+qtcoap \
+qtopcua \
+qtmqtt \
+qtscxml \
 )
 
 # other modules we don't want
 # the tarballs don't include these modules, but git does
 excludes+=( \
 qtqa \
-qtwebengine \
-qtwebchannel \
 qtscript \
 qtquickcontrols2 \
-qtimageformats \
-qtshadertools \
 qtwayland \
 qt3d \
 qtquicktimeline \
 qtdoc \
 )
+#qtwebengine \
+#qtwebchannel \
+
+# qtmultimedia requires:
+#qtimageformats \
+#qtshadertools \
 
 if [ "${sourcetype}" == "git" ]; then
   if true; then
