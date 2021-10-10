@@ -91,3 +91,10 @@ jobs:
         source ${HOME}/Cache/qt-${QT_VERSION}.env
         sudo xcode-select --switch /Applications/Xcode_12.5.1.app
         ./tools/travis_script_osx
+
+    - name: 'Upload Artifacts'
+      uses: actions/upload-artifact@v2
+      with:
+        name: MacOS_Installer
+        path: gui/GPSBabel-*.dmg
+        retention-days: 14
