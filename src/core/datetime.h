@@ -73,6 +73,7 @@ public:
     }
   }
 
+  // QDateTime::toTime_t was deprecated in Qt5.8, and deleted in Qt6.
   uint32_t toTime_t() const {
     if (!QDateTime::isValid()) {
       return -1;
