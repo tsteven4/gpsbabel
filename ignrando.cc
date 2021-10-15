@@ -25,11 +25,11 @@
 #include <ctime>                   // for strftime, localtime, time_t, tm
 
 #include <QByteArray>              // for QByteArray
-#include <QIODevice>               // for QIODevice
+#include <QIODevice>               // for QIODevice, QIODeviceBase::ReadOnly
 #include <QList>                   // for QList
 #include <QString>                 // for QString, operator==
 #include <QXmlStreamAttributes>    // for QXmlStreamAttributes
-#include <QtCore>                  // for qPrintable, QIODeviceBase::ReadOnly
+#include <QtGlobal>                // for QT_VERSION, QT_VERSION_CHECK, qPrintable
 
 #include "defs.h"
 #include "gbfile.h"                // for gbfprintf, gbfclose, gbfopen, gbfile
@@ -40,7 +40,9 @@
 
 #define MYNAME "IGNRando"
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 static QString rd_fname;
+#endif
 static gbfile* fout;
 
 static route_head* track;
@@ -152,8 +154,12 @@ ignr_etape_alt(xg_string args, const QXmlStreamAttributes*)
 static void
 ignr_rd_init(const QString& fname)
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+  xml_init(fname, ignr_xml_map, nullptr);
+#else
   rd_fname = fname;
   xml_init(nullptr, ignr_xml_map, nullptr);
+#endif
   wpt = nullptr;
   track = nullptr;
 }
@@ -162,16 +168,29 @@ static void
 ignr_rd_deinit()
 {
   xml_deinit();
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
   rd_fname.clear();
+#endif
 }
 
 static void
 ignr_read()
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+  // QXmlStreamReader had access to the windows-1252 QTextCodec that we expect
+  // to find in the XMLDecl.
+  xml_read();
+#else
+  // QXmlStreamReader doesn't have access to a windows-1252 QStringDecoder,
+  // and will throw an error if we pass a QIODevice when it sees windows-1252
+  // in the XMLDecl.
+  // Therfore we must decode the input manually and pass a QString.
+  // With a QString QXmlStreamReader will ignore the XMLDecl.
   gpsbabel::File file(rd_fname);
   file.open(QIODevice::ReadOnly);
   xml_readunicode(STRTOUNICODE(file.readAll()));
   file.close();
+#endif
 }
 
 /* write support */
