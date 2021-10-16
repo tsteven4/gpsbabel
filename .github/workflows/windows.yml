@@ -69,19 +69,19 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt setup(aqt)
-      if: (steps.cache.outputs.cache-hit != 'true') && (startsWith(${{ matrix.QT_VERSION }}, '6'))
+      if: ${{ (steps.cache.outputs.cache-hit != 'true') && startsWith(matrix.QT_VERSION, '6') }}
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
 
     - name: Install Qt(aqt)
-      if: (steps.cache.outputs.cache-hit != 'true') && (startsWith(${{ matrix.QT_VERSION }}, '6'))
+      if: ${{ (steps.cache.outputs.cache-hit != 'true') && startsWith(matrix.QT_VERSION, '6') }}
       run: |
         pip3 install aqtinstall>=2.0.0
         aqt install-qt windows desktop ${{ matrix.QT_VERSION }} ${{ matrix.AQTARCH }} -O ${HOME}/Cache/Qt -m qtwebengine qt5compat qtpositioning qtwebchannel
 
     - name: Install Qt
-      if: (steps.cache.outputs.cache-hit != 'true') && (!startsWith(${{ matrix.QT_VERSION }}, '6'))
+      if: ${{ (steps.cache.outputs.cache-hit != 'true') && !startsWith(matrix.QT_VERSION, '6') }}
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
