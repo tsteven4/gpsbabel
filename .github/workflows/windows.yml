@@ -51,7 +51,7 @@ jobs:
             FLOW: 'nmake'
           - QT_VERSION: '6.2.0'
             ARCH: 'amd64'
-            HOST_ARCH: 'x64'
+            HOST_ARCH: 'amd64'
             COMPILER: 'msvc2019_64'
             AQTARCH: 'win64_msvc2019_64'
             RELEASE: false
