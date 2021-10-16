@@ -63,6 +63,7 @@ jobs:
 
     - name: Cache Qt
       uses: actions/cache@v2
+      id: cache
       with:
         path: ~/Cache
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
