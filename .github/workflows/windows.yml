@@ -76,6 +76,7 @@ jobs:
 
     - name: Install Qt(aqt)
       if: ${{ (steps.cache.outputs.cache-hit != 'true') && startsWith(matrix.QT_VERSION, '6') }}
+      shell: bash
       run: |
         pip3 install aqtinstall>=2.0.0
         ./tools/ci_install_qt.sh windows ${{ matrix.QT_VERSION }} ${{ matrix.AQTARCH }} ${HOME}/Cache/Qt

@@ -40,7 +40,7 @@ do
   done
   if [ $skip == false ]; then
     mods+=( "$a" )
-  fi  
+  fi
 done
 echo Installing "${mods[@]}"
 aqt install-qt "$host" desktop "$version" "$arch" -O "$outdir" -m "${mods[@]}"
