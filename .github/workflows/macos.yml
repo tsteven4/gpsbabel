@@ -113,7 +113,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         pip3 install aqtinstall>=2.0.0
-        aqt install-qt mac desktop ${QT_VERSION} clang_64 -O ${HOME}/Cache/Qt -m qtwebengine qt5compat qtpositioning qtwebchannel
+        ./tools/ci_install_qt.sh mac ${QT_VERSION} clang_64 ${HOME}/Cache/Qt
         echo "export PATH=${HOME}/Cache/Qt/${QT_VERSION}/macos/bin:\$PATH" > "${HOME}/Cache/qt-${QT_VERSION}.env"
 
     - name: Script

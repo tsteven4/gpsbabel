@@ -78,7 +78,7 @@ jobs:
       if: ${{ (steps.cache.outputs.cache-hit != 'true') && startsWith(matrix.QT_VERSION, '6') }}
       run: |
         pip3 install aqtinstall>=2.0.0
-        aqt install-qt windows desktop ${{ matrix.QT_VERSION }} ${{ matrix.AQTARCH }} -O ${HOME}/Cache/Qt -m qtwebengine qt5compat qtpositioning qtwebchannel
+        ./tools/ci_install_qt.sh windows ${{ matrix.QT_VERSION }} ${{ matrix.AQTARCH }} ${HOME}/Cache/Qt
 
     - name: Install Qt
       if: ${{ (steps.cache.outputs.cache-hit != 'true') && !startsWith(matrix.QT_VERSION, '6') }}
