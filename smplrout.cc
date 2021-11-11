@@ -59,22 +59,23 @@
 #include "smplrout.h"
 
 #include <QtCore/QDateTime>     // for QDateTime
+#include <QtCore/QDebug>        // for QDebug
+#include <QtCore/QTextStream>   // for qSetRealNumberPrecision
 #include <QtCore/QVector>       // for QVector
 
 #include <algorithm>            // for max
 #include <cstdlib>              // for qsort, strtol
-#include <tuple>                // for tie, tuple
-#include <utility>              // for pair, make_pair, swap
+#include <utility>              // for swap
 
 #include "defs.h"
 #include "grtcirc.h"            // for gcdist, linedist, radtometers, radtomiles, linepart
 #include "src/core/datetime.h"  // for DateTime
+#include "src/core/nvector.h"   // for NVector
+#include "src/core/vector3d.h"  // for operator<<, Vector3D
 
 
 #if FILTERS_ENABLED
 #define MYNAME "simplify"
-
-#define sqr(a) ((a)*(a))
 
 void SimplifyRouteFilter::free_xte(struct xte* xte_rec)
 {
@@ -338,24 +339,26 @@ void SimplifyRouteFilter::process()
     };
 
     auto waypt_cb = [this](const Waypoint* wpt)->void{
-      if (location_history.isEmpty())
-      {
-        location_history.fill(std::make_pair(wpt->latitude, wpt->longitude), count);
-        avglat = wpt->latitude;
-        avglon = wpt->longitude;
-      } else
-      {
-        double latold;
-        double lonold;
-        std::tie(latold, lonold) = location_history.at(counter);
-        location_history[counter] = std::make_pair(wpt->latitude, wpt->longitude);
+      // We filter in the n-vector coordinate system.
+      // This removes difficulties at the discontinuity at longitude = +/- 180 degrees,
+      // as well as at the singularities at the poles.
+      // Our filter is from Gade, 5.3.6. Horizontal geographical mean, equation 17.
+      if (location_history.isEmpty()) {
+        gpsbabel::NVector current_position = gpsbabel::NVector(wpt->latitude, wpt->longitude);
+        location_history.fill(current_position, count);
+        accumulated_position = current_position * count;
+      } else {
+        accumulated_position -= location_history.at(counter); // subtract off the oldest position
+        location_history[counter] = gpsbabel::NVector(wpt->latitude, wpt->longitude);
+        accumulated_position += location_history.at(counter); // and add in the newest position;
+        if (global_opts.debug_level >= 5) {
+          qDebug() << qSetRealNumberPrecision(12) << location_history.at(counter) << accumulated_position << accumulated_position.norm();
+        }
 
-        avglat += (wpt->latitude - latold) / count;
-        avglon += (wpt->longitude - lonold) / count;
-
+        gpsbabel::NVector normalized_position = accumulated_position.normalize();
         auto wptk = const_cast<Waypoint*>(wpt);
-        wptk->latitude = avglat;
-        wptk->longitude = avglon;
+        wptk->latitude = normalized_position.latitude();
+        wptk->longitude = normalized_position.longitude();
 
         counter = (counter + 1) % count;
       }
@@ -387,13 +390,13 @@ void SimplifyRouteFilter::init()
     fatal(MYNAME ": You must specify either count or error, but not both.\n");
   }
   if ((!!xteopt + !!lenopt + !!relopt + !!decimateopt + !!averageopt) > 1) {
-    fatal(MYNAME ": You may specify only one of crosstrack, length, relative or decimate.\n");
+    fatal(MYNAME ": You may specify only one of crosstrack, length, relative, decimate or average.\n");
   }
   if (!xteopt && !lenopt && !relopt) {
     xteopt = (char*) "";
   }
 
-  if (countopt || decimateopt || averageopt) {
+  if (countopt) {
     count = strtol(countopt, nullptr, 10);
   }
   if (erroropt) {

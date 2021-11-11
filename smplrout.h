@@ -61,10 +61,9 @@
 
 #include <QtCore/QVector>  // for QVector
 
-#include <utility>         // for pair
-
 #include "defs.h"
 #include "filter.h"        // for Filter
+#include "src/core/nvector.h"
 
 
 #if FILTERS_ENABLED
@@ -86,9 +85,8 @@ private:
   double error = 0;
   const route_head* current_rte = nullptr;
   int counter = 0;
-  QVector<std::pair<double, double>> location_history;
-  double avglat{};
-  double avglon{};
+  QVector<gpsbabel::NVector> location_history;
+  gpsbabel::NVector accumulated_position;
 
   char* countopt = nullptr;
   char* erroropt = nullptr;
