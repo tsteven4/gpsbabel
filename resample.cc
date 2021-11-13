@@ -151,7 +151,6 @@ void ResampleFilter::process()
       // Filter in the forward direction
       counter = 0;
       location_history.clear();
-      location_history.squeeze();
 
       for (auto it = rte->waypoint_list.cbegin(); it != rte->waypoint_list.cend(); ++it)
       {
@@ -162,7 +161,6 @@ void ResampleFilter::process()
       // Filter in the reverse direction
       counter = 0;
       location_history.clear();
-      location_history.squeeze();
 
       for (auto it = rte->waypoint_list.crbegin(); it != rte->waypoint_list.crend(); ++it)
       {
@@ -171,12 +169,7 @@ void ResampleFilter::process()
       }
     };
 
-    auto route_tlr = [this](const route_head* rte)->void {
-      location_history.clear();
-      location_history.squeeze();
-    };
-
-    track_disp_all(route_hdr, route_tlr, nullptr);
+    track_disp_all(route_hdr, nullptr, nullptr);
   }
 
   if (decimateopt) {
@@ -224,6 +217,12 @@ void ResampleFilter::init()
       fatal(FatalMsg() << MYNAME ": the interpolate count must be greater than one.");
     }
   }
+}
+
+void ResampleFilter::deinit()
+{
+  location_history.clear();
+  location_history.squeeze();
 }
 
 #endif // FILTERS_ENABLED

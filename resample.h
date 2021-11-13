@@ -39,6 +39,7 @@ public:
     return &args;
   }
   void init() override;
+  void deinit() override;
   void process() override;
 
 private:
