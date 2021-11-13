@@ -111,7 +111,11 @@ void ResampleFilter::process()
                        prevwpt->creation_time.toMSecsSinceEpoch();
           }
 
-          track_add_wpt(rte_new, new Waypoint(*prevwpt));
+          {
+            auto* newwpt = new Waypoint(*const_cast<Waypoint*>(prevwpt));
+            newwpt->extra_data = nullptr;
+            track_add_wpt(rte_new, newwpt);
+          }
           // Insert the required points
           for (int n = 0; n < interpolate_count - 1; ++n) {
             double frac = static_cast<double>(n + 1) /
@@ -135,7 +139,9 @@ void ResampleFilter::process()
           }
 
           if (wpt == rte_old->waypoint_list.back()) {
-            track_add_wpt(rte_new, new Waypoint(*wpt));
+            auto* newwpt = new Waypoint(*const_cast<Waypoint*>(wpt));
+            newwpt->extra_data = nullptr;
+            track_add_wpt(rte_new, newwpt);
           }
         }
 
@@ -183,6 +189,8 @@ void ResampleFilter::process()
       {
         track_del_wpt(const_cast<route_head*>(current_rte), const_cast<Waypoint*>(wpt));
         delete wpt;
+      } else {
+        const_cast<Waypoint*>(wpt)->extra_data = nullptr;
       }
       counter = (counter + 1) % decimate_count;
     };
