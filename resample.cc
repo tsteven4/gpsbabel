@@ -224,6 +224,9 @@ void ResampleFilter::init()
     if (!ok || interpolate_count < 2) {
       fatal(FatalMsg() << MYNAME ": the interpolate count must be greater than one.");
     }
+    if (!averageopt || average_count < interpolate_count) {
+      fatal(FatalMsg() << MYNAME ": the average option must be used with interpolation, and the average count must be greater than or equal to the interpolation count.");
+    }
   }
 }
 
