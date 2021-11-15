@@ -22,6 +22,8 @@
 #ifndef RESAMPLE_H_INCLUDED_
 #define RESAMPLE_H_INCLUDED_
 
+#include <tuple>               // for tuple
+
 #include <QVector>             // for QVector
 
 #include "defs.h"              // for arglist_t, ARGTYPE_INT, Waypoint, route_head
@@ -51,13 +53,13 @@ private:
   gpsbabel::NVector accumulated_position;
   int accumulated_altitude_valid_count{0};
   double accumulated_altitude{0.0};
+  double filter_gain{0.0};
+  int wpt_zero_stuffed{};
 
   int counter{0};
   int average_count{0};
   int decimate_count{0};
   int interpolate_count{0};
-  int wpt_zero_stuffed{};
-  double filter_gain{0.0};
 
   char* decimateopt{nullptr};
   char* interpolateopt{nullptr};
