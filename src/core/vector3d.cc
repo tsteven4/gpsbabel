@@ -27,13 +27,6 @@
 namespace gpsbabel
 {
 
-Vector3D::Vector3D(double xi, double yi, double zi)
-{
-  x_ = xi;
-  y_ = yi;
-  z_ = zi;
-}
-
 double Vector3D::norm() const
 {
   double norm = sqrt(x_*x_ + y_*y_ + z_*z_);

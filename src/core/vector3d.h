@@ -31,7 +31,7 @@ class Vector3D
 {
 public:
   Vector3D() = default;
-  Vector3D(double xi, double yi, double zi);
+  Vector3D(double xi, double yi, double zi) : x_(xi), y_(yi), z_(zi) {}
 
   [[nodiscard]] double norm() const;
   [[nodiscard]] double getx() const {return x_;}

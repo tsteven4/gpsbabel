@@ -212,7 +212,6 @@ void ResampleFilter::process()
     auto route_hdr = [this](const route_head* rte)->void {
       // Filter in the forward direction
       history.clear();
-
       for (auto it = rte->waypoint_list.cbegin(); it != rte->waypoint_list.cend(); ++it)
       {
         Waypoint* wpt = *it;
@@ -220,12 +219,11 @@ void ResampleFilter::process()
       }
 
       // Filter in the reverse direction
-      history.clear();
       if (global_opts.debug_level >= 5)
       {
         qDebug() << "Backward pass";
       }
-
+      history.clear();
       for (auto it = rte->waypoint_list.crbegin(); it != rte->waypoint_list.crend(); ++it)
       {
         Waypoint* wpt = *it;
