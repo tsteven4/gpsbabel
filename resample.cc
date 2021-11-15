@@ -66,12 +66,13 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
       double zero_altitude = 0.0;
       auto zero = std::tuple(zero_position, zero_altitude_valid_count, zero_altitude);
       int nonzeros = 0;
+      history.resize(average_count);
       for (int i = 0; i < average_count; ++i) {
         if (i % interpolate_count == interpolate_count - 1) {
-          history.prepend(current);
+          history[average_count - 1 - i] = current;
           ++nonzeros;
         } else {
-          history.prepend(zero);
+          history[average_count - 1 - i] = zero;
         }
       }
       accumulated_position = current_position * nonzeros;
