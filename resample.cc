@@ -77,13 +77,20 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
       accumulated_position = current_position * nonzeros;
       accumulated_altitude_valid_count = current_altitude_valid_count * average_count;
       accumulated_altitude = current_altitude * nonzeros;
-      filter_gain = 1.0;
+      filter_gain = static_cast<double>(interpolate_count) / static_cast<double>(average_count);
     } else {
       history.fill(current, average_count);
       accumulated_position = current_position * average_count;
       accumulated_altitude_valid_count = current_altitude_valid_count * average_count;
       accumulated_altitude = current_altitude * average_count;
       filter_gain = 1.0 / average_count;
+    }
+    if (global_opts.debug_level >= 5) {
+      for (auto& entry : history) {
+        auto [pos, avc, alt] = entry;
+        qDebug() << "initial conditions" << pos << avc << alt;
+      }
+      qDebug() << "initial accumulator" << accumulated_position << accumulated_altitude_valid_count << accumulated_altitude;
     }
   } else {
     auto [oldest_position, oldest_altitude_valid_count, oldest_altitude] = history.at(counter);
@@ -214,6 +221,10 @@ void ResampleFilter::process()
       // Filter in the reverse direction
       counter = 0;
       history.clear();
+      if (global_opts.debug_level >= 5)
+      {
+        qDebug() << "Backward pass";
+      }
 
       for (auto it = rte->waypoint_list.crbegin(); it != rte->waypoint_list.crend(); ++it)
       {
