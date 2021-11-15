@@ -68,10 +68,10 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
       int nonzeros = 0;
       for (int i = 0; i < average_count; ++i) {
         if (i % interpolate_count == interpolate_count - 1) {
-          history.append(current);
+          history.prepend(current);
           ++nonzeros;
         } else {
-          history.append(zero);
+          history.prepend(zero);
         }
       }
       accumulated_position = current_position * nonzeros;
@@ -85,6 +85,7 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
       accumulated_altitude = current_altitude * average_count;
       filter_gain = 1.0 / average_count;
     }
+    counter = 0;
     if (global_opts.debug_level >= 5) {
       for (auto& entry : history) {
         auto [pos, avc, alt] = entry;
@@ -92,37 +93,37 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
       }
       qDebug() << "initial accumulator" << accumulated_position << accumulated_altitude_valid_count << accumulated_altitude;
     }
-  } else {
-    auto [oldest_position, oldest_altitude_valid_count, oldest_altitude] = history.at(counter);
-
-    // subtract off the oldest values
-    accumulated_position -= oldest_position;
-    accumulated_altitude_valid_count -= oldest_altitude_valid_count;
-    accumulated_altitude -= oldest_altitude;
-
-    history[counter] = current;
-
-    // add in the newest values
-    accumulated_position += current_position;
-    accumulated_altitude_valid_count += current_altitude_valid_count;
-    accumulated_altitude += current_altitude;
-
-    if (global_opts.debug_level >= 5) {
-      qDebug() << "position" << qSetRealNumberPrecision(12) << current_position << accumulated_position << accumulated_position.norm();
-      qDebug() << "altitude" << qSetRealNumberPrecision(12) << accumulated_altitude_valid_count << current_altitude << accumulated_altitude;
-    }
-
-    gpsbabel::NVector normalized_position = accumulated_position / accumulated_position.norm();
-    wpt->latitude = normalized_position.latitude();
-    wpt->longitude = normalized_position.longitude();
-    if (accumulated_altitude_valid_count == average_count) {
-      wpt->altitude = accumulated_altitude * filter_gain;
-    } else {
-      wpt->altitude = unknown_alt;
-    }
-
-    counter = (counter + 1) % average_count;
   }
+
+  auto [oldest_position, oldest_altitude_valid_count, oldest_altitude] = history.at(counter);
+
+  // subtract off the oldest values
+  accumulated_position -= oldest_position;
+  accumulated_altitude_valid_count -= oldest_altitude_valid_count;
+  accumulated_altitude -= oldest_altitude;
+
+  history[counter] = current;
+
+  // add in the newest values
+  accumulated_position += current_position;
+  accumulated_altitude_valid_count += current_altitude_valid_count;
+  accumulated_altitude += current_altitude;
+
+  if (global_opts.debug_level >= 5) {
+    qDebug() << "position" << qSetRealNumberPrecision(12) << current_position << accumulated_position << accumulated_position.norm();
+    qDebug() << "altitude" << qSetRealNumberPrecision(12) << accumulated_altitude_valid_count << current_altitude << accumulated_altitude;
+  }
+
+  gpsbabel::NVector normalized_position = accumulated_position / accumulated_position.norm();
+  wpt->latitude = normalized_position.latitude();
+  wpt->longitude = normalized_position.longitude();
+  if (accumulated_altitude_valid_count == average_count) {
+    wpt->altitude = accumulated_altitude * filter_gain;
+  } else {
+    wpt->altitude = unknown_alt;
+  }
+
+  counter = (counter + 1) % average_count;
 }
 
 void ResampleFilter::process()
@@ -209,7 +210,6 @@ void ResampleFilter::process()
   if (averageopt) {
     auto route_hdr = [this](const route_head* rte)->void {
       // Filter in the forward direction
-      counter = 0;
       history.clear();
 
       for (auto it = rte->waypoint_list.cbegin(); it != rte->waypoint_list.cend(); ++it)
@@ -219,7 +219,6 @@ void ResampleFilter::process()
       }
 
       // Filter in the reverse direction
-      counter = 0;
       history.clear();
       if (global_opts.debug_level >= 5)
       {
