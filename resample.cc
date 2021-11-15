@@ -42,32 +42,77 @@
 #define MYNAME "resample"
 
 
-void ResampleFilter::average_waypoint(Waypoint* wpt)
+void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
 {
   // We filter in the n-vector coordinate system.
   // This removes difficulties at the discontinuity at longitude = +/- 180 degrees,
   // as well as at the singularities at the poles.
   // Our filter is from Gade, 5.3.6. Horizontal geographical mean, equation 17.
-  if (location_history.isEmpty()) {
-    gpsbabel::NVector current_position = gpsbabel::NVector(wpt->latitude, wpt->longitude);
-    location_history.fill(current_position, average_count);
-    accumulated_position = current_position * average_count;
+  gpsbabel::NVector current_position;
+  if (wpt->extra_data) { // zero stuffing?
+    current_position = gpsbabel::Vector3D(0.0, 0.0, 0.0);
+    wpt->extra_data = nullptr;
   } else {
-    accumulated_position -= location_history.at(counter); // subtract off the oldest position
-    if (wpt->extra_data) {
-      location_history[counter] = gpsbabel::Vector3D(0.0, 0.0, 0.0);
-      wpt->extra_data = nullptr;
+    current_position = gpsbabel::NVector(wpt->latitude, wpt->longitude);
+  }
+  int current_altitude_valid_count = wpt->altitude != unknown_alt? 1 : 0;
+  double current_altitude =  wpt->altitude != unknown_alt? wpt->altitude : 0.0;
+  auto current = std::tuple(current_position, current_altitude_valid_count, current_altitude);
+
+  if (history.isEmpty()) {
+    if (zero_stuffed) {
+      gpsbabel::NVector zero_position = gpsbabel::Vector3D(0.0, 0.0, 0.0);
+      int zero_altitude_valid_count = 1;
+      double zero_altitude = 0.0;
+      auto zero = std::tuple(zero_position, zero_altitude_valid_count, zero_altitude);
+      int nonzeros = 0;
+      for (int i = 0; i < average_count; ++i) {
+        if (i % interpolate_count == interpolate_count - 1) {
+          history.append(current);
+          ++nonzeros;
+        } else {
+          history.append(zero);
+        }
+      }
+      accumulated_position = current_position * nonzeros;
+      accumulated_altitude_valid_count = current_altitude_valid_count * average_count;
+      accumulated_altitude = current_altitude * nonzeros;
+      filter_gain = 1.0;
     } else {
-      location_history[counter] = gpsbabel::NVector(wpt->latitude, wpt->longitude);
+      history.fill(current, average_count);
+      accumulated_position = current_position * average_count;
+      accumulated_altitude_valid_count = current_altitude_valid_count * average_count;
+      accumulated_altitude = current_altitude * average_count;
+      filter_gain = 1.0 / average_count;
     }
-    accumulated_position += location_history.at(counter); // and add in the newest position;
+  } else {
+    auto [oldest_position, oldest_altitude_valid_count, oldest_altitude] = history.at(counter);
+
+    // subtract off the oldest values
+    accumulated_position -= oldest_position;
+    accumulated_altitude_valid_count -= oldest_altitude_valid_count;
+    accumulated_altitude -= oldest_altitude;
+
+    history[counter] = current;
+
+    // add in the newest values
+    accumulated_position += current_position;
+    accumulated_altitude_valid_count += current_altitude_valid_count;
+    accumulated_altitude += current_altitude;
+
     if (global_opts.debug_level >= 5) {
-      qDebug() << qSetRealNumberPrecision(12) << location_history.at(counter) << accumulated_position << accumulated_position.norm();
+      qDebug() << "position" << qSetRealNumberPrecision(12) << current_position << accumulated_position << accumulated_position.norm();
+      qDebug() << "altitude" << qSetRealNumberPrecision(12) << accumulated_altitude_valid_count << current_altitude << accumulated_altitude;
     }
 
     gpsbabel::NVector normalized_position = accumulated_position / accumulated_position.norm();
     wpt->latitude = normalized_position.latitude();
     wpt->longitude = normalized_position.longitude();
+    if (accumulated_altitude_valid_count == average_count) {
+      wpt->altitude = accumulated_altitude * filter_gain;
+    } else {
+      wpt->altitude = unknown_alt;
+    }
 
     counter = (counter + 1) % average_count;
   }
@@ -124,6 +169,7 @@ void ResampleFilter::process()
             // beginning of the span.  We clear some fields but use a
             // copy of the rest or the interpolated value.
             auto* wpt_new = new Waypoint(*prevwpt);
+            wpt_new->wpt_flags.new_trkseg = 0;
             wpt_new->shortname = QString();
             wpt_new->description = QString();
             if (timespan.has_value()) {
@@ -132,8 +178,10 @@ void ResampleFilter::process()
             } else {
               wpt_new->creation_time = gpsbabel::DateTime();
             }
+            // zero stuff
             wpt_new->latitude = 0.0;
             wpt_new->longitude = 0.0;
+            wpt_new->altitude = 0.0;
             wpt_new->extra_data = &wpt_zero_stuffed;
             track_add_wpt(rte_new, wpt_new);
           }
@@ -145,7 +193,6 @@ void ResampleFilter::process()
           }
         }
 
-
         prevwpt = wpt;
       }
     }
@@ -156,22 +203,22 @@ void ResampleFilter::process()
     auto route_hdr = [this](const route_head* rte)->void {
       // Filter in the forward direction
       counter = 0;
-      location_history.clear();
+      history.clear();
 
       for (auto it = rte->waypoint_list.cbegin(); it != rte->waypoint_list.cend(); ++it)
       {
         Waypoint* wpt = *it;
-        average_waypoint(wpt);
+        average_waypoint(wpt, interpolateopt);
       }
 
       // Filter in the reverse direction
       counter = 0;
-      location_history.clear();
+      history.clear();
 
       for (auto it = rte->waypoint_list.crbegin(); it != rte->waypoint_list.crend(); ++it)
       {
         Waypoint* wpt = *it;
-        average_waypoint(wpt);
+        average_waypoint(wpt, false);
       }
     };
 
@@ -189,7 +236,8 @@ void ResampleFilter::process()
       {
         track_del_wpt(const_cast<route_head*>(current_rte), const_cast<Waypoint*>(wpt));
         delete wpt;
-      } else {
+      } else
+      {
         const_cast<Waypoint*>(wpt)->extra_data = nullptr;
       }
       counter = (counter + 1) % decimate_count;
@@ -232,8 +280,8 @@ void ResampleFilter::init()
 
 void ResampleFilter::deinit()
 {
-  location_history.clear();
-  location_history.squeeze();
+  history.clear();
+  history.squeeze();
 }
 
 #endif // FILTERS_ENABLED

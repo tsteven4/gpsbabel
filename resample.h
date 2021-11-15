@@ -44,17 +44,20 @@ public:
 
 private:
 
-  void average_waypoint(Waypoint* wpt);
+  void average_waypoint(Waypoint* wpt, bool zero_stuffed);
 
   const route_head* current_rte{nullptr};
-  QVector<gpsbabel::NVector> location_history;
+  QVector<std::tuple<gpsbabel::NVector, int, double>> history;
   gpsbabel::NVector accumulated_position;
+  int accumulated_altitude_valid_count{0};
+  double accumulated_altitude{0.0};
 
   int counter{0};
   int average_count{0};
   int decimate_count{0};
   int interpolate_count{0};
   int wpt_zero_stuffed{};
+  double filter_gain{0.0};
 
   char* decimateopt{nullptr};
   char* interpolateopt{nullptr};
