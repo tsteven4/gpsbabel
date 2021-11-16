@@ -130,14 +130,14 @@ void ResampleFilter::average_waypoint(Waypoint* wpt, bool zero_stuffed)
 void ResampleFilter::process()
 {
   if (interpolateopt) {
-    RouteList backuproute;
-    track_swap(backuproute);
+    RouteList backuptrack;
+    track_swap(backuptrack);
 
-    if (backuproute.empty()) {
+    if (backuptrack.empty()) {
       fatal(FatalMsg() << MYNAME ": Found no tracks to operate on.");
     }
 
-    for (const auto* rte_old : qAsConst(backuproute)) {
+    for (const auto* rte_old : qAsConst(backuptrack)) {
       // FIXME: Allocating a new route_head and copying the members one at a
       // time is not maintainable.  When new members are added it is likely
       // they will not be copied here!
@@ -155,7 +155,7 @@ void ResampleFilter::process()
 
       bool first = true;
       const Waypoint* prevwpt;
-      for (const Waypoint* wpt : rte_old->waypoint_list) {
+      for (const auto* wpt : rte_old->waypoint_list) {
         if (first) {
           first = false;
         } else {
@@ -205,7 +205,7 @@ void ResampleFilter::process()
         prevwpt = wpt;
       }
     }
-    backuproute.flush();
+    backuptrack.flush();
   }
 
   if (averageopt) {
@@ -235,24 +235,50 @@ void ResampleFilter::process()
   }
 
   if (decimateopt) {
-    auto route_hdr =[this](const route_head* rte)->void {
-      counter = 0;
-      current_rte = rte;
-    };
+    // This is ~20x faster than deleting the points in the existing route one at a time.
+    RouteList backuptrack;
+    track_swap(backuptrack);
 
-    auto waypt_cb = [this](const Waypoint* wpt)->void{
-      if (counter != 0)
-      {
-        track_del_wpt(const_cast<route_head*>(current_rte), const_cast<Waypoint*>(wpt));
-        delete wpt;
-      } else
-      {
-        const_cast<Waypoint*>(wpt)->extra_data = nullptr;
+    if (backuptrack.empty()) {
+      fatal(FatalMsg() << MYNAME ": Found no tracks to operate on.");
+    }
+
+    for (const auto* rte_old : qAsConst(backuptrack)) {
+      // FIXME: Allocating a new route_head and copying the members one at a
+      // time is not maintainable.  When new members are added it is likely
+      // they will not be copied here!
+      // We want a deep copy of everything but with an empty WaypointList.
+      auto* rte_new = new route_head;
+      rte_new->rte_name = rte_old->rte_name;
+      rte_new->rte_desc = rte_old->rte_desc;
+      rte_new->rte_urls = rte_old->rte_urls;
+      rte_new->rte_num = rte_old->rte_num;
+      rte_new->fs = rte_old->fs.FsChainCopy();
+      rte_new->line_color = rte_old->line_color;
+      rte_new->line_width = rte_old->line_width;
+      rte_new->session = rte_old->session;
+      track_add_head(rte_new);
+
+      bool newseg = false;
+      int index = 0;
+      for (const auto* wpt : rte_old->waypoint_list) {
+        if (index % decimate_count == 0) {
+          auto* newwpt = new Waypoint(*const_cast<Waypoint*>(wpt));
+          if (newseg) {
+            newwpt->wpt_flags.new_trkseg = 1;
+          }
+          track_add_wpt(rte_new, newwpt);
+          newseg = false;
+        } else {
+          // carry any new track segment marker forward.
+          if (wpt->wpt_flags.new_trkseg) {
+            newseg = true;
+          }
+        }
+        ++index;
       }
-      counter = (counter + 1) % decimate_count;
-    };
-
-    track_disp_all(route_hdr, nullptr, waypt_cb);
+    }
+    backuptrack.flush();
   }
 }
 
