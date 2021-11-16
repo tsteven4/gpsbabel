@@ -48,7 +48,6 @@ private:
 
   void average_waypoint(Waypoint* wpt, bool zero_stuffed);
 
-  const route_head* current_rte{nullptr};
   QVector<std::tuple<gpsbabel::NVector, int, double>> history;
   gpsbabel::NVector accumulated_position;
   int accumulated_altitude_valid_count{0};
