@@ -214,8 +214,7 @@ void ResampleFilter::process()
       history.clear();
       for (auto it = rte->waypoint_list.cbegin(); it != rte->waypoint_list.cend(); ++it)
       {
-        Waypoint* wpt = *it;
-        average_waypoint(wpt, interpolateopt);
+        average_waypoint(*it, interpolateopt);
       }
 
       // Filter in the reverse direction
@@ -226,8 +225,7 @@ void ResampleFilter::process()
       history.clear();
       for (auto it = rte->waypoint_list.crbegin(); it != rte->waypoint_list.crend(); ++it)
       {
-        Waypoint* wpt = *it;
-        average_waypoint(wpt, false);
+        average_waypoint(*it, false);
       }
     };
 
