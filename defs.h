@@ -26,6 +26,7 @@
 #include <cstdint>                // for int32_t, uint32_t
 #include <cstdio>                 // for NULL, fprintf, FILE, stdout
 #include <ctime>                  // for time_t
+#include <list>                   // for list, list<>::const_iterator, list<>::iterator, list<>::const_reverse_iterator, list<>::reverse_iterator, list<>::sort
 #include <optional>               // for optional
 #include <utility>                // for move
 
@@ -553,48 +554,44 @@ public:
 using waypt_cb = void (*)(const Waypoint*);
 
 // TODO: Consider using composition instead of private inheritance.
-class WaypointList : private QList<Waypoint*>
+class WaypointList : private std::list<Waypoint*>
 {
 public:
   void waypt_add(Waypoint* wpt); // a.k.a. append(), push_back()
   void add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, const QString& namepart, int number_digits);
-  // FIXME: Generally it is inefficient to use an element pointer or reference to define the element to be deleted, use iterator instead,
-  //        and/or implement pop_back() a.k.a. removeLast(), and/or pop_front() a.k.a. removeFirst().
   void waypt_del(Waypoint* wpt); // a.k.a. erase()
-  // FIXME: Generally it is inefficient to use an element pointer or reference to define the element to be deleted, use iterator instead,
-  //        and/or implement pop_back() a.k.a. removeLast(), and/or pop_front() a.k.a. removeFirst().
+  std::list<Waypoint*>::iterator waypt_del(std::list<Waypoint*>::const_iterator pos);
   void del_rte_waypt(Waypoint* wpt);
+  std::list<Waypoint*>::iterator del_rte_waypt(std::list<Waypoint*>::const_iterator pos);
   void waypt_compute_bounds(bounds* bounds) const;
   Waypoint* find_waypt_by_name(const QString& name) const;
   void flush(); // a.k.a. clear()
   void copy(WaypointList** dst) const;
   void restore(WaypointList* src);
   void swap(WaypointList& other);
-  template <typename Compare>
-  void sort(Compare cmp) {std::stable_sort(begin(), end(), cmp);}
   template <typename T>
   void waypt_disp_session(const session_t* se, T cb);
 
   // Expose limited methods for portability.
   // public types
-  using QList<Waypoint*>::const_iterator;
-  using QList<Waypoint*>::const_reverse_iterator;
-  using QList<Waypoint*>::iterator;
-  using QList<Waypoint*>::reverse_iterator;
+  using std::list<Waypoint*>::const_iterator;
+  using std::list<Waypoint*>::const_reverse_iterator;
+  using std::list<Waypoint*>::iterator;
+  using std::list<Waypoint*>::reverse_iterator;
   // public functions
-  using QList<Waypoint*>::back; // a.k.a. last()
-  using QList<Waypoint*>::begin;
-  using QList<Waypoint*>::cbegin;
-  using QList<Waypoint*>::cend;
-  using QList<Waypoint*>::count; // a.k.a. size()
-  using QList<Waypoint*>::crbegin;
-  using QList<Waypoint*>::crend;
-  using QList<Waypoint*>::detach; // silence Qt6 foreach warnings
-  using QList<Waypoint*>::empty; // a.k.a. isEmpty()
-  using QList<Waypoint*>::end;
-  using QList<Waypoint*>::front; // a.k.a. first()
-  using QList<Waypoint*>::rbegin;
-  using QList<Waypoint*>::rend;
+  using std::list<Waypoint*>::back; // a.k.a. last()
+  using std::list<Waypoint*>::begin;
+  using std::list<Waypoint*>::cbegin;
+  using std::list<Waypoint*>::cend;
+  using std::list<Waypoint*>::crbegin;
+  using std::list<Waypoint*>::crend;
+  using std::list<Waypoint*>::empty; // a.k.a. isEmpty()
+  using std::list<Waypoint*>::end;
+  using std::list<Waypoint*>::front; // a.k.a. first()
+  using std::list<Waypoint*>::rbegin;
+  using std::list<Waypoint*>::rend;
+  using std::list<Waypoint*>::size; // a.k.a. count()
+  using std::list<Waypoint*>::sort;
 };
 
 const global_trait* get_traits();
@@ -716,7 +713,7 @@ public:
   route_head& operator=(const route_head& rhs) = delete;
   ~route_head();
 
-  int rte_waypt_ct() const {return waypoint_list.count();}		/* # waypoints in waypoint list */
+  int rte_waypt_ct() const {return waypoint_list.size();}		/* # waypoints in waypoint list */
 };
 
 using route_hdr = void (*)(const route_head*);

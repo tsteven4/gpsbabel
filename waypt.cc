@@ -22,11 +22,11 @@
 #include <cassert>              // for assert
 #include <cmath>                // for fabs
 #include <cstdio>               // for printf, fflush, fprintf, stdout
-#include <algorithm>            // for stable_sort
+#include <list>                 // for operator!=, _List_const_iterator, list, _List_const_iterator<>::_Self, list<>::const_iterator, list<>::iterator
+#include <utility>              // for as_const
 
 #include <QChar>                // for QChar
 #include <QDateTime>            // for QDateTime
-#include <QList>                // for QList
 #include <QString>              // for QString, operator==
 #include <QTime>                // for QTime
 #include <QtGlobal>             // for qPrintable
@@ -85,7 +85,7 @@ waypt_del(Waypoint* wpt)
 unsigned int
 waypt_count()
 {
-  return global_waypoint_list->count();
+  return global_waypoint_list->size();
 }
 
 void
@@ -582,7 +582,7 @@ WaypointList::waypt_add(Waypoint* wpt)
 {
   double lat_orig = wpt->latitude;
   double lon_orig = wpt->longitude;
-  append(wpt);
+  push_back(wpt);
 
   if (wpt->latitude < -90) {
     wpt->latitude += 180;
@@ -640,7 +640,7 @@ WaypointList::waypt_add(Waypoint* wpt)
 void
 WaypointList::add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, const QString& namepart, int number_digits)
 {
-  append(wpt);
+  push_back(wpt);
 
   if (synth && wpt->shortname.isEmpty()) {
     wpt->shortname = QString("%1%2").arg(namepart).arg(waypt_ct, number_digits, 10, QChar('0'));
@@ -648,25 +648,47 @@ WaypointList::add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, const QStri
   }
 }
 
+std::list<Waypoint*>::iterator
+WaypointList::waypt_del(std::list<Waypoint*>::const_iterator pos)
+{
+  return erase(pos);
+}
+
 void
 WaypointList::waypt_del(Waypoint* wpt)
 {
-  const int idx = this->indexOf(wpt);
-  assert(idx >= 0);
-  removeAt(idx);
+  for (auto it = cbegin(); it != cend(); ++it) {
+    if (*it == wpt) {
+      waypt_del(it);
+      return;
+    }
+  }
+  assert(true); // wpt not found.
+}
+
+std::list<Waypoint*>::iterator
+WaypointList::del_rte_waypt(std::list<Waypoint*>::const_iterator pos)
+{
+  auto* wpt = *pos;
+  auto pos_next = pos;
+  if (wpt->wpt_flags.new_trkseg && (++pos_next != cend())) {
+    auto* wpt_next = *pos_next;
+    wpt_next->wpt_flags.new_trkseg = 1;
+  }
+  wpt->wpt_flags.new_trkseg = 0;
+  return erase(pos);
 }
 
 void
 WaypointList::del_rte_waypt(Waypoint* wpt)
 {
-  const int idx = indexOf(wpt);
-  assert(idx >= 0);
-  if (wpt->wpt_flags.new_trkseg && ((idx+1) < size())) {
-    auto* wpt_next = at(idx+1);
-    wpt_next->wpt_flags.new_trkseg = 1;
+  for (auto it = cbegin(); it != cend(); ++it) {
+    if (*it == wpt) {
+      del_rte_waypt(it);
+      return;
+    }
   }
-  wpt->wpt_flags.new_trkseg = 0;
-  removeAt(idx);
+  assert(true); // wpt not found.
 }
 
 /*
@@ -698,9 +720,10 @@ WaypointList::find_waypt_by_name(const QString& name) const
 void
 WaypointList::flush()
 {
-  while (!isEmpty()) {
-    delete takeFirst();
+  for (const auto* wpt : std::as_const(*this)) {
+    delete wpt;
   }
+  clear();
 }
 
 void
