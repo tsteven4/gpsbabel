@@ -126,14 +126,7 @@ constexpr double KNOTS_TO_MPS(double a)  {return a * kMPSPerKnot;}
 #define CENTI_TO_MICRO(t) ((t) * 10000) /* Centiseconds to Microseconds */
 #define MICRO_TO_CENTI(t) ((t) / 10000) /* Centiseconds to Microseconds */
 
-/*
- * Snprintf is in SUS (so it's in most UNIX-like substance) and it's in
- * C99 (albeit with slightly different semantics) but it isn't in C89.
- * This tweaks allows us to use snprintf on the holdout.
- */
 #if __WIN32__
-#  define snprintf _snprintf
-#  define vsnprintf _vsnprintf
 #  ifndef fileno
 #    define fileno _fileno
 #  endif
