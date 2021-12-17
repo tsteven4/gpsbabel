@@ -1242,4 +1242,12 @@ int color_to_bbggrr(const char* cname);
 // It's here instead of gps to avoid C/C++ linkage issues.
 int32_t GPS_Lookup_Datum_Index(const QString& n);
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+// Qt Container sizes are of type int
+#  define PRIdQCONTSIZE "d"
+#else
+// Qt Containter sizes are of type qsizetype
+#  define PRIdQCONTSIZE PRIdQSIZETYPE
+#endif
+
 #endif // DEFS_H_INCLUDED_
