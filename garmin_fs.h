@@ -118,7 +118,7 @@ public:
   QString fax_nr;				/* fax number */
   QString postal_code;	/* postal code */
   QString email;				/* email address */
-  unsigned int duration; /* expected travel time to next route point, in seconds, only when auto-routed */
+  unsigned int duration{}; /* expected travel time to next route point, in seconds, only when auto-routed */
 
   garmin_ilink_t* ilinks{nullptr};
 #ifdef GMSD_EXPERIMENTAL

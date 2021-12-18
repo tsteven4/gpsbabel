@@ -801,7 +801,7 @@ LowranceusrFormat::lowranceusr4_parse_route() const
 
   if (reading_version >= 5) {
     /* USR Version 5 and greater include unit ID in each route */
-    gbfgetint32(file_in);
+    (void) gbfgetint32(file_in);
   }
 
   int num_legs = gbfgetint32(file_in);
@@ -851,16 +851,16 @@ LowranceusrFormat::lowranceusr4_parse_route() const
 
   if (reading_version > 4) {
     /* USR Version 5 or greater, more mystery data, ignore for now */
-    gbfgetint32(file_in);
-    gbfgetint32(file_in);
-    gbfgetc(file_in);
+    (void) gbfgetint32(file_in);
+    (void) gbfgetint32(file_in);
+    (void) gbfgetc(file_in);
   }
 
   /* Mystery byte, discard */
   if (global_opts.debug_level == 99) {
     printf(MYNAME " parse_route: end of route %02x\n", gbfgetc(file_in));
   } else {
-    gbfgetc(file_in);
+    (void) gbfgetc(file_in);
   }
 }
 
@@ -1072,9 +1072,9 @@ LowranceusrFormat::lowranceusr4_parse_trail(int* trail_num) const
            gbfgetc(file_in), gbfgetc(file_in), gbfgetc(file_in));
   } else {
     /* just discard */
-    gbfgetc(file_in);
-    gbfgetc(file_in);
-    gbfgetc(file_in);
+    (void) gbfgetc(file_in);
+    (void) gbfgetc(file_in);
+    (void) gbfgetc(file_in);
   }
 
   /* Mysterious attribute "data count" */
@@ -1093,9 +1093,9 @@ LowranceusrFormat::lowranceusr4_parse_trail(int* trail_num) const
     /* just discard */
     for (int i=0; i<attr_count; i++) {
       if (trail_version == 5) {
-        gbfgetint32(file_in);
+        (void) gbfgetint32(file_in);
       } else {
-        gbfgetc(file_in);
+        (void) gbfgetc(file_in);
       }
     }
   }
@@ -1115,8 +1115,8 @@ LowranceusrFormat::lowranceusr4_parse_trail(int* trail_num) const
     auto* wpt_tmp = new Waypoint;
 
     /* Some unknown bytes */
-    gbfgetint16(file_in);
-    gbfgetc(file_in);
+    (void) gbfgetint16(file_in);
+    (void) gbfgetc(file_in);
 
     /* POSIX timestamp (a.k.a. UNIX Epoch) - seconds since Jan 1, 1970 */
     wpt_tmp->SetCreationTime(gbfgetint32(file_in));
@@ -1226,8 +1226,7 @@ LowranceusrFormat::read()
       printf(MYNAME " creation date/time : '%s'\n", qPrintable(qdt.toString("yyyy-MM-dd hh:mm:ss AP")));
     }
 
-    unsigned char byte = gbfgetc(file_in); /* unused, apparently */
-    (void) byte;
+    (void) gbfgetc(file_in); /* unused, apparently */
 
     /* AND the serial number of the unit that created the file */
     uint serial_num = gbfgetint32(file_in);

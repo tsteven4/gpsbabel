@@ -20,7 +20,7 @@
 #ifndef VECTOR3D_H
 #define VECTOR3D_H
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include <iostream>
 

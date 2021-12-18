@@ -390,7 +390,7 @@ read_header()
   }
 
   for (i = 0; i < 3; i++) {
-    (void)gbfgetc(fin);
+    (void) gbfgetc(fin);
   }
   gbfread(&rdata->S8, 1, sizeof(rdata->S8) - 1, fin);
 
@@ -1391,7 +1391,7 @@ load_bitmap_from_file(const char* fname, unsigned char** data, int* data_sz)
         p += 4;
       }
       for (j = (src_h.width * src_h.bpp) / 8; j < src_line_sz; j++) {
-        gbfgetc(f);  /* drop fill-in bytes */
+        (void) gbfgetc(f);  /* drop fill-in bytes */
       }
       ptr -= dest_line_sz;
     }

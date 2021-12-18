@@ -54,7 +54,7 @@ class DebugIndent
 public:
   explicit DebugIndent(int l) : level(l) {}
 
-  int level;
+  int level{};
 };
 
 QDebug operator<< (QDebug debug, const DebugIndent& indent);
