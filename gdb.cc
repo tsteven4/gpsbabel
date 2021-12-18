@@ -113,7 +113,7 @@ static int trk_ct;	/* informational: total number of tracks in/out */
 /*******************************************************************************/
 
 #define ELEMENTS(a) a->rte_waypt_ct()
-#define NOT_EMPTY(a) (a && *a)
+#define NOT_EMPTY(a) ((a) && *(a))
 
 static void
 gdb_flush_waypt_queue(QList<Waypoint*>* Q)
@@ -550,7 +550,7 @@ read_waypoint(gt_waypt_classes_e* waypt_class_out)
   }
   garmin_fs_t::set_display(gmsd, display);
 
-  FREAD_i32;				/* color !not implemented! */
+  (void) FREAD_i32;				/* color !not implemented! */
   int icon = FREAD_i32;
   garmin_fs_t::set_icon(gmsd, icon);
   garmin_fs_t::set_city(gmsd, fread_cstr());
