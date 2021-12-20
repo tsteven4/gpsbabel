@@ -29,6 +29,7 @@ TEMPLATE = app
 # use GB variable to express ownership intention and
 # avoid conflict with documented and undocumented qmake variables
 GB.VERSION_COMPONENTS = $$split(VERSION, .)
+GB.VERSION = $${VERSION}
 GB.MAJOR = $$member(GB.VERSION_COMPONENTS, 0)
 GB.MINOR = $$member(GB.VERSION_COMPONENTS, 1)
 GB.MICRO = $$member(GB.VERSION_COMPONENTS, 2)

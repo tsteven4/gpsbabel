@@ -5,7 +5,7 @@
 # tested against MSVC 2017 which included 3.11.* 2018/07/05
 cmake_minimum_required(VERSION 3.5.1)
 
-project(gpsbabel LANGUAGES C CXX)
+project(gpsbabel LANGUAGES C CXX VERSION 1.7.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -26,6 +26,26 @@ if(${QT_VERSION_MAJOR} EQUAL "6")
   find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core5Compat REQUIRED)
   list(APPEND QT_LIBRARIES Qt${QT_VERSION_MAJOR}::Core5Compat)
 endif()
+
+# use GB variable to express ownership intention and
+# avoid conflict with documented and undocumented cmake variables
+set(GB.VERSION ${PROJECT_VERSION})
+set(GB.MAJOR ${PROJECT_VERSION_MAJOR})
+set(GB.MINOR ${PROJECT_VERSION_MINOR})
+set(GB.MICRO ${PROJECT_VERSION_PATCH})
+# Increase GB.BUILD for a new release (why? Where is this ever used?)
+# A: it's used by win32/gpsbabel.rc which includes gbversion.h
+set(GB.BUILD 31 CACHE STRING "fourth component of windows VERSIONINFO resource FILEVERSION and PRODUCTVERSION parameters")
+set(GB.PACKAGE_RELEASE "" CACHE STRING "string to append to VERSION tuple") # .e.g. "-beta20190413"
+
+# may be overwridden on cmake command line
+set(DOCVERSION ${PROJECT_VERSION} CACHE STRING "web server documentation URL version string (in WEB_DOC_DIR)")
+
+# may be overwridden on cmake command line
+set(WEB ../babelweb CACHE PATH "local file path for web server files")
+
+configure_file(gbversion.h.in gbversion.h @ONLY NEWLINE_STYLE LF)
+configure_file(gui/setup.iss.in gui/setup.iss @ONLY NEWLINE_STYLE CRLF)
 
 # MINIMAL_FMTS
 set(MINIMAL_FMTS
