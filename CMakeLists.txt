@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 
 project(gpsbabel LANGUAGES C CXX)
 
@@ -423,8 +423,9 @@ if(UNIX)
   add_custom_target(check cd ${CMAKE_SOURCE_DIR}\; PNAME=${CMAKE_BINARY_DIR}/gpsbabel ./testo DEPENDS gpsbabel)
 endif()
 
+file(GLOB STYLE LIST_DIRECTORIES false CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/style/*.style")
 find_package(PythonInterp 3.2 REQUIRED)
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/internal_styles.cc"
     COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/mkstyle.py"
     ARGS "${CMAKE_CURRENT_SOURCE_DIR}/style" "${CMAKE_CURRENT_BINARY_DIR}/internal_styles.cc"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/style" "${CMAKE_CURRENT_SOURCE_DIR}/style/*.style")
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/style" ${STYLE})
