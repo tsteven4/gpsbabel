@@ -108,7 +108,8 @@ Copy-Item "$($gui_build_dir)\release\GPSBabelFE.exe" "$($gui_build_dir)\package\
 & "$($windeployqt)" --verbose 1 --plugindir package\plugins package\GPSBabelFE.exe package\GPSBabel.exe
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 if ($buildinstaller -eq "true") {
-    & "$($iscc)" /Dpackage_dir="$($gui_build_dir)\package" setup.iss
+    Set-Location "$($gpsbabel_src_dir)\gui"
+    & "$($iscc)" /Dpackage_dir="$($gui_build_dir)\package" "$($gui_build_dir)\setup.iss"
     if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 }
 Set-Location "$($gpsbabel_src_dir)"
