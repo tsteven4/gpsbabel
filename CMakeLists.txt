@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(gpsbabel LANGUAGES C CXX)
+include(gpsbabel.cmake)
+configure_file(gbversion.h.in gbversion.h @ONLY NEWLINE_STYLE LF)
+project(gpsbabel LANGUAGES C CXX VERSION ${GB.VERSION})
+message(STATUS "version is ${PROJECT_VERSION}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
