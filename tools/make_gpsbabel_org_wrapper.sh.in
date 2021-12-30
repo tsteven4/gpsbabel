@@ -2,4 +2,4 @@
 set -e
 
 web=${WEB:-@WEB@}
-@CMAKE_SOURCE_DIR@/tools/make_gpsbabel_org.sh "${web}" "@DOCVERSION@"
+"@CMAKE_SOURCE_DIR@/tools/make_gpsbabel_org.sh" "${web}" "@DOCVERSION@"
