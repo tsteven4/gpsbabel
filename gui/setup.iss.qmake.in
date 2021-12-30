@@ -35,7 +35,7 @@ OutputManifestFile=GPSBabel-$${GB.VERSION}$${GB.PACKAGE_RELEASE}-Manifest.txt
 SetupIconFile=images\\babel2.ico
 Compression=lzma
 SolidCompression=yes
-SourceDir=\"${#source_dir}\"
+SourceDir=\"{#source_dir}\"
 LicenseFile=COPYING.txt
 
 [Languages]

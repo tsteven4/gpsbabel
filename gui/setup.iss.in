@@ -10,6 +10,9 @@
 #ifndef package_dir
   #define package_dir "..\build-app-Desktop-Release\package"
 #endif
+#ifndef source_dir
+  #define source_dir .
+#endif
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -32,6 +35,7 @@ OutputManifestFile=GPSBabel-@GB.VERSION@@GB.PACKAGE_RELEASE@-Manifest.txt
 SetupIconFile=images\babel2.ico
 Compression=lzma
 SolidCompression=yes
+SourceDir="{#source_dir}"
 LicenseFile=COPYING.txt
 
 [Languages]
