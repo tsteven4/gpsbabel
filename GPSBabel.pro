@@ -16,10 +16,11 @@ if(equals(QT_MAJOR_VERSION, $$MIN_QT_VERSION_MAJOR):equals(QT_MINOR_VERSION, $$M
 QT -= gui
 versionAtLeast(QT_VERSION, 6.0): QT += core5compat
 
-# set VERSION, DOCVERSION and generate local config files
-include(gpsbabel.pri)
+# set VERSION related variables and generate gbversion.h
+include(gbversion.pri)
 
 TARGET = gpsbabel
+VERSION = $$GB.VERSION
 
 CONFIG += console
 CONFIG -= app_bundle
@@ -27,11 +28,6 @@ CONFIG += c++17
 CONFIG += link_pkgconfig
 
 TEMPLATE = app
-
-# may be overridden on qmake command line
-!defined(WEB, var) {
-WEB = ../babelweb
-}
 
 # RESOURCES
 RESOURCES = gpsbabel.qrc
@@ -398,9 +394,14 @@ QMAKE_EXTRA_TARGETS += cppcheck
 
 gpsbabel.org.depends = gpsbabel gpsbabel.pdf FORCE
 equals(PWD, $${OUT_PWD}) {
+  # may be overridden on qmake command line
+  !defined(WEB, var) {
+    WEB = ../babelweb
+  }
+  # Allow WEB to be overridden when running make.
+  # DOCVERSION must be overridden at qmake time as it also affects the object code.
   gpsbabel.org.commands += web=\$\${WEB:-$${WEB}};
-  gpsbabel.org.commands += docversion=\$\${DOCVERSION:-$${DOCVERSION}};
-  gpsbabel.org.commands += tools/make_gpsbabel_org.sh \"\$\${web}\" \"\$\${docversion}\";
+  gpsbabel.org.commands += tools/make_gpsbabel_org.sh \"\$\${web}\" $$shell_quote($$DOCVERSION);
 } else {
   gpsbabel.org.commands += echo "target gpsbabel.org is not supported for out of source builds.";
   gpsbabel.org.commands += exit 1;

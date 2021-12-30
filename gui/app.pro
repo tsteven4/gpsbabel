@@ -1,12 +1,14 @@
 # $Id: app.pro,v 1.19 2010-11-01 03:30:42 robertl Exp $
 #
 
-# set VERSION, and generate local config files
-include(../gpsbabel.pri)
+# set VERSION related variables and generate gbversion.h
+include(../gbversion.pri)
 
 GB.setupfile.input = setup.iss.qmake.in
 GB.setupfile.output = setup.iss
 QMAKE_SUBSTITUTES += GB.setupfile
+
+VERSION = $$GB.VERSION
 
 #CONFIG += qt causes link failure on msvc.  Qt6EntryPoint.lib not added to libs.
 CONFIG(debug, debug|release) {
