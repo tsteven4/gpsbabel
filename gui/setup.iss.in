@@ -11,7 +11,7 @@
   #define package_dir "..\build-app-Desktop-Release\package"
 #endif
 #ifndef source_dir
-  #define source_dir .
+  #define source_dir "."
 #endif
 
 [Setup]
