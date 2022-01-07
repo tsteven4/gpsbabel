@@ -518,22 +518,23 @@ if(UNIX AND NOT APPLE)
                     VERBATIM)
 endif()
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-  set(WEB "../babelweb" CACHE PATH "Path where the documentation will be stored for www.gpsbabel.org.")
+if(UNIX)
   add_custom_target(gpsbabel.org
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_org.sh ${WEB} ${DOCVERSION}
+                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_org.sh gpsbabel.org ${DOCVERSION} ${CMAKE_SOURCE_DIR}
                     DEPENDS gpsbabel gpsbabel.pdf
                     VERBATIM)
 endif()
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+if(UNIX)
   add_custom_target(gpsbabel.html
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_html.sh
-                    DEPENDS gpsbabel)
+                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_html.sh ${CMAKE_SOURCE_DIR}
+                    DEPENDS gpsbabel
+                    VERBATIM)
 endif()
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+if(UNIX)
   add_custom_target(gpsbabel.pdf
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_pdf.sh
-                    DEPENDS gpsbabel)
+                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_pdf.sh ${CMAKE_SOURCE_DIR}
+                    DEPENDS gpsbabel
+                    VERBATIM)
 endif()

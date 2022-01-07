@@ -89,8 +89,13 @@ sub includef {
 
 
 
-$dir = $0;
-$dir =~ s:/.*$::;
+if ($#ARGV < 0) {
+   $dir = $0;
+   $dir =~ s:/.*$::;
+}
+else {
+   $dir = $ARGV[0];
+}
 
 @agdir=`mkdir -p $dir/autogen`;
 open PARTS, ">$dir/autogen/_parts.xml";

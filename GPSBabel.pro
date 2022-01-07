@@ -392,16 +392,7 @@ cppcheck.commands = cppcheck --enable=all --force --config-exclude=zlib --config
 QMAKE_EXTRA_TARGETS += cppcheck
 
 gpsbabel.org.depends = gpsbabel gpsbabel.pdf FORCE
-equals(PWD, $${OUT_PWD}) {
-  # may be overridden on qmake command line
-  !defined(WEB, var) {
-    WEB = ../babelweb
-  }
-  gpsbabel.org.commands += tools/make_gpsbabel_org.sh $$shell_quote($$WEB) $$shell_quote($$DOCVERSION);
-} else {
-  gpsbabel.org.commands += echo "target gpsbabel.org is not supported for out of source builds.";
-  gpsbabel.org.commands += exit 1;
-}
+gpsbabel.org.commands += $${PWD}/tools/make_gpsbabel_org.sh gpsbabel.org $$shell_quote($$DOCVERSION) $${PWD};
 QMAKE_EXTRA_TARGETS += gpsbabel.org
 
 #
@@ -425,21 +416,11 @@ QMAKE_EXTRA_TARGETS += gpsbabel.org
 #
 
 gpsbabel.html.depends = gpsbabel FORCE
-equals(PWD, $${OUT_PWD}) {
-  gpsbabel.html.commands += tools/make_gpsbabel_html.sh
-} else {
-  gpsbabel.html.commands += echo "target gpsbabel.html is not supported for out of source builds.";
-  gpsbabel.html.commands += exit 1;
-}
+gpsbabel.html.commands += $${PWD}/tools/make_gpsbabel_html.sh $${PWD}
 QMAKE_EXTRA_TARGETS += gpsbabel.html
 
 gpsbabel.pdf.depends = gpsbabel FORCE
-equals(PWD, $${OUT_PWD}) {
-  gpsbabel.pdf.commands += tools/make_gpsbabel_pdf.sh
-} else {
-  gpsbabel.pdf.commands += echo "target gpsbabel.pdf is not supported for out of source builds.";
-  gpsbabel.pdf.commands += exit 1;
-}
+gpsbabel.pdf.commands += $${PWD}/tools/make_gpsbabel_pdf.sh $${PWD}
 QMAKE_EXTRA_TARGETS += gpsbabel.pdf
 
 gui.depends = $(TARGET) FORCE

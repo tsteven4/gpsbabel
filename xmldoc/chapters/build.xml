@@ -261,16 +261,6 @@ www.gpsbabel.org.
 </para>
           </listitem>
         </varlistentry>
-        <varlistentry>
-          <term>WEB=DIR</term>
-          <listitem>
-            <para>
-Path where the documentation will be stored for www.gpsbabel.org.  This is
-used by the gpsbabel.org target, you are unlikely to need it unless you are
-maintaining www.gpsbabel.org.  The default location is "../babelweb"
-</para>
-          </listitem>
-        </varlistentry>
       </variablelist>
       <para>
 Additional makefile targets are available for special purposes.

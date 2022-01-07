@@ -43,11 +43,6 @@ DOCVERSION=...
   target, you are unlikely to need it unless you are maintaining
   www.gpsbabel.org.
 
-WEB=DIR
-  Path where the documentation will be stored for www.gpsbabel.org.  This is
-  used by the gpsbabel.org target, you are unlikely to need it unless you are
-  maintaining www.gpsbabel.org.  The default location is "../babelweb"
-
 Make targets:
 
 check: Run the basic test suite.
