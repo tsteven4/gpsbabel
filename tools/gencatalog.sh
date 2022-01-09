@@ -7,6 +7,7 @@ fi
 sourcedir=$(realpath "$1")
 binarydir=$(pwd)
 
+mkdir -p xmldoc
 xmlcatalog --noout --create xmldoc/catalog.xml
 xmlcatalog --noout --add rewriteSystem "${sourcedir}/xmldoc/autogen/" "file://${binarydir}/xmldoc/autogen/" xmldoc/catalog.xml
 xmlcatalog --noout --add rewriteSystem "file://${binarydir}/xmldoc/formats/" "file://${sourcedir}/xmldoc/formats/" xmldoc/catalog.xml
