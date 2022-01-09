@@ -4,24 +4,43 @@ set -ex
 web=$1
 docversion=$2
 
+# Note that xmllint/xsltproc --path argument doesn't quite work because
+# we have both formats/arc.xml and filters/arc.xml and xmllint/xsltproc
+# can find the wrong one.
+
+# Note that  xmllint/xsltproc XML_CATALOG_FILE is problematic on macos
+# with macports or brew.  To avoid fetching from the internet we should
+# append the default catalog /etc/xml/catalog to XML_CATALOG_FILE.
+# However, on macos with macports or brew the default catalog is in
+# another location.
+
 if [ $# -eq 3 ]; then
-  # pwd is assumed to be a build directory
-  sourcedir=$3
-  autogendir=.
-  paths="autogen ${sourcedir}/xmldoc/formats ${sourcedir}/xmldoc/formats/options ${sourcedir}/xmldoc/filters ${sourcedir}/xmldoc/filters/options"
+  # pwd is assumed to be the build directory
+  # pwd may or may not be the source directory
+  sourcedir=$(realpath "$3")
+  if [ "$sourcedir" != "$(realpath "$(pwd)")" ]; then
+    "${sourcedir}/tools/gencatalog.sh" "${sourcedir}"
+    xmlpath=$(dirname "$(command -v xmllint)")
+    if [ "$xmlpath" = "/opt/local/bin" ]; then
+      defcatalog=/opt/local/etc/xml/catalog
+    elif [ "$xmlpath" = "/usr/local/bin" ]; then
+      defcatalog=/usr/local/etc/xml/catalog
+    else
+      defcatalog=/etc/xml/catalog
+    fi
+    export XML_CATALOG_FILES="xmldoc/catalog.xml  $defcatalog"
+  fi
 else
+  # pwd is assumed to be the build directory
   # pwd is assumed to be the source directory
   sourcedir=.
-  autogendir=xmldoc
-  paths=
 fi
 
 mkdir -p "${web}/htmldoc-${docversion}"
-perl "${sourcedir}/xmldoc/makedoc" "${autogendir}"
+perl "${sourcedir}/xmldoc/makedoc" xmldoc
 xmlwf "${sourcedir}/xmldoc/readme.xml" #check for well-formedness
-xmllint --noout --path "${paths}" --valid "${sourcedir}/xmldoc/readme.xml" #validate
+xmllint --noout --valid "${sourcedir}/xmldoc/readme.xml" #validate
 xsltproc \
-  --path "$paths" \
   --stringparam base.dir "${web}/htmldoc-${docversion}/" \
   --stringparam root.filename "index" \
   "${sourcedir}/xmldoc/babelmain.xsl" \
