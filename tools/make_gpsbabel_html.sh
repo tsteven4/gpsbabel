@@ -17,15 +17,19 @@ if [ $# -eq 1 ]; then
   sourcedir=$(realpath "$1")
   if [ "$sourcedir" != "$(realpath "$(pwd)")" ]; then
     "${sourcedir}/tools/gencatalog.sh" "${sourcedir}"
-    xmlpath=$(dirname "$(command -v xmllint)")
-    if [ "$xmlpath" = "/opt/local/bin" ]; then
-      defcatalog=/opt/local/etc/xml/catalog
-    elif [ "$xmlpath" = "/usr/local/bin" ]; then
-      defcatalog=/usr/local/etc/xml/catalog
+    if [ -n "${XML_CATALOG_FILES+1}" ]; then
+      export XML_CATALOG_FILES="xmldoc/catalog.xml $XML_CATALOG_FILES"
     else
-      defcatalog=/etc/xml/catalog
+      xmlpath=$(dirname "$(command -v xmllint)")
+      if [ "$xmlpath" = "/opt/local/bin" ]; then
+        defcatalog=/opt/local/etc/xml/catalog
+      elif [ "$xmlpath" = "/usr/local/bin" ]; then
+        defcatalog=/usr/local/etc/xml/catalog
+      else
+        defcatalog=/etc/xml/catalog
+      fi
+      export XML_CATALOG_FILES="xmldoc/catalog.xml $defcatalog"
     fi
-    export XML_CATALOG_FILES="xmldoc/catalog.xml  $defcatalog"
   fi
 else
   # pwd is assumed to be the build directory
