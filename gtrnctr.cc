@@ -34,6 +34,7 @@
 #include <cstdarg>               // for va_end, va_list, va_start
 #include <cstdio>                // for snprintf
 #include <cstdlib>               // for atoi
+#include <iterator>              // for size
 #include <optional>              // for optional
 #include <type_traits>           // for add_const<>::type
 
@@ -77,7 +78,7 @@ GtrnctrFormat::wr_init(const QString& fname)
   ofd = gbfopen(fname, "w", MYNAME);
 
   if (opt_sport) {
-    for (int i = 0; i < kMaxSports; i++) {
+    for (unsigned int i = 0; i < std::size(gtc_sportlist); i++) {
       if (0 == case_ignore_strncmp(opt_sport, gtc_sportlist[i], 2)) {
         gtc_sport = i;
         break;

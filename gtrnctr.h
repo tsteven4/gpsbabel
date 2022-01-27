@@ -81,7 +81,7 @@ private:
   /* Constants */
 
   static constexpr int kGtcMaxNameLen = 15;
-  static constexpr int kMaxSports = 4;
+  static constexpr const char* gtc_sportlist[] = { "Biking", "Running", "MultiSport", "Other" };
 
   /* Member Functions */
 
@@ -130,8 +130,7 @@ private:
   Waypoint* wpt_tmp{};
   route_head* trk_head{};
 
-  static constexpr char gtc_sportlist[kMaxSports][16] = { "Biking", "Running", "MultiSport", "Other" };
-  int gtc_sport = 0;
+  unsigned int gtc_sport = 0;
   int gtc_course_flag{};
 
   gpsbabel::DateTime gtc_least_time;
