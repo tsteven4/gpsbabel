@@ -28,7 +28,6 @@
 #include <QVector>          // for QVector
 
 #include "defs.h"           // for arglist_t, ARG_NOMINMAX, Waypoint, ARGTYPE_INT, CET_CHARSET_ASCII, FF_CAP_RW_ALL, ff_cap, ff_type, ARGTYPE_BOOL, ARGTYPE_STRING, ff_type_file, route_head, ff_type_serial, gpsdata_type, short_handle
-#include "explorist_ini.h"  // for mag_info
 #include "format.h"         // for Format
 #include "gbfile.h"         // for gbfile
 #include "inifile.h"        // for inifile_t

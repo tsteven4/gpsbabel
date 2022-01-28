@@ -48,7 +48,6 @@
 #include <type_traits>               // for add_const<>::type
 
 #include "defs.h"                    // for Waypoint, fatal, xasprintf, warning, xfree, global_options, global_opts, route_head, ddmm2degrees, gstrsub, setshort_length, xmalloc, xstrdup, CSTRc, current_time, get_cache_icon, get_filename, mkshort_new_handle, setshort_mustupper, setshort_whitespac...
-#include "explorist_ini.h"           // for explorist_ini_done, explorist_ini_get, mag_info
 #include "format.h"                  // for Format
 #include "gbfile.h"                  // for gbfclose, gbfeof, gbfgets, gbfopen, gbfwrite
 #include "gbser.h"                   // for gbser_deinit, gbser_init, gbser_is_serial, gbser_read_line, gbser_set_port, gbser_write, gbser_OK
