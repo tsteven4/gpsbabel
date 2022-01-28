@@ -39,6 +39,7 @@
 #include "kml.h"
 #include "legacyformat.h"
 #include "lowranceusr.h"
+#include "magproto.h"
 #include "mynav.h"
 #include "nmea.h"
 #include "osm.h"
@@ -50,9 +51,6 @@
 #include "xcsv.h"
 
 extern ff_vecs_t geo_vecs;
-extern ff_vecs_t mag_svecs;
-extern ff_vecs_t mag_fvecs;
-extern ff_vecs_t magX_fvecs;
 extern ff_vecs_t garmin_vecs;
 extern ff_vecs_t gdb_vecs;
 extern ff_vecs_t ozi_vecs;
@@ -232,9 +230,9 @@ private:
 #endif // CSVFMTS_ENABLED
   LegacyFormat geo_fmt {geo_vecs};
   GpxFormat gpx_fmt;
-  LegacyFormat mag_sfmt {mag_svecs};
-  LegacyFormat mag_ffmt {mag_fvecs};
-  LegacyFormat magX_ffmt {magX_fvecs};
+  MagprotoSerialFormat mag_sfmt;
+  MagprotoFileFormat mag_ffmt;
+  MagprotoXFileFormat magX_ffmt;
   LegacyFormat garmin_fmt {garmin_vecs};
   LegacyFormat gdb_fmt {gdb_vecs};
   NmeaFormat nmea_fmt;

@@ -20,229 +20,53 @@
 
  */
 
-#include <cassert>                 // for assert
-#include <cctype>                  // for isprint, toupper
-#include <cmath>                   // for fabs, lround
-#include <cstdio>                  // for sscanf, size_t
-#include <cstdlib>                 // for atoi, atof, strtoul
-#include <cstring>                 // for strchr, strncmp, strlen, memmove, strrchr, memset
+#include "magproto.h"
 
-#include <QByteArray>              // for QByteArray
-#include <QDateTime>               // for QDateTime
-#include <QDir>                    // for QDir, operator|, QDir::Files, QDir::Name, QDir::Readable
-#include <QFileInfo>               // for QFileInfo
-#include <QFileInfoList>           // for QFileInfoList
-#include <QLatin1String>           // for QLatin1String
-#include <QList>                   // for QList
-#include <QScopedPointer>          // for QScopedPointer
-#include <QString>                 // for QString, operator==
-#include <QStringList>             // for QStringList
-#include <QTime>                   // for QTime
-#include <QVector>                 // for QVector
-#include <Qt>                      // for CaseInsensitive
-#include <QtGlobal>                // for qPrintable, foreach
+#include <QByteArray>                // for QByteArray
+#include <QDate>                     // for QDate
+#include <QDateTime>                 // for QDateTime
+#include <QDir>                      // for QDir, operator|, QDir::Files, QDir::Name, QDir::Readable
+#include <QFileInfo>                 // for QFileInfo
+#include <QFileInfoList>             // for QFileInfoList
+#include <QLatin1String>             // for QLatin1String
+#include <QList>                     // for QList
+#include <QScopedPointer>            // for QScopedPointer
+#include <QScopedPointerPodDeleter>  // for QScopedPointerPodDeleter
+#include <QString>                   // for QString, operator+, operator==
+#include <QStringList>               // for QStringList
+#include <QTime>                     // for QTime
+#include <Qt>                        // for CaseInsensitive, UTC
+#include <QtGlobal>                  // for qAsConst, qPrintable, foreach
+#include <cassert>                   // for assert
+#include <cctype>                    // for isprint, toupper
+#include <cmath>                     // for fabs, lround
+#include <cstdio>                    // for sscanf, size_t
+#include <cstdlib>                   // for atoi, atof, strtoul
+#include <cstring>                   // for strchr, strncmp, strlen, memmove, strrchr, memset
+#include <ctime>                     // for time_t, tm
+#include <type_traits>               // for add_const<>::type
 
-#include "defs.h"
-#include "explorist_ini.h"         // for explorist_ini_done, explorist_ini_get, mag_info
-#include "format.h"                // for Format
-#include "gbfile.h"                // for gbfclose, gbfeof, gbfgets, gbfopen, gbfwrite, gbfile
-#include "gbser.h"                 // for gbser_deinit, gbser_init, gbser_is_serial, gbser_read_line, gbser_set_port, gbser_write, gbser_OK
-#include "magellan.h"              // for mm_meridian, mm_sportrak, magellan_icon_mapping_t, mm_gps315320, mm_unknown, mm_map330, mm_map410, pid_to_model_t, mm_gps310, m330_cleanse, mag_checksum, mag_find_descr_from_token, mag_find_token_from_descr, mag_rteparse, mag_trkparse
-#include "src/core/datetime.h"     // for DateTime
-#include "vecs.h"                  // for Vecs
+#include "defs.h"                    // for Waypoint, fatal, warning, xasprintf, global_options, global_opts, route_head, ddmm2degrees, setshort_length, CSTRc, current_time, get_cache_icon, get_filename, mkshort_new_handle, setshort_mustupper, setshort_whitespace_ok, waypt_add, xfree, xmalloc
+#include "explorist_ini.h"           // for explorist_ini_done, explorist_ini_get, mag_info
+#include "format.h"                  // for Format
+#include "gbfile.h"                  // for gbfclose, gbfeof, gbfgets, gbfopen, gbfwrite
+#include "gbser.h"                   // for gbser_deinit, gbser_init, gbser_is_serial, gbser_read_line, gbser_set_port, gbser_write, gbser_OK
+#include "src/core/datetime.h"       // for DateTime
+#include "vecs.h"                    // for Vecs
 
 
-static int bitrate = 4800;
-static int wptcmtcnt;
-static int wptcmtcnt_max;
-static int explorist;
-static int broken_sportrak;
 #define MYNAME "MAGPROTO"
 #define MAXCMTCT 200
 
 #define debug_serial  (global_opts.debug_level > 1)
-
-static QString termread(char* ibuf, int size);
-static void termwrite(const char* obuf, int size);
-static void mag_readmsg(gpsdata_type objective);
-static void mag_handon();
-static void mag_handoff();
-static short_handle mkshort_handle = nullptr;
-static char* deficon = nullptr;
-static char* bs = nullptr;
-static char* cmts = nullptr;
-static char* noack = nullptr;
-static char* nukewpt = nullptr;
-static int route_out_count;
-static int waypoint_read_count;
-static int wpt_len = 8;
-static QString curfname;
-static int extension_hint;
-// For Explorist GC/510/610/710 families, bludgeon in GPX support.
-// (This has nothing to do with the Explorist 100...600 products.)
-static Format* gpx_vec;
-static mag_info* explorist_info;
-static QStringList os_gpx_files(const char* dirname);
-
-/*
- * Magellan's firmware is *horribly* slow to send the next packet after
- * we turn around an ack while we are reading from the device.  It's
- * quite spiffy when we're writing to the device.   Since we're *way*
- * less likely to lose data while reading from it than it is to lose data
- * when we write to it, we turn off the acks when we are predominantly
- * reading.
- */
-static int suppress_ack;
-
-enum mag_rxstate {
-  mrs_handoff = 0,
-  mrs_handon,
-  mrs_awaiting_ack
-};
-
-/*
- *   An individual element of a route.
- */
-struct mag_rte_elem {
-  QString wpt_name;
-  QString wpt_icon;
-};
-
-/*
- *  A header of a route.  Related elements of a route belong to this.
- */
-struct mag_rte_head_t {
-  QList<mag_rte_elem*> elem_list; /* list of child rte_elems */
-  char* rte_name{nullptr};
-  int nelems{0};
-};
-
-static QList<Waypoint*> rte_wpt_tmp; /* temporary PGMNWPL msgs for routes */
-
-static gbfile* magfile_h;
-static mag_rxstate magrxstate;
-static int mag_error;
-static unsigned int last_rx_csum;
-static int found_done;
-static int got_version;
-static int is_file = 0;
-static route_head* trk_head;
-static int ignore_unable;
-
-static Waypoint* mag_wptparse(char*);
-using cleanse_fn = QString (const char*);
-static cleanse_fn* mag_cleanse;
-static const char** os_get_magellan_mountpoints();
-
-static const magellan_icon_mapping_t gps315_icon_table[] = {
-  { "a", "filled circle" },
-  { "b", "box" },
-  { "c", "red buoy" },
-  { "d", "green buoy" },
-  { "e", "buoy" },
-  { "f", "rocks" },
-  { "g", "red daymark" },
-  { "h", "green daymark" },
-  { "i", "bell" },
-  { "j", "danger" },
-  { "k", "diver down" },
-  { "l", "fish" },
-  { "m", "house" },
-  { "n", "mark" },
-  { "o", "car" },
-  { "p", "tent" },
-  { "q", "boat" },
-  { "r", "food" },
-  { "s", "fuel" },
-  { "t", "tree" },
-  { nullptr, nullptr }
-};
-
-static const magellan_icon_mapping_t map330_icon_table[] = {
-  { "a", "crossed square" },
-  { "b", "box" },
-  { "c", "house" },
-  { "d", "aerial" },
-  { "e", "airport" },
-  { "f", "amusement park" },
-  { "g", "ATM" },
-  { "g", "Bank" },
-  { "h", "auto repair" },
-  { "i", "boating" },
-  { "j", "camping" },
-  { "k", "exit ramp" },
-  { "l", "first aid" },
-  { "m", "nav aid" },
-  { "n", "buoy" },
-  { "o", "fuel" },
-  { "p", "garden" },
-  { "q", "golf" },
-  { "r", "hotel" },
-  { "s", "hunting/fishing" },
-  { "t", "large city" },
-  { "u", "lighthouse" },
-  { "v", "major city" },
-  { "w", "marina" },
-  { "x", "medium city" },
-  { "y", "museum" },
-  { "z", "obstruction" },
-  { "aa", "park" },
-  { "ab", "resort" },
-  { "ac", "restaurant" },
-  { "ad", "rock" },
-  { "ae", "scuba" },
-  { "af", "RV service" },
-  { "ag", "shooting" },
-  { "ah", "sight seeing" },
-  { "ai", "small city" },
-  { "aj", "sounding" },
-  { "ak", "sports arena" },
-  { "al", "tourist info" },
-  { "am", "truck service" },
-  { "an", "winery" },
-  { "ao", "wreck" },
-  { "ap", "zoo" },
-  { "ah", "Virtual cache"}, 	/* Binos: because you "see" them. */
-  { "ak", "Micro-Cache" },	/* Looks like a film canister. */
-  { "an", "Multi-Cache"}, 	/* Winery: grapes 'coz they "bunch" */
-  { "s",  "Unknown Cache"}, 	/* 'Surprise' cache: use a target. */
-  { "ac",  "Event Cache"}, 	/* Event caches.  May be food. */
-  { nullptr, nullptr }
-};
-
-pid_to_model_t pid_to_model[] = {
-  { mm_gps315320, 19, "ColorTrak" },
-  { mm_gps315320, 24, "GPS 315/320" },
-  { mm_map410, 25, "Map 410" },
-  { mm_map330, 30, "Map 330" },
-  { mm_gps310, 31, "GPS 310" },
-  { mm_meridian, 33, "Meridian" },
-  { mm_meridian, 35, "ProMark 2" },
-  { mm_sportrak, 36, "SporTrak Map/Pro" },
-  { mm_sportrak, 37, "SporTrak" },
-  { mm_meridian, 38, "FX324 Plotter" },
-  { mm_meridian, 39, "Meridian Color" },
-  { mm_meridian, 40, "FX324C Plotter" },
-  { mm_sportrak, 41, "Sportrak Color" },
-  { mm_sportrak, 42, "Sportrak Marine" },
-  { mm_meridian, 43, "Meridian Marine" },
-  { mm_sportrak, 44, "Sportrak Topo" },
-  { mm_sportrak, 45, "Mystic" },
-  { mm_meridian, 46, "MobileMapper" },
-  { mm_meridian, 110, "Explorist 100" },
-  { mm_meridian, 111, "Explorist 200" },
-  { mm_unknown, 0, nullptr }
-};
-
-static const magellan_icon_mapping_t* icon_mapping = map330_icon_table;
 
 /*
  *   For each receiver type, return a "cleansed" version of the string
  *   that's valid for a waypoint name or comment.   The string should be
  *   freed when you're done with it.
  */
-static QString
-m315_cleanse(const char* istring)
+QString
+MagprotoBase::m315_cleanse(const char* istring)
 {
   char* rstring = (char*) xmalloc(strlen(istring)+1);
   char* o;
@@ -263,8 +87,9 @@ m315_cleanse(const char* istring)
 /*
  * Do same for 330, Meridian, and SportTrak.
  */
+// FIXME
 QString
-m330_cleanse(const char* istring)
+MagprotoBase::m330_cleanse(const char* istring)
 {
   static char m330_valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
                                    "abcdefghijklmnopqrstuvwxyz"
@@ -288,8 +113,9 @@ m330_cleanse(const char* istring)
  * Given a protocol message, compute the checksum as needed by
  * the Magellan protocol.
  */
+// FIXME
 unsigned int
-mag_checksum(const char* const buf)
+MagprotoBase::mag_checksum(const char* const buf)
 {
   int csum = 0;
 
@@ -299,8 +125,8 @@ mag_checksum(const char* const buf)
 
   return csum;
 }
-static unsigned int
-mag_pchecksum(const char* const buf, int len)
+unsigned int
+MagprotoBase::mag_pchecksum(const char* const buf, int len)
 {
   int csum = 0;
   const char* p = buf;
@@ -310,8 +136,8 @@ mag_pchecksum(const char* const buf, int len)
   return csum;
 }
 
-static void
-mag_writemsg(const char* const buf)
+void
+MagprotoBase::mag_writemsg(const char* const buf)
 {
   unsigned int osum = mag_checksum(buf);
   int retry_cnt = 5;
@@ -344,8 +170,8 @@ retry:
   }
 }
 
-static void
-mag_writeack(int osum)
+void
+MagprotoBase::mag_writeack(int osum)
 {
   QScopedPointer<char, QScopedPointerPodDeleter> nbuf;
   QScopedPointer<char, QScopedPointerPodDeleter> obuf;
@@ -368,8 +194,8 @@ mag_writeack(int osum)
   termwrite(obuf.data(), i);
 }
 
-static void
-mag_handon()
+void
+MagprotoBase::mag_handon()
 {
   if (!is_file) {
     mag_writemsg("PMGNCMD,HANDON");
@@ -378,8 +204,8 @@ mag_handon()
 
 }
 
-static void
-mag_handoff()
+void
+MagprotoBase::mag_handoff()
 {
   if (!is_file) {
     mag_writemsg("PMGNCMD,HANDOFF");
@@ -387,12 +213,12 @@ mag_handoff()
   magrxstate = mrs_handoff;
 }
 
-static void
-mag_verparse(char* ibuf)
+void
+MagprotoBase::mag_verparse(char* ibuf)
 {
   int prodid = mm_unknown;
   char version[1024];
-  pid_to_model_t* pp = pid_to_model;
+  const pid_to_model_t* pp = pid_to_model;
 
   got_version = 1;
   sscanf(ibuf,"$PMGNVER,%d,%[^,]", &prodid, version);
@@ -430,8 +256,8 @@ mag_verparse(char* ibuf)
 
 #define IS_TKN(x) (strncmp(ibuf,x, sizeof(x)-1) == 0)
 
-static void
-mag_readmsg(gpsdata_type objective)
+void
+MagprotoBase::mag_readmsg(gpsdata_type objective)
 {
   char ibuf[512];	/* oliskoli: corrupted data (I've seen descr with a lot
 				     of escaped FFFFFFFF) may need more size  */
@@ -573,10 +399,8 @@ retry:
   }
 }
 
-static void* serial_handle = nullptr;
-
-static int
-terminit(const QString& portname, int create_ok)
+int
+MagprotoBase::terminit(const QString& portname, int create_ok)
 {
   if (gbser_is_serial(qPrintable(portname))) {
     if (serial_handle = gbser_init(qPrintable(portname)), nullptr != serial_handle) {
@@ -601,7 +425,7 @@ terminit(const QString& portname, int create_ok)
   }
 }
 
-static QString termread(char* ibuf, int size)
+QString MagprotoBase::termread(char* ibuf, int size)
 {
   if (is_file) {
     return gbfgets(ibuf, size, magfile_h);
@@ -624,9 +448,8 @@ static QString termread(char* ibuf, int size)
  * The buffer is modified in place and shortened by copying the remaining
  * string including the terminator.
  */
-static
 void
-mag_dequote(char* ibuf)
+MagprotoBase::mag_dequote(char* ibuf)
 {
   char* esc = nullptr;
 
@@ -657,8 +480,8 @@ mag_dequote(char* ibuf)
   }
 }
 
-static void
-termwrite(const char* obuf, int size)
+void
+MagprotoBase::termwrite(const char* obuf, int size)
 {
   if (is_file) {
     size_t nw;
@@ -673,7 +496,7 @@ termwrite(const char* obuf, int size)
   }
 }
 
-static void termdeinit()
+void MagprotoBase::termdeinit()
 {
   if (is_file) {
     gbfclose(magfile_h);
@@ -685,49 +508,10 @@ static void termdeinit()
 }
 
 /*
- *  Arg tables are doubled up so that -? can output appropriate help
- */
-static
-QVector<arglist_t> mag_sargs = {
-  {
-    "deficon", &deficon, "Default icon name", nullptr, ARGTYPE_STRING,
-    ARG_NOMINMAX, nullptr
-  },
-  {
-    "maxcmts", &cmts, "Max number of comments to write (maxcmts=200)",
-    "200", ARGTYPE_INT, ARG_NOMINMAX, nullptr
-  },
-  {
-    "baud", &bs, "Numeric value of bitrate (baud=4800)", "4800",
-    ARGTYPE_INT, ARG_NOMINMAX, nullptr
-  },
-  {
-    "noack", &noack, "Suppress use of handshaking in name of speed",
-    nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
-  },
-  {
-    "nukewpt", &nukewpt, "Delete all waypoints", nullptr, ARGTYPE_BOOL,
-    ARG_NOMINMAX, nullptr
-  },
-};
-
-static
-QVector<arglist_t> mag_fargs = {
-  {
-    "deficon", &deficon, "Default icon name", nullptr, ARGTYPE_STRING,
-    ARG_NOMINMAX, nullptr
-  },
-  {
-    "maxcmts", &cmts, "Max number of comments to write (maxcmts=200)",
-    nullptr, ARGTYPE_INT, ARG_NOMINMAX, nullptr
-  },
-};
-
-/*
  * The part of the serial init that's common to read and write.
  */
-static void
-mag_serial_init_common(const QString& portname)
+void
+MagprotoBase::mag_serial_init_common(const QString& portname)
 {
   if (is_file) {
     return;
@@ -776,8 +560,9 @@ mag_serial_init_common(const QString& portname)
   }
 
 }
-static void
-mag_rd_init_common(const QString& portname)
+
+void
+MagprotoBase::mag_rd_init_common(const QString& portname)
 {
   waypoint_read_count = 0;
   // For Explorist GC, intercept the device access and redirect to GPX.
@@ -830,23 +615,23 @@ mag_rd_init_common(const QString& portname)
 
 }
 
-static void
-mag_rd_init(const QString& portname)
+void
+MagprotoBase::mag_rd_init(const QString& portname)
 {
   explorist = 0;
   suppress_ack = 1;
   mag_rd_init_common(portname);
 }
 
-static void
-magX_rd_init(const QString& portname)
+void
+MagprotoXFileFormat::rd_init(const QString& portname)
 {
   explorist = 1;
   mag_rd_init_common(portname);
 }
 
-static void
-mag_wr_init_common(const QString& portname)
+void
+MagprotoBase::mag_wr_init_common(const QString& portname)
 {
   suppress_ack = 0;
   if (bs) {
@@ -876,8 +661,8 @@ mag_wr_init_common(const QString& portname)
 /*
  * Entry point for extended (explorist) points.
  */
-static void
-magX_wr_init(const QString& portname)
+void
+MagprotoXFileFormat::wr_init(const QString& portname)
 {
   wpt_len = 20;
   explorist = 1;
@@ -886,8 +671,8 @@ magX_wr_init(const QString& portname)
   setshort_whitespace_ok(mkshort_handle, 1);
 }
 
-static void
-mag_wr_init(const QString& portname)
+void
+MagprotoBase::mag_wr_init(const QString& portname)
 {
   explorist = 0;
   wpt_len = 8;
@@ -900,8 +685,8 @@ mag_wr_init(const QString& portname)
   setshort_whitespace_ok(mkshort_handle, 0);
 }
 
-static void
-mag_deinit()
+void
+MagprotoBase::mag_deinit()
 {
   if (explorist_info) {
     explorist_ini_done(explorist_info);
@@ -922,8 +707,8 @@ mag_deinit()
   curfname.clear();
 }
 
-static void
-mag_wr_deinit()
+void
+MagprotoBase::mag_wr_deinit()
 {
   if (explorist) {
     mag_writemsg("PMGNCMD,END");
@@ -940,9 +725,7 @@ mag_wr_deinit()
  * size is icky.  We don't have to solve the general case here...
  */
 
-static char ifield[20][100];
-static
-void parse_istring(char* istring)
+void MagprotoBase::parse_istring(char* istring)
 {
   int f = 0;
   int n;
@@ -967,8 +750,9 @@ void parse_istring(char* istring)
  * $PMGNTRK,3605.259,N,08644.389,W,00151,M,201444.61,A,,020302*66
  * create and return a populated waypoint.
  */
+// FIXME
 Waypoint*
-mag_trkparse(char* trkmsg)
+MagprotoBase::mag_trkparse(char* trkmsg)
 {
   int hms;
   int fracsecs;
@@ -1029,8 +813,9 @@ mag_trkparse(char* trkmsg)
  * $PMGNRTE,4,1,c,1,DAD,a,Anna,a*61
  * generate a route.
  */
+// FIXME
 void
-mag_rteparse(char* rtemsg)
+MagprotoBase::mag_rteparse(char* rtemsg)
 {
   int n;
   int frags,frag,rtenum;
@@ -1156,8 +941,9 @@ mag_rteparse(char* rtemsg)
   }
 }
 
+// FIXME
 QString
-mag_find_descr_from_token(const char* token)
+MagprotoBase::mag_find_descr_from_token(const char* token)
 {
   if (icon_mapping == nullptr) {
     return "unknown";
@@ -1174,8 +960,9 @@ mag_find_descr_from_token(const char* token)
   return icon_mapping[0].icon;
 }
 
+// FIXME
 QString
-mag_find_token_from_descr(const QString& icon)
+MagprotoBase::mag_find_token_from_descr(const QString& icon)
 {
   const magellan_icon_mapping_t* i = icon_mapping;
 
@@ -1196,8 +983,8 @@ mag_find_token_from_descr(const QString& icon)
  * $PMGNWPL,3549.499,N,08650.827,W,0000257,M,HOME,HOME,c*4D
  * create and return a populated waypoint.
  */
-static Waypoint*
-mag_wptparse(char* trkmsg)
+Waypoint*
+MagprotoBase::mag_wptparse(char* trkmsg)
 {
   double latdeg, lngdeg;
   char latdir;
@@ -1246,8 +1033,8 @@ mag_wptparse(char* trkmsg)
   return waypt;
 }
 
-static void
-mag_read()
+void
+MagprotoBase::mag_read()
 {
   if (gpx_vec) {
     QStringList f = os_gpx_files(explorist_info->track_path);
@@ -1330,9 +1117,8 @@ mag_read()
   }
 }
 
-static
 void
-mag_waypt_pr(const Waypoint* waypointp)
+MagprotoBase::mag_waypt_pr(const Waypoint* waypointp)
 {
   QScopedPointer<char, QScopedPointerPodDeleter> obuf;
   QScopedPointer<char, QScopedPointerPodDeleter> ofmtdesc;
@@ -1406,8 +1192,7 @@ mag_waypt_pr(const Waypoint* waypointp)
   }
 }
 
-static
-void mag_track_disp(const Waypoint* waypointp)
+void MagprotoBase::mag_track_disp(const Waypoint* waypointp)
 {
   QScopedPointer<char, QScopedPointerPodDeleter> obuf;
 
@@ -1447,10 +1232,12 @@ void mag_track_disp(const Waypoint* waypointp)
   mag_writemsg(obuf.data());
 }
 
-static
-void mag_track_pr()
+void MagprotoBase::mag_track_pr()
 {
-  track_disp_all(nullptr, nullptr, mag_track_disp);
+  auto mag_track_disp_lambda = [this](const Waypoint* waypointp)->void {
+    mag_track_disp(waypointp);
+  };
+  track_disp_all(nullptr, nullptr, mag_track_disp_lambda);
 }
 
 /*
@@ -1466,8 +1253,8 @@ The spec also says that some units don't like single-legged pairs,
 and to replace the 2nd name with "<<>>", but I haven't seen one of those.
 */
 
-static void
-mag_route_trl(const route_head* rte)
+void
+MagprotoBase::mag_route_trl(const route_head* rte)
 {
   QScopedPointer<char, QScopedPointerPodDeleter> obuff;
   QString buff1;
@@ -1523,16 +1310,22 @@ mag_route_trl(const route_head* rte)
   }
 }
 
-static void
-mag_route_pr()
+void
+MagprotoBase::mag_route_pr()
 {
   route_out_count = 0;
-  route_disp_all(nullptr, mag_route_trl, mag_waypt_pr);
+  auto mag_route_trl_lambda = [this](const route_head* rte)->void {
+    mag_route_trl(rte);
+  };
+  auto mag_waypt_pr_lambda = [this](const Waypoint* waypointp)->void {
+    mag_waypt_pr(waypointp);
+  };
+  route_disp_all(nullptr, mag_route_trl_lambda, mag_waypt_pr_lambda);
 
 }
 
-static void
-mag_write()
+void
+MagprotoBase::mag_write()
 {
 
   wptcmtcnt = 0;
@@ -1541,9 +1334,13 @@ mag_write()
   case trkdata:
     mag_track_pr();
     break;
-  case wptdata:
-    waypt_disp_all(mag_waypt_pr);
+  case wptdata: {
+    auto mag_waypt_pr_lambda = [this](const Waypoint* waypointp)->void {
+      mag_waypt_pr(waypointp);
+    };
+    waypt_disp_all(mag_waypt_pr_lambda);
     break;
+  }
   case rtedata:
     mag_route_pr();
     break;
@@ -1552,7 +1349,8 @@ mag_write()
   }
 }
 
-const char** os_get_magellan_mountpoints()
+// FIXME why wasn't this static?
+const char** MagprotoBase::os_get_magellan_mountpoints()
 {
 #if __APPLE__
   const char** dlist = (const char**) xcalloc(2, sizeof *dlist);
@@ -1565,8 +1363,8 @@ const char** os_get_magellan_mountpoints()
 #endif
 }
 
-static QStringList
-os_gpx_files(const char* dirname)
+QStringList
+MagprotoBase::os_gpx_files(const char* dirname)
 {
   QDir dir(dirname);
 
@@ -1577,58 +1375,3 @@ os_gpx_files(const char* dirname)
   }
   return rv;
 }
-
-/*
- *  This is repeated just so it shows up as separate menu options
- *  for the benefit of GUI wrappers.
- */
-ff_vecs_t mag_svecs = {
-  ff_type_serial,
-  FF_CAP_RW_ALL,
-  mag_rd_init,
-  mag_wr_init,
-  mag_deinit,
-  mag_deinit,
-  mag_read,
-  mag_write,
-  nullptr,
-  &mag_sargs,
-  CET_CHARSET_ASCII, 0,	/* CET-REVIEW */
-  NULL_POS_OPS,
-  nullptr,
-};
-
-ff_vecs_t mag_fvecs = {
-  ff_type_file,
-  FF_CAP_RW_ALL,
-  mag_rd_init,
-  mag_wr_init,
-  mag_deinit,
-  mag_deinit,
-  mag_read,
-  mag_write,
-  nullptr,
-  &mag_fargs,
-  CET_CHARSET_ASCII, 0,	/* CET-REVIEW */
-  NULL_POS_OPS,
-  nullptr,
-};
-
-/*
- * Extended (Explorist) entry tables.
- */
-ff_vecs_t magX_fvecs = {
-  ff_type_file,
-  FF_CAP_RW_ALL,
-  magX_rd_init,
-  magX_wr_init,
-  mag_deinit,
-  mag_wr_deinit,
-  mag_read,
-  mag_write,
-  nullptr,
-  &mag_fargs,
-  CET_CHARSET_ASCII, 0,	/* CET-REVIEW */
-  NULL_POS_OPS,
-  nullptr,
-};

@@ -245,7 +245,7 @@ set(HEADERS
   kml.h
   legacyformat.h
   lowranceusr.h
-  magellan.h
+  magproto.h
   mynav.h
   navilink.h
   nmea.h
