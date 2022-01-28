@@ -37,6 +37,7 @@
 #include <QTime>                     // for QTime
 #include <Qt>                        // for CaseInsensitive, UTC
 #include <QtGlobal>                  // for qAsConst, qPrintable, foreach
+
 #include <cassert>                   // for assert
 #include <cctype>                    // for isprint, toupper
 #include <cmath>                     // for fabs, lround
@@ -46,7 +47,7 @@
 #include <ctime>                     // for time_t, tm
 #include <type_traits>               // for add_const<>::type
 
-#include "defs.h"                    // for Waypoint, fatal, warning, xasprintf, global_options, global_opts, route_head, ddmm2degrees, setshort_length, CSTRc, current_time, get_cache_icon, get_filename, mkshort_new_handle, setshort_mustupper, setshort_whitespace_ok, waypt_add, xfree, xmalloc
+#include "defs.h"                    // for Waypoint, fatal, xasprintf, warning, xfree, global_options, global_opts, route_head, ddmm2degrees, gstrsub, setshort_length, xmalloc, xstrdup, CSTRc, current_time, get_cache_icon, get_filename, mkshort_new_handle, setshort_mustupper, setshort_whitespac...
 #include "explorist_ini.h"           // for explorist_ini_done, explorist_ini_get, mag_info
 #include "format.h"                  // for Format
 #include "gbfile.h"                  // for gbfclose, gbfeof, gbfgets, gbfopen, gbfwrite
@@ -1374,4 +1375,76 @@ MagprotoBase::os_gpx_files(const char* dirname)
     rv.append(fi.absoluteFilePath());
   }
   return rv;
+}
+
+// Explorist
+
+#ifdef DEAD_CODE_IS_REBORN
+const char*
+Explorist::explorist_read_value(const char* section, const char* key)
+{
+  return inifile_readstr(inifile, section, key);
+}
+#endif
+
+Explorist::mag_info*
+Explorist::explorist_ini_try(const char* path)
+{
+  char* inipath;
+
+  xasprintf(&inipath, "%s/%s", path, "APP/Atlas.ini");
+  inifile = inifile_init(QString::fromUtf8(inipath), myname);
+  if (!inifile) {
+    xfree(inipath);
+    return nullptr;
+  }
+
+  auto* info = (mag_info*) xmalloc(sizeof(mag_info));
+  info->geo_path = nullptr;
+  info->track_path = nullptr;
+  info->waypoint_path = nullptr;
+
+  char* s = xstrdup(inifile_readstr(inifile,  "UGDS", "WpFolder"));
+  if (s) {
+    s = gstrsub(s, "\\", "/");
+    xasprintf(&info->waypoint_path, "%s/%s", path, s);
+  }
+  s = xstrdup(inifile_readstr(inifile,  "UGDS", "GcFolder"));
+  if (s) {
+    s = gstrsub(s, "\\", "/");
+    xasprintf(&info->geo_path, "%s/%s", path, s);
+  }
+  s = xstrdup(inifile_readstr(inifile,  "UGDS", "TrkFolder"));
+  if (s) {
+    s = gstrsub(s, "\\", "/");
+    xasprintf(&info->track_path, "%s/%s", path, s);
+  }
+
+  inifile_done(inifile);
+  xfree(inipath);
+  return info;
+}
+
+// FIXME
+Explorist::mag_info*
+Explorist::explorist_ini_get(const char** dirlist)
+{
+  mag_info* r = nullptr;
+  while (dirlist && *dirlist) {
+    r = explorist_ini_try(*dirlist);
+    if (r) {
+      return r;
+    }
+  }
+  return r;
+}
+
+// FIXME
+void
+Explorist::explorist_ini_done(mag_info* info)
+{
+  xfree(info->geo_path);
+  xfree(info->track_path);
+  xfree(info->waypoint_path);
+  xfree(info);
 }

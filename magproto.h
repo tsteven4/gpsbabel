@@ -31,9 +31,42 @@
 #include "explorist_ini.h"  // for mag_info
 #include "format.h"         // for Format
 #include "gbfile.h"         // for gbfile
+#include "inifile.h"        // for inifile_t
 
+class Explorist
+{
+public:
+  /* Types */
 
-class MagprotoBase
+  /*
+   * Interesting traits of the device from the *.ini files.
+   */
+  struct mag_info {
+    char* geo_path;
+    char* track_path;
+    char* waypoint_path;
+  };
+  
+  /* Member Functions */
+
+  mag_info* explorist_ini_get(const char** dirlist);
+  static void explorist_ini_done(mag_info* info);
+
+private:
+  /* Constants */
+
+  static constexpr char myname[] = "explorist";
+
+  /* Member Functions */
+
+  mag_info* explorist_ini_try(const char*);
+
+  /* Data Members */
+
+  inifile_t* inifile{};
+};
+
+class MagprotoBase : private Explorist
 {
 protected:
   /*
@@ -195,13 +228,13 @@ protected:
 
   static QString m315_cleanse(const char* istring);
   static QString m330_cleanse(const char* istring);
-  unsigned int mag_checksum(const char* buf);
-  unsigned int mag_pchecksum(const char* buf, int len);
+  static unsigned int mag_checksum(const char* buf);
+  static unsigned int mag_pchecksum(const char* buf, int len);
   void mag_writemsg(const char* buf);
   void mag_writeack(int osum);
   void mag_verparse(char* ibuf);
   int terminit(const QString& portname, int create_ok);
-  void mag_dequote(char* ibuf);
+  static void mag_dequote(char* ibuf);
   void termdeinit();
   void mag_serial_init_common(const QString& portname);
   void mag_rd_init_common(const QString& portname);
@@ -223,7 +256,8 @@ protected:
   void mag_route_trl(const route_head* rte);
   void mag_route_pr();
   void mag_write();
-
+  static const char** os_get_magellan_mountpoints();
+  static QStringList os_gpx_files(const char* dirname);
 
   /* Data Members */
 
@@ -253,7 +287,6 @@ protected:
    // (This has nothing to do with the Explorist 100...600 products.)
    Format* gpx_vec{};
    mag_info* explorist_info{};
-   QStringList os_gpx_files(const char* dirname);
 
   /*
    * Magellan's firmware is *horribly* slow to send the next packet after
@@ -279,7 +312,6 @@ protected:
 
   using cleanse_fn = QString(const char*);
   cleanse_fn* mag_cleanse{};
-  const char** os_get_magellan_mountpoints();
 
 
   const magellan_icon_mapping_t* icon_mapping = map330_icon_table;

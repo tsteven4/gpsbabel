@@ -34,7 +34,6 @@ RESOURCES = gpsbabel.qrc
 
 # MINIMAL_FMTS
 MINIMAL_FMTS = \
-  explorist_ini.cc \
   garmin.cc \
   garmin_device_xml.cc \
   garmin_tables.cc \
@@ -207,7 +206,6 @@ HEADERS =  \
   defs.h \
   dg-100.h \
   energympro.h \
-  explorist_ini.h \
   filter.h \
   filter_vecs.h \
   format.h \
