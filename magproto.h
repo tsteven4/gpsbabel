@@ -232,9 +232,14 @@ protected:
   static unsigned int mag_pchecksum(const char* buf, int len);
   void mag_writemsg(const char* buf);
   void mag_writeack(int osum);
+  void mag_handon();
+  void mag_handoff();
   void mag_verparse(char* ibuf);
+  void mag_readmsg(gpsdata_type objective);
   int terminit(const QString& portname, int create_ok);
+  QString termread(char* ibuf, int size);
   static void mag_dequote(char* ibuf);
+  void termwrite(const char* obuf, int size);
   void termdeinit();
   void mag_serial_init_common(const QString& portname);
   void mag_rd_init_common(const QString& portname);
@@ -267,11 +272,6 @@ protected:
    int explorist{};
    int broken_sportrak{};
 
-   QString termread(char* ibuf, int size);
-   void termwrite(const char* obuf, int size);
-   void mag_readmsg(gpsdata_type objective);
-   void mag_handon();
-   void mag_handoff();
    short_handle mkshort_handle = nullptr;
    char* deficon = nullptr;
    char* bs = nullptr;
@@ -312,7 +312,6 @@ protected:
 
   using cleanse_fn = QString(const char*);
   cleanse_fn* mag_cleanse{};
-
 
   const magellan_icon_mapping_t* icon_mapping = map330_icon_table;
 
