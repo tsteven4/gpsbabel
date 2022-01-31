@@ -71,7 +71,7 @@ MagprotoBase::m315_cleanse(const char* istring)
   char* rstring = (char*) xmalloc(strlen(istring)+1);
   char* o;
   const char* i;
-  static char m315_valid_chars[] =
+  static constexpr char m315_valid_chars[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
   for (o=rstring,i=istring; *i; i++) {
     if (strchr(m315_valid_chars, toupper(*i))) {
@@ -87,13 +87,12 @@ MagprotoBase::m315_cleanse(const char* istring)
 /*
  * Do same for 330, Meridian, and SportTrak.
  */
-// FIXME
 QString
-MagprotoBase::m330_cleanse(const char* istring)
+Magellan::m330_cleanse(const char* istring)
 {
-  static char m330_valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-                                   "abcdefghijklmnopqrstuvwxyz"
-                                   "0123456789+-.'/!@#<%^&>()=:\\";
+  static constexpr char m330_valid_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789+-.'/!@#<%^&>()=:\\";
   char* rstring = (char*) xmalloc(strlen(istring)+1);
   char* o;
   const char* i;
@@ -113,9 +112,8 @@ MagprotoBase::m330_cleanse(const char* istring)
  * Given a protocol message, compute the checksum as needed by
  * the Magellan protocol.
  */
-// FIXME
 unsigned int
-MagprotoBase::mag_checksum(const char* const buf)
+Magellan::mag_checksum(const char* const buf)
 {
   int csum = 0;
 
@@ -456,7 +454,7 @@ MagprotoBase::mag_dequote(char* ibuf)
   while ((esc = strchr(ibuf, 0x1b))) {
     int nremains = strlen(esc);
     if (nremains >= 3) {
-      static const char hex[17] = "0123456789ABCDEF";
+      static constexpr char hex[] = "0123456789ABCDEF";
       const char* c1 = strchr(hex, esc[1]);
       const char* c2 = strchr(hex, esc[2]);
       if (c1 && c2) {
@@ -750,7 +748,6 @@ void MagprotoBase::parse_istring(char* istring)
  * $PMGNTRK,3605.259,N,08644.389,W,00151,M,201444.61,A,,020302*66
  * create and return a populated waypoint.
  */
-// FIXME
 Waypoint*
 MagprotoBase::mag_trkparse(char* trkmsg)
 {
@@ -813,7 +810,6 @@ MagprotoBase::mag_trkparse(char* trkmsg)
  * $PMGNRTE,4,1,c,1,DAD,a,Anna,a*61
  * generate a route.
  */
-// FIXME
 void
 MagprotoBase::mag_rteparse(char* rtemsg)
 {
@@ -941,9 +937,8 @@ MagprotoBase::mag_rteparse(char* rtemsg)
   }
 }
 
-// FIXME
 QString
-MagprotoBase::mag_find_descr_from_token(const char* token)
+Magellan::mag_find_descr_from_token(const char* token)
 {
   if (icon_mapping == nullptr) {
     return "unknown";
@@ -960,9 +955,8 @@ MagprotoBase::mag_find_descr_from_token(const char* token)
   return icon_mapping[0].icon;
 }
 
-// FIXME
 QString
-MagprotoBase::mag_find_token_from_descr(const QString& icon)
+Magellan::mag_find_token_from_descr(const QString& icon)
 {
   const magellan_icon_mapping_t* i = icon_mapping;
 
@@ -1151,7 +1145,7 @@ MagprotoBase::mag_waypt_pr(const Waypoint* waypointp)
 
   QString isrc = waypointp->notes.isEmpty() ? waypointp->description : waypointp->notes;
   QString owpt = global_opts.synthesize_shortnames ?
-         mkshort_from_wpt(mkshort_handle, waypointp) : waypointp->shortname;
+                 mkshort_from_wpt(mkshort_handle, waypointp) : waypointp->shortname;
   QString odesc = isrc;
   owpt = mag_cleanse(CSTRc(owpt));
 
@@ -1159,7 +1153,7 @@ MagprotoBase::mag_waypt_pr(const Waypoint* waypointp)
       waypointp->gc_data->diff && waypointp->gc_data->terr) {
     // It's a string and compactness counts, so "1.0" is OK to be "10".
     xasprintf(ofmtdesc, "%ud/%ud %s", waypointp->gc_data->diff,
-            waypointp->gc_data->terr, CSTRc(odesc));
+              waypointp->gc_data->terr, CSTRc(odesc));
     odesc = mag_cleanse(ofmtdesc.data());
   } else {
     odesc = mag_cleanse(CSTRc(odesc));
@@ -1175,14 +1169,14 @@ MagprotoBase::mag_waypt_pr(const Waypoint* waypointp)
   }
 
   xasprintf(obuf, "PMGNWPL,%4.3f,%c,%09.3f,%c,%07.0f,M,%-.*s,%-.46s,%s",
-          lat, ilat < 0 ? 'S' : 'N',
-          lon, ilon < 0 ? 'W' : 'E',
-          waypointp->altitude == unknown_alt ?
-          0 : waypointp->altitude,
-          wpt_len,
-          CSTRc(owpt),
-          CSTRc(odesc),
-          CSTR(icon_token));
+            lat, ilat < 0 ? 'S' : 'N',
+            lon, ilon < 0 ? 'W' : 'E',
+            waypointp->altitude == unknown_alt ?
+            0 : waypointp->altitude,
+            wpt_len,
+            CSTRc(owpt),
+            CSTRc(odesc),
+            CSTR(icon_token));
   mag_writemsg(obuf.data());
 
   if (!is_file) {
@@ -1224,11 +1218,11 @@ void MagprotoBase::mag_track_disp(const Waypoint* waypointp)
   lat = (lat_deg * 100.0 + lat);
 
   xasprintf(obuf,"PMGNTRK,%4.3f,%c,%09.3f,%c,%05.0f,%c,%s,A,,%s",
-          lat, ilat < 0 ? 'S' : 'N',
-          lon, ilon < 0 ? 'W' : 'E',
-          waypointp->altitude == unknown_alt ?
-          0 : waypointp->altitude,
-          'M', hms.constData(), dmy.constData());
+            lat, ilat < 0 ? 'S' : 'N',
+            lon, ilon < 0 ? 'W' : 'E',
+            waypointp->altitude == unknown_alt ?
+            0 : waypointp->altitude,
+            'M', hms.constData(), dmy.constData());
   mag_writemsg(obuf.data());
 }
 
@@ -1297,10 +1291,10 @@ MagprotoBase::mag_route_trl(const route_head* rte)
       }
 
       xasprintf(obuff, "PMGNRTE,%d,%d,c,%d,%s%s,%s",
-              numlines, thisline,
-              rte->rte_num ? rte->rte_num : route_out_count,
-              CSTRc(expbuf),
-              CSTR(buff1), CSTR(buff2));
+                numlines, thisline,
+                rte->rte_num ? rte->rte_num : route_out_count,
+                CSTRc(expbuf),
+                CSTR(buff1), CSTR(buff2));
 
       mag_writemsg(obuff.data());
       buff1.clear();
@@ -1349,7 +1343,6 @@ MagprotoBase::mag_write()
   }
 }
 
-// FIXME why wasn't this static?
 const char** MagprotoBase::os_get_magellan_mountpoints()
 {
 #if __APPLE__
@@ -1424,7 +1417,6 @@ Explorist::explorist_ini_try(const char* path)
   return info;
 }
 
-// FIXME
 Explorist::mag_info*
 Explorist::explorist_ini_get(const char** dirlist)
 {
@@ -1438,7 +1430,6 @@ Explorist::explorist_ini_get(const char** dirlist)
   return r;
 }
 
-// FIXME
 void
 Explorist::explorist_ini_done(mag_info* info)
 {

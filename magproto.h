@@ -65,89 +65,20 @@ private:
   inifile_t* inifile{};
 };
 
-class MagprotoBase : private Explorist
+class Magellan
 {
-protected:
-  /*
-   * Table of "interesting" Magellan models.
-   * Selfishly, if I haven't heard of it, it's not in the table.
-   * This doesn't mean I actually have TRIED all models listed below.
-   * (Donations welcome. :-)
-   */
-  enum meridian_model {
-    mm_unknown = 0 ,
-    mm_gps315320,
-    mm_map410,
-    mm_map330,
-    mm_gps310,
-    mm_meridian,
-    mm_sportrak
-  };
-  
-  struct pid_to_model_t {
-    meridian_model model;
-    int pid;
-    const char* model_n;
-  };
-  
+public:
+
+  /* Types */
+
   struct magellan_icon_mapping_t {
     const char* token;
     const char* icon;
   };
 
-  /* Types */
-
-  enum mag_rxstate {
-    mrs_handoff = 0,
-    mrs_handon,
-    mrs_awaiting_ack
-  };
-
-  /*
-   *   An individual element of a route.
-   */
-  struct mag_rte_elem {
-    QString wpt_name;
-    QString wpt_icon;
-  };
-
-  /*
-   *  A header of a route.  Related elements of a route belong to this.
-   */
-  struct mag_rte_head_t {
-    QList<mag_rte_elem*> elem_list; /* list of child rte_elems */
-    char* rte_name{nullptr};
-    int nelems{0};
-  };
-
-
   /* Constants */
 
-  static constexpr const magellan_icon_mapping_t gps315_icon_table[] = {
-    { "a", "filled circle" },
-    { "b", "box" },
-    { "c", "red buoy" },
-    { "d", "green buoy" },
-    { "e", "buoy" },
-    { "f", "rocks" },
-    { "g", "red daymark" },
-    { "h", "green daymark" },
-    { "i", "bell" },
-    { "j", "danger" },
-    { "k", "diver down" },
-    { "l", "fish" },
-    { "m", "house" },
-    { "n", "mark" },
-    { "o", "car" },
-    { "p", "tent" },
-    { "q", "boat" },
-    { "r", "food" },
-    { "s", "fuel" },
-    { "t", "tree" },
-    { nullptr, nullptr }
-  };
-
-  static constexpr const magellan_icon_mapping_t map330_icon_table[] = {
+  static constexpr magellan_icon_mapping_t map330_icon_table[] = {
     { "a", "crossed square" },
     { "b", "box" },
     { "c", "house" },
@@ -199,6 +130,95 @@ protected:
     { nullptr, nullptr }
   };
 
+  static constexpr magellan_icon_mapping_t gps315_icon_table[] = {
+    { "a", "filled circle" },
+    { "b", "box" },
+    { "c", "red buoy" },
+    { "d", "green buoy" },
+    { "e", "buoy" },
+    { "f", "rocks" },
+    { "g", "red daymark" },
+    { "h", "green daymark" },
+    { "i", "bell" },
+    { "j", "danger" },
+    { "k", "diver down" },
+    { "l", "fish" },
+    { "m", "house" },
+    { "n", "mark" },
+    { "o", "car" },
+    { "p", "tent" },
+    { "q", "boat" },
+    { "r", "food" },
+    { "s", "fuel" },
+    { "t", "tree" },
+    { nullptr, nullptr }
+  };
+
+  /* Member Functions */
+
+  QString mag_find_descr_from_token(const char* token);
+  QString mag_find_token_from_descr(const QString& icon);
+  static unsigned int mag_checksum(const char* buf);
+  static QString m330_cleanse(const char* istring);
+
+  /* Data Members */
+
+  const magellan_icon_mapping_t* icon_mapping = map330_icon_table;
+};
+
+class MagprotoBase : private Explorist, Magellan
+{
+protected:
+  /* Types */
+
+  /*
+   * Table of "interesting" Magellan models.
+   * Selfishly, if I haven't heard of it, it's not in the table.
+   * This doesn't mean I actually have TRIED all models listed below.
+   * (Donations welcome. :-)
+   */
+  enum meridian_model {
+    mm_unknown = 0 ,
+    mm_gps315320,
+    mm_map410,
+    mm_map330,
+    mm_gps310,
+    mm_meridian,
+    mm_sportrak
+  };
+  
+  struct pid_to_model_t {
+    meridian_model model;
+    int pid;
+    const char* model_n;
+  };
+  
+  enum mag_rxstate {
+    mrs_handoff = 0,
+    mrs_handon,
+    mrs_awaiting_ack
+  };
+
+  /*
+   *   An individual element of a route.
+   */
+  struct mag_rte_elem {
+    QString wpt_name;
+    QString wpt_icon;
+  };
+
+  /*
+   *  A header of a route.  Related elements of a route belong to this.
+   */
+  struct mag_rte_head_t {
+    QList<mag_rte_elem*> elem_list; /* list of child rte_elems */
+    char* rte_name{nullptr};
+    int nelems{0};
+  };
+
+
+  /* Constants */
+
   static constexpr pid_to_model_t pid_to_model[] = {
     { mm_gps315320, 19, "ColorTrak" },
     { mm_gps315320, 24, "GPS 315/320" },
@@ -226,8 +246,6 @@ protected:
   /* Member Functions */
 
   static QString m315_cleanse(const char* istring);
-  static QString m330_cleanse(const char* istring);
-  static unsigned int mag_checksum(const char* buf);
   static unsigned int mag_pchecksum(const char* buf, int len);
   void mag_writemsg(const char* buf);
   void mag_writeack(int osum);
@@ -250,8 +268,6 @@ protected:
   void parse_istring(char* istring);
   Waypoint* mag_trkparse(char* trkmsg);
   void mag_rteparse(char* rtemsg);
-  QString mag_find_descr_from_token(const char* token);
-  QString mag_find_token_from_descr(const QString& icon);
   Waypoint* mag_wptparse(char* /*trkmsg*/);
   void mag_read();
   void mag_waypt_pr(const Waypoint* waypointp);
@@ -311,8 +327,6 @@ protected:
 
   using cleanse_fn = QString(const char*);
   cleanse_fn* mag_cleanse{};
-
-  const magellan_icon_mapping_t* icon_mapping = map330_icon_table;
 
   void* serial_handle = nullptr;
 
