@@ -78,17 +78,9 @@ public:
   void write() override;
   void wr_deinit() override;
 
-  enum header_type {
-    waypt_header = 0,
-    rtept_header,
-    trkpt_header,
-    route_header,
-    track_header,
-    unknown_header
-  };
-
 private:
   /* Types */
+
   struct gtxt_flags_t {
     unsigned int metric:1;
     unsigned int celsius:1;
@@ -96,6 +88,15 @@ private:
     unsigned int enum_waypoints:1;
     unsigned int route_header_written:1;
     unsigned int track_header_written:1;
+  };
+
+  enum header_type {
+    waypt_header = 0,
+    rtept_header,
+    trkpt_header,
+    route_header,
+    track_header,
+    unknown_header
   };
 
   struct info_t {
@@ -127,6 +128,8 @@ private:
 
   /* Member Functions */
 
+  friend GarminTxtFormat::header_type& operator++(GarminTxtFormat::header_type& s);
+  friend GarminTxtFormat::header_type operator++(GarminTxtFormat::header_type& s, int);
   static const char* get_option_val(const char* option, const char* def);
   void init_date_and_time_format();
   void convert_datum(const Waypoint* wpt, double* dest_lat, double* dest_lon);
@@ -212,30 +215,5 @@ private:
   int route_idx{};
   info_t* cur_info{};
 };
-
-#if 0
-inline GarminTxtFormat::header_type& operator++(GarminTxtFormat::header_type& s) // prefix
-{
-  return s = static_cast<GarminTxtFormat::header_type>(s + 1);
-}
-inline GarminTxtFormat::header_type operator++(GarminTxtFormat::header_type& s, int) // postfix
-{
-  GarminTxtFormat::header_type ret(s);
-  ++s;
-  return ret;
-}
-
-inline gt_display_modes_e& operator++(gt_display_modes_e& s) // prefix
-{
-  return s = static_cast<gt_display_modes_e>(s + 1);
-}
-inline gt_display_modes_e operator++(gt_display_modes_e& s, int) // postfix
-{
-  gt_display_modes_e ret(s);
-  ++s;
-  return ret;
-}
-#endif
-
 #endif // CSVFMTS_ENABLED
 #endif // GARMIN_TXT_H_INCLUDED_
