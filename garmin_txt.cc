@@ -112,7 +112,7 @@ GarminTxtFormat::init_date_and_time_format()
 }
 
 void
-GarminTxtFormat::convert_datum(const Waypoint* wpt, double* dest_lat, double* dest_lon)
+GarminTxtFormat::convert_datum(const Waypoint* wpt, double* dest_lat, double* dest_lon) const
 {
   double alt;
 
@@ -199,7 +199,7 @@ GarminTxtFormat::prework_wpt_cb(const Waypoint* wpt)
 /* output helpers */
 
 void
-GarminTxtFormat::print_position(const Waypoint* wpt)
+GarminTxtFormat::print_position(const Waypoint* wpt) const
 {
   int valid = 1;
   double lat, lon, north, east;
@@ -285,7 +285,7 @@ GarminTxtFormat::print_position(const Waypoint* wpt)
 }
 
 void
-GarminTxtFormat::print_date_and_time(const time_t time, const int time_only)
+GarminTxtFormat::print_date_and_time(const time_t time, const int time_only) const
 {
   struct tm tm;
   char tbuf[32];
@@ -312,7 +312,7 @@ GarminTxtFormat::print_date_and_time(const time_t time, const int time_only)
 }
 
 void
-GarminTxtFormat::print_categories(uint16_t categories)
+GarminTxtFormat::print_categories(uint16_t categories) const
 {
   if (categories == 0) {
     return;
@@ -342,7 +342,7 @@ GarminTxtFormat::print_categories(uint16_t categories)
 }
 
 void
-GarminTxtFormat::print_course(const Waypoint* A, const Waypoint* B)		/* seems to be okay */
+GarminTxtFormat::print_course(const Waypoint* A, const Waypoint* B) const		/* seems to be okay */
 {
   if ((A != nullptr) && (B != nullptr) && (A != B)) {
     int course = si_round(waypt_course(A, B));
@@ -351,7 +351,7 @@ GarminTxtFormat::print_course(const Waypoint* A, const Waypoint* B)		/* seems to
 }
 
 void
-GarminTxtFormat::print_distance(const double distance, const int no_scale, const int with_tab, const int decis)
+GarminTxtFormat::print_distance(const double distance, const int no_scale, const int with_tab, const int decis) const
 {
   double dist = distance;
 
@@ -386,7 +386,7 @@ GarminTxtFormat::print_distance(const double distance, const int no_scale, const
 }
 
 void
-GarminTxtFormat::print_speed(const double* distance, const time_t* time)
+GarminTxtFormat::print_speed(const double* distance, const time_t* time) const
 {
   double dist = *distance;
   const char* unit;
@@ -417,7 +417,7 @@ GarminTxtFormat::print_speed(const double* distance, const time_t* time)
 }
 
 void
-GarminTxtFormat::print_temperature(const float temperature)
+GarminTxtFormat::print_temperature(const float temperature) const
 {
   if (gtxt_flags.celsius) {
     *fout << QString::asprintf("%.f C", temperature);
@@ -427,7 +427,7 @@ GarminTxtFormat::print_temperature(const float temperature)
 }
 
 void
-GarminTxtFormat::print_string(const char* fmt, const QString& string)
+GarminTxtFormat::print_string(const char* fmt, const QString& string) const
 {
   /* remove unwanted characters from source string */
   QString cleanstring;
@@ -445,7 +445,7 @@ GarminTxtFormat::print_string(const char* fmt, const QString& string)
 /* main cb's */
 
 void
-GarminTxtFormat::write_waypt(const Waypoint* wpt)
+GarminTxtFormat::write_waypt(const Waypoint* wpt) const
 {
   const char* wpt_type;
 
@@ -563,7 +563,7 @@ GarminTxtFormat::route_disp_tlr_cb(const route_head* /*unused*/)
 }
 
 void
-GarminTxtFormat::route_disp_wpt_cb(const Waypoint* wpt)
+GarminTxtFormat::route_disp_wpt_cb(const Waypoint* wpt) const
 {
   const Waypoint* prev = cur_info->prev_wpt;
 
@@ -618,7 +618,7 @@ GarminTxtFormat::track_disp_tlr_cb(const route_head* /*unused*/)
 }
 
 void
-GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt)
+GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt) const
 {
   const Waypoint* prev = cur_info->prev_wpt;
   time_t delta;
@@ -831,7 +831,7 @@ GarminTxtFormat::free_header(const header_type ht)
 /* data parsers */
 
 bool
-GarminTxtFormat::parse_date_and_time(const QString& str, time_t* value)
+GarminTxtFormat::parse_date_and_time(const QString& str, time_t* value) const
 {
   struct tm tm;
 
@@ -859,7 +859,7 @@ GarminTxtFormat::parse_date_and_time(const QString& str, time_t* value)
 }
 
 uint16_t
-GarminTxtFormat::parse_categories(const QString& str)
+GarminTxtFormat::parse_categories(const QString& str) const
 {
   uint16_t res = 0;
 
@@ -879,7 +879,7 @@ GarminTxtFormat::parse_categories(const QString& str)
 }
 
 bool
-GarminTxtFormat::parse_temperature(const QString& str, double* temperature)
+GarminTxtFormat::parse_temperature(const QString& str, double* temperature) const
 {
   double value;
   unsigned char unit;
@@ -925,7 +925,7 @@ GarminTxtFormat::parse_header(const QStringList& lineparts)
 }
 
 bool
-GarminTxtFormat::parse_display(const QString& str, int* val)
+GarminTxtFormat::parse_display(const QString& str, int* val) const
 {
   if (str.isEmpty()) {
     return false;
@@ -989,7 +989,7 @@ GarminTxtFormat::bind_fields(const header_type ht)
 void
 GarminTxtFormat::parse_grid(const QStringList& lineparts)
 {
-  if (lineparts.size() < 1) {
+  if (lineparts.empty()) {
     fatal(MYNAME ": Missing grid headline!\n");
   }
 
@@ -1009,7 +1009,7 @@ GarminTxtFormat::parse_grid(const QStringList& lineparts)
 void
 GarminTxtFormat::parse_datum(const QStringList& lineparts)
 {
-  if (lineparts.size() < 1) {
+  if (lineparts.empty()) {
     fatal(MYNAME ": Missing GPS datum headline!\n");
   }
 
@@ -1305,7 +1305,7 @@ GarminTxtFormat::read()
 
     QStringList lineparts = csv_linesplit(buff, "\t", "", 0);
 
-    if (lineparts.size() < 1) {
+    if (lineparts.empty()) {
       continue;
     }
     auto linetype = lineparts.at(0);
