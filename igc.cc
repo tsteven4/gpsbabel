@@ -23,30 +23,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <cmath>                     // for fabs, lround
-#include <cstdio>                    // for sscanf, snprintf, fputs, printf, stdout, putchar, size_t
-#include <cstdlib>                   // for labs, ldiv, ldiv_t, abs
-#include <cstring>                   // for strcmp, strlen, strtok, strcat, strchr, strcpy, strncat
-#include <ctime>                     // for gmtime, ctime
-#include <iterator>                  // for reverse_iterator, operator==, prev, next
-#include <optional>                  // for optional
+#include "igc.h"
 
-#include <QByteArray>                // for QByteArray
-#include <QList>                     // for QList<>::const_iterator
-#include <QString>                   // for QString, operator+, QStringLiteral
-#include <QtGlobal>                  // for foreach, qPrintable
+#include <QByteArray>           // for QByteArray
+#include <QList>                // for QList<>::const_iterator, QList<>::const_reverse_iterator
+#include <QString>              // for QString, operator+, QString::SkipEmptyParts
+#include <QStringList>          // for QStringList
+#include <QStringLiteral>       // for QStringLiteral
+#include <QtGlobal>             // for foreach, QT_VERSION, QT_VERSION_CHECK, qPrintable
 
-#include "defs.h"
-#include "cet_util.h"                // for cet_convert_init
-#include "gbfile.h"                  // for gbfprintf, gbfclose, gbfopen, gbfputs, gbfgetstr, gbfile
-#include "src/core/datetime.h"       // for DateTime
+#include <cmath>                // for fabs, lround
+#include <cstdio>               // for sscanf, snprintf, fputs, printf, stdout, putchar, size_t
+#include <cstdlib>              // for labs, ldiv, ldiv_t, abs
+#include <cstring>              // for strcmp, strlen, strncat, strchr, strcpy
+#include <ctime>                // for time_t, gmtime, ctime
+#include <iterator>             // for reverse_iterator, operator==, prev, next
+#include <optional>             // for optional
 
+#include "defs.h"               // for Waypoint, fatal, route_head, WaypointList, track_disp_all, warning, unknown_alt, current_time, mkgmtime, track_add_head, track_add_wpt, track_del_head, global_options, global_opts, CSTR, find_waypt_by_name, route_add_head, route_add_wpt, route_disp_all, CET...
+#include "cet_util.h"           // for cet_convert_init
+#include "gbfile.h"             // for gbfprintf, gbfclose, gbfopen, gbfputs, gbfgetstr, gbfile
+#include "src/core/datetime.h"  // for DateTime
 
-static gbfile* file_in, *file_out;
-static char manufacturer[4];
-static const route_head* head;
-static char* timeadj = nullptr;
-static int lineno;
 
 #define MYNAME "IGC"
 #define MAXRECLEN 79		// Includes null terminator and CR/LF
@@ -58,30 +56,6 @@ static int lineno;
 #define DATEMAGIC "IGCDATE"
 
 /*
- * IGC record types.
- * These appear as the first char in each record.
- */
-enum igc_rec_type_t {
-  rec_manuf_id = 'A',		// FR manufacturer and identification
-  rec_fix = 'B',		// Fix
-  rec_task = 'C',		// Task/declaration
-  rec_diff_gps = 'D',		// Differential GPS
-  rec_event = 'E',		// Event
-  rec_constel = 'F',		// Constellation
-  rec_security = 'G',		// Security
-  rec_header = 'H',		// File header
-  rec_fix_defn = 'I',		// List of extension data included at end of each fix (B) record
-  rec_extn_defn = 'J',	// List of data included in each extension (K) record
-  rec_extn_data = 'K',	// Extension data
-  rec_log_book = 'L',		// Logbook/comments
-
-  // M..Z are spare
-
-  rec_none = 0,		// No record
-  rec_bad = 1,		// Bad record
-};
-
-/*
  * See if two lat/lon pairs are approximately equal.
  * @param  lat1  The latitude of coordinate pair 1
  * @param  lon1  The longitude of coordinate pair 1
@@ -90,7 +64,7 @@ enum igc_rec_type_t {
  * @retval  1  The coordinates are approximately equal
  * @retval  0  The coordinates are significantly different
  */
-static unsigned char coords_match(double lat1, double lon1, double lat2, double lon2)
+unsigned char IgcFormat::coords_match(double lat1, double lon1, double lat2, double lon2)
 {
   return (fabs(lat1 - lat2) < 0.0001 && fabs(lon1 - lon2) < 0.0001) ? 1 : 0;
 }
@@ -104,7 +78,7 @@ static unsigned char coords_match(double lat1, double lon1, double lat2, double 
  * @param  rec  Caller allocated storage for the record.  At least MAXRECLEN chars must be allocated.
  * @return the record type.  rec_none on EOF, rec_bad on fgets() or parse error.
  */
-static igc_rec_type_t get_record(char** rec)
+IgcFormat::igc_rec_type_t IgcFormat::get_record(char** rec)
 {
   char* c;
 retry:
@@ -130,7 +104,7 @@ retry:
   return (igc_rec_type_t) c[0];
 }
 
-static void rd_init(const QString& fname)
+void IgcFormat::rd_init(const QString& fname)
 {
   char* ibuf;
 
@@ -142,21 +116,18 @@ static void rd_init(const QString& fname)
   }
 }
 
-static void rd_deinit()
+void IgcFormat::rd_deinit()
 {
   gbfclose(file_in);
 }
 
-namespace { // fix ODR violation with brauniger_iq
-  enum state_t { id, takeoff, start, turnpoint, finish, landing };
-}
-inline state_t& operator++(state_t& s) // prefix
+inline IgcFormat::state_t& operator++(IgcFormat::state_t& s) // prefix
 {
-  return s = static_cast<state_t>(s + 1);
+  return s = static_cast<IgcFormat::state_t>(s + 1);
 }
-inline state_t operator++(state_t& s, int) // postfix
+inline IgcFormat::state_t operator++(IgcFormat::state_t& s, int) // postfix
 {
-  state_t ret(s);
+  IgcFormat::state_t ret(s);
   ++s;
   return ret;
 }
@@ -166,7 +137,7 @@ inline state_t operator++(state_t& s, int) // postfix
  * A route is created for each set of waypoints in a task declaration.
  * @param rec A single task record
  */
-static void igc_task_rec(const char* rec)
+void IgcFormat::igc_task_rec(const char* rec)
 {
   static unsigned int num_tp, tp_ct;
   static route_head* rte_head;
@@ -270,7 +241,7 @@ static void igc_task_rec(const char* rec)
   route_add_wpt(rte_head, wpt);
 }
 
-static void data_read()
+void IgcFormat::read()
 {
   char* ibuf;
   unsigned int hours, mins, secs;
@@ -479,21 +450,21 @@ static void data_read()
  * Callbacks used to scan for specific track types
  */
 
-static void detect_pres_track(const route_head* rh)
+void IgcFormat::detect_pres_track(const route_head* rh)
 {
   if (rh->rte_name.startsWith(PRESTRKNAME)) {
     head = rh;
   }
 }
 
-static void detect_gnss_track(const route_head* rh)
+void IgcFormat::detect_gnss_track(const route_head* rh)
 {
   if (rh->rte_name.startsWith(GNSSTRKNAME)) {
     head = rh;
   }
 }
 
-static void detect_other_track(const route_head* rh)
+void IgcFormat::detect_other_track(const route_head* rh)
 {
   static int max_waypt_ct;
 
@@ -517,18 +488,27 @@ static void detect_other_track(const route_head* rh)
  * @param  gnss_track  Set by the function to the GNSS altitude track
  *                     head.  NULL if not found.
  */
-static void get_tracks(const route_head** pres_track, const route_head** gnss_track)
+void IgcFormat::get_tracks(const route_head** pres_track, const route_head** gnss_track)
 {
   head = nullptr;
-  track_disp_all(detect_pres_track, nullptr, nullptr);
+  auto detect_pres_track_lambda = [this](const route_head* rte)->void {
+    detect_pres_track(rte);
+  };
+  track_disp_all(detect_pres_track_lambda, nullptr, nullptr);
   *pres_track = head;
 
   head = nullptr;
-  track_disp_all(detect_gnss_track, nullptr, nullptr);
+  auto detect_gnss_track_lambda = [this](const route_head* rte)->void {
+    detect_gnss_track(rte);
+  };
+  track_disp_all(detect_gnss_track_lambda, nullptr, nullptr);
   *gnss_track = head;
 
   head = nullptr;
-  track_disp_all(detect_other_track, nullptr, nullptr);
+  auto detect_other_track_lambda = [this](const route_head* rte)->void {
+    detect_other_track(rte);
+  };
+  track_disp_all(detect_other_track_lambda, nullptr, nullptr);
 
   if (!*pres_track && *gnss_track && head) {
     *pres_track = head;
@@ -543,7 +523,7 @@ static void get_tracks(const route_head** pres_track, const route_head** gnss_tr
  * IGC string formatting functions
  */
 
-static char* latlon2str(const Waypoint* wpt)
+char* IgcFormat::latlon2str(const Waypoint* wpt)
 {
   static char str[18] = "";
   // We use lround here because it:
@@ -566,7 +546,7 @@ static char* latlon2str(const Waypoint* wpt)
   return str;
 }
 
-static char* date2str(struct tm* dt)
+char* IgcFormat::date2str(struct tm* dt)
 {
   static char str[7] = "";
 
@@ -576,7 +556,7 @@ static char* date2str(struct tm* dt)
   return str;
 }
 
-static char* tod2str(struct tm* tod)
+char* IgcFormat::tod2str(struct tm* tod)
 {
   static char str[7] = "";
 
@@ -589,7 +569,7 @@ static char* tod2str(struct tm* tod)
 /*
  * Write header records
  */
-static void wr_header()
+void IgcFormat::wr_header()
 {
   const route_head* pres_track;
   const route_head* track;
@@ -639,13 +619,13 @@ static void wr_header()
  * Generation of IGC task declaration records
  */
 
-static void wr_task_wpt_name(const Waypoint* wpt, const char* alt_name)
+void IgcFormat::wr_task_wpt_name(const Waypoint* wpt, const char* alt_name)
 {
   gbfprintf(file_out, "C%s%s\r\n", latlon2str(wpt),
             !wpt->description.isEmpty() ? CSTR(wpt->description) : !wpt->shortname.isEmpty() ? CSTR(wpt->shortname) : alt_name);
 }
 
-static void wr_task_hdr(const route_head* rte)
+void IgcFormat::wr_task_hdr(const route_head* rte)
 {
   unsigned char have_takeoff = 0;
   char flight_date[7] = "000000";
@@ -694,12 +674,12 @@ static void wr_task_hdr(const route_head* rte)
   }
 }
 
-static void wr_task_wpt(const Waypoint* wpt)
+void IgcFormat::wr_task_wpt(const Waypoint* wpt)
 {
   wr_task_wpt_name(wpt, "");
 }
 
-static void wr_task_tlr(const route_head* rte)
+void IgcFormat::wr_task_tlr(const route_head* rte)
 {
   // If the landing waypoint is not supplied we need to generate it.
   const Waypoint* wpt = rte->waypoint_list.back();
@@ -710,15 +690,24 @@ static void wr_task_tlr(const route_head* rte)
   }
 }
 
-static void wr_tasks()
+void IgcFormat::wr_tasks()
 {
-  route_disp_all(wr_task_hdr, wr_task_tlr, wr_task_wpt);
+  auto wr_task_hdr_lambda = [this](const route_head* rte)->void {
+    wr_task_hdr(rte);
+  };
+  auto wr_task_tlr_lambda = [this](const route_head* rte)->void {
+    wr_task_tlr(rte);
+  };
+  auto wr_task_wpt_lambda = [this](const Waypoint* waypointp)->void {
+    wr_task_wpt(waypointp);
+  };
+  route_disp_all(wr_task_hdr_lambda, wr_task_tlr_lambda, wr_task_wpt_lambda);
 }
 
 /*
  * Write a single fix record
  */
-static void wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt)
+void IgcFormat::wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt)
 {
   const time_t tt = wpt->GetCreationTime().toTime_t();
   struct tm* tm = gmtime(&tt);
@@ -745,7 +734,7 @@ static void wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt)
  * @return The number of seconds to add to the GNSS track in order to align
  *         it with the pressure track.
  */
-static int correlate_tracks(const route_head* pres_track, const route_head* gnss_track)
+int IgcFormat::correlate_tracks(const route_head* pres_track, const route_head* gnss_track)
 {
   double alt_diff;
   double speed;
@@ -810,7 +799,7 @@ static int correlate_tracks(const route_head* pres_track, const route_head* gnss
  * @param  time   The time that we are interested in.
  * @return  The altitude interpolated from the track.
  */
-static double interpolate_alt(const route_head* track, time_t time)
+double IgcFormat::interpolate_alt(const route_head* track, time_t time)
 {
   static std::optional<WaypointList::const_iterator> prev_wpt;
   static std::optional<WaypointList::const_iterator> curr_wpt;
@@ -854,7 +843,7 @@ static double interpolate_alt(const route_head* track, time_t time)
  * Pressure altitude and GNSS altitude may be provided in two separate
  * tracks.  This function attempts to merge them into one.
  */
-static void wr_track()
+void IgcFormat::wr_track()
 {
   const route_head* pres_track;
   const route_head* gnss_track;
@@ -902,17 +891,17 @@ static void wr_track()
   }
 }
 
-static void wr_init(const QString& fname)
+void IgcFormat::wr_init(const QString& fname)
 {
   file_out = gbfopen(fname, "wb", MYNAME);
 }
 
-static void wr_deinit()
+void IgcFormat::wr_deinit()
 {
   gbfclose(file_out);
 }
 
-static void data_write()
+void IgcFormat::write()
 {
   gbfputs("AXXXZZZGPSBabel\r\n", file_out);
   wr_header();
@@ -921,28 +910,3 @@ static void data_write()
   gbfprintf(file_out, "LXXXGenerated by GPSBabel Version %s\r\n", gpsbabel_version);
   gbfputs("GGPSBabelSecurityRecordGuaranteedToFailVALIChecks\r\n", file_out);
 }
-
-
-static QVector<arglist_t> igc_args = {
-  {
-    "timeadj", &timeadj,
-    "(integer sec or 'auto') Barograph to GPS time diff",
-    nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
-  },
-};
-
-ff_vecs_t igc_vecs = {
-  ff_type_file,
-  { ff_cap_none , (ff_cap)(ff_cap_read | ff_cap_write), (ff_cap)(ff_cap_read | ff_cap_write) },
-  rd_init,
-  wr_init,
-  rd_deinit,
-  wr_deinit,
-  data_read,
-  data_write,
-  nullptr,
-  &igc_args,
-  CET_CHARSET_ASCII, 0	/* CET-REVIEW */
-  , NULL_POS_OPS,
-  nullptr
-};

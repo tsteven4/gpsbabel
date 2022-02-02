@@ -41,6 +41,7 @@
 #include "humminbird.h"
 #include "gtrnctr.h"
 #include "html.h"
+#include "igc.h"
 #include "kml.h"
 #include "legacyformat.h"
 #include "lowranceusr.h"
@@ -76,7 +77,6 @@ extern ff_vecs_t tpo3_vecs;
 extern ff_vecs_t easygps_vecs;
 extern ff_vecs_t saroute_vecs;
 extern ff_vecs_t gpl_vecs;
-extern ff_vecs_t igc_vecs;
 extern ff_vecs_t brauniger_iq_vecs;
 extern ff_vecs_t mtk_vecs;
 extern ff_vecs_t mtk_fvecs;
@@ -251,7 +251,7 @@ private:
   LegacyFormat gpl_fmt {gpl_vecs};
   TextFormat text_fmt;
   HtmlFormat html_fmt;
-  LegacyFormat igc_fmt {igc_vecs};
+  IgcFormat igc_fmt;
   LegacyFormat brauniger_iq_fmt {brauniger_iq_vecs};
   LegacyFormat mtk_fmt {mtk_vecs};
   LegacyFormat mtk_ffmt {mtk_fvecs};

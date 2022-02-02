@@ -246,6 +246,7 @@ set(HEADERS
   holux.h
   humminbird.h
   html.h
+  igc.h
   inifile.h
   kml.h
   legacyformat.h
