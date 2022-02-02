@@ -619,13 +619,13 @@ void IgcFormat::wr_header()
  * Generation of IGC task declaration records
  */
 
-void IgcFormat::wr_task_wpt_name(const Waypoint* wpt, const char* alt_name)
+void IgcFormat::wr_task_wpt_name(const Waypoint* wpt, const char* alt_name) const
 {
   gbfprintf(file_out, "C%s%s\r\n", latlon2str(wpt),
             !wpt->description.isEmpty() ? CSTR(wpt->description) : !wpt->shortname.isEmpty() ? CSTR(wpt->shortname) : alt_name);
 }
 
-void IgcFormat::wr_task_hdr(const route_head* rte)
+void IgcFormat::wr_task_hdr(const route_head* rte) const
 {
   unsigned char have_takeoff = 0;
   char flight_date[7] = "000000";
@@ -674,12 +674,12 @@ void IgcFormat::wr_task_hdr(const route_head* rte)
   }
 }
 
-void IgcFormat::wr_task_wpt(const Waypoint* wpt)
+void IgcFormat::wr_task_wpt(const Waypoint* wpt) const
 {
   wr_task_wpt_name(wpt, "");
 }
 
-void IgcFormat::wr_task_tlr(const route_head* rte)
+void IgcFormat::wr_task_tlr(const route_head* rte) const
 {
   // If the landing waypoint is not supplied we need to generate it.
   const Waypoint* wpt = rte->waypoint_list.back();
@@ -707,7 +707,7 @@ void IgcFormat::wr_tasks()
 /*
  * Write a single fix record
  */
-void IgcFormat::wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt)
+void IgcFormat::wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt) const
 {
   const time_t tt = wpt->GetCreationTime().toTime_t();
   struct tm* tm = gmtime(&tt);

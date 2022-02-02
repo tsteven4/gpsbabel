@@ -118,12 +118,12 @@ private:
   static char* date2str(tm* dt);
   static char* tod2str(tm* tod);
   void wr_header();
-  void wr_task_wpt_name(const Waypoint* wpt, const char* alt_name);
-  void wr_task_hdr(const route_head* rte);
-  void wr_task_wpt(const Waypoint* wpt);
-  void wr_task_tlr(const route_head* rte);
+  void wr_task_wpt_name(const Waypoint* wpt, const char* alt_name) const;
+  void wr_task_hdr(const route_head* rte) const;
+  void wr_task_wpt(const Waypoint* wpt) const;
+  void wr_task_tlr(const route_head* rte) const;
   void wr_tasks();
-  void wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt);
+  void wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt) const;
   static int correlate_tracks(const route_head* pres_track, const route_head* gnss_track);
   static double interpolate_alt(const route_head* track, time_t time);
   void wr_track();
