@@ -34,6 +34,7 @@
 #include "exif.h"
 #include "format.h"
 #include "garmin_fit.h"
+#include "garmin_txt.h"
 #include "geojson.h"
 #include "ggv_bin.h"
 #include "globalsat_sport.h"
@@ -97,9 +98,6 @@ extern ff_vecs_t bcr_vecs;
 extern ff_vecs_t ignr_vecs;
 extern ff_vecs_t gtm_vecs;
 extern ff_vecs_t gpssim_vecs;
-#if CSVFMTS_ENABLED
-extern ff_vecs_t garmin_txt_vecs;
-#endif // CSVFMTS_ENABLED
 extern ff_vecs_t dmtlog_vecs;
 extern ff_vecs_t raymarine_vecs;
 extern ff_vecs_t ggv_log_vecs;
@@ -275,7 +273,7 @@ private:
   LegacyFormat gtm_fmt {gtm_vecs};
   LegacyFormat gpssim_fmt {gpssim_vecs};
 #if CSVFMTS_ENABLED
-  LegacyFormat garmin_txt_fmt {garmin_txt_vecs};
+  GarminTxtFormat garmin_txt_fmt;
 #endif // CSVFMTS_ENABLED
   GtrnctrFormat gtc_fmt;
   LegacyFormat dmtlog_fmt {dmtlog_vecs};
