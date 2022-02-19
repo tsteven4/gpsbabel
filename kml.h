@@ -141,7 +141,7 @@ private:
   void gx_trk_e(const QString& args, const QXmlStreamAttributes* attrs);
   void gx_trk_when(const QString& args, const QXmlStreamAttributes* attrs);
   void gx_trk_coord(const QString& args, const QXmlStreamAttributes* attrs);
-  void kml_output_linestyle(char* color, int width) const;
+  void kml_output_linestyle(const char* color, int width) const;
   void kml_write_bitmap_style_(const QString& style, const QString& bitmap, int highlighted, int force_heading) const;
   void kml_write_bitmap_style(kml_point_type pt_type, const QString& bitmap, const QString& customstyle) const;
   void kml_output_timestamp(const Waypoint* waypointp) const;
@@ -189,21 +189,21 @@ private:
   /* Data Members */
 
   // options
-  char* opt_deficon{nullptr};
-  char* opt_export_lines{nullptr};
-  char* opt_export_points{nullptr};
-  char* opt_export_track{nullptr};
-  char* opt_line_width{nullptr};
-  char* opt_line_color{nullptr};
-  char* opt_floating{nullptr};
-  char* opt_extrude{nullptr};
-  char* opt_trackdata{nullptr};
-  char* opt_trackdirection{nullptr};
-  char* opt_units{nullptr};
-  char* opt_labels{nullptr};
-  char* opt_max_position_points{nullptr};
-  char* opt_rotate_colors{nullptr};
-  char* opt_precision{nullptr};
+  const char* opt_deficon{nullptr};
+  const char* opt_export_lines{nullptr};
+  const char* opt_export_points{nullptr};
+  const char* opt_export_track{nullptr};
+  const char* opt_line_width{nullptr};
+  const char* opt_line_color{nullptr};
+  const char* opt_floating{nullptr};
+  const char* opt_extrude{nullptr};
+  const char* opt_trackdata{nullptr};
+  const char* opt_trackdirection{nullptr};
+  const char* opt_units{nullptr};
+  const char* opt_labels{nullptr};
+  const char* opt_max_position_points{nullptr};
+  const char* opt_rotate_colors{nullptr};
+  const char* opt_precision{nullptr};
 
   int export_lines{};
   int export_points{};

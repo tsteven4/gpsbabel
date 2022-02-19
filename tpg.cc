@@ -33,7 +33,7 @@
 static gbfile* tpg_file_in;
 static gbfile* tpg_file_out;
 static short_handle mkshort_handle;
-static char* tpg_datum_opt;
+static const char* tpg_datum_opt;
 static int tpg_datum_idx;
 
 static unsigned int waypt_out_count;

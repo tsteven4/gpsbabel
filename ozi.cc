@@ -87,23 +87,23 @@ static int route_out_count;
 static int route_wpt_count;
 static int new_track;
 
-static char* snlenopt = nullptr;
-static char* snwhiteopt = nullptr;
-static char* snupperopt = nullptr;
-static char* snuniqueopt = nullptr;
-static char* wptfgcolor = nullptr;
-static char* wptbgcolor = nullptr;
-static char* pack_opt = nullptr;
+static const char* snlenopt = nullptr;
+static const char* snwhiteopt = nullptr;
+static const char* snupperopt = nullptr;
+static const char* snuniqueopt = nullptr;
+static const char* wptfgcolor = nullptr;
+static const char* wptbgcolor = nullptr;
+static const char* pack_opt = nullptr;
 static int datum;
-static char* proximityarg = nullptr;
+static const char* proximityarg = nullptr;
 static double proximity;
-static char* altunit_opt;
-static char* proxunit_opt;
+static const char* altunit_opt;
+static const char* proxunit_opt;
 static char altunit;
 static char proxunit;
 static double alt_scale;
 static double prox_scale;
-static char* opt_codec;
+static const char* opt_codec;
 
 static
 QVector<arglist_t> ozi_args = {

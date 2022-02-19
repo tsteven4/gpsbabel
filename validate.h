@@ -40,9 +40,9 @@ public:
   void process() override;
 
 private:
-  char* opt_debug{};
+  const char* opt_debug{};
   bool debug{};
-  char* opt_checkempty{};
+  const char* opt_checkempty{};
   bool checkempty{};
   unsigned int point_ct{};
   unsigned int head_ct{};

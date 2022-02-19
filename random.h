@@ -92,9 +92,9 @@ private:
 
   /* Data Members */
 
-  char* opt_points{nullptr};
-  char* opt_seed{nullptr};
-  char* opt_nodelay{nullptr};
+  const char* opt_points{nullptr};
+  const char* opt_seed{nullptr};
+  const char* opt_nodelay{nullptr};
 
   QVector<arglist_t> random_args = {
     {

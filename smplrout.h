@@ -82,11 +82,11 @@ private:
   double totalerror = 0;
   double error = 0;
 
-  char* countopt = nullptr;
-  char* erroropt = nullptr;
-  char* xteopt = nullptr;
-  char* lenopt = nullptr;
-  char* relopt = nullptr;
+  const char* countopt = nullptr;
+  const char* erroropt = nullptr;
+  const char* xteopt = nullptr;
+  const char* lenopt = nullptr;
+  const char* relopt = nullptr;
   void (*waypt_del_fnp)(route_head* rte, Waypoint* wpt){};
 
   QVector<arglist_t> args = {

@@ -126,14 +126,14 @@ static int header_ct[unknown_header + 1];
 
 #define IS_VALID_ALT(a) (((a) != unknown_alt) && ((a) < GARMIN_UNKNOWN_ALT))
 
-static char* opt_datum = nullptr;
-static char* opt_dist = nullptr;
-static char* opt_temp = nullptr;
-static char* opt_date_format = nullptr;
-static char* opt_time_format = nullptr;
-static char* opt_precision = nullptr;
-static char* opt_utc = nullptr;
-static char* opt_grid = nullptr;
+static const char* opt_datum = nullptr;
+static const char* opt_dist = nullptr;
+static const char* opt_temp = nullptr;
+static const char* opt_date_format = nullptr;
+static const char* opt_time_format = nullptr;
+static const char* opt_precision = nullptr;
+static const char* opt_utc = nullptr;
+static const char* opt_grid = nullptr;
 
 static
 QVector<arglist_t> garmin_txt_args = {

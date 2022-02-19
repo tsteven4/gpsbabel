@@ -452,13 +452,13 @@ private:
   int            route_uid{};
   int            trail_uid{};
 
-  char*          opt_ignoreicons{};
-  char*          opt_writeasicons{};
-  char*          opt_seg_break{};
-  char*          opt_wversion{};
-  char*          opt_title{};
-  char*          opt_content_descr{};
-  char*          opt_serialnum{};
+  const char*    opt_ignoreicons{};
+  const char*    opt_writeasicons{};
+  const char*    opt_seg_break{};
+  const char*    opt_wversion{};
+  const char*    opt_title{};
+  const char*    opt_content_descr{};
+  const char*    opt_serialnum{};
   int            opt_serialnum_i{};
 
   QList<const Waypoint*>* waypt_table{nullptr};
@@ -468,7 +468,7 @@ private:
   int            trail_point_count{};
   char           continuous = 1;
   short          num_section_points{};
-  char*          merge{};
+  const char*    merge{};
   int            reading_version{};
   int            rstream_version{};
   int            writing_version{};

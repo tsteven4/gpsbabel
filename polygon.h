@@ -39,8 +39,8 @@ public:
   void process() override;
 
 private:
-  char* polyfileopt = nullptr;
-  char* exclopt = nullptr;
+  const char* polyfileopt = nullptr;
+  const char* exclopt = nullptr;
 
   struct extra_data {
     unsigned short state;

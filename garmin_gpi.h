@@ -313,10 +313,10 @@ private:
 
   /* Data Members */
 
-  char* opt_cat{}, *opt_pos{}, *opt_notes{}, *opt_hide_bitmap{}, *opt_descr{}, *opt_bitmap{};
-  char* opt_unique{}, *opt_alerts{}, *opt_units{}, *opt_speed{}, *opt_proximity{}, *opt_sleep{};
-  char* opt_lang{};
-  char* opt_writecodec{};
+  const char* opt_cat{}, *opt_pos{}, *opt_notes{}, *opt_hide_bitmap{}, *opt_descr{}, *opt_bitmap{};
+  const char* opt_unique{}, *opt_alerts{}, *opt_units{}, *opt_speed{}, *opt_proximity{}, *opt_sleep{};
+  const char* opt_lang{};
+  const char* opt_writecodec{};
   double defspeed{}, defproximity{};
   int alerts{};
 

@@ -91,7 +91,7 @@ private:
   double version{};
   route_head* route = nullptr;
 
-  char* routevia = nullptr;
+  const char* routevia = nullptr;
 
   QVector<arglist_t> tef_xml_args = {
     {

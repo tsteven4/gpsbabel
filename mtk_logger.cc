@@ -230,11 +230,11 @@ enum MTK_DEVICE_TYPE {
 static void* fd;  /* serial fd */
 static FILE* fl;  /* bin.file fd */
 static char* port; /* serial port name */
-static char* OPT_erase;  /* erase ? command option */
-static char* OPT_erase_only;  /* erase_only ? command option */
-static char* OPT_log_enable;  /* enable ? command option */
-static char* csv_file; /* csv ? command option */
-static char* OPT_block_size_kb; /* block_size_kb ? command option */
+static const char* OPT_erase;  /* erase ? command option */
+static const char* OPT_erase_only;  /* erase_only ? command option */
+static const char* OPT_log_enable;  /* enable ? command option */
+static const char* csv_file; /* csv ? command option */
+static const char* OPT_block_size_kb; /* block_size_kb ? command option */
 static enum MTK_DEVICE_TYPE mtk_device = MTK_LOGGER;
 
 static struct mtk_loginfo mtk_info;
@@ -917,7 +917,7 @@ static int add_trackpoint(int idx, unsigned long bmask, struct data_item* itm)
 
 /********************** MTK Logger -- CSV output *************************/
 static gbfile* cd;
-static void mtk_csv_init(char* csv_fname, unsigned long bitmask)
+static void mtk_csv_init(const char* csv_fname, unsigned long bitmask)
 {
   FILE* cf;
 

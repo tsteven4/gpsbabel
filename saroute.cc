@@ -27,11 +27,11 @@
 
 static gbfile* infile;
 
-static char* turns_important = nullptr;
-static char* turns_only = nullptr;
-static char* controls = nullptr;
-static char* split = nullptr;
-static char* timesynth = nullptr;
+static const char* turns_important = nullptr;
+static const char* turns_only = nullptr;
+static const char* controls = nullptr;
+static const char* split = nullptr;
+static const char* timesynth = nullptr;
 
 static int control = 0;
 

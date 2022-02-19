@@ -42,8 +42,8 @@ public:
   void deinit() override;
 
 private:
-  char* distopt = nullptr;
-  char* minangleopt = nullptr;
+  const char* distopt = nullptr;
+  const char* minangleopt = nullptr;
 
   double maxDist{};
   double minAngle{};

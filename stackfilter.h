@@ -42,15 +42,15 @@ public:
   void exit() override;
 
 private:
-  char* opt_push = nullptr;
-  char* opt_copy = nullptr;
-  char* opt_pop = nullptr;
-  char* opt_append = nullptr;
-  char* opt_discard = nullptr;
-  char* opt_replace = nullptr;
-  char* opt_swap = nullptr;
-  char* opt_depth = nullptr;
-  char* nowarn = nullptr;
+  const char* opt_push = nullptr;
+  const char* opt_copy = nullptr;
+  const char* opt_pop = nullptr;
+  const char* opt_append = nullptr;
+  const char* opt_discard = nullptr;
+  const char* opt_replace = nullptr;
+  const char* opt_swap = nullptr;
+  const char* opt_depth = nullptr;
+  const char* nowarn = nullptr;
   int  warnings_enabled = 1;
   int  swapdepth = 0;
 

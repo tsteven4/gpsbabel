@@ -30,12 +30,12 @@
 
 #define MYNAME "NAVILINK"
 
-static char* nuketrk = nullptr;
-static char* nukerte = nullptr;
-static char* nukewpt = nullptr;
-static char* nukedlg = nullptr;
-static char* poweroff = nullptr;
-static char* datalog = nullptr;
+static const char* nuketrk = nullptr;
+static const char* nukerte = nullptr;
+static const char* nukewpt = nullptr;
+static const char* nukedlg = nullptr;
+static const char* poweroff = nullptr;
+static const char* datalog = nullptr;
 
 static void* serial_handle = nullptr;
 static gbfile* file_handle = nullptr;

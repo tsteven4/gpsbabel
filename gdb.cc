@@ -93,12 +93,12 @@ static bool gdb_hide_rpt;
 static QList<Waypoint*> wayptq_in, wayptq_out, wayptq_in_hidden;
 static short_handle short_h;
 
-static char* gdb_opt_category;
-static char* gdb_opt_ver;
-static char* gdb_opt_via;
-static char* gdb_opt_roadbook;
-static char* gdb_opt_bitcategory;
-static char* gdb_opt_drop_hidden_wpt;
+static const char* gdb_opt_category;
+static const char* gdb_opt_ver;
+static const char* gdb_opt_via;
+static const char* gdb_opt_roadbook;
+static const char* gdb_opt_bitcategory;
+static const char* gdb_opt_drop_hidden_wpt;
 
 static int waypt_flag;
 static int route_flag;

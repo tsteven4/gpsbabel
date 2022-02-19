@@ -22,8 +22,8 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-static char* deficon = nullptr;
-static char* nuke_placer;
+static const char* deficon = nullptr;
+static const char* nuke_placer;
 static gbfile* ofd;
 static QString ostring;
 static QXmlStreamWriter writer(&ostring);

@@ -60,7 +60,7 @@ static Waypoint** waypt_table;
 static short_handle hshort_wpt, hshort_rte;
 static int waypt_table_sz, waypt_table_ct;
 static int rte_index, rte_wpt_index;
-static char* opt_location;
+static const char* opt_location;
 
 #define MYNAME "raymarine"
 

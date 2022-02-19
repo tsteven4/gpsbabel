@@ -971,13 +971,13 @@ void setshort_defname(short_handle, const char* s);
 
 struct arglist_t {
   const char* argstring{nullptr};
-  char** argval{nullptr};
+  const char** argval{nullptr};
   const char* helpstring{nullptr};
   const char* defaultvalue{nullptr};
   const uint32_t argtype{ARGTYPE_UNKNOWN};
   const char* minvalue{nullptr};    /* minimum value for numeric options */
   const char* maxvalue{nullptr};    /* maximum value for numeric options */
-  char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
+  const char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
 };
 
 enum ff_type {

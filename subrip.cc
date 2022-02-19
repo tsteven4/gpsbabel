@@ -78,7 +78,7 @@ SubripFormat::subrip_prevwp_pr(const Waypoint* waypointp)
             starttime.hour(), starttime.minute(), starttime.second(), starttime.msec(),
             endtime.hour(), endtime.minute(), endtime.second(), endtime.msec());
 
-  for (char* c = opt_format; *c != '\0' ; c++) {
+  for (const char* c = opt_format; *c != '\0' ; c++) {
     char fmt;
 
     switch (*c) {

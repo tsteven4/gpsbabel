@@ -72,12 +72,12 @@ private:
   gbfile* file_out{};
   short_handle mkshort_handle{};
 
-  char* suppresssep = nullptr;
-  char* txt_encrypt = nullptr;
-  char* includelogs = nullptr;
-  char* degformat = nullptr;
-  char* altunits = nullptr;
-  char* split_output = nullptr;
+  const char* suppresssep = nullptr;
+  const char* txt_encrypt = nullptr;
+  const char* includelogs = nullptr;
+  const char* degformat = nullptr;
+  const char* altunits = nullptr;
+  const char* split_output = nullptr;
   int waypoint_count{};
   QString output_name;
 

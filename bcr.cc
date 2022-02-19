@@ -62,10 +62,10 @@ static inifile_t* ini;
 
 /* placeholders for options */
 
-static char* rtenum_opt;
-static char* rtename_opt;
-static char* radius_opt;
-static char* prefer_shortnames_opt;
+static const char* rtenum_opt;
+static const char* rtename_opt;
+static const char* radius_opt;
+static const char* prefer_shortnames_opt;
 
 static
 QVector<arglist_t> bcr_args = {

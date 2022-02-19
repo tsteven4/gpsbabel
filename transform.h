@@ -45,7 +45,7 @@ private:
   route_head* current_trk{};
   route_head* current_rte{};
 
-  char* opt_routes{}, *opt_tracks{}, *opt_waypts{}, *opt_delete{}, *rpt_name_digits{}, *opt_rpt_name{};
+  const char* opt_routes{}, *opt_tracks{}, *opt_waypts{}, *opt_delete{}, *rpt_name_digits{}, *opt_rpt_name{};
   QString current_namepart;
 
   int name_digits{}, use_src_name{};

@@ -394,14 +394,14 @@ private:
   const route_head* csv_track = nullptr;
   const route_head* csv_route = nullptr;
 
-  char* styleopt = nullptr;
-  char* snlenopt = nullptr;
-  char* snwhiteopt = nullptr;
-  char* snupperopt = nullptr;
-  char* snuniqueopt = nullptr;
-  char* prefer_shortnames = nullptr;
-  char* xcsv_urlbase = nullptr;
-  char* opt_datum = nullptr;
+  const char* styleopt = nullptr;
+  const char* snlenopt = nullptr;
+  const char* snwhiteopt = nullptr;
+  const char* snupperopt = nullptr;
+  const char* snuniqueopt = nullptr;
+  const char* prefer_shortnames = nullptr;
+  const char* xcsv_urlbase = nullptr;
+  const char* opt_datum = nullptr;
 
   QString intstylefile;
 

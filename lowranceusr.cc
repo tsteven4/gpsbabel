@@ -85,6 +85,7 @@
 
 */
 
+#include <algorithm>              // for min
 #include <cmath>                  // for M_PI, round, atan, exp, log, tan
 #include <cstdio>                 // for printf, sprintf, SEEK_CUR
 #include <cstdlib>                // for atoi, abs
@@ -1866,10 +1867,7 @@ LowranceusrFormat::write()
     if (int len = strlen(opt_title); len == 0) {
       buf = QString("GPSBabel generated USR data file");
     } else {
-      if (len > MAXUSRSTRINGSIZE) {
-        opt_title[MAXUSRSTRINGSIZE] = '\000';  // truncate it before copy
-      }
-      buf = opt_title;
+      buf = QString::fromUtf8(opt_title, std::min(len, MAXUSRSTRINGSIZE));
     }
     if (global_opts.debug_level >= 1) {
       printf(MYNAME " data_write: Title = '%s'\n", qPrintable(buf));
@@ -1896,10 +1894,7 @@ LowranceusrFormat::write()
     if (int len = strlen(opt_content_descr); len == 0) {
       buf = QString("Waypoints, routes, and trails");
     } else {
-      if (len > MAXUSRSTRINGSIZE) {
-        opt_content_descr[MAXUSRSTRINGSIZE] = '\000';  // truncate it before copy
-      }
-      buf = opt_content_descr;
+      buf = QString::fromUtf8(opt_content_descr, std::min(len, MAXUSRSTRINGSIZE));
     }
     if (global_opts.debug_level >= 1) {
       printf(MYNAME " data_write: Description = '%s'\n", qPrintable(buf));

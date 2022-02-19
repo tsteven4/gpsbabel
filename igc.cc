@@ -45,7 +45,7 @@
 static gbfile* file_in, *file_out;
 static char manufacturer[4];
 static const route_head* head;
-static char* timeadj = nullptr;
+static const char* timeadj = nullptr;
 static int lineno;
 
 #define MYNAME "IGC"

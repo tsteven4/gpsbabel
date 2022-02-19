@@ -107,9 +107,9 @@ static gbfile* igo8_file_in;
 static gbfile* igo8_file_out;
 
 // Options
-static char* igo8_option_tracknum = nullptr;
-static char* igo8_option_title = nullptr;
-static char* igo8_option_description = nullptr;
+static const char* igo8_option_tracknum = nullptr;
+static const char* igo8_option_title = nullptr;
+static const char* igo8_option_description = nullptr;
 
 // Internal state
 static uint32_t invented_time;

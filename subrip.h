@@ -73,10 +73,10 @@ private:
 
   /* Data Members */
 
-  char* opt_videotime{nullptr};
-  char* opt_gpstime{nullptr};
-  char* opt_gpsdate{nullptr};
-  char* opt_format{nullptr};
+  const char* opt_videotime{nullptr};
+  const char* opt_gpstime{nullptr};
+  const char* opt_gpsdate{nullptr};
+  const char* opt_format{nullptr};
   QDateTime gps_datetime;    // Date time corresponding to video video_offset_ms
   QDateTime video_datetime;  // Date time corresponding to video time 00:00:00,000.
   int video_offset_ms{0};

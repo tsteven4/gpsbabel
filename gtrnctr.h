@@ -150,8 +150,8 @@ private:
   double gtc_end_lat{};
   double gtc_end_long{};
 
-  char* opt_sport{};
-  char* opt_course{};
+  const char* opt_sport{};
+  const char* opt_course{};
 
   QVector<arglist_t> gtc_args = {
     {

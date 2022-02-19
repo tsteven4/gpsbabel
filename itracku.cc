@@ -104,8 +104,8 @@ static gbfile* fbackup; /* backup file handle */
 static uint32_t backup_last_creation_time; /* time of last data record in backup file */
 static uint32_t new_waypoint_count; /* count of new waypoints */
 static char* port; /* serial port name */
-static char* backup_file_name; /* "backup" command option */
-static char* only_new; /* "new" command option */
+static const char* backup_file_name; /* "backup" command option */
+static const char* only_new; /* "new" command option */
 
 static void
 dbg(int l, const char* msg, ...)

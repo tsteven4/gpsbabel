@@ -29,8 +29,8 @@
 #define MYNAME "gpssim"
 
 static gbfile* fout;
-static char* wayptspd;
-static char* splitfiles_opt;
+static const char* wayptspd;
+static const char* splitfiles_opt;
 static int splitfiles;
 static QString fnamestr;
 static int trk_count;

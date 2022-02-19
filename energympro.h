@@ -172,7 +172,7 @@ private:
   /* Data Members */
 
   gbfile* file_in{nullptr};
-  char* opt_timezone{nullptr};
+  const char* opt_timezone{nullptr};
   QTimeZone* timezn{nullptr};
 
   QVector<arglist_t> energympro_args = {

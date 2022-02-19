@@ -64,24 +64,24 @@ public:
   void deinit() override;
 
 private:
-  char* opt_merge = nullptr;
-  char* opt_pack = nullptr;
-  char* opt_split = nullptr;
-  char* opt_sdistance = nullptr;
-  char* opt_move = nullptr;
-  char* opt_title = nullptr;
-  char* opt_start = nullptr;
-  char* opt_stop = nullptr;
-  char* opt_fix = nullptr;
-  char* opt_course = nullptr;
-  char* opt_speed = nullptr;
-  char* opt_name = nullptr;
-  char* opt_seg2trk = nullptr;
-  char* opt_trk2seg = nullptr;
-  char* opt_segment = nullptr;
-  char* opt_faketime = nullptr;
-  char* opt_discard = nullptr;
-  char* opt_minpoints = nullptr;
+  const char* opt_merge = nullptr;
+  const char* opt_pack = nullptr;
+  const char* opt_split = nullptr;
+  const char* opt_sdistance = nullptr;
+  const char* opt_move = nullptr;
+  const char* opt_title = nullptr;
+  const char* opt_start = nullptr;
+  const char* opt_stop = nullptr;
+  const char* opt_fix = nullptr;
+  const char* opt_course = nullptr;
+  const char* opt_speed = nullptr;
+  const char* opt_name = nullptr;
+  const char* opt_seg2trk = nullptr;
+  const char* opt_trk2seg = nullptr;
+  const char* opt_segment = nullptr;
+  const char* opt_faketime = nullptr;
+  const char* opt_discard = nullptr;
+  const char* opt_minpoints = nullptr;
   int minimum_points{0};
 
   QVector<arglist_t> args = {

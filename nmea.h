@@ -143,18 +143,18 @@ private:
   int without_date{};	/* number of created trackpoints without a valid date */
   QDate opt_tm;	/* converted "date" parameter */
 
-  char* opt_gprmc{};
-  char* opt_gpgga{};
-  char* opt_gpvtg{};
-  char* opt_gpgsa{};
-  char* snlenopt{};
-  char* optdate{};
-  char* getposnarg{};
-  char* opt_sleep{};
-  char* opt_baud{};
-  char* opt_append{};
-  char* opt_gisteq{};
-  char* opt_ignorefix{};
+  const char* opt_gprmc{};
+  const char* opt_gpgga{};
+  const char* opt_gpvtg{};
+  const char* opt_gpgsa{};
+  const char* snlenopt{};
+  const char* optdate{};
+  const char* getposnarg{};
+  const char* opt_sleep{};
+  const char* opt_baud{};
+  const char* opt_append{};
+  const char* opt_gisteq{};
+  const char* opt_ignorefix{};
 
   long sleepms{};
   int getposn{};

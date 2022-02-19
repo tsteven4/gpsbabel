@@ -39,10 +39,10 @@ public:
   void process() override;
 
 private:
-  char* snopt = nullptr;
-  char* lcopt = nullptr;
-  char* purge_duplicates = nullptr;
-  char* correct_coords = nullptr;
+  const char* snopt = nullptr;
+  const char* lcopt = nullptr;
+  const char* purge_duplicates = nullptr;
+  const char* correct_coords = nullptr;
 
   QVector<arglist_t> args = {
     {

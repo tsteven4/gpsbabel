@@ -91,7 +91,7 @@ static struct {
 static void* fd;
 static FILE* fl;
 static char* port;
-static char* opt_erase;
+static const char* opt_erase;
 
 enum wintec_gps_types {
   UNKNOWN, WBT200, WBT201, WSG1000

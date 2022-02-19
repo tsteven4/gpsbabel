@@ -40,9 +40,9 @@ public:
   void process() override;
 
 private:
-  char* nukewpts{};
-  char* nuketrks{};
-  char* nukertes{};
+  const char* nukewpts{};
+  const char* nuketrks{};
+  const char* nukertes{};
 
   QVector<arglist_t> args = {
     {

@@ -44,9 +44,9 @@ private:
 
   double pos_dist{};
   double max_diff_time{};
-  char* distopt = nullptr;
-  char* timeopt = nullptr;
-  char* purge_duplicates = nullptr;
+  const char* distopt = nullptr;
+  const char* timeopt = nullptr;
+  const char* purge_duplicates = nullptr;
   bool check_time{};
 
   QVector<arglist_t> args = {

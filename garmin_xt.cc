@@ -52,8 +52,8 @@ static int colors[] = {
 
 static	gbfile* fin;
 static	route_head* track;
-static char*	opt_xt_ftype = nullptr;
-static char*	opt_trk_header = nullptr;
+static const char*	opt_xt_ftype = nullptr;
+static const char*	opt_trk_header = nullptr;
 
 static
 QVector<arglist_t> format_garmin_xt_args = {

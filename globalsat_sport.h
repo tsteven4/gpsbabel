@@ -237,12 +237,12 @@ private:
   void* serial_handle{nullptr};
   bool isSizeSwapped{false};
 
-  char* showlist{nullptr};               // if true show a list instead of download tracks
-  char* track{nullptr};                  // if not 0 only download this track, if 0 download all
+  const char* showlist{nullptr};               // if true show a list instead of download tracks
+  const char* track{nullptr};                  // if not 0 only download this track, if 0 download all
 
-  char* opt_dump_file{nullptr};          // dump raw data to this file (optional)
-  char* opt_input_dump_file{nullptr};    // if true input is from a dump-file instead of serial console
-  char* opt_timezone{nullptr};
+  const char* opt_dump_file{nullptr};          // dump raw data to this file (optional)
+  const char* opt_input_dump_file{nullptr};    // if true input is from a dump-file instead of serial console
+  const char* opt_timezone{nullptr};
   gbfile* dumpfile{nullptr};             // used for creating bin/RAW datadump files, useful for testing
   gbfile* in_file{nullptr};              // used for reading from bin/RAW datadump files, useful for testing
   QTimeZone* timezn{nullptr};

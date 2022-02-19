@@ -44,21 +44,21 @@ private:
   static QRegularExpression generateRegExp(const QString& glob_pattern);
 
 private:
-  char* hdopopt = nullptr;
-  char* vdopopt = nullptr;
-  char* andopt = nullptr;
-  char* satopt = nullptr;
-  char* fixnoneopt = nullptr;
-  char* fixunknownopt = nullptr;
-  char* eleminopt = nullptr;
-  char* elemaxopt = nullptr;
-  char* nameopt = nullptr;
+  const char* hdopopt = nullptr;
+  const char* vdopopt = nullptr;
+  const char* andopt = nullptr;
+  const char* satopt = nullptr;
+  const char* fixnoneopt = nullptr;
+  const char* fixunknownopt = nullptr;
+  const char* eleminopt = nullptr;
+  const char* elemaxopt = nullptr;
+  const char* nameopt = nullptr;
   QRegularExpression name_regex;
-  char* descopt = nullptr;
+  const char* descopt = nullptr;
   QRegularExpression desc_regex;
-  char* cmtopt = nullptr;
+  const char* cmtopt = nullptr;
   QRegularExpression cmt_regex;
-  char* iconopt = nullptr;
+  const char* iconopt = nullptr;
   QRegularExpression icon_regex;
 
   double hdopf{};

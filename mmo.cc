@@ -52,7 +52,7 @@
 
 // #define MMO_DBG
 
-static char* opt_locked, *opt_visible, *opt_version;
+static const char* opt_locked, *opt_visible, *opt_version;
 
 static
 QVector<arglist_t> mmo_args = {

@@ -27,7 +27,7 @@
 static gbfile* file_out;
 static short_handle mkshort_handle;
 
-static char* vcf_encrypt = nullptr;
+static const char* vcf_encrypt = nullptr;
 
 #define MYNAME "VCF"
 

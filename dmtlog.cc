@@ -57,7 +57,7 @@ static int xmlbinsize;
 #endif
 
 static char header_written;
-static char* opt_index;
+static const char* opt_index;
 static int track_index, this_index;
 
 static

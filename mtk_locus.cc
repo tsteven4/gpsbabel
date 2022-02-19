@@ -45,11 +45,11 @@ Example usage::
 
 static route_head* track;
 
-static char* opt_baudrate;
-static char* opt_download;
-static char* opt_erase;
-static char* opt_status;
-static char* opt_enable;
+static const char* opt_baudrate;
+static const char* opt_download;
+static const char* opt_erase;
+static const char* opt_status;
+static const char* opt_enable;
 
 static QVector<arglist_t> mtk_locus_args = {
   {"baudrate", &opt_baudrate, "Speed in bits per second of serial port (autodetect=0)", "0", ARGTYPE_INT, ARG_NOMINMAX , nullptr},

@@ -42,13 +42,13 @@ public:
 
 private:
   double pos_dist{};
-  char* distopt = nullptr;
-  char* latopt = nullptr;
-  char* lonopt = nullptr;
-  char* exclopt = nullptr;
-  char* nosort = nullptr;
-  char* maxctarg = nullptr;
-  char* routename = nullptr;
+  const char* distopt = nullptr;
+  const char* latopt = nullptr;
+  const char* lonopt = nullptr;
+  const char* exclopt = nullptr;
+  const char* nosort = nullptr;
+  const char* maxctarg = nullptr;
+  const char* routename = nullptr;
   int maxct{};
 
   Waypoint* home_pos{};

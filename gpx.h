@@ -227,10 +227,10 @@ private:
   QXmlStreamReader* reader{};
   xml_tag* cur_tag{};
   QString cdatastr;
-  char* opt_logpoint = nullptr;
-  char* opt_humminbirdext = nullptr;
-  char* opt_garminext = nullptr;
-  char* opt_elevation_precision = nullptr;
+  const char* opt_logpoint = nullptr;
+  const char* opt_humminbirdext = nullptr;
+  const char* opt_garminext = nullptr;
+  const char* opt_elevation_precision = nullptr;
   int logpoint_ct = 0;
   int elevation_precision{};
 
@@ -238,7 +238,7 @@ private:
   const QVersionNumber gpx_1_0 = QVersionNumber(1,0).normalized();
   const QVersionNumber gpx_1_1 = QVersionNumber(1,1).normalized();
   QVersionNumber gpx_highest_version_read;
-  char* opt_gpxver = nullptr;
+  const char* opt_gpxver = nullptr;
   QVersionNumber gpx_write_version;
   QXmlStreamAttributes gpx_namespace_attribute;
 
@@ -257,9 +257,9 @@ private:
   QString link_type;
 
 
-  char* snlen = nullptr;
-  char* suppresswhite = nullptr;
-  char* urlbase = nullptr;
+  const char* snlen = nullptr;
+  const char* suppresswhite = nullptr;
+  const char* urlbase = nullptr;
   route_head* trk_head{};
   route_head* rte_head{};
   const route_head* current_trk_head{};		// Output.

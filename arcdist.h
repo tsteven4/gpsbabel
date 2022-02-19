@@ -41,13 +41,13 @@ public:
 
 private:
   double pos_dist{};
-  char* distopt = nullptr;
-  char* arcfileopt = nullptr;
-  char* rteopt = nullptr;
-  char* trkopt = nullptr;
-  char* exclopt = nullptr;
-  char* ptsopt = nullptr;
-  char* projectopt = nullptr;
+  const char* distopt = nullptr;
+  const char* arcfileopt = nullptr;
+  const char* rteopt = nullptr;
+  const char* trkopt = nullptr;
+  const char* exclopt = nullptr;
+  const char* ptsopt = nullptr;
+  const char* projectopt = nullptr;
 
   struct extra_data {
     double distance;

@@ -43,11 +43,11 @@ public:
   void process() override;
 
 private:
-  char* opt_time{nullptr};
+  const char* opt_time{nullptr};
   double max_time_step{0};
-  char* opt_dist{nullptr};
+  const char* opt_dist{nullptr};
   double max_dist_step{0};
-  char* opt_route{nullptr};
+  const char* opt_route{nullptr};
 
   QVector<arglist_t> args = {
     {

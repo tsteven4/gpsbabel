@@ -38,7 +38,7 @@ static gbfile* ofd;
 static Waypoint* wpt_tmp;
 static QString urllink;
 static QString urllinkt;
-static char* binary = nullptr;
+static const char* binary = nullptr;
 
 #define MYNAME "lmx"
 

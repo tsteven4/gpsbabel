@@ -53,7 +53,7 @@ static int track_num;		/* current index of track within track_disp_all */
 static int xmlpoints;
 
 /* options */
-static char* index_opt = nullptr;
+static const char* index_opt = nullptr;
 
 static QVector<arglist_t> ignr_args = {
   {"index", &index_opt, "Index of track to write (if more than one in source)", nullptr, ARGTYPE_INT, "1", nullptr , nullptr},

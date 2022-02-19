@@ -73,11 +73,11 @@ private:
   gbfile* file_out{};
   short_handle mkshort_handle{};
 
-  char* stylesheet = nullptr;
-  char* html_encrypt = nullptr;
-  char* includelogs = nullptr;
-  char* degformat = nullptr;
-  char* altunits = nullptr;
+  const char* stylesheet = nullptr;
+  const char* html_encrypt = nullptr;
+  const char* includelogs = nullptr;
+  const char* degformat = nullptr;
+  const char* altunits = nullptr;
 
   QVector<arglist_t> html_args = {
     {

@@ -119,9 +119,9 @@ private:
 
   /* Data Members */
 
-  char* opt_tag{};
-  char* opt_tagnd{};
-  char* created_by{};
+  const char* opt_tag{};
+  const char* opt_tagnd{};
+  const char* created_by{};
 
   QVector<arglist_t> osm_args = {
     { "tag", &opt_tag, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
