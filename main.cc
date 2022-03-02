@@ -21,6 +21,7 @@
 #include <csignal>                    // for signal, SIGINT, SIG_ERR
 #include <cstdio>                     // for printf, fflush, fgetc, fprintf, stderr, stdin, stdout
 #include <cstring>                    // for strcmp
+#include <memory>                     // for shared_ptr, __shared_ptr_access
 
 #include <QByteArray>                 // for QByteArray
 #include <QChar>                      // for QChar
@@ -249,7 +250,7 @@ run(const char* prog_name)
   int argn;
   Format* ivecs = nullptr;
   Format* ovecs = nullptr;
-  Filter* filter = nullptr;
+  std::shared_ptr<Filter> filter;
   QString fname;
   QString ofname;
   int opt_version = 0;
@@ -414,7 +415,7 @@ run(const char* prog_name)
         filter->init();
         filter->process();
         filter->deinit();
-        FilterVecs::free_filter_vec(filter);
+        FilterVecs::free_filter_vec(filter.get());
       }  else {
         fatal("Unknown filter '%s'\n",qPrintable(argument));
       }
@@ -719,7 +720,6 @@ main(int argc, char* argv[])
   }
 
   Vecs::Instance().init_vecs();
-  FilterVecs::Instance().init_filter_vecs();
   session_init();
   waypt_init();
   route_init();

@@ -21,10 +21,13 @@
 #ifndef FILTER_VECS_H_INCLUDED_
 #define FILTER_VECS_H_INCLUDED_
 
-#include <QString>          // for QString
+#include <functional>      // for function
+#include <memory>          // for shared_ptr
 
-#include "defs.h"           // for arglist_t
-#include "filter.h"         // for Filter
+#include <QString>         // for QString
+
+#include "defs.h"          // for arglist_t
+#include "filter.h"        // for Filter
 
 
 class FilterVecs
@@ -41,9 +44,8 @@ public:
 
   /* Member Functions */
 
-  Filter* find_filter_vec(const QString& vecname);
+  std::shared_ptr<Filter> find_filter_vec(const QString& vecname);
   static void free_filter_vec(Filter* filter);
-  void init_filter_vecs();
   void exit_filter_vecs();
   void disp_filter_vecs() const;
   void disp_filter_vec(const QString& vecname) const;
@@ -56,9 +58,10 @@ private:
   struct Impl;                   // Not defined here
 
   struct fl_vecs_t {
-    Filter* vec;
+    std::shared_ptr<Filter> vec;
     QString name;
     QString desc;
+    std::function<Filter*()> factory;
   };
 
   /* Special Member Functions */
@@ -68,6 +71,7 @@ private:
 
   /* Member Functions */
 
+  static void init_filter_vec(const fl_vecs_t& vec);
   static void disp_help_url(const fl_vecs_t& vec, const arglist_t* arg);
   static void disp_v1(const fl_vecs_t& vec);
   static bool validate_filter_vec(const fl_vecs_t& vec);

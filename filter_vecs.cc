@@ -31,6 +31,8 @@
 #include <algorithm>        // for sort
 #include <cassert>          // for assert
 #include <cstdio>           // for printf
+#include <memory>           // for shared_ptr, operator==, __shared_ptr_access, operator!=
+#include <vector>           // for vector
 
 #include "arcdist.h"        // for ArcDistanceFilter
 #include "bend.h"           // for BendFilter
@@ -59,128 +61,128 @@
 
 
 struct FilterVecs::Impl {
-  ArcDistanceFilter arcdist;
-  BendFilter bend;
-  DiscardFilter discard;
-  DuplicateFilter duplicate;
-  HeightFilter height;
-  InterpolateFilter interpolate;
-  NukeDataFilter nukedata;
-  PolygonFilter polygon;
-  PositionFilter position;
-  RadiusFilter radius;
-  ResampleFilter resample;
-  ReverseRouteFilter reverse_route;
-  SimplifyRouteFilter routesimple;
-  SortFilter sort;
-  StackFilter stackfilt;
-  SwapDataFilter swapdata;
-  TrackFilter trackfilter;
-  TransformFilter transform;
-  ValidateFilter validate;
-
-  const QVector<fl_vecs_t> filter_vec_list = {
+  std::vector<fl_vecs_t> filter_vec_list = {
 #if FILTERS_ENABLED
     {
-      &arcdist,
+      nullptr,
       "arc",
       "Include Only Points Within Distance of Arc",
+      []()->Filter*{return new ArcDistanceFilter;}
     },
     {
-      &bend,
+      nullptr,
       "bend",
-      "Add points before and after bends in routes"
+      "Add points before and after bends in routes",
+      []()->Filter*{return new BendFilter;}
     },
     {
-      &discard,
+      nullptr,
       "discard",
-      "Remove unreliable points with high hdop or vdop"
+      "Remove unreliable points with high hdop or vdop",
+      []()->Filter*{return new DiscardFilter;}
     },
     {
-      &duplicate,
+      nullptr,
       "duplicate",
       "Remove Duplicates",
+      []()->Filter*{return new DuplicateFilter;}
     },
     {
-      &interpolate,
+      nullptr,
       "interpolate",
-      "Interpolate between trackpoints"
+      "Interpolate between trackpoints",
+      []()->Filter*{return new InterpolateFilter;}
     },
     {
-      &nukedata,
+      nullptr,
       "nuketypes",
-      "Remove all waypoints, tracks, or routes"
+      "Remove all waypoints, tracks, or routes",
+      []()->Filter*{return new NukeDataFilter;}
     },
     {
-      &polygon,
+      nullptr,
       "polygon",
       "Include Only Points Inside Polygon",
+      []()->Filter*{return new PolygonFilter;}
     },
     {
-      &position,
+      nullptr,
       "position",
       "Remove Points Within Distance",
+      []()->Filter*{return new PositionFilter;}
     },
     {
-      &radius,
+      nullptr,
       "radius",
       "Include Only Points Within Radius",
+      []()->Filter*{return new RadiusFilter;}
     },
     {
-      &resample,
+      nullptr,
       "resample",
       "Resample Track",
+      []()->Filter*{return new ResampleFilter;}
     },
     {
-      &routesimple,
+      nullptr,
       "simplify",
       "Simplify routes",
+      []()->Filter*{return new SimplifyRouteFilter;}
     },
     {
-      &sort,
+      nullptr,
       "sort",
       "Rearrange waypoints, routes and/or tracks by resorting",
+      []()->Filter*{return new SortFilter;}
     },
     {
-      &stackfilt,
+      nullptr,
       "stack",
-      "Save and restore waypoint lists"
+      "Save and restore waypoint lists",
+      []()->Filter*{return new StackFilter;}
     },
     {
-      &reverse_route,
+      nullptr,
       "reverse",
       "Reverse stops within routes",
+      []()->Filter*{return new ReverseRouteFilter;}
     },
     {
-      &trackfilter,
+      nullptr,
       "track",
-      "Manipulate track lists"
+      "Manipulate track lists",
+      []()->Filter*{return new TrackFilter;}
     },
     {
-      &transform,
+      nullptr,
       "transform",
-      "Transform waypoints into a route, tracks into routes, ..."
+      "Transform waypoints into a route, tracks into routes, ...",
+      []()->Filter*{return new TransformFilter;}
     },
     {
-      &height,
+      nullptr,
       "height",
-      "Manipulate altitudes"
+      "Manipulate altitudes",
+      []()->Filter*{return new HeightFilter;}
     },
     {
-      &swapdata,
+      nullptr,
       "swap",
-      "Swap latitude and longitude of all loaded points"
+      "Swap latitude and longitude of all loaded points",
+      []()->Filter*{return new SwapDataFilter;}
     },
     {
-      &validate,
+      nullptr,
       "validate",
-      "Validate internal data structures"
+      "Validate internal data structures",
+      []()->Filter*{return new ValidateFilter;}
     }
 #elif defined (MINIMAL_FILTERS)
     {
-      &trackfilter,
+      nullptr,
       "track",
-      "Manipulate track lists"
+      "Manipulate track lists",
+      []()->Filter*{return new TrackFilter;}
     }
 #endif
   };
@@ -193,7 +195,7 @@ FilterVecs& FilterVecs::Instance()
   return instance;
 }
 
-Filter* FilterVecs::find_filter_vec(const QString& vecname)
+std::shared_ptr<Filter> FilterVecs::find_filter_vec(const QString& vecname)
 {
   QStringList options = vecname.split(',');
   if (options.isEmpty()) {
@@ -201,9 +203,14 @@ Filter* FilterVecs::find_filter_vec(const QString& vecname)
   }
   const QString svecname = options.takeFirst();
 
-  for (const auto& vec : d_ptr_->filter_vec_list) {
+  for (auto& vec : d_ptr_->filter_vec_list) {
     if (svecname.compare(vec.name, Qt::CaseInsensitive) != 0) {
       continue;
+    }
+
+    if (vec.vec == nullptr) {
+      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      init_filter_vec(vec);
     }
 
     QVector<arglist_t>* args = vec.vec->get_args();
@@ -264,9 +271,8 @@ void FilterVecs::free_filter_vec(Filter* filter)
   }
 }
 
-void FilterVecs::init_filter_vecs()
+void FilterVecs::init_filter_vec(const fl_vecs_t& vec)
 {
-  for (const auto& vec : d_ptr_->filter_vec_list) {
     QVector<arglist_t>* args = vec.vec->get_args();
     if (args && !args->isEmpty()) {
       assert(args->isDetached());
@@ -274,20 +280,21 @@ void FilterVecs::init_filter_vecs()
         arg.argvalptr = nullptr;
       }
     }
-  }
 }
 
 void FilterVecs::exit_filter_vecs()
 {
   for (const auto& vec : d_ptr_->filter_vec_list) {
-    (vec.vec->exit)();
-    QVector<arglist_t>* args = vec.vec->get_args();
-    if (args && !args->isEmpty()) {
-      assert(args->isDetached());
-      for (auto& arg : *args) {
-        if (arg.argvalptr) {
-          xfree(arg.argvalptr);
-          *arg.argval = arg.argvalptr = nullptr;
+    if (vec.vec != nullptr) {
+      (vec.vec->exit)();
+      QVector<arglist_t>* args = vec.vec->get_args();
+      if (args && !args->isEmpty()) {
+        assert(args->isDetached());
+        for (auto& arg : *args) {
+          if (arg.argvalptr) {
+            xfree(arg.argvalptr);
+            *arg.argval = arg.argvalptr = nullptr;
+          }
         }
       }
     }
@@ -300,7 +307,11 @@ void FilterVecs::exit_filter_vecs()
  */
 void FilterVecs::disp_filter_vecs() const
 {
-  for (const auto& vec : d_ptr_->filter_vec_list) {
+  for (auto vec : d_ptr_->filter_vec_list) {
+    if (vec.vec == nullptr) {
+      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      init_filter_vec(vec);
+    }
     printf("	%-20.20s  %-50.50s\n",
            qPrintable(vec.name), qPrintable(vec.desc));
     const QVector<arglist_t>* args = vec.vec->get_args();
@@ -318,9 +329,13 @@ void FilterVecs::disp_filter_vecs() const
 
 void FilterVecs::disp_filter_vec(const QString& vecname) const
 {
-  for (const auto& vec : d_ptr_->filter_vec_list) {
+  for (auto vec : d_ptr_->filter_vec_list) {
     if (vecname.compare(vec.name, Qt::CaseInsensitive) != 0) {
       continue;
+    }
+    if (vec.vec == nullptr) {
+      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      init_filter_vec(vec);
     }
     printf("	%-20.20s  %-50.50s\n",
            qPrintable(vec.name), qPrintable(vec.desc));
@@ -386,7 +401,11 @@ void FilterVecs::disp_filters(int version) const
   switch (version) {
   case 0:
   case 1:
-    for (const auto& vec : sorted_filter_vec_list) {
+    for (auto vec : sorted_filter_vec_list) {
+      if (vec.vec == nullptr) {
+        vec.vec = std::shared_ptr<Filter>(vec.factory());
+        init_filter_vec(vec);
+      }
       if (version == 0) {
         printf("%s\t%s\n", CSTR(vec.name), CSTR(vec.desc));
       } else {
@@ -411,7 +430,11 @@ bool FilterVecs::validate_filters() const
 {
   bool ok = true;
 
-  for (const auto& vec : d_ptr_->filter_vec_list) {
+  for (auto vec : d_ptr_->filter_vec_list) {
+    if (vec.vec == nullptr) {
+      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      init_filter_vec(vec);
+    }
     ok = validate_filter_vec(vec) && ok;
   }
 
