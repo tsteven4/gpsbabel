@@ -309,7 +309,7 @@ void FilterVecs::disp_filter_vecs() const
 {
   for (auto vec : d_ptr_->filter_vec_list) {
     if (vec.vec == nullptr) {
-      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      vec.vec = vec.factory();
       init_filter_vec(vec);
     }
     printf("	%-20.20s  %-50.50s\n",
@@ -334,7 +334,7 @@ void FilterVecs::disp_filter_vec(const QString& vecname) const
       continue;
     }
     if (vec.vec == nullptr) {
-      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      vec.vec = vec.factory();
       init_filter_vec(vec);
     }
     printf("	%-20.20s  %-50.50s\n",
@@ -403,7 +403,7 @@ void FilterVecs::disp_filters(int version) const
   case 1:
     for (auto vec : sorted_filter_vec_list) {
       if (vec.vec == nullptr) {
-        vec.vec = std::shared_ptr<Filter>(vec.factory());
+        vec.vec = vec.factory();
         init_filter_vec(vec);
       }
       if (version == 0) {
@@ -432,7 +432,7 @@ bool FilterVecs::validate_filters() const
 
   for (auto vec : d_ptr_->filter_vec_list) {
     if (vec.vec == nullptr) {
-      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      vec.vec = vec.factory();
       init_filter_vec(vec);
     }
     ok = validate_filter_vec(vec) && ok;
