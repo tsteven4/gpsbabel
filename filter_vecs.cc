@@ -67,122 +67,122 @@ struct FilterVecs::Impl {
       nullptr,
       "arc",
       "Include Only Points Within Distance of Arc",
-      []()->Filter*{return new ArcDistanceFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<ArcDistanceFilter>();}
     },
     {
       nullptr,
       "bend",
       "Add points before and after bends in routes",
-      []()->Filter*{return new BendFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<BendFilter>();}
     },
     {
       nullptr,
       "discard",
       "Remove unreliable points with high hdop or vdop",
-      []()->Filter*{return new DiscardFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<DiscardFilter>();}
     },
     {
       nullptr,
       "duplicate",
       "Remove Duplicates",
-      []()->Filter*{return new DuplicateFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<DuplicateFilter>();}
     },
     {
       nullptr,
       "interpolate",
       "Interpolate between trackpoints",
-      []()->Filter*{return new InterpolateFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<InterpolateFilter>();}
     },
     {
       nullptr,
       "nuketypes",
       "Remove all waypoints, tracks, or routes",
-      []()->Filter*{return new NukeDataFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<NukeDataFilter>();}
     },
     {
       nullptr,
       "polygon",
       "Include Only Points Inside Polygon",
-      []()->Filter*{return new PolygonFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<PolygonFilter>();}
     },
     {
       nullptr,
       "position",
       "Remove Points Within Distance",
-      []()->Filter*{return new PositionFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<PositionFilter>();}
     },
     {
       nullptr,
       "radius",
       "Include Only Points Within Radius",
-      []()->Filter*{return new RadiusFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<RadiusFilter>();}
     },
     {
       nullptr,
       "resample",
       "Resample Track",
-      []()->Filter*{return new ResampleFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<ResampleFilter>();}
     },
     {
       nullptr,
       "simplify",
       "Simplify routes",
-      []()->Filter*{return new SimplifyRouteFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<SimplifyRouteFilter>();}
     },
     {
       nullptr,
       "sort",
       "Rearrange waypoints, routes and/or tracks by resorting",
-      []()->Filter*{return new SortFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<SortFilter>();}
     },
     {
       nullptr,
       "stack",
       "Save and restore waypoint lists",
-      []()->Filter*{return new StackFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<StackFilter>();}
     },
     {
       nullptr,
       "reverse",
       "Reverse stops within routes",
-      []()->Filter*{return new ReverseRouteFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<ReverseRouteFilter>();}
     },
     {
       nullptr,
       "track",
       "Manipulate track lists",
-      []()->Filter*{return new TrackFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<TrackFilter>();}
     },
     {
       nullptr,
       "transform",
       "Transform waypoints into a route, tracks into routes, ...",
-      []()->Filter*{return new TransformFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<TransformFilter>();}
     },
     {
       nullptr,
       "height",
       "Manipulate altitudes",
-      []()->Filter*{return new HeightFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<HeightFilter>();}
     },
     {
       nullptr,
       "swap",
       "Swap latitude and longitude of all loaded points",
-      []()->Filter*{return new SwapDataFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<SwapDataFilter>();}
     },
     {
       nullptr,
       "validate",
       "Validate internal data structures",
-      []()->Filter*{return new ValidateFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<ValidateFilter>();}
     }
 #elif defined (MINIMAL_FILTERS)
     {
       nullptr,
       "track",
       "Manipulate track lists",
-      []()->Filter*{return new TrackFilter;}
+      []()->std::shared_ptr<Filter>{return std::make_shared<TrackFilter>();}
     }
 #endif
   };
@@ -209,7 +209,7 @@ std::shared_ptr<Filter> FilterVecs::find_filter_vec(const QString& vecname)
     }
 
     if (vec.vec == nullptr) {
-      vec.vec = std::shared_ptr<Filter>(vec.factory());
+      vec.vec = vec.factory();
       init_filter_vec(vec);
     }
 

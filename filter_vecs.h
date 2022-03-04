@@ -61,7 +61,7 @@ private:
     std::shared_ptr<Filter> vec;
     QString name;
     QString desc;
-    std::function<Filter*()> factory;
+    std::function<std::shared_ptr<Filter>()> factory;
   };
 
   /* Special Member Functions */
