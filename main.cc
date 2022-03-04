@@ -248,8 +248,8 @@ static int
 run(const char* prog_name)
 {
   int argn;
-  Format* ivecs = nullptr;
-  Format* ovecs = nullptr;
+  std::shared_ptr<Format> ivecs = nullptr;
+  std::shared_ptr<Format> ovecs = nullptr;
   std::shared_ptr<Filter> filter;
   QString fname;
   QString ofname;

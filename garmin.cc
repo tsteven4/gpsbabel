@@ -69,7 +69,7 @@ static int baud = 0;
 static int categorybits;
 static int receiver_must_upper = 1;
 
-static Format* gpx_vec;
+static std::shared_ptr<Format> gpx_vec;
 
 #define MILITANT_VALID_WAYPT_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 

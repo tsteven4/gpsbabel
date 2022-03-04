@@ -22,6 +22,8 @@
 #define VECS_H_INCLUDED_
 
 #include <cstdint>              // for uint32_t
+#include <functional>           // for function
+#include <memory>               // for shared_ptr
 
 #include <QString>              // for QString
 #include <QStringList>          // for QStringList
@@ -51,7 +53,7 @@ public:
   static void disp_vec_options(const QString& vecname, const QVector<arglist_t>* args);
   static void validate_options(const QStringList& options, const QVector<arglist_t>* args, const QString& name);
   static QString get_option(const QStringList& options, const char* argname);
-  Format* find_vec(const QString& vecname);
+  std::shared_ptr<Format> find_vec(const QString& vecname);
   void disp_vecs() const;
   void disp_vec(const QString& vecname) const;
   static const char* name_option(uint32_t type);
@@ -65,11 +67,12 @@ private:
   struct Impl;                   // Not defined here
 
   struct vecs_t {
-    Format* vec;
+    std::shared_ptr<Format> vec;
     QString name;
     QString desc;
     QString extensions; // list of possible extensions separated by '/', first is output default for GUI.
     QString parent;
+    std::function<std::shared_ptr<Format>()> factory;
   };
 
   struct arginfo_t {
@@ -113,6 +116,7 @@ private:
 
   /* Member Functions */
 
+  static void init_vec(const vecs_t& vec);
   static int is_integer(const char* c);
   static QVector<style_vec_t> create_style_vec();
   QVector<vecinfo_t> sort_and_unify_vecs() const;

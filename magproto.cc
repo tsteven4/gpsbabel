@@ -80,7 +80,7 @@ static QString curfname;
 static int extension_hint;
 // For Explorist GC/510/610/710 families, bludgeon in GPX support.
 // (This has nothing to do with the Explorist 100...600 products.)
-static Format* gpx_vec;
+static std::shared_ptr<Format> gpx_vec;
 static mag_info* explorist_info;
 static QStringList os_gpx_files(const char* dirname);
 

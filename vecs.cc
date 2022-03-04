@@ -36,6 +36,8 @@
 #include <cassert>             // for assert
 #include <cctype>              // for isdigit
 #include <cstdio>              // for printf, putchar, sscanf
+#include <memory>              // for shared_ptr, operator==, __shared_ptr_access, operator!=
+#include <vector>              // for vector
 
 #include "defs.h"              // for arglist_t, ff_vecs_t, ff_cap, fatal, CSTR, ARGTYPE_TYPEMASK, case_ignore_strcmp, global_options, global_opts, warning, xfree, ARGTYPE_BOOL, ff_cap_read, ff_cap_write, ARGTYPE_HIDDEN, ff_type_internal, xstrdup, ARGTYPE_INT, ARGTYPE_REQUIRED, ARGTYPE_FLOAT
 #include "dg-100.h"            // for Dg100FileFormat, Dg100SerialFormat, Dg200FileFormat, Dg200SerialFormat
@@ -130,8 +132,6 @@ extern ff_vecs_t mapasia_tr7_vecs;
 extern ff_vecs_t gnav_trl_vecs;
 extern ff_vecs_t navitel_trk_vecs;
 extern ff_vecs_t ggv_ovl_vecs;
-#if CSVFMTS_ENABLED
-#endif // CSVFMTS_ENABLED
 extern ff_vecs_t itracku_vecs;
 extern ff_vecs_t itracku_fvecs;
 extern ff_vecs_t sbp_vecs;
@@ -153,779 +153,769 @@ struct Vecs::Impl
    * instance is guaranteed to have already constructed when an instance
    * of this class is constructed.
    */
-#if CSVFMTS_ENABLED
-  XcsvFormat xcsv_fmt;
-#endif // CSVFMTS_ENABLED
-  LegacyFormat geo_fmt {geo_vecs};
-  GpxFormat gpx_fmt;
-  LegacyFormat mag_sfmt {mag_svecs};
-  LegacyFormat mag_ffmt {mag_fvecs};
-  LegacyFormat magX_ffmt {magX_fvecs};
-  LegacyFormat garmin_fmt {garmin_vecs};
-  GdbFormat gdb_fmt;
-  NmeaFormat nmea_fmt;
-  LegacyFormat ozi_fmt {ozi_vecs};
-  KmlFormat kml_fmt;
-#if MAXIMAL_ENABLED
-  LowranceusrFormat lowranceusr_fmt;
-  LegacyFormat holux_fmt {holux_vecs};
-  LegacyFormat tpg_fmt {tpg_vecs};
-  LegacyFormat tpo2_fmt {tpo2_vecs};
-  LegacyFormat tpo3_fmt {tpo3_vecs};
-  LegacyFormat easygps_fmt {easygps_vecs};
-  LegacyFormat saroute_fmt {saroute_vecs};
-#if SHAPELIB_ENABLED
-  ShapeFormat shape_fmt;
-#endif
-  LegacyFormat gpl_fmt {gpl_vecs};
-  TextFormat text_fmt;
-  HtmlFormat html_fmt;
-  LegacyFormat igc_fmt {igc_vecs};
-  LegacyFormat brauniger_iq_fmt {brauniger_iq_vecs};
-  LegacyFormat mtk_fmt {mtk_vecs};
-  LegacyFormat mtk_ffmt {mtk_fvecs};
-  LegacyFormat mtk_m241_fmt {mtk_m241_vecs};
-  LegacyFormat mtk_m241_ffmt {mtk_m241_fvecs};
-  LegacyFormat mtk_locus_fmt {mtk_locus_vecs};
-#endif // MAXIMAL_ENABLED
-  LegacyFormat wbt_sfmt {wbt_svecs};
-#if MAXIMAL_ENABLED
-  LegacyFormat wbt_ffmt {wbt_fvecs};
-//LegacyFormat wbt_ffmt {wbt_fvecs};
-  LegacyFormat hiketech_fmt {hiketech_vecs};
-  LegacyFormat glogbook_fmt {glogbook_vecs};
-  LegacyFormat vcf_fmt {vcf_vecs};
-  LegacyFormat google_dir_fmt {google_dir_vecs};
-  LegacyFormat tomtom_fmt {tomtom_vecs};
-  TefXMLFormat tef_xml_fmt;
-  LegacyFormat bcr_fmt {bcr_vecs};
-  LegacyFormat ignr_fmt {ignr_vecs};
-  UnicsvFormat unicsv_fmt;
-  LegacyFormat gtm_fmt {gtm_vecs};
-  LegacyFormat gpssim_fmt {gpssim_vecs};
-#if CSVFMTS_ENABLED
-  LegacyFormat garmin_txt_fmt {garmin_txt_vecs};
-#endif // CSVFMTS_ENABLED
-  GtrnctrFormat gtc_fmt;
-  LegacyFormat dmtlog_fmt {dmtlog_vecs};
-  LegacyFormat raymarine_fmt {raymarine_vecs};
-  LegacyFormat ggv_log_fmt {ggv_log_vecs};
-  GarminGPIFormat garmin_gpi_fmt;
-  LegacyFormat lmx_fmt {lmx_vecs};
-  RandomFormat random_fmt;
-  LegacyFormat xol_fmt {xol_vecs};
-  Dg100SerialFormat dg100_fmt;
-  Dg100FileFormat dg100_ffmt;
-  Dg200SerialFormat dg200_fmt;
-  Dg200FileFormat dg200_ffmt;
-  LegacyFormat navilink_fmt {navilink_vecs};
-  LegacyFormat ik3d_fmt {ik3d_vecs};
-  OsmFormat osm_fmt;
-  LegacyFormat destinator_poi_fmt {destinator_poi_vecs};
-  LegacyFormat destinator_itn_fmt {destinator_itn_vecs};
-  LegacyFormat destinator_trl_fmt {destinator_trl_vecs};
-  ExifFormat exif_fmt;
-  LegacyFormat igo8_fmt {igo8_vecs};
-  HumminbirdFormat humminbird_fmt;
-  HumminbirdHTFormat humminbird_ht_fmt;
-  LegacyFormat mapasia_tr7_fmt {mapasia_tr7_vecs};
-  LegacyFormat gnav_trl_fmt {gnav_trl_vecs};
-  LegacyFormat navitel_trk_fmt {navitel_trk_vecs};
-  LegacyFormat ggv_ovl_fmt {ggv_ovl_vecs};
-  LegacyFormat itracku_fmt {itracku_vecs};
-  LegacyFormat itracku_ffmt {itracku_fvecs};
-  LegacyFormat sbp_fmt {sbp_vecs};
-  LegacyFormat sbn_fmt {sbn_vecs};
-  LegacyFormat mmo_fmt {mmo_vecs};
-  LegacyFormat v900_fmt {v900_vecs};
-  LegacyFormat enigma_fmt {enigma_vecs};
-  SkytraqFormat skytraq_fmt;
-  TeletypeFormat teletype_fmt;
-  SkytraqfileFormat skytraq_ffmt;
-  MinihomerFormat miniHomer_fmt;
-  WintecTesFormat wintec_tes_fmt;
-  SubripFormat subrip_fmt;
-  LegacyFormat format_garmin_xt_fmt {format_garmin_xt_vecs};
-  GarminFitFormat format_fit_fmt;
-  MapbarTrackFormat mapbar_track_fmt;
-  F90gTrackFormat f90g_track_fmt;
-  MapfactorFormat mapfactor_fmt;
-  EnergymproFormat energympro_fmt;
-  MyNavFormat mynav_fmt;
-  GeoJsonFormat geojson_fmt;
-  GgvBinFormat ggv_bin_fmt;
-  GlobalsatSportFormat globalsat_sport_fmt;
-  QstarzBL1000Format qstarz_bl_1000_fmt;
-#endif // MAXIMAL_ENABLED
 
-  const QVector<vecs_t> vec_list {
+  std::vector<vecs_t> vec_list {
 #if CSVFMTS_ENABLED
     /* XCSV must be the first entry in this table. */
     {
-      &xcsv_fmt,
+      nullptr,
       "xcsv",
       "? Character Separated Values",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<XcsvFormat>();}
     },
 #endif
     {
-      &geo_fmt,
+      nullptr,
       "geo",
       "Geocaching.com .loc",
       "loc",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(geo_vecs);}
     },
     {
-      &gpx_fmt,
+      nullptr,
       "gpx",
       "GPX XML",
       "gpx",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GpxFormat>();}
     },
     {
-      &mag_sfmt,
+      nullptr,
       "magellan",
       "Magellan serial protocol",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mag_svecs);}
     },
     {
-      &mag_ffmt,
+      nullptr,
       "magellan",
       "Magellan SD files (as for Meridian)",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mag_fvecs);}
     },
     {
-      &magX_ffmt,
+      nullptr,
       "magellanx",
       "Magellan SD files (as for eXplorist)",
       "upt",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(magX_fvecs);}
     },
     {
-      &garmin_fmt,
+      nullptr,
       "garmin",
       "Garmin serial/USB protocol",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(garmin_vecs);}
     },
     {
-      &gdb_fmt,
+      nullptr,
       "gdb",
       "Garmin MapSource - gdb",
       "gdb",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GdbFormat>();}
     },
     {
-      &nmea_fmt,
+      nullptr,
       "nmea",
       "NMEA 0183 sentences",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<NmeaFormat>();}
     },
     {
-      &ozi_fmt,
+      nullptr,
       "ozi",
       "OziExplorer",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(ozi_vecs);}
     },
     {
-      &kml_fmt,
+      nullptr,
       "kml",
       "Google Earth (Keyhole) Markup Language",
       "kml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<KmlFormat>();}
     },
 #if MAXIMAL_ENABLED
     {
-      &lowranceusr_fmt,
+      nullptr,
       "lowranceusr",
       "Lowrance USR",
       "usr",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LowranceusrFormat>();}
     },
     {
-      &holux_fmt,
+      nullptr,
       "holux",
       "Holux (gm-100) .wpo Format",
       "wpo",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(holux_vecs);}
     },
     {
-      &tpg_fmt,
+      nullptr,
       "tpg",
       "National Geographic Topo .tpg (waypoints)",
       "tpg",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(tpg_vecs);}
     },
     {
-      &tpo2_fmt,
+      nullptr,
       "tpo2",
       "National Geographic Topo 2.x .tpo",
       "tpo",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(tpo2_vecs);}
     },
     {
-      &tpo3_fmt,
+      nullptr,
       "tpo3",
       "National Geographic Topo 3.x/4.x .tpo",
       "tpo",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(tpo3_vecs);}
     },
     {
-      &easygps_fmt,
+      nullptr,
       "easygps",
       "EasyGPS binary format",
       "loc",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(easygps_vecs);}
     },
     {
-      &saroute_fmt,
+      nullptr,
       "saroute",
       "DeLorme Street Atlas Route",
       "anr",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(saroute_vecs);}
     },
 #if SHAPELIB_ENABLED
     {
-      &shape_fmt,
+      nullptr,
       "shape",
       "ESRI shapefile",
       "shp",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<ShapeFormat>();}
     },
 #endif
     {
-      &gpl_fmt,
+      nullptr,
       "gpl",
       "DeLorme GPL",
       "gpl",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(gpl_vecs);}
     },
     {
-      &text_fmt,
+      nullptr,
       "text",
       "Textual Output",
       "txt",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<TextFormat>();}
     },
     {
-      &html_fmt,
+      nullptr,
       "html",
       "HTML Output",
       "html",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<HtmlFormat>();}
     },
     {
-      &igc_fmt,
+      nullptr,
       "igc",
       "FAI/IGC Flight Recorder Data Format",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(igc_vecs);}
     },
     {
-      &brauniger_iq_fmt,
+      nullptr,
       "baroiq",
       "Brauniger IQ Series Barograph Download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(brauniger_iq_vecs);}
     },
     {
-      &mtk_fmt,
+      nullptr,
       "mtk",
       "MTK Logger (iBlue 747,Qstarz BT-1000,...) download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mtk_vecs);}
     },
     {
-      &mtk_ffmt,
+      nullptr,
       "mtk-bin",
       "MTK Logger (iBlue 747,...) Binary File Format",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mtk_fvecs);}
     },
     {
-      &mtk_m241_fmt,
+      nullptr,
       "m241",
       "Holux M-241 (MTK based) download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mtk_m241_vecs);}
     },
     {
-      &mtk_m241_ffmt,
+      nullptr,
       "m241-bin",
       "Holux M-241 (MTK based) Binary File Format",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mtk_m241_fvecs);}
     },
     {
-      &mtk_locus_fmt,
+      nullptr,
       "mtk_locus",
       "MediaTek Locus",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mtk_locus_vecs);}
     },
 #endif // MAXIMAL_ENABLED
     {
-      &wbt_sfmt,
+      nullptr,
       "wbt",
       "Wintec WBT-100/200 GPS Download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(wbt_svecs);}
     },
 #if MAXIMAL_ENABLED
     {
-      &wbt_ffmt,
+      nullptr,
       "wbt-bin",
       "Wintec WBT-100/200 Binary File Format",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(wbt_fvecs);}
     },
     {
-      &wbt_ffmt,
+      nullptr,
       "wbt-tk1",
       "Wintec WBT-201/G-Rays 2 Binary File Format",
       "tk1",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(wbt_fvecs);}
     },
     {
-      &hiketech_fmt,
+      nullptr,
       "hiketech",
       "HikeTech",
       "gps",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(hiketech_vecs);}
     },
     {
-      &glogbook_fmt,
+      nullptr,
       "glogbook",
       "Garmin Logbook XML",
       "xml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(glogbook_vecs);}
     },
     {
-      &vcf_fmt,
+      nullptr,
       "vcard",
       "Vcard Output (for iPod)",
       "vcf",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(vcf_vecs);}
     },
     {
-      &google_dir_fmt,
+      nullptr,
       "googledir",
       "Google Directions XML",
       "xml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(google_dir_vecs);}
     },
     {
-      &tomtom_fmt,
+      nullptr,
       "tomtom",
       "TomTom POI file (.ov2)",
       "ov2",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(tomtom_vecs);}
     },
     {
-      &tef_xml_fmt,
+      nullptr,
       "tef",
       "Map&Guide 'TourExchangeFormat' XML",
       "xml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<TefXMLFormat>();}
     },
     {
-      &bcr_fmt,
+      nullptr,
       "bcr",
       "Motorrad Routenplaner (Map&Guide) .bcr files",
       "bcr",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(bcr_vecs);}
     },
     {
-      &ignr_fmt,
+      nullptr,
       "ignrando",
       "IGN Rando track files",
       "rdn",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(ignr_vecs);}
     },
     {
-      &unicsv_fmt,
+      nullptr,
       "unicsv",
       "Universal csv with field structure in first line",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<UnicsvFormat>();}
     },
     {
-      &gtm_fmt,
+      nullptr,
       "gtm",
       "GPS TrackMaker",
       "gtm",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(gtm_vecs);}
     },
     {
-      &gpssim_fmt,
+      nullptr,
       "gpssim",
       "Franson GPSGate Simulation",
       "gpssim",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(gpssim_vecs);}
     },
 #if CSVFMTS_ENABLED
     {
-      &garmin_txt_fmt,
+      nullptr,
       "garmin_txt",
       "Garmin MapSource - txt (tab delimited)",
       "txt",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(garmin_txt_vecs);}
     },
 #endif // CSVFMTS_ENABLED
     {
-      &gtc_fmt,
+      nullptr,
       "gtrnctr",
       "Garmin Training Center (.tcx/.crs/.hst/.xml)",
       "tcx/crs/hst/xml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GtrnctrFormat>();}
     },
     {
-      &dmtlog_fmt,
+      nullptr,
       "dmtlog",
       "TrackLogs digital mapping (.trl)",
       "trl",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(dmtlog_vecs);}
     },
     {
-      &raymarine_fmt,
+      nullptr,
       "raymarine",
       "Raymarine Waypoint File (.rwf)",
       "rwf",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(raymarine_vecs);}
     },
     {
-      &ggv_log_fmt,
+      nullptr,
       "ggv_log",
       "Geogrid-Viewer tracklogs (.log)",
       "log",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(ggv_log_vecs);}
     },
     {
-      &garmin_gpi_fmt,
+      nullptr,
       "garmin_gpi",
       "Garmin Points of Interest (.gpi)",
       "gpi",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GarminGPIFormat>();}
     },
     {
-      &lmx_fmt,
+      nullptr,
       "lmx",
       "Nokia Landmark Exchange",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(lmx_vecs);}
     },
     {
-      &random_fmt,
+      nullptr,
       "random",
       "Internal GPS data generator",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<RandomFormat>();}
     },
     {
-      &xol_fmt,
+      nullptr,
       "xol",
       "Swiss Map 25/50/100 (.xol)",
       "xol",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(xol_vecs);}
     },
     {
-      &dg100_fmt,
+      nullptr,
       "dg-100",
       "GlobalSat DG-100/BT-335 Download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<Dg100SerialFormat>();}
     },
     {
-      &dg100_ffmt,
+      nullptr,
       "dg-100-bin",
       "GlobalSat DG-100/BT-335 Binary File",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<Dg100FileFormat>();}
     },
     {
-      &dg200_fmt,
+      nullptr,
       "dg-200",
       "GlobalSat DG-200 Download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<Dg200SerialFormat>();}
     },
     {
-      &dg200_ffmt,
+      nullptr,
       "dg-200-bin",
       "GlobalSat DG-200 Binary File",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<Dg200FileFormat>();}
     },
     {
-      &navilink_fmt,
+      nullptr,
       "navilink",
       "NaviGPS GT-11/BGT-11 Download",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(navilink_vecs);}
     },
     {
-      &ik3d_fmt,
+      nullptr,
       "ik3d",
       "MagicMaps IK3D project file (.ikt)",
       "ikt",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(ik3d_vecs);}
     },
     {
-      &osm_fmt,
+      nullptr,
       "osm",
       "OpenStreetMap data files",
       "osm",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<OsmFormat>();}
     },
     {
-      &destinator_poi_fmt,
+      nullptr,
       "destinator_poi",
       "Destinator Points of Interest (.dat)",
       "dat",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(destinator_poi_vecs);}
     },
     {
-      &destinator_itn_fmt,
+      nullptr,
       "destinator_itn",
       "Destinator Itineraries (.dat)",
       "dat",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(destinator_itn_vecs);}
     },
     {
-      &destinator_trl_fmt,
+      nullptr,
       "destinator_trl",
       "Destinator TrackLogs (.dat)",
       "dat",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(destinator_trl_vecs);}
     },
     {
-      &exif_fmt,
+      nullptr,
       "exif",
       "Embedded Exif-GPS data (.jpg)",
       "jpg",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<ExifFormat>();}
     },
     {
-      &igo8_fmt,
+      nullptr,
       "igo8",
       "IGO8 .trk",
       "trk",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(igo8_vecs);}
     },
     {
-      &humminbird_fmt,
+      nullptr,
       "humminbird",
       "Humminbird waypoints and routes (.hwr)",
       "hwr",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<HumminbirdFormat>();}
     },
     {
-      &humminbird_ht_fmt,
+      nullptr,
       "humminbird_ht",
       "Humminbird tracks (.ht)",
       "ht",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<HumminbirdHTFormat>();}
     },
     {
-      &mapasia_tr7_fmt,
+      nullptr,
       "mapasia_tr7",
       "MapAsia track file (.tr7)",
       "tr7",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mapasia_tr7_vecs);}
     },
     {
-      &gnav_trl_fmt,
+      nullptr,
       "gnav_trl",
       "Google Navigator Tracklines (.trl)",
       "trl",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(gnav_trl_vecs);}
     },
     {
-      &navitel_trk_fmt,
+      nullptr,
       "navitel_trk",
       "Navitel binary track (.bin)",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(navitel_trk_vecs);}
     },
     {
-      &ggv_ovl_fmt,
+      nullptr,
       "ggv_ovl",
       "Geogrid-Viewer ascii overlay file (.ovl)",
       "ovl",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(ggv_ovl_vecs);}
     },
     {
-      &itracku_fmt,
+      nullptr,
       "itracku",
       "XAiOX iTrackU Logger",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(itracku_vecs);}
     },
     {
-      &itracku_ffmt,
+      nullptr,
       "itracku-bin",
       "XAiOX iTrackU Logger Binary File Format",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(itracku_fvecs);}
     },
     {
-      &sbp_fmt,
+      nullptr,
       "sbp",
       "NaviGPS GT-31/BGT-31 datalogger (.sbp)",
       "sbp",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(sbp_vecs);}
     },
     {
-      &sbn_fmt,
+      nullptr,
       "sbn",
       "NaviGPS GT-31/BGT-31 SiRF binary logfile (.sbn)",
       "sbn",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(sbn_vecs);}
     },
     {
-      &mmo_fmt,
+      nullptr,
       "mmo",
       "Memory-Map Navigator overlay files (.mmo)",
       "mmo",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(mmo_vecs);}
     },
     {
-      &v900_fmt,
+      nullptr,
       "v900",
       "Columbus/Visiontac V900 files (.csv)",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(v900_vecs);}
     },
     {
-      &enigma_fmt,
+      nullptr,
       "enigma",
       "Enigma binary waypoint file (.ert)",
       "ert",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(enigma_vecs);}
     },
     {
-      &skytraq_fmt,
+      nullptr,
       "skytraq",
       "SkyTraq Venus based loggers (download)",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<SkytraqFormat>();}
     },
     {
-      &teletype_fmt,
+      nullptr,
       "teletype",
       "Teletype [ Get Jonathon Johnson to describe",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<TeletypeFormat>();}
     },
     {
-      &skytraq_ffmt,
+      nullptr,
       "skytraq-bin",
       "SkyTraq Venus based loggers Binary File Format",
       "bin",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<SkytraqfileFormat>();}
     },
     {
-      &miniHomer_fmt,
+      nullptr,
       "miniHomer",
       "MiniHomer, a skyTraq Venus 6 based logger (download tracks, waypoints and get/set POI)",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<MinihomerFormat>();}
     },
     {
-      &wintec_tes_fmt,
+      nullptr,
       "wintec_tes",
       "Wintec TES file",
       "tes",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<WintecTesFormat>();}
     },
     {
-      &subrip_fmt,
+      nullptr,
       "subrip",
       "SubRip subtitles for video mapping (.srt)",
       "srt",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<SubripFormat>();}
     },
     {
-      &format_garmin_xt_fmt,
+      nullptr,
       "garmin_xt",
       "Mobile Garmin XT Track files",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<LegacyFormat>(format_garmin_xt_vecs);}
     },
     {
-      &format_fit_fmt,
+      nullptr,
       "garmin_fit",
       "Flexible and Interoperable Data Transfer (FIT) Activity file",
       "fit",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GarminFitFormat>();}
     },
     {
-      &mapbar_track_fmt,
+      nullptr,
       "mapbar",
       "Mapbar (China) navigation track for Sonim Xp3300",
       "trk",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<MapbarTrackFormat>();}
     },
     {
-      &f90g_track_fmt,
+      nullptr,
       "f90g",
       "F90G Automobile DVR GPS log file",
       "map",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<F90gTrackFormat>();}
     },
     {
-      &mapfactor_fmt,
+      nullptr,
       "mapfactor",
       "Mapfactor Navigator",
       "xml",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<MapfactorFormat>();}
     },
     {
-      &energympro_fmt,
+      nullptr,
       "energympro",
       "Energympro GPS training watch",
       "cpo",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<EnergymproFormat>();}
     },
     {
-      &mynav_fmt,
+      nullptr,
       "mynav",
       "MyNav TRC format",
       "trc",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<MyNavFormat>();}
     },
     {
-      &geojson_fmt,
+      nullptr,
       "geojson",
       "GeoJson",
       "json",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GeoJsonFormat>();}
     },
     {
-      &ggv_bin_fmt,
+      nullptr,
       "ggv_bin",
       "Geogrid-Viewer binary overlay file (.ovl)",
       "ovl",
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GgvBinFormat>();}
     },
     {
-      &globalsat_sport_fmt,
+      nullptr,
       "globalsat",
       "GlobalSat GH625XT GPS training watch",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<GlobalsatSportFormat>();}
     },
     {
-      &qstarz_bl_1000_fmt,
+      nullptr,
       "qstarz_bl-1000",
       "Qstarz BL-1000",
       nullptr,
       nullptr,
+      []()->std::shared_ptr<Format>{return std::make_shared<QstarzBL1000Format>();}
     }
 #endif // MAXIMAL_ENABLED
   };
@@ -955,20 +945,29 @@ Vecs& Vecs::Instance()
  * the default the default constructor would be implicitly deleted.
  */
 
-void Vecs::init_vecs()
+void Vecs::init_vec(const vecs_t& vec)
 {
-  for (const auto& vec : d_ptr_->vec_list) {
-    QVector<arglist_t>* args = vec.vec->get_args();
-    if (args && !args->isEmpty()) {
-      assert(args->isDetached());
-      for (auto& arg : *args) {
-        arg.argvalptr = nullptr;
-        if (arg.argval) {
-          *arg.argval = nullptr;
-        }
+  QVector<arglist_t>* args = vec.vec->get_args();
+  if (args && !args->isEmpty()) {
+    assert(args->isDetached());
+    for (auto& arg : *args) {
+      arg.argvalptr = nullptr;
+      if (arg.argval) {
+        *arg.argval = nullptr;
       }
     }
   }
+}
+
+void Vecs::init_vecs()
+{
+#if CSVFMTS_ENABLED
+  /* Set up shared XcsvFormat */
+  if (d_ptr_->vec_list.at(0).vec == nullptr) {
+    d_ptr_->vec_list[0].vec = d_ptr_->vec_list[0].factory();
+    init_vec(d_ptr_->vec_list[0]);
+  }
+#endif
   style_list = create_style_vec();
 }
 
@@ -980,14 +979,16 @@ int Vecs::is_integer(const char* c)
 void Vecs::exit_vecs()
 {
   for (const auto& vec : d_ptr_->vec_list) {
-    (vec.vec->exit)();
-    QVector<arglist_t>* args = vec.vec->get_args();
-    if (args && !args->isEmpty()) {
-      assert(args->isDetached());
-      for (auto& arg : *args) {
-        if (arg.argvalptr) {
-          xfree(arg.argvalptr);
-          *arg.argval = arg.argvalptr = nullptr;
+    if (vec.vec != nullptr) {
+      (vec.vec->exit)();
+      QVector<arglist_t>* args = vec.vec->get_args();
+      if (args && !args->isEmpty()) {
+        assert(args->isDetached());
+        for (auto& arg : *args) {
+          if (arg.argvalptr) {
+            xfree(arg.argvalptr);
+            *arg.argval = arg.argvalptr = nullptr;
+          }
         }
       }
     }
@@ -1120,7 +1121,7 @@ void Vecs::validate_options(const QStringList& options, const QVector<arglist_t>
   }
 }
 
-Format* Vecs::find_vec(const QString& vecname)
+std::shared_ptr<Format> Vecs::find_vec(const QString& vecname)
 {
   QStringList options = vecname.split(',');
   if (options.isEmpty()) {
@@ -1128,9 +1129,14 @@ Format* Vecs::find_vec(const QString& vecname)
   }
   const QString svecname = options.takeFirst();
 
-  for (const auto& vec : d_ptr_->vec_list) {
+  for (auto& vec : d_ptr_->vec_list) {
     if (svecname.compare(vec.name, Qt::CaseInsensitive) != 0) {
       continue;
+    }
+
+    if (vec.vec == nullptr) {
+      vec.vec = vec.factory();
+      init_vec(vec);
     }
 
     QVector<arglist_t>* args = vec.vec->get_args();
@@ -1169,7 +1175,7 @@ Format* Vecs::find_vec(const QString& vecname)
      * format that utilized an internal style file, then we need to let
      * xcsv know the internal style file is no longer in play.
      */
-    d_ptr_->xcsv_fmt.xcsv_setup_internal_style(nullptr);
+    dynamic_cast<XcsvFormat*>(d_ptr_->vec_list.at(0).vec.get())->xcsv_setup_internal_style(nullptr);
 #endif // CSVFMTS_ENABLED
     vec.vec->set_name(vec.name);	/* needed for session information */
     vec.vec->set_argstring(vecname);  /* needed for positional parameters */
@@ -1216,7 +1222,7 @@ Format* Vecs::find_vec(const QString& vecname)
       disp_vec_options(svec.name, xcsv_args);
     }
 #if CSVFMTS_ENABLED
-    d_ptr_->xcsv_fmt.xcsv_setup_internal_style(svec.style_filename);
+    dynamic_cast<XcsvFormat*>(d_ptr_->vec_list.at(0).vec.get())->xcsv_setup_internal_style(svec.style_filename);
 #endif // CSVFMTS_ENABLED
 
     d_ptr_->vec_list[0].vec->set_name(svec.name);	/* needed for session information */
@@ -1297,7 +1303,11 @@ QVector<Vecs::vecinfo_t> Vecs::sort_and_unify_vecs() const
   svp.reserve(d_ptr_->vec_list.size() + style_list.size());
 
   /* Gather relevant information for normal formats. */
-  for (const auto& vec : d_ptr_->vec_list) {
+  for (auto vec : d_ptr_->vec_list) {
+    if (vec.vec == nullptr) {
+      vec.vec = vec.factory();
+      init_vec(vec);
+    }
     vecinfo_t info;
     info.name = vec.name;
     info.desc = vec.desc;
@@ -1612,7 +1622,11 @@ bool Vecs::validate_formats() const
 {
   bool ok = true;
 
-  for (const auto& vec : d_ptr_->vec_list) {
+  for (auto vec : d_ptr_->vec_list) {
+    if (vec.vec == nullptr) {
+      vec.vec = vec.factory();
+      init_vec(vec);
+    }
     ok = validate_vec(vec) && ok;
   }
 
