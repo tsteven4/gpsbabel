@@ -966,7 +966,7 @@ rot13(const QString& s)
 QString
 convert_human_date_format(const char* human_datef)
 {
-  std::unique_ptr<char[]> result(new char[(2*strlen(human_datef)) + 1]);
+  std::unique_ptr<char[]> result(new char[(2*strlen(human_datef)) + 1]{});
   char* cout = result.get();
   char prev = '\0';
   int ylen = 0;
@@ -1021,8 +1021,7 @@ convert_human_date_format(const char* human_datef)
       fatal("Invalid character \"%c\" in date format!", *cin);
     }
   }
-  QString rv(result.get());
-  return rv;
+  return result.get();
 }
 
 /*
@@ -1033,7 +1032,7 @@ convert_human_date_format(const char* human_datef)
 QString
 convert_human_time_format(const char* human_timef)
 {
-  std::unique_ptr<char[]> result(new char[(2*strlen(human_timef)) + 1]);
+  std::unique_ptr<char[]> result(new char[(2*strlen(human_timef)) + 1]{});
   char* cout = result.get();
   char prev = '\0';
 
@@ -1114,8 +1113,7 @@ convert_human_time_format(const char* human_timef)
       fatal("Invalid character \"%c\" in time format!", *cin);
     }
   }
-  QString rv(result.get());
-  return rv;
+  return result.get();
 }
 
 
@@ -1421,7 +1419,7 @@ entitize(const char* str, bool is_html)
   }
 
   /* enough space for the whole string plus entity replacements, if any */
-  std::unique_ptr<char[]> tmp(new char[strlen(str) + elen + 1]);
+  std::unique_ptr<char[]> tmp(new char[strlen(str) + elen + 1]{});
   strcpy(tmp.get(), str);
 
   if (ecount != 0) {
@@ -1445,8 +1443,7 @@ entitize(const char* str, bool is_html)
     }
   }
 
-  QString rv(tmp.get());
-  return rv;
+  return tmp.get();
 }
 
 /*
