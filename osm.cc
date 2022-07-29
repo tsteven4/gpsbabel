@@ -406,20 +406,11 @@ OsmFormat::osm_feature_symbol(const int ikey, const char* value) const
   return result;
 }
 
-char*
-OsmFormat::osm_strip_html(const char* str)
-{
-  utf_string utf(true, str);
-  return strip_html(&utf);	// util.cc
-}
-
 QString
 OsmFormat::osm_strip_html(const QString& str)
 {
-  char* r = osm_strip_html(CSTR(str));
-  QString rv(r);
-  xfree(r);
-  return rv;
+  utf_string utf(true, str);
+  return strip_html(&utf);	// util.cc
 }
 
 void
@@ -661,9 +652,8 @@ void
 OsmFormat::osm_write_tag(const QString& key, const QString& value) const
 {
   if (!value.isEmpty()) {
-    char* str = xml_entitize(CSTR(value));
-    gbfprintf(fout, "    <tag k='%s' v='%s'/>\n", CSTR(key), str);
-    xfree(str);
+    QString str = xml_entitize(value);
+    gbfputs(QStringLiteral("    <tag k='%1' v='%2'/>\n").arg(key, str), fout);
   }
 }
 
@@ -677,32 +667,15 @@ OsmFormat::osm_disp_feature(const Waypoint* waypoint) const
 }
 
 void
-OsmFormat::osm_write_opt_tag(const char* atag)
+OsmFormat::osm_write_opt_tag(const QString& atag)
 {
-  char* cin;
-
-  if (!atag) {
-    return;
-  }
-
-  char* tag = cin = xstrdup(atag);
-  char* ce = cin + strlen(cin);
-
-  while (cin < ce) {
-    char* sc, *dp;
-
-    if ((sc = strchr(cin, ';'))) {
-      *sc = '\0';
+  const QStringList tags = atag.split(';');
+  for (const auto& tag : tags) {
+    auto idx = tag.indexOf(':');
+    if (idx >= 0) {
+      osm_write_tag(tag.first(idx), tag.mid(idx+1));
     }
-
-    if ((dp = strchr(cin, ':'))) {
-      *dp++ = '\0';
-      osm_write_tag(cin, dp);
-    }
-    cin += strlen(cin) + 1;
   }
-
-  xfree(tag);
 }
 
 void

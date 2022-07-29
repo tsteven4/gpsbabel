@@ -96,7 +96,6 @@ private:
   void osm_features_init();
   char osm_feature_ikey(const QString& key) const;
   QString osm_feature_symbol(int ikey, const char* value) const;
-  static char* osm_strip_html(const char* str);
   static QString osm_strip_html(const QString& str);
   void osm_node_end(xg_string /* unused */, const QXmlStreamAttributes* /* unused */);
   void osm_node(xg_string /* unused */, const QXmlStreamAttributes* attrv);
@@ -109,7 +108,7 @@ private:
   void osm_init_icons();
   void osm_write_tag(const QString& key, const QString& value) const;
   void osm_disp_feature(const Waypoint* waypoint) const;
-  void osm_write_opt_tag(const char* atag);
+  void osm_write_opt_tag(const QString& atag);
   static void osm_release_ids(const Waypoint* waypoint);
   static QString osm_name_from_wpt(const Waypoint* waypoint);
   void osm_waypt_disp(const Waypoint* waypoint);

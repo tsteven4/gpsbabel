@@ -724,7 +724,7 @@ QDateTime dotnet_time_to_qdatetime(long long dotnet)
  * a GPX file from geocaching.com.  Thus we sort of make all the other
  * formats do lookups based on these strings.
  */
-const char*
+QString
 get_cache_icon(const Waypoint* waypointp)
 {
   if (!global_opts.smart_icons) {
@@ -962,7 +962,7 @@ rot13(const QString& s)
  * a format usable for strftime and others
  */
 
-char*
+QString
 convert_human_date_format(const char* human_datef)
 {
   char* result = (char*) xcalloc((2*strlen(human_datef)) + 1, 1);
@@ -1028,7 +1028,7 @@ convert_human_date_format(const char* human_datef)
  * a format usable for strftime and others
  */
 
-char*
+QString
 convert_human_time_format(const char* human_timef)
 {
   char* result = (char*) xcalloc((2*strlen(human_timef)) + 1, 1);
@@ -1123,7 +1123,7 @@ convert_human_time_format(const char* human_timef)
  * sep = string between lat and lon (separator)
  * html = 1 for html output otherwise text
  */
-char*
+QString
 pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
 {
   char*	result;
@@ -1151,7 +1151,9 @@ pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
               latsig, latint, html?"&deg;":" ", latmin, sep,
               lonsig, lonint, html?"&deg;":" ", lonmin);
   }
-  return result;
+  QString rv(result);
+  xfree(result);
+  return rv;
 }
 
 
@@ -1163,7 +1165,7 @@ pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
  * </body> and </html>- stop processing altogether
  * <style> </style> - stop overriding styles for everything
  */
-char*
+QString
 strip_nastyhtml(const QString& in)
 {
   char* returnstr;
@@ -1245,7 +1247,9 @@ strip_nastyhtml(const QString& in)
     *lcp = '*';
   }
   xfree(lcstr);
-  return (returnstr);
+  QString rv(returnstr);
+  xfree(returnstr);
+  return rv;
 }
 
 /*
@@ -1254,7 +1258,7 @@ strip_nastyhtml(const QString& in)
  *  pleasant for a human reader.   Yes, this falls down in all kinds of
  *  ways such as spaces within the tags, etc.
  */
-char*
+QString
 strip_html(const utf_string* in)
 {
 #if 0
@@ -1263,20 +1267,20 @@ strip_html(const utf_string* in)
   // or just say we don't do that any more.
   QTextDocument doc;
   doc.setHtml(in->utfstring);
-  return xstrdup(CSTR(doc.toPlainText().simplified()));
+  return doc.toPlainText().simplified();
 #else
+  if (!in->is_html) {
+    return in->utfstring;
+  }
+  /*
+   * We only shorten, so just dupe the input buf for space.
+   */
   char* out;
   char* instr;
   char tag[8];
   unsigned short int taglen = 0;
 
   char* incopy = instr = xstrdup(in->utfstring);
-  if (!in->is_html) {
-    return instr;
-  }
-  /*
-   * We only shorten, so just dupe the input buf for space.
-   */
   char* outstring = out = xstrdup(in->utfstring);
 
   tag[0] = 0;
@@ -1340,10 +1344,10 @@ strip_html(const utf_string* in)
     instr++;
   }
   *out++ = 0;
-  if (incopy) {
-    xfree(incopy);
-  }
-  return (outstring);
+  xfree(incopy);
+  QString rv(outstring);
+  xfree(outstring);
+  return rv;
 #endif
 }
 
@@ -1449,12 +1453,12 @@ entitize(const char* str, bool is_html)
  * Public callers for the above to hide the absence of &apos from HTML
  */
 
-char* xml_entitize(const char* str)
+QString xml_entitize(const QString& str)
 {
-  return entitize(str, false);
+  return entitize(CSTR(str), false);
 }
 
-char* html_entitize(const QString& str)
+QString html_entitize(const QString& str)
 {
   return entitize(CSTR(str), true);
 }

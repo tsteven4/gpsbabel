@@ -1076,16 +1076,16 @@ time_t mkgmtime(struct tm* t);
 bool gpsbabel_testmode();
 gpsbabel::DateTime current_time();
 QDateTime dotnet_time_to_qdatetime(long long dotnet);
-const char* get_cache_icon(const Waypoint* waypointp);
-const char* gs_get_cachetype(geocache_type t);
-const char* gs_get_container(geocache_container t);
-char* xml_entitize(const char* str);
-char* html_entitize(const QString& str);
-char* strip_html(const utf_string*);
-char* strip_nastyhtml(const QString& in);
-char* convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
-char* convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */
-char* pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html);    /* decimal ->  dd.dddd or dd mm.mmm or dd mm ss */
+QString get_cache_icon(const Waypoint* waypointp);
+QString gs_get_cachetype(geocache_type t);
+QString gs_get_container(geocache_container t);
+QString xml_entitize(const QString& str);
+QString html_entitize(const QString& str);
+QString strip_html(const utf_string*);
+QString strip_nastyhtml(const QString& in);
+QString convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
+QString convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */
+QString pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html);    /* decimal ->  dd.dddd or dd mm.mmm or dd mm ss */
 
 QString get_filename(const QString& fname);			/* extract the filename portion */
 

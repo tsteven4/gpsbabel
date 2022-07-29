@@ -190,15 +190,12 @@ init_date_and_time_format()
   // explicitly malloced and freed elsewhere. This isn't very C++ at all,
   // but this format is on its deathbead for deprecation.
   const char* d = get_option_val(opt_date_format, DEFAULT_DATE_FORMAT);
-  char* d1 = convert_human_date_format(d);
+  QString d1 = convert_human_date_format(d);
 
   const char* t = get_option_val(opt_time_format, DEFAULT_TIME_FORMAT);
-  char* t1 = convert_human_time_format(t);
+  QString t1 = convert_human_time_format(t);
 
-  xasprintf(&date_time_format, "%s %s", d1, t1);
-
-  xfree(d1);
-  xfree(t1);
+  xasprintf(&date_time_format, "%s %s", CSTR(d1), CSTR(t1));
 }
 
 static void
@@ -360,7 +357,7 @@ print_position(const Waypoint* wpt)
     *fout << "#####\n";
     fatal(MYNAME ": %s (%s) is outside of convertible area \"%s\"!\n",
           wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
-          pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, 0),
+          CSTR(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, 0)),
           gt_get_mps_grid_longname(grid_index, MYNAME));
   }
 }
