@@ -1021,7 +1021,7 @@ convert_human_date_format(const char* human_datef)
       fatal("Invalid character \"%c\" in date format!", *cin);
     }
   }
-  return {result.get()};
+  return QString(result.get());
 }
 
 /*
@@ -1113,7 +1113,7 @@ convert_human_time_format(const char* human_timef)
       fatal("Invalid character \"%c\" in time format!", *cin);
     }
   }
-  return {result.get()};
+  return QString(result.get());
 }
 
 
@@ -1443,7 +1443,7 @@ entitize(const char* str, bool is_html)
     }
   }
 
-  return {tmp.get()};
+  return QString(tmp.get());
 }
 
 /*
