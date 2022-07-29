@@ -1020,7 +1020,9 @@ convert_human_date_format(const char* human_datef)
       fatal("Invalid character \"%c\" in date format!", *cin);
     }
   }
-  return result;
+  QString rv(result);
+  xfree(result);
+  return rv;
 }
 
 /*
@@ -1112,7 +1114,9 @@ convert_human_time_format(const char* human_timef)
       fatal("Invalid character \"%c\" in time format!", *cin);
     }
   }
-  return result;
+  QString rv(result);
+  xfree(result);
+  return rv;
 }
 
 
