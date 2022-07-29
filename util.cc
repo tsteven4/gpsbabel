@@ -1399,7 +1399,7 @@ entity_types stdentities[] =  {
 };
 
 static
-char*
+QString
 entitize(const char* str, bool is_html)
 {
   char* p;
@@ -1446,7 +1446,9 @@ entitize(const char* str, bool is_html)
     }
   }
 
-  return (tmp);
+  QString rv(tmp);
+  xfree(tmp);
+  return rv;
 }
 
 /*
