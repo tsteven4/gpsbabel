@@ -29,6 +29,7 @@
 #include <cstdlib>                      // for abs, calloc, free, malloc, realloc
 #include <cstring>                      // for strlen, strcat, strstr, memcpy, strcmp, strcpy, strdup, strchr, strerror
 #include <ctime>                        // for mktime, localtime
+#include <memory>                       // for unique_ptr
 
 #include <QByteArray>                   // for QByteArray
 #include <QChar>                        // for QChar, operator<=, operator>=
@@ -965,8 +966,8 @@ rot13(const QString& s)
 QString
 convert_human_date_format(const char* human_datef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_datef)) + 1, 1);
-  char* cout = result;
+  std::unique_ptr<char[]> result(new char[(2*strlen(human_datef)) + 1]);
+  char* cout = result.get();
   char prev = '\0';
   int ylen = 0;
 
@@ -1020,9 +1021,7 @@ convert_human_date_format(const char* human_datef)
       fatal("Invalid character \"%c\" in date format!", *cin);
     }
   }
-  QString rv(result);
-  xfree(result);
-  return rv;
+  return result.get();
 }
 
 /*
@@ -1033,8 +1032,8 @@ convert_human_date_format(const char* human_datef)
 QString
 convert_human_time_format(const char* human_timef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_timef)) + 1, 1);
-  char* cout = result;
+  std::unique_ptr<char[]> result(new char[(2*strlen(human_timef)) + 1]);
+  char* cout = result.get();
   char prev = '\0';
 
   for (const char* cin = human_timef; *cin; cin++) {
@@ -1114,9 +1113,7 @@ convert_human_time_format(const char* human_timef)
       fatal("Invalid character \"%c\" in time format!", *cin);
     }
   }
-  QString rv(result);
-  xfree(result);
-  return rv;
+  return result.get();
 }
 
 
@@ -1406,10 +1403,6 @@ static
 QString
 entitize(const char* str, bool is_html)
 {
-  char* p;
-  char* tmp;
-  char* xstr;
-
   entity_types* ep = stdentities;
   int elen = 0;
   int ecount = 0;
@@ -1426,19 +1419,19 @@ entitize(const char* str, bool is_html)
   }
 
   /* enough space for the whole string plus entity replacements, if any */
-  tmp = (char*) xcalloc((strlen(str) + elen + 1), 1);
-  strcpy(tmp, str);
+  std::unique_ptr<char[]> tmp(new char[strlen(str) + elen + 1]);
+  strcpy(tmp.get(), str);
 
   if (ecount != 0) {
     for (ep = stdentities; ep->text; ep++) {
-      p = tmp;
       if (is_html && ep->not_html)  {
         continue;
       }
+      char* p = tmp.get();
       while ((p = strstr(p, ep->text)) != nullptr) {
         elen = strlen(ep->entity);
 
-        xstr = xstrdup(p + strlen(ep->text));
+        char* xstr = xstrdup(p + strlen(ep->text));
 
         strcpy(p, ep->entity);
         strcpy(p + elen, xstr);
@@ -1450,9 +1443,7 @@ entitize(const char* str, bool is_html)
     }
   }
 
-  QString rv(tmp);
-  xfree(tmp);
-  return rv;
+  return tmp.get();
 }
 
 /*
