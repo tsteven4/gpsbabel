@@ -673,7 +673,7 @@ OsmFormat::osm_write_opt_tag(const QString& atag)
   for (const auto& tag : tags) {
     auto idx = tag.indexOf(':');
     if (idx >= 0) {
-      osm_write_tag(tag.first(idx), tag.mid(idx+1));
+      osm_write_tag(tag.left(idx), tag.mid(idx+1));
     }
   }
 }

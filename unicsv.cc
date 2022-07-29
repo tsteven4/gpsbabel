@@ -1337,7 +1337,7 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   case grid_lat_lon_dms: {
     QString position = pretty_deg_format(lat, lon, 's', unicsv_fieldsep, 0);
     auto sep = position.indexOf(',');
-    QString tmp = csv_enquote(position.first(sep), kUnicsvQuoteChar);
+    QString tmp = csv_enquote(position.left(sep), kUnicsvQuoteChar);
     *fout << tmp << unicsv_fieldsep;
     tmp = csv_enquote(position.mid(sep+1), kUnicsvQuoteChar);
     *fout << tmp;
