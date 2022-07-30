@@ -1144,7 +1144,7 @@ pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
              .arg(latsig).arg(fabs(lat), 6, 'f', 5).arg(html ? "&deg;" : "", sep)
              .arg(lonsig).arg(fabs(lon), 6, 'f', 5).arg(html ? "&deg;" : "");
   } else if (fmt == 's') { /* dms */
-    result = QStringLiteral("%1%2%3%4'%5\"%6%7%8%9%10'11\"")
+    result = QStringLiteral("%1%2%3%4'%5\"%6%7%8%9%10'%11\"")
              .arg(latsig).arg(latint).arg(html ? "&deg;" : " ").arg((int)latmin, 2, 10, QChar('0')).arg(latsec, 4, 'f', 1, QChar('0')).arg(sep)
              .arg(lonsig).arg(lonint).arg(html ? "&deg;" : " ").arg((int)lonmin, 2, 10, QChar('0')).arg(lonsec, 4, 'f', 1, QChar('0'));
   } else { /* default dmm */
