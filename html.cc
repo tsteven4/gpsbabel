@@ -79,7 +79,7 @@ HtmlFormat::html_disp(const Waypoint* wpt) const
             .arg(utmz)
             .arg(utmzc)
             .arg(utme, 6, 'f', 0)
-            .arg(utmn, 6, 'f', 0);
+            .arg(utmn, 7, 'f', 0);
   if (wpt->altitude != unknown_alt) {
     *file_out << QStringLiteral(" alt:%1")
               .arg((int)((altunits[0]=='f') ? METERS_TO_FEET(wpt->altitude) : wpt->altitude));
