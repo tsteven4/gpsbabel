@@ -1306,7 +1306,6 @@ void
 UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
 {
   double lat, lon, alt;
-  char* cout = nullptr;
   const geocache_data* gc_data = nullptr;
   unicsv_waypt_ct++;
 
@@ -1388,10 +1387,6 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     *fout << qSetRealNumberPrecision(llprec) << lat << unicsv_fieldsep
           << lon;
     break;
-  }
-
-  if (cout) {
-    xfree(cout);
   }
 
   if FIELD_USED(fld_shortname) {
