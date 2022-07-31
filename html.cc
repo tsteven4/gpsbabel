@@ -75,7 +75,7 @@ HtmlFormat::html_disp(const Waypoint* wpt) const
   *file_out << QStringLiteral("<tr><td><p class=\"gpsbabelwaypoint\">%1 - ")
             .arg(global_opts.synthesize_shortnames ? mkshort_from_wpt(mkshort_handle, wpt) : wpt->shortname);
   *file_out << QStringLiteral("%1 (%2%3 %4 %5)")
-            .arg(pretty_deg_format(wpt->latitude, wpt->longitude, degformat[2], " ", 1))
+            .arg(pretty_deg_format(wpt->latitude, wpt->longitude, degformat[2], " ", true))
             .arg(utmz)
             .arg(utmzc)
             .arg(utme, 6, 'f', 0)
@@ -170,7 +170,7 @@ HtmlFormat::html_disp(const Waypoint* wpt) const
           double lat = xml_attribute(logpart->attributes, "lat").toDouble();
           double lon = xml_attribute(logpart->attributes, "lon").toDouble();
           *file_out << QStringLiteral("<span class=\"gpsbabellogcoords\">%1</span><br>\n")
-                    .arg(pretty_deg_format(lat, lon, degformat[2], " ", 1));
+                    .arg(pretty_deg_format(lat, lon, degformat[2], " ", true));
         }
 
         logpart = xml_findfirst(curlog, "groundspeak:text");

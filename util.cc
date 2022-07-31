@@ -1125,7 +1125,7 @@ convert_human_time_format(const char* human_timef)
  * html = 1 for html output otherwise text
  */
 QString
-pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html)
+pretty_deg_format(double lat, double lon, char fmt, const char* sep, bool html)
 {
   QString	result;
   char latsig = lat < 0 ? 'S':'N';

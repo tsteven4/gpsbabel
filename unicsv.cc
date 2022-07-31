@@ -1113,7 +1113,7 @@ UnicsvFormat::unicsv_fatal_outside(const Waypoint* wpt) const
   *fout << "#####\n";
   fatal(MYNAME ": %s (%s) is outside of convertible area of grid \"%s\"!\n",
         wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
-        qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, 0)),
+        qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, false)),
         gt_get_mps_grid_longname(unicsv_grid_idx, MYNAME));
 }
 
@@ -1326,15 +1326,15 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   switch (unicsv_grid_idx) {
 
   case grid_lat_lon_ddd:
-    *fout << pretty_deg_format(lat, lon, 'd', unicsv_fieldsep, 0);
+    *fout << pretty_deg_format(lat, lon, 'd', unicsv_fieldsep, false);
     break;
 
   case grid_lat_lon_dmm:
-    *fout << pretty_deg_format(lat, lon, 'm', unicsv_fieldsep, 0);
+    *fout << pretty_deg_format(lat, lon, 'm', unicsv_fieldsep, false);
     break;
 
   case grid_lat_lon_dms: {
-    QString position = pretty_deg_format(lat, lon, 's', unicsv_fieldsep, 0);
+    QString position = pretty_deg_format(lat, lon, 's', unicsv_fieldsep, false);
     auto sep = position.indexOf(unicsv_fieldsep);
     QString tmp = csv_enquote(position.left(sep), kUnicsvQuoteChar);
     *fout << tmp << unicsv_fieldsep;

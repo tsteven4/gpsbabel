@@ -83,7 +83,7 @@ TextFormat::text_disp(const Waypoint* wpt)
   GPS_Math_WGS84_To_UTM_EN(wpt->latitude, wpt->longitude,
                            &utme, &utmn, &utmz, &utmzc);
   QString position = QStringLiteral("%1 (%2%3 %4 %5)")
-                     .arg(pretty_deg_format(wpt->latitude, wpt->longitude, degformat[2], " ", 0))
+                     .arg(pretty_deg_format(wpt->latitude, wpt->longitude, degformat[2], " ", false))
                      .arg(utmz)
                      .arg(utmzc)
                      .arg(utme, 6, 'f', 0)
@@ -166,7 +166,7 @@ TextFormat::text_disp(const Waypoint* wpt)
         if (logpart) {
           double lat = xml_attribute(logpart->attributes, "lat").toDouble();
           double lon = xml_attribute(logpart->attributes, "lon").toDouble();
-          *file_out << QStringLiteral("%1\n").arg(pretty_deg_format(lat, lon, degformat[2], " ", 0));
+          *file_out << QStringLiteral("%1\n").arg(pretty_deg_format(lat, lon, degformat[2], " ", false));
         }
 
         logpart = xml_findfirst(curlog, "groundspeak:text");
