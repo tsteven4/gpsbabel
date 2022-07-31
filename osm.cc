@@ -63,7 +63,7 @@ const char* const OsmFormat::osm_features[] = {
   nullptr
 };
 
-  /* based on <http://wiki.openstreetmap.org/index.php/Map_Features> */
+/* based on <http://wiki.openstreetmap.org/index.php/Map_Features> */
 
 const OsmFormat::osm_icon_mapping_t OsmFormat::osm_icon_mappings[] = {
 
@@ -652,8 +652,9 @@ void
 OsmFormat::osm_write_tag(const QString& key, const QString& value) const
 {
   if (!value.isEmpty()) {
-    QString str = xml_entitize(value);
-    gbfputs(QStringLiteral("    <tag k='%1' v='%2'/>\n").arg(key, str), fout);
+    gbfputs(QStringLiteral("    <tag k='%1' v='%2'/>\n")
+            .arg(key, xml_entitize(value)),
+            fout);
   }
 }
 

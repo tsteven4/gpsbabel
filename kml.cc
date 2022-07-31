@@ -1238,8 +1238,8 @@ QString KmlFormat::kml_geocache_get_logs(const Waypoint* wpt) const
         s = logpart->cdata;
       }
 
-      r = r + "<br />";
-      r = r + html_entitize(s);
+      r += "<br />";
+      r += html_entitize(s);
     }
 
     r += "</p>";
