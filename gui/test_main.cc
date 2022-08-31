@@ -193,9 +193,9 @@ void test1::test_case1()
   QVERIFY(outputWindow != nullptr);
 QTest::qWait(2000);
   qDebug() << outputWindow->toPlainText();
-  QString output = outputWindow->toPlainText().replace(QRegularExpression("GPSBabel-TEST\\......."), "GPSBabel-TEST.XXXXXX");
+  QString output = outputWindow->toPlainText().replace(QRegularExpression("\\S*GPSBabel-TEST\\......."), "GPSBabel-TEST.XXXXXX");
   QCOMPARE(output,
-           QString("gpsbabel -w -i gpx -f bounds-test.gpx -x sort,shortname -x track,start=20220517020304 -x duplicate,shortname -x simplify,count=100 -o kml,prec=3 -F junk -o gpx -F /tmp/GPSBabel-TEST.XXXXXX\n\nTranslation successful"));
+           QString("gpsbabel -w -i gpx -f bounds-test.gpx -x sort,shortname -x track,start=20220517020304 -x duplicate,shortname -x simplify,count=100 -o kml,prec=3 -F junk -o gpx -F GPSBabel-TEST.XXXXXX\n\nTranslation successful"));
 
   auto* mainwindowClose = buttonBox->button(QDialogButtonBox::Close);
   QVERIFY(mainwindowClose != nullptr);
@@ -492,9 +492,15 @@ QTest::qWait(1000);
       QTest::mouseClick(precOpt, Qt::LeftButton);
       auto* precValue = widget->findChild<QLineEdit*>("kml_prec");
       DIALOGVERIFY(status, widget, precValue != nullptr, "OptionsDlg: can't find kml_prec QLineEdit");
+#ifdef Q_OS_MACOS
+      QTest::keyClick(precValue, Qt::Key_A, Qt::MetaModifier); // select all
+      QTest::keyClick(precValue, Qt::Key_Delete);
+#else
       QTest::keyClick(precValue, Qt::Key_Home); // move to beginning of line
-      QTest::keyClick(precValue, Qt::Key_K, Qt::ControlModifier); // delete to end of line // macOS used Qt::MetaModifier?
+      QTest::keyClick(precValue, Qt::Key_K, Qt::ControlModifier); // delete to end of line
+#endif
       QTest::keyClicks(precValue, "3");
+      QTest::qWait(1000);
 
       auto* optButtonBox = widget->findChild<QDialogButtonBox*>("buttonBox");
       DIALOGVERIFY(status, widget, optButtonBox != nullptr, "OptionsDlg: can't find buttonBox");
