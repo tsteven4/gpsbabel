@@ -68,13 +68,17 @@ void test1::cleanupTestCase()
 #endif
 }
 
+void test1::dialogcb()
+{
+  (this->*dialogHandler_)(status_);
+}
+
 void test1::runDialog(dialogStatus* status, dialog_cb dialogHandler, QWidget* button)
 {
   (*status).errorCode = 0;
-  auto dialogHandler_lambda = [this, dialogHandler, status]()->void {
-    (this->*dialogHandler)(status);
-  };
-  QTimer::singleShot(500, this, dialogHandler_lambda);
+  status_ = status;
+  dialogHandler_ = dialogHandler;
+  QTimer::singleShot(10, this, &test1::dialogcb);
   if (button != nullptr) {
     QTest::mouseClick(button, Qt::LeftButton);
   }

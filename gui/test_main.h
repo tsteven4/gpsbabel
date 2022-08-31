@@ -27,6 +27,7 @@ private:
 
   // don't declare these slots so they won't be run as tests.
   static QWidget* selectFilterWidget(QWidget* filterDialog, const QString& dialogName, const QString& widgetName);
+  void dialogcb();
   void runDialog(dialogStatus*, dialog_cb, QWidget*);
 
   void AboutDialogTester(dialogStatus* status);
@@ -45,4 +46,7 @@ private slots:
   void cleanupTestCase();
   void test_case1();
 
+private:
+  dialogStatus* status_{nullptr};
+  dialog_cb dialogHandler_{nullptr};
 };
