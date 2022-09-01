@@ -55,7 +55,7 @@ target_sources(${TESTTARGET} PRIVATE ${TESTTARGET_MOC})
 
 if(UNIX AND NOT APPLE)
   set_target_properties(${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY GPSBabelFE)
-  set_target_properties(${TESTTARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY GPSBabelFE)
+  set_target_properties(${TESTTARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY GPSBabelFE_test)
 endif()
 
 # RESOURCES
@@ -208,3 +208,20 @@ get_target_property(IncDirs ${TARGET} INCLUDE_DIRECTORIES)
 message(STATUS "Include Directores are: \"${IncDirs}\"")
 
 add_custom_target(package_app COMMAND ./package_app DEPENDS ${TARGET})
+
+add_custom_command(
+  TARGET ${TESTTARGET} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:gpsbabel>" "$<TARGET_FILE_DIR:${TESTTARGET}>/gpsbabel"
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/gmapbase.html" "$<TARGET_FILE_DIR:${TESTTARGET}>"
+  VERBATIM
+)
+
+if(UNIX)
+  enable_testing()
+  add_test(NAME test-gui
+           COMMAND ${TESTTARGET}
+           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          )
+endif()
+
+

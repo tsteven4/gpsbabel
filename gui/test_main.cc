@@ -123,7 +123,7 @@ void test1::test_case1()
 
   auto* inputFileNameText = mainWindow.findChild<QLineEdit*>("inputFileNameText");
   QVERIFY(inputFileNameText != nullptr);
-  inputFileNameText->insert("bounds-test.gpx");
+  inputFileNameText->insert("reference/bounds-test.gpx");
 
   auto* xlateWayPtsCk = mainWindow.findChild<QCheckBox*>("xlateWayPtsCk");
   QVERIFY(xlateWayPtsCk != nullptr);
@@ -186,7 +186,7 @@ void test1::test_case1()
   qDebug() << outputWindow->toPlainText();
   QString output = outputWindow->toPlainText().replace(QRegularExpression("\\S*GPSBabel-TEST\\......."), "GPSBabel-TEST.XXXXXX");
   QCOMPARE(output,
-           QString("gpsbabel -w -i gpx -f bounds-test.gpx -x sort,shortname -x track,start=20220517020304 -x duplicate,shortname -x simplify,count=100 -o kml,prec=3 -F junk -o gpx -F GPSBabel-TEST.XXXXXX\n\nTranslation successful"));
+           QString("gpsbabel -w -i gpx -f reference/bounds-test.gpx -x sort,shortname -x track,start=20220517020304 -x duplicate,shortname -x simplify,count=100 -o kml,prec=3 -F junk -o gpx -F GPSBabel-TEST.XXXXXX\n\nTranslation successful"));
 
   auto* mainwindowClose = buttonBox->button(QDialogButtonBox::Close);
   QVERIFY(mainwindowClose != nullptr);
