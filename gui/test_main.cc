@@ -260,6 +260,13 @@ QWidget* test1::selectFilterWidget(QWidget* filterDialog, const QString& dialogN
     } \
   } while (false)
 
+#define DIALOGFAIL(status, msg) \
+  do { \
+    (*status).errorCode = 1; \
+    (*status).message = QString(msg); \
+    return; \
+  } while (false)
+
 void test1::AboutDialogTester(dialogStatus* status)
 {
   qDebug() << "About Dialog Tester";
@@ -468,6 +475,11 @@ QTest::qWait(4000);
       break;
     }
   }
+  if (gmapwidget == nullptr) {
+    qDebug() << "Waiting for GMapDialog";
+    QTimer::singleShot(100, this, &test1::dialogcb);
+    return;
+  }
   if (gmapwidget != nullptr) {
     if (gmapwidget->inherits("GMapDialog")) {
       //widget->dumpObjectTree();
@@ -479,6 +491,8 @@ QTest::qWait(4000);
     } else {
       DIALOGVERIFY(status, gmapwidget, false, "Can't find GMapDialog, it isn't a top level widget");
     }
+  } else {
+    DIALOGFAIL(status, "Can't find GMapDialog, it isn't a top level widget");
   }
   qDebug() << "GMap Dialog Tester Exiting";
 }
