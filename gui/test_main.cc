@@ -33,6 +33,8 @@
 
 test1::test1()
 {
+  qputenv("QTEST_FUNCTION_TIMEOUT", "120000");
+
   Q_INIT_RESOURCE(app);
 #ifdef HAVE_EMBEDDED_MAP
   Q_INIT_RESOURCE(map);
@@ -78,7 +80,7 @@ void test1::runDialog(dialogStatus* status, dialog_cb dialogHandler, QWidget* bu
   (*status).errorCode = 0;
   status_ = status;
   dialogHandler_ = dialogHandler;
-  QTimer::singleShot(10, this, &test1::dialogcb);
+  QTimer::singleShot(100, this, &test1::dialogcb);
   if (button != nullptr) {
     QTest::mouseClick(button, Qt::LeftButton);
   }
@@ -137,22 +139,12 @@ void test1::test_case1()
 
   auto* xlateFiltersBtn = mainWindow.findChild<QPushButton*>("xlateFiltersBtn");
   QVERIFY(xlateFiltersBtn != nullptr);
-#if 0
-  QTimer::singleShot(500, this, &test1::FilterDialogTester);
-  QTest::mouseClick(xlateFiltersBtn, Qt::LeftButton);
-#else
   runDialog(&status, &test1::FilterDialogTester, xlateFiltersBtn);
-#endif
   QVERIFY2(status.errorCode == 0, qPrintable(status.message));
 
   auto* moreOptionButton = mainWindow.findChild<QPushButton*>("moreOptionButton");
   QVERIFY(moreOptionButton != nullptr);
-#if 0
-  QTimer::singleShot(500, this, &test1::AdvDialogTester);
-  QTest::mouseClick(moreOptionButton, Qt::LeftButton);
-#else
   runDialog(&status, &test1::AdvDialogTester, moreOptionButton);
-#endif
   QVERIFY2(status.errorCode == 0, qPrintable(status.message));
 
   // The output file/device buttons can be set to check/unchecked, unchecked/unchecked,
@@ -178,12 +170,7 @@ void test1::test_case1()
 
   auto* outputOptionsBtn = mainWindow.findChild<QPushButton*>("outputOptionsBtn");
   QVERIFY(outputOptionsBtn != nullptr);
-#if 0
-  QTimer::singleShot(500, this, &test1::OptionsDialogTester);
-  QTest::mouseClick(outputOptionsBtn, Qt::LeftButton);
-#else
   runDialog(&status, &test1::OptionsDialogTester, outputOptionsBtn);
-#endif
   QVERIFY2(status.errorCode == 0, qPrintable(status.message));
 
   auto* buttonBox = mainWindow.findChild<QDialogButtonBox*>("buttonBox");
@@ -195,7 +182,7 @@ void test1::test_case1()
 
   auto* outputWindow = mainWindow.findChild<QPlainTextEdit*>("outputWindow");
   QVERIFY(outputWindow != nullptr);
-QTest::qWait(2000);
+  QTest::qWait(2000);
   qDebug() << outputWindow->toPlainText();
   QString output = outputWindow->toPlainText().replace(QRegularExpression("\\S*GPSBabel-TEST\\......."), "GPSBabel-TEST.XXXXXX");
   QCOMPARE(output,
@@ -203,12 +190,7 @@ QTest::qWait(2000);
 
   auto* mainwindowClose = buttonBox->button(QDialogButtonBox::Close);
   QVERIFY(mainwindowClose != nullptr);
-#if 0
-  QTimer::singleShot(500, this, &test1::DonateDialogTester);
-  QTest::mouseClick(mainwindowClose, Qt::LeftButton);
-#else
   runDialog(&status, &test1::DonateDialogTester, mainwindowClose);
-#endif
   QVERIFY2(status.errorCode == 0, qPrintable(status.message));
 }
 
@@ -260,17 +242,10 @@ QWidget* test1::selectFilterWidget(QWidget* filterDialog, const QString& dialogN
     } \
   } while (false)
 
-#define DIALOGFAIL(status, msg) \
-  do { \
-    (*status).errorCode = 1; \
-    (*status).message = QString(msg); \
-    return; \
-  } while (false)
-
 void test1::AboutDialogTester(dialogStatus* status)
 {
   qDebug() << "About Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("AboutDlg")) {
@@ -291,7 +266,7 @@ QTest::qWait(1000);
 void test1::AdvDialogTester(dialogStatus* status)
 {
   qDebug() << "Adv Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("AdvDlg")) {
@@ -302,14 +277,9 @@ QTest::qWait(1000);
 
       auto* formatButton = widget->findChild<QPushButton*>("formatButton");
       DIALOGVERIFY(status, widget, formatButton != nullptr, "AdvDlg: can't find formatButton");
-#if 0
-      QTimer::singleShot(500, this, &test1::QMessageBoxDialogTester);
-      QTest::mouseClick(formatButton, Qt::LeftButton);
-#else
       dialogStatus msgStatus;
       runDialog(&msgStatus, &test1::QMessageBoxDialogTester, formatButton);
       DIALOGVERIFY(status, widget, msgStatus.errorCode == 0, qPrintable(msgStatus.message));
-#endif
 
       auto* advButtonBox = widget->findChild<QDialogButtonBox*>("buttonBox");
       DIALOGVERIFY(status, widget, advButtonBox != nullptr, "AdvDlg: can't find buttonBox");
@@ -326,7 +296,7 @@ QTest::qWait(1000);
 void test1::DonateDialogTester(dialogStatus* status)
 {
   qDebug() << "Donate Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("Donate")) {
@@ -344,7 +314,7 @@ QTest::qWait(1000);
 void test1::FilterDialogTester(dialogStatus* status)
 {
   qDebug() << "Filter Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("FilterDialog")) {
@@ -352,14 +322,9 @@ QTest::qWait(1000);
       auto* reset = widget->findChild<QPushButton*>("resetButton");
       DIALOGVERIFY(status, widget, reset != nullptr, "FilterDialog: can't find resetButton");
       //DIALOGVERIFY(status, widget, false, "test death");
-#if 0
-      QTimer::singleShot(500, this, &test1::QMessageBoxDialogTester);
-      QTest::mouseClick(reset, Qt::LeftButton);
-#else
       dialogStatus msgStatus;
       runDialog(&msgStatus, &test1::QMessageBoxDialogTester, reset);
       DIALOGVERIFY(status, widget, msgStatus.errorCode == 0, qPrintable(msgStatus.message));
-#endif
 
       QWidget* currentWidget = selectFilterWidget(widget, "Miscellaneous", "MiscFltWidget");
       DIALOGVERIFY(status, widget, currentWidget != nullptr, "FilterDialog: can't find MiscFltWidget in Miscellaneous dialog.");
@@ -462,9 +427,9 @@ QTest::qWait(1000);
 void test1::GMapDialogTester(dialogStatus* status)
 {
   qDebug() << "GMap Dialog Tester";
-QTest::qWait(4000);
+  QTest::qWait(2000);
   // Why can't we use activeModalWidget()?
-  // Gnome application is ready notification?
+  // Gnome application "is ready" notification?
   qDebug() << QApplication::activeModalWidget();
   const auto topLevelWidgets = QApplication::topLevelWidgets();
   QWidget* gmapwidget = nullptr;
@@ -475,32 +440,24 @@ QTest::qWait(4000);
       break;
     }
   }
+  // We may have to wait for the CLI to run (ProcessWaitDialog).
   if (gmapwidget == nullptr) {
     qDebug() << "Waiting for GMapDialog";
-    QTimer::singleShot(100, this, &test1::dialogcb);
+    QTimer::singleShot(200, this, &test1::dialogcb);
     return;
   }
-  if (gmapwidget != nullptr) {
-    if (gmapwidget->inherits("GMapDialog")) {
-      //widget->dumpObjectTree();
-      auto* gmapButtonBox = gmapwidget->findChild<QDialogButtonBox*>("buttonBox");
-      DIALOGVERIFY(status, gmapwidget, gmapButtonBox != nullptr, "GMapDialog: can't find buttonBox");
-      auto* gmapClose = gmapButtonBox->button(QDialogButtonBox::Close);
-      DIALOGVERIFY(status, gmapwidget, gmapClose != nullptr, "GMapDialog: can't find Close button");
-      QTest::mouseClick(gmapClose, Qt::LeftButton);
-    } else {
-      DIALOGVERIFY(status, gmapwidget, false, "Can't find GMapDialog, it isn't a top level widget");
-    }
-  } else {
-    DIALOGFAIL(status, "Can't find GMapDialog, it isn't a top level widget");
-  }
+  auto* gmapButtonBox = gmapwidget->findChild<QDialogButtonBox*>("buttonBox");
+  DIALOGVERIFY(status, gmapwidget, gmapButtonBox != nullptr, "GMapDialog: can't find buttonBox");
+  auto* gmapClose = gmapButtonBox->button(QDialogButtonBox::Close);
+  DIALOGVERIFY(status, gmapwidget, gmapClose != nullptr, "GMapDialog: can't find Close button");
+  QTest::mouseClick(gmapClose, Qt::LeftButton);
   qDebug() << "GMap Dialog Tester Exiting";
 }
 
 void test1::OptionsDialogTester(dialogStatus* status)
 {
   qDebug() << "Options Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("OptionsDlg")) {
@@ -535,7 +492,7 @@ QTest::qWait(1000);
 void test1::QMessageBoxDialogTester(dialogStatus* status)
 {
   qDebug() << "QMessageBox Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("QMessageBox")) {
@@ -554,7 +511,7 @@ QTest::qWait(1000);
 void test1::PreferencesDialogTester(dialogStatus* status)
 {
   qDebug() << "Preferences Dialog Tester";
-QTest::qWait(1000);
+  QTest::qWait(1000);
   auto* widget = QApplication::activeModalWidget();
   if (widget != nullptr) {
     if (widget->inherits("Preferences")) {
@@ -570,7 +527,7 @@ QTest::qWait(1000);
         }
       }
       DIALOGVERIFY(status, widget, tabWidgetFound, "PreferencesDialog: can't find Formats tab");
-QTest::qWait(1000);
+      QTest::qWait(1000);
 
       auto* enableAllButton = tabWidget->findChild<QPushButton*>("enableAllButton");
       DIALOGVERIFY(status, widget, enableAllButton != nullptr, "PreferencesDialog: can't find enableAllButton");
