@@ -58,6 +58,12 @@ jobs:
       run: |
         ./tools/travis_install_osx ${{ matrix.QT_VERSION }} aqt
 
+    - name: Brew install
+      if: ${{ matrix.GENERATOR == 'Ninja' }}
+      run: |
+        brew update
+        brew install ninja
+
     - name: Script
       run: |
         source ${HOME}/Cache/qt-${{ matrix.QT_VERSION }}.env
