@@ -5,8 +5,8 @@
  
 function version_ge() { test "$(printf "%s\n%s" $1 $2 | sort -rV | head -n 1)" == "$1"; }
 
-if [ $# -lt 1 ]; then
-  echo "Usage: $0 Qt_version [Generator]"
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 source_directory qt_version [Generator]"
   exit 1
 fi
 SOURCE_DIR=$1
@@ -14,10 +14,10 @@ QTVER=$2
 if [ $# -ge 3 ]; then
   GENERATOR=$3
 fi
-if version_ge ${QTVER} 6.0.0; then
+if version_ge "${QTVER}" 6.0.0; then
   DEPLOY_TARGET="10.14"
   ARCHS="x86_64;arm64"
-elif version_ge ${QT_VER} 5.14.0; then
+elif version_ge "${QTVER}" 5.14.0; then
   DEPLOY_TARGET="10.13"
   ARCHS="x86_64"
 else
@@ -53,12 +53,9 @@ else
   esac
 fi
 
-
-
 # what is in there?
 hdiutil attach -noverify gui/GPSBabelFE.dmg
 find /Volumes/GPSBabelFE -ls
 hdiutil detach /Volumes/GPSBabelFE
 
-mv gui/GPSBabelFE.dmg gui/GPSBabel-${VERSIONID}.dmg
-
+mv gui/GPSBabelFE.dmg "gui/GPSBabel-${VERSIONID}.dmg"
