@@ -12,7 +12,10 @@ fi
 SOURCE_DIR=$1
 QTVER=$2
 if [ $# -ge 3 ]; then
-  GENERATOR=$3
+  if [ -n "$3" ]; then
+    GENERATOR[0]=-G
+    GENERATOR[1]=$3
+  fi
 fi
 if version_ge "${QTVER}" 6.0.0; then
   DEPLOY_TARGET="10.14"
@@ -31,27 +34,20 @@ VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z $(git show -s --format=
 # debug tokens
 "$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"/ci_tokens
 
-if [ -z "$GENERATOR" ]; then
-  cmake "${SOURCE_DIR}" -DCMAKE_OSX_ARCHITECTURES=${ARCHS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOY_TARGET} -DCMAKE_BUILD_TYPE=Release
+case "${GENERATOR[1]}" in
+Xcode | "Ninja Multi-Config")
+  cmake "${SOURCE_DIR}" -DCMAKE_OSX_ARCHITECTURES=${ARCHS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOY_TARGET} "${GENERATOR[@]}"
+  cmake --build . --config Release
+  ctest -C Release
+  cmake --build . --config Release --target package_app
+  ;;
+*)
+  cmake "${SOURCE_DIR}" -DCMAKE_OSX_ARCHITECTURES=${ARCHS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOY_TARGET} -DCMAKE_BUILD_TYPE=Release "${GENERATOR[@]}"
   cmake --build .
   ctest
   cmake --build . --target package_app
-else
-  case "${GENERATOR}" in
-  Xcode | "Ninja Multi-Config")
-    cmake "${SOURCE_DIR}" -DCMAKE_OSX_ARCHITECTURES=${ARCHS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOY_TARGET} -G "${GENERATOR}"
-    cmake --build . --config Release
-    ctest -C Release
-    cmake --build . --config Release --target package_app
-    ;;
-  *)
-    cmake "${SOURCE_DIR}" -DCMAKE_OSX_ARCHITECTURES=${ARCHS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOY_TARGET} -DCMAKE_BUILD_TYPE=Release -G "${GENERATOR}"
-    cmake --build .
-    ctest
-    cmake --build . --target package_app
-    ;;
-  esac
-fi
+  ;;
+esac
 
 # what is in there?
 hdiutil attach -noverify gui/GPSBabelFE.dmg
