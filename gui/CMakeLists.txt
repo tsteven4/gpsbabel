@@ -40,6 +40,10 @@ else()
   target_compile_definitions(${TARGET} PRIVATE DISABLE_MAPPREVIEW)
 endif()
 
+if(UNIX AND NOT APPLE)
+  set_target_properties(${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY GPSBabelFE)
+endif()
+
 # RESOURCES
 list(APPEND RESOURCES app.qrc)
 if(WIN32)

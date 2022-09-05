@@ -35,7 +35,7 @@ unix:DESTDIR = objects
 unix:MOC_DIR = objects
 unix:OBJECTS_DIR = objects
 unix:RCC_DIR = objects
-unix:DESTDIR = GPSBabelFE
+unix:!mac:DESTDIR = GPSBabelFE
 mac:DESTDIR = .
 
 UI_DIR = tmp

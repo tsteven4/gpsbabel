@@ -17,10 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - QT_VERSION: '5.12.12'
-            XCODE_VERSION: '11.7'
-            GENERATOR: qmake
-            RELEASE: false
           - QT_VERSION: '5.15.2'
             XCODE_VERSION: '12.4'
             GENERATOR: qmake
@@ -59,7 +55,7 @@ jobs:
         ./tools/travis_install_osx ${{ matrix.QT_VERSION }} aqt
 
     - name: Brew install
-      if: ${{ matrix.GENERATOR == 'Ninja' }}
+      if: matrix.GENERATOR == 'Ninja'
       run: |
         brew update
         brew install ninja
