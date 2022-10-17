@@ -75,7 +75,7 @@ qint64 TrackFilter::trackfilter_parse_time_opt(const char* arg)
 {
   qint64 result = 0;
 
-  QRegularExpression re("^([+-]?\\d+)([wdhms])(?:([+-]?\\d+)([wdhms]))?(?:([+-]?\\d+)([wdhms]))?(?:([+-]?\\d+)([wdhms]))?(?:([+-]?\\d+)([wdhms]))?$", QRegularExpression::CaseInsensitiveOption);
+  static const QRegularExpression re(R"(^([+-]?\d+)([wdhms])(?:([+-]?\d+)([wdhms]))?(?:([+-]?\d+)([wdhms]))?(?:([+-]?\d+)([wdhms]))?(?:([+-]?\d+)([wdhms]))?$)", QRegularExpression::CaseInsensitiveOption);
   assert(re.isValid());
   QRegularExpressionMatch match = re.match(arg);
   if (match.hasMatch()) {
@@ -238,9 +238,9 @@ void TrackFilter::trackfilter_split_init_rte_name(route_head* track, const gpsba
   QString datetimestring;
 
   if (opt_interval != 0) {
-    datetimestring = dt.toUTC().toString("yyyyMMddhhmmss");
+    datetimestring = dt.toUTC().toString(u"yyyyMMddhhmmss");
   } else {
-    datetimestring = dt.toUTC().toString("yyyyMMdd");
+    datetimestring = dt.toUTC().toString(u"yyyyMMdd");
   }
 
   if ((opt_title != nullptr) && (strlen(opt_title) > 0)) {
@@ -253,10 +253,10 @@ void TrackFilter::trackfilter_split_init_rte_name(route_head* track, const gpsba
       strftime(buff, sizeof(buff), opt_title, &tm);
       track->rte_name = buff;
     } else {
-      track->rte_name = QString("%1-%2").arg(opt_title, datetimestring);
+      track->rte_name = QStringLiteral("%1-%2").arg(opt_title, datetimestring);
     }
   } else if (!track->rte_name.isEmpty()) {
-    track->rte_name = QString("%1-%2").arg(track->rte_name, datetimestring);
+    track->rte_name = QStringLiteral("%1-%2").arg(track->rte_name, datetimestring);
   } else {
     track->rte_name = datetimestring;
   }
@@ -426,7 +426,7 @@ void TrackFilter::trackfilter_split()
 
     opt_interval = (opt_split && (strlen(opt_split) > 0) && (0 != strcmp(opt_split, TRACKFILTER_SPLIT_OPTION)));
     if (opt_interval != 0) {
-      QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([dhms])$)", QRegularExpression::CaseInsensitiveOption);
+      static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([dhms])$)", QRegularExpression::CaseInsensitiveOption);
       assert(re.isValid());
       QRegularExpressionMatch match = re.match(opt_split);
       if (match.hasMatch()) {
@@ -462,7 +462,7 @@ void TrackFilter::trackfilter_split()
 
     opt_distance = (opt_sdistance && (strlen(opt_sdistance) > 0) && (0 != strcmp(opt_sdistance, TRACKFILTER_SDIST_OPTION)));
     if (opt_distance != 0) {
-      QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([km])$)", QRegularExpression::CaseInsensitiveOption);
+      static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([km])$)", QRegularExpression::CaseInsensitiveOption);
       assert(re.isValid());
       QRegularExpressionMatch match = re.match(opt_sdistance);
       if (match.hasMatch()) {
@@ -665,7 +665,7 @@ QDateTime TrackFilter::trackfilter_range_check(const char* timestr)
 {
   QDateTime result;
 
-  QRegularExpression re("^(\\d{0,14})$");
+  static const QRegularExpression re("^(\\d{0,14})$");
   assert(re.isValid());
   QRegularExpressionMatch match = re.match(timestr);
   if (match.hasMatch()) {
@@ -759,7 +759,7 @@ void TrackFilter::trackfilter_seg2trk()
           dest->rte_num = src->rte_num;
           /* name in the form TRACKNAME #n */
           if (!src->rte_name.isEmpty()) {
-            dest->rte_name = QString("%1 #%2").arg(src->rte_name).arg(++trk_seg_num);
+            dest->rte_name = QStringLiteral("%1 #%2").arg(src->rte_name).arg(++trk_seg_num);
           }
 
           /* Insert after original track or after last newly
@@ -826,7 +826,7 @@ TrackFilter::faketime_t TrackFilter::trackfilter_faketime_check(const char* time
 {
   faketime_t result;
 
-  QRegularExpression re(R"(^(f?)(\d{0,14})(?:\+(\d{1,10}))?$)");
+  static const QRegularExpression re(R"(^(f?)(\d{0,14})(?:\+(\d{1,10}))?$)");
   assert(re.isValid());
   QRegularExpressionMatch match = re.match(timestr);
   if (match.hasMatch()) {
@@ -950,7 +950,6 @@ void TrackFilter::trackfilter_segment_head(const route_head* rte)
 
 void TrackFilter::init()
 {
-  RteHdFunctor<TrackFilter> trackfilter_segment_head_f(this, &TrackFilter::trackfilter_segment_head);
   RteHdFunctor<TrackFilter> trackfilter_fill_track_list_cb_f(this, &TrackFilter::trackfilter_fill_track_list_cb);
 
   /*
@@ -972,7 +971,7 @@ void TrackFilter::init()
 
   // Perform segmenting first.
   if (opt_segment) {
-    track_disp_all(trackfilter_segment_head_f, nullptr, nullptr);
+    track_disp_all(trackfilter_segment_head, nullptr, nullptr);
   }
 
   track_list.clear();

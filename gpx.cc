@@ -21,7 +21,7 @@
 
 #include <cmath>                                   // for lround
 #include <cstdio>                                  // for sscanf
-#include <cstdlib>                                 // for atoi, strtod
+#include <cstdlib>                                 // for strtod
 #include <cstring>                                 // for strchr, strncpy
 
 #include <QDate>                                   // for QDate
@@ -98,7 +98,7 @@ GpxFormat::gpx_reset_short_handle()
     setshort_whitespace_ok(mkshort_handle, 0);
   }
 
-  setshort_length(mkshort_handle, atoi(snlen));
+  setshort_length(mkshort_handle, xstrtoi(snlen, nullptr, 10));
 }
 
 void
@@ -442,7 +442,7 @@ gs_mktype(const QString& t)
   return gt_unknown;
 }
 
-const char*
+QString
 gs_get_cachetype(geocache_type t)
 {
   int sz = sizeof(gs_type_map) / sizeof(gs_type_map[0]);
@@ -468,7 +468,7 @@ gs_mkcont(const QString& t)
   return gc_unknown;
 }
 
-const char*
+QString
 gs_get_container(geocache_container t)
 {
   int sz = sizeof(gs_container_map) / sizeof(gs_container_map[0]);
@@ -487,7 +487,9 @@ xml_parse_time(const QString& dateTimeString)
   int off_hr = 0;
   int off_min = 0;
   int off_sign = 1;
-  char* timestr = xstrdup(dateTimeString);
+
+  QByteArray dts = dateTimeString.toUtf8();
+  char* timestr = dts.data();
 
   char* offsetstr = strchr(timestr, 'Z');
   if (offsetstr) {
@@ -545,7 +547,6 @@ xml_parse_time(const QString& dateTimeString)
   } else {
     dt = QDateTime();
   }
-  xfree(timestr);
   return dt;
 }
 
@@ -1634,7 +1635,7 @@ void
 GpxFormat::write()
 {
 
-  elevation_precision = atoi(opt_elevation_precision);
+  elevation_precision = xstrtoi(opt_elevation_precision, nullptr, 10);
 
   gpx_reset_short_handle();
   auto gpx_waypt_pr_lambda = [this](const Waypoint* waypointp)->void {

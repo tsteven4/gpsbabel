@@ -22,8 +22,8 @@ if(UNIX)
           list(APPEND LIBS usb-1.0)
           target_compile_definitions(gpsbabel PRIVATE LIBUSB_H_INCLUDE=<libusb-1.0/libusb.h>)
         elseif(GPSBABEL_WITH_LIBUSB STREQUAL "custom")
-          message("libusb-1.0 is enabled but but must be manually configured.")
-          message("  e.g. GPSBABEL_WITH_LIBUSB=custom GPSBABEL_EXTRA_LINK_LIBRARIES:STRING==... GPSBABEL_EXTRA_INCLUDE_DIRECTORIES:STRING=...")
+          message(STATUS "libusb-1.0 is enabled but but must be manually configured.")
+          message(STATUS "  e.g. GPSBABEL_WITH_LIBUSB=custom GPSBABEL_EXTRA_LINK_LIBRARIES:STRING==... GPSBABEL_EXTRA_INCLUDE_DIRECTORIES:STRING=...")
           target_compile_definitions(gpsbabel PRIVATE LIBUSB_H_INCLUDE=<libusb.h>)
         else()
           message(FATAL_ERROR "GPSBABEL_WITH_LIBUSB=no|pkgconfig|system*|custom")
@@ -41,7 +41,6 @@ if(UNIX)
             mac/libusb/os/darwin_usb.c
             mac/libusb/os/events_posix.c
             mac/libusb/os/threads_posix.c
-            mac/libusb/hotplug.h
             mac/libusb/libusb.h
             mac/libusb/libusbi.h
             mac/libusb/version.h
@@ -52,11 +51,11 @@ if(UNIX)
             mac/libusb/XCode/config.h
           )
           target_include_directories(usb-1.0 PRIVATE mac/libusb/XCode PUBLIC mac/libusb)
-          target_link_libraries(usb-1.0 INTERFACE objc "-framework IOKit" "-framework CoreFoundation")
+          target_link_libraries(usb-1.0 INTERFACE objc "-framework IOKit" "-framework CoreFoundation" "-framework Security")
           list(APPEND LIBS usb-1.0)
         elseif(GPSBABEL_WITH_LIBUSB STREQUAL "custom")
-          message("libusb-1.0 is enabled but but must be manually configured.")
-          message("  e.g. GPSBABEL_WITH_LIBUSB=custom GPSBABEL_EXTRA_LINK_LIBRARIES:STRING==... GPSBABEL_EXTRA_INCLUDE_DIRECTORIES:STRING=...")
+          message(STATUS "libusb-1.0 is enabled but but must be manually configured.")
+          message(STATUS "  e.g. GPSBABEL_WITH_LIBUSB=custom GPSBABEL_EXTRA_LINK_LIBRARIES:STRING==... GPSBABEL_EXTRA_INCLUDE_DIRECTORIES:STRING=...")
           target_compile_definitions(gpsbabel PRIVATE LIBUSB_H_INCLUDE=<libusb.h>)
         else()
           message(FATAL_ERROR "GPSBABEL_WITH_LIBUSB=no|pkgconfig|included*|custom")

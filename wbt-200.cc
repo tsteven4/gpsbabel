@@ -489,13 +489,13 @@ static char* get_param(const char* cmd, char* buf, int len)
 static int get_param_int(const char* cmd)
 {
   char buf[80];
-  return atoi(get_param(cmd, buf, sizeof(buf)));
+  return xstrtoi(get_param(cmd, buf, sizeof(buf)), nullptr, 10);
 }
 
 static double get_param_float(const char* cmd)
 {
   char buf[80];
-  return atof(get_param(cmd, buf, sizeof(buf)));
+  return strtod(get_param(cmd, buf, sizeof(buf)), nullptr);
 }
 
 /* Decompose binary date into discreet fields */
@@ -1073,8 +1073,7 @@ ff_vecs_t wbt_svecs = {
   nullptr,
   &wbt_sargs,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything | CET-REVIEW */
-  , NULL_POS_OPS,
-  nullptr
+  , NULL_POS_OPS
 };
 
 /* used for wbt-bin /and/ wbt-tk1 */
@@ -1094,6 +1093,5 @@ ff_vecs_t wbt_fvecs = {
   nullptr,
   &wbt_fargs,
   CET_CHARSET_UTF8, 1         /* master process: don't convert anything | CET-REVIEW */
-  , NULL_POS_OPS,
-  nullptr
+  , NULL_POS_OPS
 };

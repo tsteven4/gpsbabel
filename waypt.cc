@@ -21,22 +21,27 @@
 
 #include <cassert>              // for assert
 #include <cmath>                // for fabs
-#include <cstdio>               // for printf, fflush, fprintf, stdout
-#include <algorithm>            // for stable_sort
+#include <cstdio>               // for fflush, fprintf, stdout
 
 #include <QChar>                // for QChar
 #include <QDateTime>            // for QDateTime
-#include <QList>                // for QList
+#include <QDebug>               // for QDebug
+#include <QLatin1Char>          // for QLatin1Char
+#include <QList>                // for QList<>::const_iterator
 #include <QString>              // for QString, operator==
+#include <QStringLiteral>       // for qMakeStringPrivate, QStringLiteral
+#include <QStringView>          // for QStringView
 #include <QTime>                // for QTime
-#include <QtGlobal>             // for qPrintable
+#include <QtGlobal>             // for QForeachContainer, qMakeForeachContainer, foreach, qint64
 
 #include "defs.h"
-#include "garmin_fs.h"          // for garmin_ilink_t, garmin_fs_t, GMSD_FIND
+#include "formspec.h"           // for FormatSpecificDataList
+#include "garmin_fs.h"          // for garmin_ilink_t, garmin_fs_t
 #include "grtcirc.h"            // for RAD, gcdist, heading_true_degrees, radtometers
 #include "session.h"            // for curr_session, session_t
 #include "src/core/datetime.h"  // for DateTime
-#include "src/core/logging.h"   // for Warning, Fatal
+#include "src/core/logging.h"   // for FatalMsg
+
 
 WaypointList* global_waypoint_list;
 
@@ -617,7 +622,7 @@ WaypointList::waypt_add(Waypoint* wpt)
     } else if (!wpt->notes.isNull()) {
       wpt->shortname = wpt->notes;
     } else {
-      wpt->shortname = QString("WPT%1").arg(waypt_count(), 3, 10, QLatin1Char('0'));
+      wpt->shortname = QStringLiteral("WPT%1").arg(waypt_count(), 3, 10, QLatin1Char('0'));
     }
   }
 
@@ -638,12 +643,12 @@ WaypointList::waypt_add(Waypoint* wpt)
 }
 
 void
-WaypointList::add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, const QString& namepart, int number_digits)
+WaypointList::add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, QStringView namepart, int number_digits)
 {
   append(wpt);
 
   if (synth && wpt->shortname.isEmpty()) {
-    wpt->shortname = QString("%1%2").arg(namepart).arg(waypt_ct, number_digits, 10, QChar('0'));
+    wpt->shortname = QStringLiteral("%1%2").arg(namepart).arg(waypt_ct, number_digits, 10, QChar('0'));
     wpt->wpt_flags.shortname_is_synthetic = 1;
   }
 }

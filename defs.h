@@ -19,36 +19,39 @@
 #ifndef DEFS_H_INCLUDED_
 #define DEFS_H_INCLUDED_
 
-#include <algorithm>              // for sort, stable_sort
-#include <cmath>                  // for M_PI
-#include <cstdarg>                // for va_list
-#include <cstddef>                // for NULL, nullptr_t, size_t
-#include <cstdint>                // for int32_t, uint32_t
-#include <cstdio>                 // for NULL, fprintf, FILE, stdout
-#include <ctime>                  // for time_t
-#include <optional>               // for optional
-#include <utility>                // for move
+#include <algorithm>                 // for sort, stable_sort
+#include <cmath>                     // for M_PI
+#include <cstdarg>                   // for va_list
+#include <cstddef>                   // for NULL, nullptr_t, size_t
+#include <cstdint>                   // for int32_t, uint32_t
+#include <cstdio>                    // for NULL, fprintf, FILE, stdout
+#include <ctime>                     // for time_t
+#include <optional>                  // for optional
+#include <utility>                   // for move
 
 #if HAVE_LIBZ
-#include <zlib.h>                 // doesn't really belong here, but is missing elsewhere.
+#include <zlib.h>                    // doesn't really belong here, but is missing elsewhere.
 #elif !ZLIB_INHIBITED
-#include "zlib.h"                 // doesn't really belong here, but is missing elsewhere.
+#include "zlib.h"                    // doesn't really belong here, but is missing elsewhere.
 #endif
 
-#include <QDebug>                 // for QDebug
-#include <QList>                  // for QList, QList<>::const_reverse_iterator, QList<>::reverse_iterator
-#include <QScopedPointer>         // for QScopedPointer
-#include <QString>                // for QString
-#include <QTextCodec>             // for QTextCodec
-#include <QVector>                // for QVector
-#include <Qt>                     // for CaseInsensitive
-#include <QtGlobal>               // for foreach
+#include <QDateTime>                 // for QDateTime
+#include <QDebug>                    // for QDebug
+#include <QList>                     // for QList, QList<>::const_iterator, QList<>::const_reverse_iterator, QList<>::count, QList<>::reverse_iterator
+#include <QScopedPointer>            // for QScopedPointer
+#include <QScopedPointerPodDeleter>  // for QScopedPointerPodDeleter
+#include <QString>                   // for QString
+#include <QStringView>               // for QStringView
+#include <QTextCodec>                // for QTextCodec
+#include <QVector>                   // for QVector
+#include <Qt>                        // for CaseInsensitive
+#include <QtGlobal>                  // for QForeachContainer, qMakeForeachContainer, foreach, qint64
 
-#include "formspec.h"             // for FormatSpecificData
-#include "inifile.h"              // for inifile_t
-#include "gbfile.h"               // doesn't really belong here, but is missing elsewhere.
-#include "session.h"              // for session_t
-#include "src/core/datetime.h"    // for DateTime
+#include "formspec.h"                // for FormatSpecificData
+#include "inifile.h"                 // for inifile_t
+#include "gbfile.h"                  // doesn't really belong here, but is missing elsewhere.
+#include "session.h"                 // for session_t
+#include "src/core/datetime.h"       // for DateTime
 
 
 #define CSTR(qstr) ((qstr).toUtf8().constData())
@@ -125,19 +128,6 @@ constexpr double KNOTS_TO_MPS(double a)  {return a * kMPSPerKnot;}
 #define MICRO_TO_MILLI(t) ((t) / 1000)  /* Microseconds to Milliseconds*/
 #define CENTI_TO_MICRO(t) ((t) * 10000) /* Centiseconds to Microseconds */
 #define MICRO_TO_CENTI(t) ((t) / 10000) /* Centiseconds to Microseconds */
-
-#if __WIN32__
-#  ifndef fileno
-#    define fileno _fileno
-#  endif
-#  define strdup _strdup
-#endif
-
-#if __WIN32__
-#if !defined _CRT_SECURE_NO_DEPRECATE
-#  define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-#endif
 
 /* Pathname separator character */
 #if __WIN32__
@@ -546,7 +536,7 @@ class WaypointList : private QList<Waypoint*>
 {
 public:
   void waypt_add(Waypoint* wpt); // a.k.a. append(), push_back()
-  void add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, const QString& namepart, int number_digits);
+  void add_rte_waypt(int waypt_ct, Waypoint* wpt, bool synth, QStringView namepart, int number_digits);
   // FIXME: Generally it is inefficient to use an element pointer or reference to define the element to be deleted, use iterator instead,
   //        and/or implement pop_back() a.k.a. removeLast(), and/or pop_front() a.k.a. removeFirst().
   void waypt_del(Waypoint* wpt); // a.k.a. erase()
@@ -722,7 +712,7 @@ public:
   void del_head(route_head* rte); // a.k.a. erase()
   // FIXME: Generally it is inefficient to use an element pointer or reference to define the insertion point, use iterator instead.
   void insert_head(route_head* rte, route_head* predecessor); // a.k.a. insert
-  void add_wpt(route_head* rte, Waypoint* wpt, bool synth, const QString& namepart, int number_digits);
+  void add_wpt(route_head* rte, Waypoint* wpt, bool synth, QStringView namepart, int number_digits);
   // FIXME: Generally it is inefficient to use an element pointer or reference to define the insertion point, use iterator instead.
   void del_wpt(route_head* rte, Waypoint* wpt);
   void common_disp_session(const session_t* se, route_hdr rh, route_trl rt, waypt_cb wc);
@@ -780,8 +770,8 @@ void route_del_head(route_head* rte);
 void track_add_head(route_head* rte);
 void track_del_head(route_head* rte);
 void track_insert_head(route_head* rte, route_head* predecessor);
-void route_add_wpt(route_head* rte, Waypoint* wpt, const QString& namepart = "RPT", int number_digits = 3);
-void track_add_wpt(route_head* rte, Waypoint* wpt, const QString& namepart = "RPT", int number_digits = 3);
+void route_add_wpt(route_head* rte, Waypoint* wpt, QStringView namepart = u"RPT", int number_digits = 3);
+void track_add_wpt(route_head* rte, Waypoint* wpt, QStringView namepart = u"RPT", int number_digits = 3);
 void route_del_wpt(route_head* rte, Waypoint* wpt);
 void track_del_wpt(route_head* rte, Waypoint* wpt);
 //void route_disp(const route_head* rte, waypt_cb); /* template */
@@ -970,13 +960,13 @@ void setshort_defname(short_handle, const char* s);
 #define ARG_NOMINMAX nullptr, nullptr
 
 struct arglist_t {
-  const char* argstring{nullptr};
-  char** argval{nullptr};
-  const char* helpstring{nullptr};
-  const char* defaultvalue{nullptr};
+  const QString argstring;
+  char** const argval{nullptr};
+  const QString helpstring;
+  const QString defaultvalue;
   const uint32_t argtype{ARGTYPE_UNKNOWN};
-  const char* minvalue{nullptr};    /* minimum value for numeric options */
-  const char* maxvalue{nullptr};    /* maximum value for numeric options */
+  const QString minvalue;    /* minimum value for numeric options */
+  const QString maxvalue;    /* maximum value for numeric options */
   char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
 };
 
@@ -1036,7 +1026,6 @@ struct ff_vecs_t {
   QString encode;
   int fixed_encode;
   position_ops_t position_ops;
-  void* unused; /* TODO: delete this field */
 };
 
 [[noreturn]] void fatal(QDebug& msginstance);
@@ -1051,16 +1040,12 @@ void* xrealloc(void* p, size_t s);
 void xfree(const void* mem);
 char* xstrdup(const QString& s);
 char* xstrndup(const char* str, size_t sz);
-char* xstrappend(char* src, const char* newd);
 char* xstrdup(const char* s);
 
 FILE* xfopen(const char* fname, const char* type, const char* errtxt);
 
 // Thin wrapper around fopen() that supports Unicode fname on all platforms.
 FILE* ufopen(const QString& fname, const char* mode);
-
-// OS-abstracting wrapper for getting Unicode environment variables.
-QString ugetenv(const char* env_var);
 
 // FIXME: case_ignore_strcmp() and case_ignore_strncmp() should probably
 // just be replaced at the call sites.  These shims are just here to make
@@ -1078,9 +1063,6 @@ inline int case_ignore_strncmp(const QString& s1, const QString& s2, int n)
 
 int str_match(const char* str, const char* match);
 
-char* strsub(const char* s, const char* search, const char* replace);
-char* gstrsub(const char* s, const char* search, const char* replace);
-
 void rtrim(char* s);
 char* lrtrim(char* buff);
 int xasprintf(char** strp, const char* fmt, ...) PRINTFLIKE(2, 3);
@@ -1089,22 +1071,19 @@ int xasprintf(QScopedPointer<char, QScopedPointerPodDeleter>& strp, const char* 
 int xvasprintf(char** strp, const char* fmt, va_list ap);
 char* strupper(char* src);
 char* strlower(char* src);
-signed int get_tz_offset();
 time_t mklocaltime(struct tm* t);
 time_t mkgmtime(struct tm* t);
 bool gpsbabel_testmode();
 gpsbabel::DateTime current_time();
 QDateTime dotnet_time_to_qdatetime(long long dotnet);
-const char* get_cache_icon(const Waypoint* waypointp);
-const char* gs_get_cachetype(geocache_type t);
-const char* gs_get_container(geocache_container t);
-char* xml_entitize(const char* str);
-char* html_entitize(const QString& str);
-char* strip_html(const utf_string*);
-char* strip_nastyhtml(const QString& in);
-char* convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
-char* convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */
-char* pretty_deg_format(double lat, double lon, char fmt, const char* sep, int html);    /* decimal ->  dd.dddd or dd mm.mmm or dd mm ss */
+QString get_cache_icon(const Waypoint* waypointp);
+QString gs_get_cachetype(geocache_type t);
+QString gs_get_container(geocache_container t);
+QString strip_html(const utf_string*);
+QString strip_nastyhtml(const QString& in);
+QString convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
+QString convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */
+QString pretty_deg_format(double lat, double lon, char fmt, const char* sep, bool html);    /* decimal ->  dd.dddd or dd mm.mmm or dd mm ss */
 
 QString get_filename(const QString& fname);			/* extract the filename portion */
 
@@ -1112,12 +1091,9 @@ QString get_filename(const QString& fname);			/* extract the filename portion */
  * Character encoding transformations.
  */
 
-#define CET_NOT_CONVERTABLE_DEFAULT '$'
 #define CET_CHARSET_ASCII	"US-ASCII"
 #define CET_CHARSET_UTF8	"UTF-8"
-#define CET_CHARSET_HEBREW  "ISO-8859-8"
 #define CET_CHARSET_MS_ANSI	"windows-1252"
-#define CET_CHARSET_LATIN1	"ISO-8859-1"
 
 /* this lives in gpx.c */
 gpsbabel::DateTime xml_parse_time(const QString& dateTimeString);
@@ -1197,6 +1173,7 @@ int gb_ptr2int(const void* p);
 void list_codecs();
 void list_timezones();
 QString grapheme_truncate(const QString& input, unsigned int count);
+int xstrtoi(const char* str, char** str_end, int base);
 
 /*
  *  From parse.c
@@ -1214,11 +1191,6 @@ int parse_speed(const QString& str, double* val, double scale, const char* modul
  *  From util_crc.c
  */
 unsigned long get_crc32(const void* data, int datalen);
-
-/*
- * From nmea.c
- */
-int nmea_cksum(const char* buf);
 
 /*
  * Color helpers.

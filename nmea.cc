@@ -23,7 +23,7 @@
 #include <cctype>                  // for isprint
 #include <cmath>                   // for fabs
 #include <cstdio>                  // for snprintf, sscanf, fprintf, fputc, stderr
-#include <cstdlib>                 // for atoi, atof, strtod
+#include <cstdlib>                 // for strtod
 #include <cstring>                 // for strncmp, strchr, strlen, strstr, memset, strrchr
 #include <iterator>                // for operator!=, reverse_iterator
 
@@ -271,6 +271,9 @@ NmeaFormat::rd_deinit()
     break;
   }
 
+  nmea_release_wpt(curr_waypt);
+  curr_waypt = nullptr;
+
   posn_fname.clear();
 
 }
@@ -291,14 +294,14 @@ NmeaFormat::wr_init(const QString& fname)
   sleepms = -1;
   if (opt_sleep) {
     if (*opt_sleep) {
-      sleepms = 1e3 * atof(opt_sleep);
+      sleepms = 1e3 * strtod(opt_sleep, nullptr);
     } else {
       sleepms = -1;
     }
   }
 
   mkshort_handle = mkshort_new_handle();
-  setshort_length(mkshort_handle, atoi(snlenopt));
+  setshort_length(mkshort_handle, xstrtoi(snlenopt, nullptr, 10));
 
   if (opt_gisteq) {
     opt_gpgga = nullptr;
@@ -356,7 +359,7 @@ QTime NmeaFormat::nmea_parse_hms(const QString& str)
     if (retval.isValid() && parts.size() == 2) {
       bool ok;
       // prepend "0.".  prepending "." won't work if there are no trailing digits.
-      long msec = lround(1000.0 * QString("0.%1").arg(parts.at(1)).toDouble(&ok));
+      long msec = lround(1000.0 * QStringLiteral("0.%1").arg(parts.at(1)).toDouble(&ok));
       if (ok) {
         retval = retval.addMSecs(msec);
       } else {
@@ -628,7 +631,7 @@ NmeaFormat::gpzda_parse(const QString& ibuf)
   const QStringList fields = ibuf.split(',');
   if (fields.size() > 4) {
     QTime time = nmea_parse_hms(fields[1]);
-    QString datestr = QString("%1%2%3").arg(fields[2], fields[3], fields[4]);
+    QString datestr = QStringLiteral("%1%2%3").arg(fields[2], fields[3], fields[4]);
     QDate date = QDate::fromString(datestr, "ddMMyyyy");
 
     // The prev_datetime data member might be used by
@@ -1043,7 +1046,7 @@ NmeaFormat::rd_position_init(const QString& fname)
   gbser_flush(gbser_handle);
 
   if (opt_baud) {
-    if (!gbser_set_speed(gbser_handle, atoi(opt_baud))) {
+    if (!gbser_set_speed(gbser_handle, xstrtoi(opt_baud, nullptr, 10))) {
       fatal(MYNAME ": Unable to set baud rate %s\n", opt_baud);
     }
   }
@@ -1219,8 +1222,8 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
   QByteArray dmy("");
   QByteArray hms("");
   if (wpt->GetCreationTime().isValid()) {
-    dmy = wpt->GetCreationTime().toUTC().toString("ddMMyy").toUtf8();
-    hms = wpt->GetCreationTime().toUTC().toString("hhmmss.zzz").toUtf8();
+    dmy = wpt->GetCreationTime().toUTC().toString(u"ddMMyy").toUtf8();
+    hms = wpt->GetCreationTime().toUTC().toString(u"hhmmss.zzz").toUtf8();
   }
 
   switch (wpt->fix) {

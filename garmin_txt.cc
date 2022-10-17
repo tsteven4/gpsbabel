@@ -23,11 +23,12 @@
 #include "defs.h"
 
 #if CSVFMTS_ENABLED
+#include <algorithm>               // for sort
 #include <cctype>                  // for toupper
 #include <cmath>                   // for fabs, floor
 #include <cstdio>                  // for NULL, snprintf, sscanf
 #include <cstdint>
-#include <cstdlib>                 // for atoi, abs, qsort
+#include <cstdlib>                 // for abs
 #include <cstring>                 // for memset, strstr, strcat, strchr, strlen, strcmp, strcpy, strncpy
 #include <ctime>                   // for gmtime, localtime, strftime
 
@@ -118,7 +119,6 @@ static int header_fields[unknown_header + 1][MAX_HEADER_FIELDS];
 static int header_ct[unknown_header + 1];
 
 #define GARMIN_UNKNOWN_ALT 1.0e25f
-#define DEFAULT_DISPLAY garmin_display_symbol_and_name
 #define DEFAULT_DATE_FORMAT "dd/mm/yyyy"
 #define DEFAULT_TIME_FORMAT "HH:mm:ss"
 
@@ -186,15 +186,16 @@ get_option_val(const char* option, const char* def)
 static void
 init_date_and_time_format()
 {
-  const char* f = get_option_val(opt_date_format, DEFAULT_DATE_FORMAT);
-  date_time_format = convert_human_date_format(f);
+  // This is old, and weird, code.. date_time_format is a global that's
+  // explicitly malloced and freed elsewhere. This isn't very C++ at all,
+  // but this format is on its deathbead for deprecation.
+  const char* d = get_option_val(opt_date_format, DEFAULT_DATE_FORMAT);
+  QString d1 = convert_human_date_format(d);
 
-  date_time_format = xstrappend(date_time_format, " ");
+  const char* t = get_option_val(opt_time_format, DEFAULT_TIME_FORMAT);
+  QString t1 = convert_human_time_format(t);
 
-  f = get_option_val(opt_time_format, DEFAULT_TIME_FORMAT);
-  const char* c = convert_human_time_format(f);
-  date_time_format = xstrappend(date_time_format, c);
-  xfree((void*) c);
+  xasprintf(&date_time_format, "%s %s", CSTR(d1), CSTR(t1));
 }
 
 static void
@@ -236,15 +237,6 @@ enum_waypt_cb(const Waypoint* wpt)
   }
 
 }
-
-static int
-sort_waypt_cb(const void* a, const void* b)
-{
-  const Waypoint* wa = *(Waypoint**)a;
-  const Waypoint* wb = *(Waypoint**)b;
-  return wa->shortname.compare(wb->shortname, Qt::CaseInsensitive);
-}
-
 
 /* common route and track pre-work */
 
@@ -365,7 +357,7 @@ print_position(const Waypoint* wpt)
     *fout << "#####\n";
     fatal(MYNAME ": %s (%s) is outside of convertible area \"%s\"!\n",
           wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
-          pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, 0),
+          qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, false)),
           gt_get_mps_grid_longname(grid_index, MYNAME));
   }
 }
@@ -759,7 +751,7 @@ garmin_txt_wr_init(const QString& fname)
   gtxt_flags.celsius = (toupper(*get_option_val(opt_temp, "c")) == 'C');
   init_date_and_time_format();
   if (opt_precision) {
-    precision = atoi(opt_precision);
+    precision = xstrtoi(opt_precision, nullptr, 10);
     if (precision < 0) {
       fatal(MYNAME ": Invalid precision (%s)!", opt_precision);
     }
@@ -797,7 +789,7 @@ garmin_txt_wr_init(const QString& fname)
     if (case_ignore_strcmp(opt_utc, "utc") == 0) {
       utc_offs = 0;
     } else {
-      utc_offs = atoi(opt_utc);
+      utc_offs = xstrtoi(opt_utc, nullptr, 10);
     }
     utc_offs *= (60 * 60);
     gtxt_flags.utc = 1;
@@ -831,17 +823,19 @@ garmin_txt_write()
 
   if (waypoints > 0) {
     wpt_a_ct = 0;
-    wpt_a = (const Waypoint**)xcalloc(waypoints, sizeof(*wpt_a));
+    wpt_a = new const Waypoint*[waypoints]{};
     waypt_disp_all(enum_waypt_cb);
     route_disp_all(nullptr, nullptr, enum_waypt_cb);
-    qsort(wpt_a, waypoints, sizeof(*wpt_a), sort_waypt_cb);
+    auto sort_waypt_lambda = [](const Waypoint* wa, const Waypoint* wb)->bool {
+      return wa->shortname.compare(wb->shortname, Qt::CaseInsensitive) < 0;
+    };
+    std::sort(wpt_a, wpt_a + waypoints, sort_waypt_lambda);
 
     *fout << QString::asprintf("Header\t%s\r\n\r\n", headers[waypt_header]);
     for (int i = 0; i < waypoints; i++) {
-      const Waypoint* wpt = wpt_a[i];
-      write_waypt(wpt);
+      write_waypt(wpt_a[i]);
     }
-    xfree(wpt_a);
+    delete[] wpt_a;
 
     route_idx = 0;
     route_info = (info_t*) xcalloc(route_count(), sizeof(info_t));
@@ -1309,7 +1303,7 @@ parse_track_waypoint(const QStringList& lineparts)
       }
       break;
     case 9:
-      WAYPT_SET(wpt, course, atoi(CSTR(str)));
+      WAYPT_SET(wpt, course, xstrtoi(CSTR(str), nullptr, 10));
       break;
     }
   }
@@ -1410,8 +1404,7 @@ ff_vecs_t garmin_txt_vecs = {
    * so it doesn't attempt to re-convert any char strings including gmsd data.
    */
   CET_CHARSET_UTF8, 0
-  , NULL_POS_OPS,
-  nullptr
+  , NULL_POS_OPS
 };
 
 #endif // CSVFMTS_ENABLED

@@ -64,9 +64,7 @@ vcf_print_utf(const utf_string* s)
     return;
   }
 
-  char *string = strip_html(s);
-  QString stripped_html = string;
-  xfree(string);
+  QString stripped_html = strip_html(s);
 
   stripped_html.replace("\n", "\\n", Qt::CaseInsensitive);
   stripped_html.replace("<p>", "\\n", Qt::CaseInsensitive);
@@ -145,6 +143,5 @@ ff_vecs_t vcf_vecs = {
   nullptr,
   &vcf_args,
   CET_CHARSET_ASCII, 0	/* CET-REVIEW */
-  , NULL_POS_OPS,
-  nullptr
+  , NULL_POS_OPS
 };

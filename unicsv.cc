@@ -22,7 +22,6 @@
 #include <cmath>                   // for fabs, lround
 #include <cstdio>                  // for NULL, sscanf
 #include <cstdint>
-#include <cstdlib>                 // for atoi
 #include <cstring>                 // for memset, strchr, strncpy
 #include <ctime>                   // for gmtime
 
@@ -346,7 +345,7 @@ UnicsvFormat::unicsv_adjust_time(const time_t time, const time_t* date) const
     res += *date;
   }
   if (opt_utc) {
-    res += atoi(opt_utc) * SECONDS_PER_HOUR;
+    res += xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR;
   } else {
     struct tm tm = *gmtime(&res);
     res = mklocaltime(&tm);
@@ -1018,7 +1017,7 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
     }
 
     if (opt_utc) {
-      wpt->creation_time = wpt->creation_time.addSecs(atoi(opt_utc) * SECONDS_PER_HOUR);
+      wpt->creation_time = wpt->creation_time.addSecs(xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR);
     }
   }
 
@@ -1113,7 +1112,7 @@ UnicsvFormat::unicsv_fatal_outside(const Waypoint* wpt) const
   *fout << "#####\n";
   fatal(MYNAME ": %s (%s) is outside of convertible area of grid \"%s\"!\n",
         wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
-        pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, 0),
+        qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, false)),
         gt_get_mps_grid_longname(unicsv_grid_idx, MYNAME));
 }
 
@@ -1142,12 +1141,12 @@ UnicsvFormat::unicsv_print_data_time(const QDateTime& idt) const
   }
   QDateTime dt = idt;
   if (opt_utc) {
-    //time += atoi(opt_utc) * SECONDS_PER_HOUR;
-    dt = dt.addSecs(atoi(opt_utc) * SECONDS_PER_HOUR);
+    //time += xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR;
+    dt = dt.addSecs(xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR);
     dt = dt.toUTC();
   }
 
-  unicsv_print_str(dt.toString("yyyy/MM/dd hh:mm:ss"));
+  unicsv_print_str(dt.toString(u"yyyy/MM/dd hh:mm:ss"));
 }
 
 #define FIELD_USED(a) (gb_getbit(&unicsv_outp_flags, a))
@@ -1306,7 +1305,6 @@ void
 UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
 {
   double lat, lon, alt;
-  char* cout = nullptr;
   const geocache_data* gc_data = nullptr;
   unicsv_waypt_ct++;
 
@@ -1327,22 +1325,19 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   switch (unicsv_grid_idx) {
 
   case grid_lat_lon_ddd:
-    cout = pretty_deg_format(lat, lon, 'd', unicsv_fieldsep, 0);
-    *fout << cout;
+    *fout << pretty_deg_format(lat, lon, 'd', unicsv_fieldsep, false);
     break;
 
   case grid_lat_lon_dmm:
-    cout = pretty_deg_format(lat, lon, 'm', unicsv_fieldsep, 0);
-    *fout << cout;
+    *fout << pretty_deg_format(lat, lon, 'm', unicsv_fieldsep, false);
     break;
 
   case grid_lat_lon_dms: {
-    cout = pretty_deg_format(lat, lon, 's', unicsv_fieldsep, 0);
-    char* sep = strchr(cout, ',');
-    *sep = '\0';
-    QString tmp = csv_enquote(cout, kUnicsvQuoteChar);
+    QString position = pretty_deg_format(lat, lon, 's', unicsv_fieldsep, false);
+    auto sep = position.indexOf(unicsv_fieldsep);
+    QString tmp = csv_enquote(position.left(sep), kUnicsvQuoteChar);
     *fout << tmp << unicsv_fieldsep;
-    tmp = csv_enquote(sep+1, kUnicsvQuoteChar);
+    tmp = csv_enquote(position.mid(sep+1), kUnicsvQuoteChar);
     *fout << tmp;
   }
   break;
@@ -1370,7 +1365,7 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
                                          &east, &north, &zone, &zonec, unicsv_datum_idx)) {
       unicsv_fatal_outside(wpt);
     }
-    *fout << QString("%1").arg(zone, 2, 10, QLatin1Char('0')) << unicsv_fieldsep
+    *fout << QStringLiteral("%1").arg(zone, 2, 10, QLatin1Char('0')) << unicsv_fieldsep
           << zonec  << unicsv_fieldsep
           << qSetRealNumberPrecision(0) << east << unicsv_fieldsep
           << north;
@@ -1391,10 +1386,6 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     *fout << qSetRealNumberPrecision(llprec) << lat << unicsv_fieldsep
           << lon;
     break;
-  }
-
-  if (cout) {
-    xfree(cout);
   }
 
   if FIELD_USED(fld_shortname) {
@@ -1543,11 +1534,11 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
       if (opt_utc) {
         dt = wpt->GetCreationTime().toUTC();
         // We might wrap to a different day by overriding the TZ offset.
-        dt = dt.addSecs(atoi(opt_utc) * SECONDS_PER_HOUR);
+        dt = dt.addSecs(xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR);
       } else {
         dt = wpt->GetCreationTime().toLocalTime();
       }
-      QString date = dt.toString("yyyy/MM/dd");
+      QString date = dt.toString(u"yyyy/MM/dd");
       *fout << unicsv_fieldsep << date;
     } else {
       *fout << unicsv_fieldsep;
@@ -1558,15 +1549,15 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
       QTime t;
       if (opt_utc) {
         t = wpt->GetCreationTime().toUTC().time();
-        t = t.addSecs(atoi(opt_utc) * SECONDS_PER_HOUR);
+        t = t.addSecs(xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR);
       } else {
         t = wpt->GetCreationTime().toLocalTime().time();
       }
       QString out;
       if (t.msec() > 0) {
-        out = t.toString("hh:mm:ss.zzz");
+        out = t.toString(u"hh:mm:ss.zzz");
       } else {
-        out = t.toString("hh:mm:ss");
+        out = t.toString(u"hh:mm:ss");
       }
       *fout << unicsv_fieldsep << out;
     } else {
@@ -1751,7 +1742,7 @@ UnicsvFormat::wr_init(const QString& fname)
     unicsv_datum_idx = gt_lookup_datum_index(opt_datum, MYNAME);
   }
 
-  llprec = atoi(opt_prec);
+  llprec = xstrtoi(opt_prec, nullptr, 10);
 }
 
 void

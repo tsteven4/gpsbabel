@@ -23,7 +23,7 @@
 #include <cctype>                       // for tolower, toupper
 #include <cmath>                        // for fabs
 #include <cstdio>                       // for sscanf, printf
-#include <cstdlib>                      // for atoi, atol, atof
+#include <cstdlib>                      // for strtod
 #include <cstring>                      // for strcmp
 #include <optional>                     // for optional
 #include <tuple>                        // for tuple, make_tuple, tie
@@ -69,7 +69,7 @@
 void KmlFormat::kml_init_color_sequencer(unsigned int steps_per_rev)
 {
   if (rotate_colors) {
-    float color_step = atof(opt_rotate_colors);
+    float color_step = strtod(opt_rotate_colors, nullptr);
     if (color_step > 0.0f) {
       // step around circle by given number of degrees for each track(route)
       kml_color_sequencer.step = ((float)kml_color_limit) * 6.0f * color_step / 360.0f;
@@ -109,21 +109,6 @@ void KmlFormat::kml_step_color()
   // compute next color.
   kml_color_sequencer.seq = kml_color_sequencer.seq + kml_color_sequencer.step;
 }
-
-const char* KmlFormat::kml_tags_to_ignore[] = {
-  "kml",
-  "Document",
-  "Folder",
-  nullptr
-};
-
-const char* KmlFormat::kml_tags_to_skip[] = {
-  "Camera",
-  "LookAt",
-  "styleUrl",
-  "snippet",
-  nullptr
-};
 
 void KmlFormat::wpt_s(xg_string /*args*/, const QXmlStreamAttributes* /*attrs*/)
 {
@@ -406,9 +391,9 @@ void KmlFormat::wr_init(const QString& fname)
 void KmlFormat::wr_position_init(const QString& fname)
 {
   posnfilename = fname;
-  posnfilenametmp = QString("%1-").arg(fname);
+  posnfilenametmp = QStringLiteral("%1-").arg(fname);
   realtime_positioning = 1;
-  max_position_points = atoi(opt_max_position_points);
+  max_position_points = xstrtoi(opt_max_position_points, nullptr, 10);
 }
 
 void KmlFormat::wr_deinit()
@@ -611,11 +596,13 @@ void KmlFormat::kml_output_trkdescription(const route_head* header, const comput
     kml_td(hwriter, QStringLiteral("Max Speed"), QStringLiteral(" %1 %2 ").arg(QString::number(spd, 'f', 1), spd_units));
   }
   if (td->max_spd && td->start.isValid() && td->end.isValid()) {
-    const char* spd_units;
     double elapsed = td->start.msecsTo(td->end)/1000.0;
-    double spd = fmt_speed(td->distance_meters / elapsed, &spd_units);
-    if (spd > 1.0)  {
-      kml_td(hwriter, QStringLiteral("Avg Speed"), QStringLiteral(" %1 %2 ").arg(QString::number(spd, 'f', 1), spd_units));
+    if (elapsed > 0.0) {
+      const char* spd_units;
+      double spd = fmt_speed(td->distance_meters / elapsed, &spd_units);
+      if (spd > 1.0)  {
+        kml_td(hwriter, QStringLiteral("Avg Speed"), QStringLiteral(" %1 %2 ").arg(QString::number(spd, 'f', 1), spd_units));
+      }
     }
   }
   if (td->avg_hrt) {
@@ -836,7 +823,7 @@ void KmlFormat::kml_output_point(const Waypoint* waypointp, kml_point_type pt_ty
 
   if (export_points) {
     writer->writeStartElement(QStringLiteral("Placemark"));
-    if (atoi(opt_labels)) {
+    if (xstrtoi(opt_labels, nullptr, 10)) {
       writer->writeOptionalTextElement(QStringLiteral("name"), waypointp->shortname);
     }
     writer->writeEmptyElement(QStringLiteral("snippet"));
@@ -857,9 +844,9 @@ void KmlFormat::kml_output_point(const Waypoint* waypointp, kml_point_type pt_ty
       if (trackdirection && (pt_type == kmlpt_track)) {
         QString value;
         if (waypointp->speed < 1) {
-          value = QString("%1-none").arg(style);
+          value = QStringLiteral("%1-none").arg(style);
         } else {
-          value = QString("%1-%2").arg(style)
+          value = QStringLiteral("%1-%2").arg(style)
                   .arg((int)(waypointp->course / 22.5 + .5) % 16);
         }
         writer->writeTextElement(QStringLiteral("styleUrl"), value);
@@ -1156,7 +1143,7 @@ QString KmlFormat::kml_lookup_gc_icon(const Waypoint* waypointp)
     break;
   }
 
-  return QString("https://www.geocaching.com/images/kml/%1").arg(icon);
+  return QStringLiteral("https://www.geocaching.com/images/kml/%1").arg(icon);
 }
 
 const char* KmlFormat::kml_lookup_gc_container(const Waypoint* waypointp)
@@ -1199,9 +1186,9 @@ QString KmlFormat::kml_gc_mkstar(int rating)
   }
 
   if (0 == rating % 10) {
-    star_content = QString("stars%1").arg(rating / 10);
+    star_content = QStringLiteral("stars%1").arg(rating / 10);
   } else {
-    star_content = QString("stars%1_%2").arg(rating / 10).arg(rating % 10);
+    star_content = QStringLiteral("stars%1_%2").arg(rating / 10).arg(rating % 10);
   }
 
   return star_content;
@@ -1253,10 +1240,8 @@ QString KmlFormat::kml_geocache_get_logs(const Waypoint* wpt) const
         s = logpart->cdata;
       }
 
-      r = r + "<br />";
-      char* t = html_entitize(s);
-      r = r + t;
-      xfree(t);
+      r += "<br />";
+      r += s.toHtmlEscaped();
     }
 
     r += "</p>";
@@ -1316,7 +1301,7 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
   kml_output_timestamp(waypointp);
   QString date_placed;
   if (waypointp->GetCreationTime().isValid()) {
-    date_placed = waypointp->GetCreationTime().toString("dd-MMM-yyyy");
+    date_placed = waypointp->GetCreationTime().toString(u"dd-MMM-yyyy");
   }
 
   writer->writeTextElement(QStringLiteral("styleUrl"), QStringLiteral("#geocache"));
@@ -1750,8 +1735,8 @@ void KmlFormat::write()
   rotate_colors = (!! opt_rotate_colors);
   trackdata = (!! strcmp("0", opt_trackdata));
   trackdirection = (!! strcmp("0", opt_trackdirection));
-  line_width = atol(opt_line_width);
-  precision = atol(opt_precision);
+  line_width = xstrtoi(opt_line_width, nullptr, 10);
+  precision = xstrtoi(opt_precision, nullptr, 10);
 
   writer->writeStartDocument();
 
@@ -1785,7 +1770,7 @@ void KmlFormat::write()
     if (trackdirection) {
       kml_write_bitmap_style(kmlpt_other, ICON_TRK, "track-none");
       for (int i = 0; i < 16; ++i) {
-        kml_write_bitmap_style(kmlpt_other, QString(ICON_DIR).arg(i), QString("track-%1").arg(i));
+        kml_write_bitmap_style(kmlpt_other, QStringLiteral(ICON_DIR).arg(i), QStringLiteral("track-%1").arg(i));
       }
     } else {
       kml_write_bitmap_style(kmlpt_track, ICON_TRK, nullptr);

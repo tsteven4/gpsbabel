@@ -24,7 +24,7 @@
 #include <cmath>                // for atan2, floor, sqrt
 #include <csetjmp>              // for setjmp
 #include <cstdio>               // for fprintf, fflush, snprintf, sprintf
-#include <cstdlib>              // for atoi, strtol
+#include <cstdlib>              // for strtol
 #include <cstring>              // for memcpy, strlen, strncpy, strchr
 #include <ctime>                // for time_t
 
@@ -302,13 +302,13 @@ rw_init(const QString& fname)
    * If the user provided a short_length, override the calculated value.
    */
   if (snlen) {
-    setshort_length(mkshort_handle, atoi(snlen));
+    setshort_length(mkshort_handle, xstrtoi(snlen, nullptr, 10));
   } else {
     setshort_length(mkshort_handle, receiver_short_length);
   }
 
   if (snwhiteopt) {
-    setshort_whitespace_ok(mkshort_handle, atoi(snwhiteopt));
+    setshort_whitespace_ok(mkshort_handle, xstrtoi(snwhiteopt, nullptr, 10));
   }
 
   /*
@@ -986,7 +986,7 @@ waypoint_prepare()
     if (deficon) {
       icon = gt_find_icon_number_from_desc(deficon, PCX);
     } else {
-      if (get_cache_icon(wpt)) {
+      if (!get_cache_icon(wpt).isEmpty()) {
         icon = gt_find_icon_number_from_desc(get_cache_icon(wpt), PCX);
       } else {
         icon = gt_find_icon_number_from_desc(wpt->icon_descr, PCX);
@@ -1012,7 +1012,7 @@ waypoint_prepare()
       tx_waylist[i]->time_populated = 1;
     }
     if (category) {
-      tx_waylist[i]->category = 1 << (atoi(category) - 1);
+      tx_waylist[i]->category = 1 << (xstrtoi(category, nullptr, 10) - 1);
     }
     if (categorybits) {
       tx_waylist[i]->category = categorybits;
@@ -1245,8 +1245,7 @@ ff_vecs_t garmin_vecs = {
   nullptr,
   &garmin_args,
   CET_CHARSET_ASCII, 0,
-  { pvt_init, pvt_read, rw_deinit, nullptr, nullptr, nullptr },
-  nullptr
+  { pvt_init, pvt_read, rw_deinit, nullptr, nullptr, nullptr }
 };
 
 static const char* d103_icons[16] = {

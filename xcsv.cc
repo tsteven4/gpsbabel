@@ -27,7 +27,7 @@
 #include <cctype>                     // for isdigit, tolower
 #include <cmath>                      // for fabs, pow
 #include <cstdio>                     // for snprintf, sscanf
-#include <cstdlib>                    // for atof, atoi, strtod
+#include <cstdlib>                    // for strtod
 #include <cstring>                    // for strlen, strncmp, strcmp, memset
 #include <ctime>                      // for gmtime, localtime, time_t, mktime, strftime
 #include <optional>                   // for optional
@@ -443,7 +443,7 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
   /* LATITUDE CONVERSIONS**************************************************/
   case XcsvStyle::XT_LAT_DECIMAL:
     /* latitude as a pure decimal value */
-    wpt->latitude = atof(s);
+    wpt->latitude = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_LAT_DECIMALDIR:
   case XcsvStyle::XT_LAT_DIRDECIMAL:
@@ -452,22 +452,22 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     break;
   case XcsvStyle::XT_LAT_INT32DEG:
     /* latitude as a 32 bit integer offset */
-    wpt->latitude = intdeg_to_dec((int) atof(s));
+    wpt->latitude = intdeg_to_dec((int) strtod(s, nullptr));
     break;
   case XcsvStyle::XT_LAT_HUMAN_READABLE:
-    human_to_dec(s, &wpt->latitude, &wpt->longitude, 1);
+    human_to_dec(value, &wpt->latitude, &wpt->longitude, 1);
     break;
   case XcsvStyle::XT_LAT_DDMMDIR:
     wpt->latitude = ddmmdir_to_degrees(s);
     break;
   case XcsvStyle::XT_LAT_NMEA:
-    wpt->latitude = ddmm2degrees(atof(s));
+    wpt->latitude = ddmm2degrees(strtod(s, nullptr));
     break;
   // XT_LAT_10E is handled outside the switch.
   /* LONGITUDE CONVERSIONS ***********************************************/
   case XcsvStyle::XT_LON_DECIMAL:
     /* longitude as a pure decimal value */
-    wpt->longitude = atof(s);
+    wpt->longitude = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_LON_DECIMALDIR:
   case XcsvStyle::XT_LON_DIRDECIMAL:
@@ -476,21 +476,21 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     break;
   case XcsvStyle::XT_LON_INT32DEG:
     /* longitude as a 32 bit integer offset  */
-    wpt->longitude = intdeg_to_dec((int) atof(s));
+    wpt->longitude = intdeg_to_dec((int) strtod(s, nullptr));
     break;
   case XcsvStyle::XT_LON_HUMAN_READABLE:
-    human_to_dec(s, &wpt->latitude, &wpt->longitude, 2);
+    human_to_dec(value, &wpt->latitude, &wpt->longitude, 2);
     break;
   case XcsvStyle::XT_LON_DDMMDIR:
     wpt->longitude = ddmmdir_to_degrees(s);
     break;
   case XcsvStyle::XT_LON_NMEA:
-    wpt->longitude = ddmm2degrees(atof(s));
+    wpt->longitude = ddmm2degrees(strtod(s, nullptr));
     break;
   // case XcsvStyle::XT_LON_10E is handled outside the switch.
   /* LAT AND LON CONVERSIONS ********************************************/
   case XcsvStyle::XT_LATLON_HUMAN_READABLE:
-    human_to_dec(s, &wpt->latitude, &wpt->longitude, 0);
+    human_to_dec(value, &wpt->latitude, &wpt->longitude, 0);
     break;
   /* DIRECTIONS **********************************************************/
   case XcsvStyle::XT_LAT_DIR:
@@ -519,20 +519,20 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
                       &wpt->latitude, &wpt->longitude, MYNAME);
     break;
   case XcsvStyle::XT_UTM_ZONE:
-    parse_data->utm_zone = atoi(s);
+    parse_data->utm_zone = xstrtoi(s, nullptr, 10);
     break;
   case XcsvStyle::XT_UTM_ZONEC:
     parse_data->utm_zonec = s[0];
     break;
   case XcsvStyle::XT_UTM_ZONEF:
-    parse_data->utm_zone = atoi(s);
+    parse_data->utm_zone = xstrtoi(s, nullptr, 10);
     parse_data->utm_zonec = s[strlen(s) - 1];
     break;
   case XcsvStyle::XT_UTM_EASTING:
-    parse_data->utm_easting = atof(s);
+    parse_data->utm_easting = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_UTM_NORTHING:
-    parse_data->utm_northing = atof(s);
+    parse_data->utm_northing = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_UTM: {
     char* ss;
@@ -578,25 +578,25 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
 
   /* PATH CONVERSIONS ************************************************/
   case XcsvStyle::XT_PATH_SPEED:
-    WAYPT_SET(wpt, speed, atof(s));
+    WAYPT_SET(wpt, speed, strtod(s, nullptr));
     break;
   case XcsvStyle::XT_PATH_SPEED_KPH:
-    WAYPT_SET(wpt, speed, KPH_TO_MPS(atof(s)));
+    WAYPT_SET(wpt, speed, KPH_TO_MPS(strtod(s, nullptr)));
     break;
   case XcsvStyle::XT_PATH_SPEED_MPH:
-    WAYPT_SET(wpt, speed, MPH_TO_MPS(atof(s)));
+    WAYPT_SET(wpt, speed, MPH_TO_MPS(strtod(s, nullptr)));
     break;
   case XcsvStyle::XT_PATH_SPEED_KNOTS:
-    WAYPT_SET(wpt, speed, KNOTS_TO_MPS(atof(s)));
+    WAYPT_SET(wpt, speed, KNOTS_TO_MPS(strtod(s, nullptr)));
     break;
   case XcsvStyle::XT_PATH_COURSE:
-    WAYPT_SET(wpt, course, atof(s));
+    WAYPT_SET(wpt, course, strtod(s, nullptr));
     break;
 
   /* TIME CONVERSIONS ***************************************************/
   case XcsvStyle::XT_EXCEL_TIME:
     /* Time as Excel Time  */
-    wpt->SetCreationTime(excel_to_timet(atof(s)));
+    wpt->SetCreationTime(excel_to_timet(strtod(s, nullptr)));
     break;
   case XcsvStyle::XT_TIMET_TIME: {
     /* Time as time_t */
@@ -638,7 +638,7 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     break;
   case XcsvStyle::XT_ISO_TIME:
   case XcsvStyle::XT_ISO_TIME_MS:
-    wpt->SetCreationTime(xml_parse_time(s));
+    wpt->SetCreationTime(xml_parse_time(value));
     break;
   case XcsvStyle::XT_NET_TIME: {
     bool ok;
@@ -655,11 +655,11 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
   /* GEOCACHING STUFF ***************************************************/
   case XcsvStyle::XT_GEOCACHE_DIFF:
     /* Geocache Difficulty as an int */
-    wpt->AllocGCData()->diff = atof(s) * 10;
+    wpt->AllocGCData()->diff = strtod(s, nullptr) * 10;
     break;
   case XcsvStyle::XT_GEOCACHE_TERR:
     /* Geocache Terrain as an int */
-    wpt->AllocGCData()->terr = atof(s) * 10;
+    wpt->AllocGCData()->terr = strtod(s, nullptr) * 10;
     break;
   case XcsvStyle::XT_GEOCACHE_TYPE:
     /* Geocache Type */
@@ -697,19 +697,19 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
 
   /* GPS STUFF *******************************************************/
   case XcsvStyle::XT_GPS_HDOP:
-    wpt->hdop = atof(s);
+    wpt->hdop = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_GPS_VDOP:
-    wpt->vdop = atof(s);
+    wpt->vdop = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_GPS_PDOP:
-    wpt->pdop = atof(s);
+    wpt->pdop = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_GPS_SAT:
-    wpt->sat = atoi(s);
+    wpt->sat = xstrtoi(s, nullptr, 10);
     break;
   case XcsvStyle::XT_GPS_FIX:
-    wpt->fix = (fix_type)(atoi(s)-(fix_type)1);
+    wpt->fix = (fix_type)(xstrtoi(s, nullptr, 10)-(fix_type)1);
     if (wpt->fix < fix_2d) {
       if (!case_ignore_strcmp(value, "none")) {
         wpt->fix = fix_none;
@@ -727,7 +727,7 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     parse_data->rte_name = csv_stringtrim(value, enclosure, 0);
     break;
   case XcsvStyle::XT_TRACK_NEW:
-    parse_data->new_track = atoi(s);
+    parse_data->new_track = xstrtoi(s, nullptr, 10);
     break;
   case XcsvStyle::XT_TRACK_NAME:
     parse_data->trk_name = csv_stringtrim(value, enclosure, 0);
@@ -735,31 +735,31 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
 
   /* OTHER STUFF ***************************************************/
   case XcsvStyle::XT_PATH_DISTANCE_METERS:
-    wpt->odometer_distance = atof(s);
+    wpt->odometer_distance = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_PATH_DISTANCE_KM:
-    wpt->odometer_distance = atof(s) * 1000.0;
+    wpt->odometer_distance = strtod(s, nullptr) * 1000.0;
     break;
   case XcsvStyle::XT_PATH_DISTANCE_MILES:
-    wpt->odometer_distance = MILES_TO_METERS(atof(s));
+    wpt->odometer_distance = MILES_TO_METERS(strtod(s, nullptr));
     break;
   case XcsvStyle::XT_PATH_DISTANCE_NAUTICAL_MILES:
-    wpt->odometer_distance = NMILES_TO_METERS(atof(s));
+    wpt->odometer_distance = NMILES_TO_METERS(strtod(s, nullptr));
     break;
   case XcsvStyle::XT_HEART_RATE:
-    wpt->heartrate = atoi(s);
+    wpt->heartrate = xstrtoi(s, nullptr, 10);
     break;
   case XcsvStyle::XT_CADENCE:
-    wpt->cadence = atoi(s);
+    wpt->cadence = xstrtoi(s, nullptr, 10);
     break;
   case XcsvStyle::XT_POWER:
-    wpt->power = atof(s);
+    wpt->power = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_TEMPERATURE:
-    wpt->temperature = atof(s);
+    wpt->temperature = strtod(s, nullptr);
     break;
   case XcsvStyle::XT_TEMPERATURE_F:
-    wpt->temperature = (FAHRENHEIT_TO_CELSIUS(atof(s)));
+    wpt->temperature = (FAHRENHEIT_TO_CELSIUS(strtod(s, nullptr)));
     break;
   /* GMSD ****************************************************************/
   case XcsvStyle::XT_COUNTRY: {
@@ -804,9 +804,9 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
   break;
   case XcsvStyle::XT_unused:
     if (strncmp(fmp.key.constData(), "LON_10E", 7) == 0) {
-      wpt->longitude = atof(s) / pow(10.0, atof(fmp.key.constData()+7));
+      wpt->longitude = strtod(s, nullptr) / pow(10.0, strtod(fmp.key.constData()+7, nullptr));
     } else if (strncmp(fmp.key.constData(), "LAT_10E", 7) == 0) {
-      wpt->latitude = atof(s) / pow(10.0, atof(fmp.key.constData()+7));
+      wpt->latitude = strtod(s, nullptr) / pow(10.0, strtod(fmp.key.constData()+7, nullptr));
     } else {
       warning(MYNAME ": Unknown style directive: %s\n", fmp.key.constData());
     }
@@ -1053,7 +1053,7 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
       buff = QString::asprintf(fmp.printfc.constData(), "");
       break;
     case XcsvStyle::XT_INDEX:
-      buff = QString::asprintf(fmp.printfc.constData(), waypt_out_count + atoi(fmp.val.constData()));
+      buff = QString::asprintf(fmp.printfc.constData(), waypt_out_count + xstrtoi(fmp.val.constData(), nullptr, 10));
       break;
     case XcsvStyle::XT_CONSTANT: {
       auto cp = XcsvStyle::xcsv_get_char_from_constant_table(fmp.val.constData());
@@ -1388,12 +1388,12 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
       break;
     case XcsvStyle::XT_GEOCACHE_CONTAINER:
       /* Geocache Container */
-      buff = QString::asprintf(fmp.printfc.constData(), gs_get_container(wpt->gc_data->container));
+      buff = QString::asprintf(fmp.printfc.constData(), CSTR(gs_get_container(wpt->gc_data->container)));
       field_is_unknown = wpt->gc_data->container == gc_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_TYPE:
       /* Geocache Type */
-      buff = QString::asprintf(fmp.printfc.constData(), gs_get_cachetype(wpt->gc_data->type));
+      buff = QString::asprintf(fmp.printfc.constData(), CSTR(gs_get_cachetype(wpt->gc_data->type)));
       field_is_unknown = wpt->gc_data->type == gt_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_HINT:
@@ -1536,9 +1536,9 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
       break;
     case XcsvStyle::XT_unused:
       if (strncmp(fmp.key.constData(), "LON_10E", 7) == 0) {
-        buff = QString::asprintf(fmp.printfc.constData(), lon * pow(10.0, atof(fmp.key.constData()+7)));
+        buff = QString::asprintf(fmp.printfc.constData(), lon * pow(10.0, strtod(fmp.key.constData()+7, nullptr)));
       } else if (strncmp(fmp.key.constData(), "LAT_10E", 7) == 0) {
-        buff = QString::asprintf(fmp.printfc.constData(), lat * pow(10.0, atof(fmp.key.constData()+7)));
+        buff = QString::asprintf(fmp.printfc.constData(), lat * pow(10.0, strtod(fmp.key.constData()+7, nullptr)));
       }
       break;
     default:
@@ -1590,13 +1590,13 @@ XcsvFormat::xcsv_replace_tokens(const QString& original) const
 
     QDateTime dt = current_time().toUTC();
 
-    QString dts = dt.toString("ddd MMM dd hh:mm:ss yyyy");
+    QString dts = dt.toString(u"ddd MMM dd hh:mm:ss yyyy");
     replacement.replace("__DATE_AND_TIME__", dts);
 
-    QString d = dt.toString("MM/dd/yyyy");
+    QString d = dt.toString(u"MM/dd/yyyy");
     replacement.replace("__DATE__", d);
 
-    QString t = dt.toString("hh:mm:ss");
+    QString t = dt.toString(u"hh:mm:ss");
     replacement.replace("__TIME__", t);
   }
   return replacement;
@@ -1659,7 +1659,8 @@ XcsvStyle::xcsv_parse_style_line(XcsvStyle* style, QString line)
   }
 
   // Separate op and tokens.
-  int sep = line.indexOf(QRegularExpression(R"(\s+)"));
+  static const QRegularExpression re(R"(\s+)");
+  int sep = line.indexOf(re);
 
   // the first token is the operation, e.g. "IFIELD"
   QString op = line.mid(0, sep).trimmed().toUpper();
@@ -1912,19 +1913,19 @@ XcsvFormat::wr_init(const QString& fname)
   if (global_opts.synthesize_shortnames) {
 
     if (snlenopt) {
-      setshort_length(xcsv_file->mkshort_handle, atoi(snlenopt));
+      setshort_length(xcsv_file->mkshort_handle, xstrtoi(snlenopt, nullptr, 10));
     }
 
     if (snwhiteopt) {
-      setshort_whitespace_ok(xcsv_file->mkshort_handle, atoi(snwhiteopt));
+      setshort_whitespace_ok(xcsv_file->mkshort_handle, xstrtoi(snwhiteopt, nullptr, 10));
     }
 
     if (snupperopt) {
-      setshort_mustupper(xcsv_file->mkshort_handle, atoi(snupperopt));
+      setshort_mustupper(xcsv_file->mkshort_handle, xstrtoi(snupperopt, nullptr, 10));
     }
 
     if (snuniqueopt) {
-      setshort_mustuniq(xcsv_file->mkshort_handle, atoi(snuniqueopt));
+      setshort_mustuniq(xcsv_file->mkshort_handle, xstrtoi(snuniqueopt, nullptr, 10));
     }
 
     setshort_badchars(xcsv_file->mkshort_handle, CSTR(xcsv_style->badchars));

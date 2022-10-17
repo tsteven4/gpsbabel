@@ -24,7 +24,6 @@
 */
 
 #include "defs.h"
-#include <cstdlib>
 
 #define MYNAME "Garmin_XT"
 #define GARMIN_XT_ELE 31500/65536
@@ -94,7 +93,7 @@ format_garmin_xt_rd_st_attrs(char* p_trk_name, uint8_t* p_track_color)
 
   // get the option for the processing the track name
   if (opt_trk_header) {
-    method = atoi(opt_trk_header);
+    method = xstrtoi(opt_trk_header, nullptr, 10);
     // if method is out of range set to default
     if ((method < 0) || (method > 1)) {
       method = 0;
@@ -331,7 +330,7 @@ format_garmin_xt_proc_atrk()
 
   // get the option for the processing the track name
   if (opt_trk_header) {
-    method = atoi(opt_trk_header);
+    method = xstrtoi(opt_trk_header, nullptr, 10);
   }
 
   if (! track) {
@@ -415,7 +414,6 @@ ff_vecs_t format_garmin_xt_vecs = {
   &format_garmin_xt_args,
   CET_CHARSET_ASCII, 0			/* ascii is the expected character set */
   /* not fixed, can be changed through command line parameter */
-  , NULL_POS_OPS,
-  nullptr
+  , NULL_POS_OPS
 };
 /**************************************************************************/
