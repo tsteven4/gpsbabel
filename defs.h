@@ -294,7 +294,7 @@ public:
 class gb_color
 {
 public:
-  int bbggrr{-1};   // 32 bit color: Blue/Green/Red.  < 0 == unknown.
+  std::optional<int> bbggrr;   // 32 bit color: Blue/Green/Red.
   unsigned char opacity{255};  // 0 == transparent.  255 == opaque.
 };
 
@@ -1195,7 +1195,6 @@ int color_to_bbggrr(const char* cname);
  * but that's not very nice for the folks near sea level.
  */
 #define unknown_alt 	-99999999.0
-#define unknown_color	-1
 
 // TODO: this is a (probably temporary) shim for the C->QString conversion.
 // It's here instead of gps to avoid C/C++ linkage issues.

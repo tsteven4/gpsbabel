@@ -885,18 +885,18 @@ void KmlFormat::kml_output_tailer(const route_head* header)
     if (!rotate_colors) {
       writer->writeTextElement(QStringLiteral("styleUrl"), QStringLiteral("#lineStyle"));
     }
-    if (header->line_color.bbggrr >= 0 || header->line_width >= 0 || rotate_colors) {
+    if (header->line_color.bbggrr || header->line_width >= 0 || rotate_colors) {
       writer->writeStartElement(QStringLiteral("Style"));
       writer->writeStartElement(QStringLiteral("LineStyle"));
       if (rotate_colors) {
         kml_step_color();
         writer->writeTextElement(QStringLiteral("color"), QStringLiteral("%1%2")
-                                 .arg(kml_color_sequencer.color.opacity, 2, 16, QChar('0')).arg(kml_color_sequencer.color.bbggrr, 6, 16, QChar('0')));
+                                 .arg(kml_color_sequencer.color.opacity, 2, 16, QChar('0')).arg(*kml_color_sequencer.color.bbggrr, 6, 16, QChar('0')));
         writer->writeTextElement(QStringLiteral("width"), opt_line_width);
       } else {
-        if (header->line_color.bbggrr >= 0) {
+        if (header->line_color.bbggrr) {
           writer->writeTextElement(QStringLiteral("color"), QStringLiteral("%1%2")
-                                   .arg(header->line_color.opacity, 2, 16, QChar('0')).arg(header->line_color.bbggrr, 6, 16, QChar('0')));
+                                   .arg(header->line_color.opacity, 2, 16, QChar('0')).arg(*header->line_color.bbggrr, 6, 16, QChar('0')));
         }
         if (header->line_width >= 0) {
           writer->writeTextElement(QStringLiteral("width"), QString::number(header->line_width));

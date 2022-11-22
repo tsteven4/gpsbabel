@@ -20,10 +20,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <cstdint>               // for int32_t
 #include <cstring>               // for strncpy, strchr, strlen, strncmp
 #include <QChar>                 // for operator==, QChar
 #include <QDebug>                // for QDebug
+#include <QString>               // for QString, operator+, operator==
+#include <QVector>               // for QVector
 #include <Qt>                    // for CaseInsensitive
 #include "defs.h"
 #include "garmin_tables.h"
@@ -334,12 +335,12 @@ static const datum_mapping_t gt_mps_datum_names[] = {
 };
 
 struct garmin_color_t {
-  const char* name;
-  int32_t rgb;
+  QString name{"Unknown"};
+  std::optional<int> rgb;
 };
 
-static const garmin_color_t gt_colors[] = {
-  { "Unknown",		unknown_color },
+static const QVector<garmin_color_t> gt_colors = {
+  garmin_color_t(),
   { "Black", 		0x000000 },
   { "DarkRed",		0x00008B },
   { "DarkGreen",		0x006400 },
@@ -356,11 +357,8 @@ static const garmin_color_t gt_colors[] = {
   { "Magenta",		0xFF00FF },
   { "Cyan",		0xFFFF00 },
   { "White",		0xFFFFFF },
-  { "Transparent",	unknown_color }, /* Currently not handled */
-  { nullptr, 0 }
+  { "Transparent",	std::nullopt }, /* Currently not handled */
 };
-
-#define GT_COLORS_CT ((sizeof(gt_colors) / sizeof(gt_colors[0])) - 1)
 
 unsigned char
 gt_switch_display_mode_value(const unsigned char display_mode, const int protoid, const char device)
@@ -706,34 +704,33 @@ gt_lookup_datum_index(const char* datum_str, const QString& module)
   return result;
 }
 
-uint32_t
-gt_color_value(const unsigned int garmin_index)
+std::optional<int>
+gt_color_value(const int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
-    return gt_colors[garmin_index].rgb;
-  } else {
-    return unknown_color;  /* -1 */
-  }
+  /* default constructed if index is out of range => std::nullopt */
+  return gt_colors.value(garmin_index).rgb;
 }
 
-uint32_t
+std::optional<int>
 gt_color_value_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
-      return gt_colors[i].rgb;
+  for (const auto& color : gt_colors) {
+    if (QString::compare(color.name, name, Qt::CaseInsensitive) == 0) {
+      return color.rgb;
     }
+  }
 
-  return gt_colors[0].rgb;
+  return std::nullopt;
 }
 
 int
 gt_color_index_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
+  for (int i = 0; i < gt_colors.size(); i++) {
+    if (QString::compare(gt_colors.at(i).name, name, Qt::CaseInsensitive) == 0) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
@@ -741,20 +738,18 @@ gt_color_index_by_name(const QString& name)
 int
 gt_color_index_by_rgb(const int rgb)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (rgb == gt_colors[i].rgb) {
+  for (int i = 0; i < gt_colors.size(); i++) {
+    if (rgb == gt_colors.at(i).rgb) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
 
-const char*
-gt_color_name(const unsigned int garmin_index)
+QString
+gt_color_name(const int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
-    return gt_colors[garmin_index].name;
-  } else {
-    return gt_colors[0].name;
-  }
+  /* default constructed if index is out of range => "Unknown" */
+  return gt_colors.value(garmin_index).name;
 }

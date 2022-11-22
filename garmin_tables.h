@@ -23,7 +23,7 @@
 #ifndef GARMIN_TABLES_H
 #define GARMIN_TABLES_H
 
-#include <cstdint>              // for uint32_t
+#include <optional>             // for optional
 #include <QString>              // for QString
 #include "defs.h"               // for grid_type
 
@@ -97,10 +97,10 @@ grid_type gt_lookup_grid_type(const char* grid_name, const QString& module);
 const char* gt_get_mps_grid_longname(grid_type grid, const char* module);
 int gt_lookup_datum_index(const char* datum_str, const QString& module);
 const char* gt_get_mps_datum_name(int datum_index);
-uint32_t gt_color_value(unsigned int garmin_index);
-uint32_t gt_color_value_by_name(const QString& name);
+std::optional<int> gt_color_value(int garmin_index);
+std::optional<int> gt_color_value_by_name(const QString& name);
 int gt_color_index_by_name(const QString& name);
 int gt_color_index_by_rgb(int rgb);
-const char* gt_color_name(unsigned int garmin_index);
+QString gt_color_name(int garmin_index);
 
 #endif

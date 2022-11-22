@@ -1441,13 +1441,12 @@ GpxFormat::gpx_track_hdr(const route_head* rte)
         fprint_xml_chain(fs_gpx->tag, nullptr);
       }
     } else if (opt_garminext) {
-      if (rte->line_color.bbggrr > unknown_color) {
-        int ci = gt_color_index_by_rgb(rte->line_color.bbggrr);
+      if (rte->line_color.bbggrr) {
+        int ci = gt_color_index_by_rgb(*rte->line_color.bbggrr);
         if (ci > 0) {
           writer->writeStartElement(QStringLiteral("extensions"));
           writer->writeStartElement(QStringLiteral("gpxx:TrackExtension"));
-          writer->writeTextElement(QStringLiteral("gpxx:DisplayColor"), QStringLiteral("%1")
-                                   .arg(gt_color_name(ci)));
+          writer->writeTextElement(QStringLiteral("gpxx:DisplayColor"), gt_color_name(ci));
           writer->writeEndElement(); // Close gpxx:TrackExtension tag
           writer->writeEndElement(); // Close extensions tag
         }
@@ -1539,15 +1538,14 @@ GpxFormat::gpx_route_hdr(const route_head* rte) const
         fprint_xml_chain(fs_gpx->tag, nullptr);
       }
     } else if (opt_garminext) {
-      if (rte->line_color.bbggrr > unknown_color) {
-        int ci = gt_color_index_by_rgb(rte->line_color.bbggrr);
+      if (rte->line_color.bbggrr) {
+        int ci = gt_color_index_by_rgb(*rte->line_color.bbggrr);
         if (ci > 0) {
           writer->writeStartElement(QStringLiteral("extensions"));
           writer->writeStartElement(QStringLiteral("gpxx:RouteExtension"));
           // FIXME: the value to use for IsAutoNamed is questionable.
           writer->writeTextElement(QStringLiteral("gpxx:IsAutoNamed"), rte->rte_name.isEmpty()? QStringLiteral("true") : QStringLiteral("false")); // Required element
-          writer->writeTextElement(QStringLiteral("gpxx:DisplayColor"), QStringLiteral("%1")
-                                   .arg(gt_color_name(ci)));
+          writer->writeTextElement(QStringLiteral("gpxx:DisplayColor"), gt_color_name(ci));
           writer->writeEndElement(); // Close gpxx:RouteExtension tag
           writer->writeEndElement(); // Close extensions tag
         }

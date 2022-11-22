@@ -1509,7 +1509,7 @@ GdbFormat::write_route(const route_head* rte, const QString& rte_name)
       FWRITE_CSTR_LIST("");
     }
     /* "Magenta" (14) is MapSource default */
-    FWRITE_i32((rte->line_color.bbggrr < 0) ? 14 : gt_color_index_by_rgb(rte->line_color.bbggrr));
+    FWRITE_i32(rte->line_color.bbggrr ? gt_color_index_by_rgb(*rte->line_color.bbggrr) : 14);
     FWRITE_C(0);
     FWRITE_CSTR(rte->rte_desc);
   }
@@ -1523,7 +1523,7 @@ GdbFormat::write_track(const route_head* trk, const QString& trk_name)
   FWRITE_CSTR(trk_name);
   FWRITE_C(0);
   /* "Unknown" (0) is MapSource default */
-  FWRITE_i32(gt_color_index_by_rgb(trk->line_color.bbggrr));
+  FWRITE_i32(trk->line_color.bbggrr ? gt_color_index_by_rgb(*trk->line_color.bbggrr) : 0);
 
   FWRITE_i32(points);	/* total number of waypoints in waypoint list */
 
