@@ -40,6 +40,7 @@
 #include "garmin_device_xml.h"  // for gdx_get_info, gdx_info, gdx_file, gdx_jmp_buf
 #include "garmin_fs.h"          // for garmin_fs_garmin_after_read, garmin_fs_garmin_before_write
 #include "garmin_tables.h"      // for gt_find_icon_number_from_desc, PCX, gt_find_desc_from_icon_number
+#include "geocache.h"
 #include "grtcirc.h"            // for DEG
 #include "jeeps/gps.h"
 #include "jeeps/gpsserial.h"
@@ -986,8 +987,8 @@ waypoint_prepare()
     if (deficon) {
       icon = gt_find_icon_number_from_desc(deficon, PCX);
     } else {
-      if (!get_cache_icon(wpt).isEmpty()) {
-        icon = gt_find_icon_number_from_desc(get_cache_icon(wpt), PCX);
+      if (!wpt->gc_data->gs_get_icon().isEmpty()) {
+        icon = gt_find_icon_number_from_desc(wpt->gc_data->gs_get_icon(), PCX);
       } else {
         icon = gt_find_icon_number_from_desc(wpt->icon_descr, PCX);
       }

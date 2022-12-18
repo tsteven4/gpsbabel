@@ -50,6 +50,7 @@
 #include "csv_util.h"                 // for csv_stringtrim, dec_to_human, csv_stringclean, human_to_dec, ddmmdir_to_degrees, dec_to_intdeg, decdir_to_dec, intdeg_to_dec, csv_linesplit
 #include "formspec.h"                 // for FormatSpecificDataList
 #include "garmin_fs.h"                // for garmin_fs_t, garmin_fs_alloc
+#include "geocache.h"
 #include "grtcirc.h"                  // for RAD, gcdist, radtometers
 #include "jeeps/gpsmath.h"            // for GPS_Math_WGS84_To_UTM_EN, GPS_Lookup_Datum_Index, GPS_Math_Known_Datum_To_WGS84_M, GPS_Math_UTM_EN_To_Known_Datum, GPS_Math_WGS84_To_Known_Datum_M, GPS_Math_WGS84_To_UKOSMap_M
 #include "jeeps/gpsport.h"            // for int32
@@ -663,10 +664,10 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     break;
   case XcsvStyle::XT_GEOCACHE_TYPE:
     /* Geocache Type */
-    wpt->AllocGCData()->type = gs_mktype(value);
+    wpt->AllocGCData()->gs_set_cachetype(value);
     break;
   case XcsvStyle::XT_GEOCACHE_CONTAINER:
-    wpt->AllocGCData()->container = gs_mkcont(value);
+    wpt->AllocGCData()->gs_set_container(value);
     break;
   case XcsvStyle::XT_GEOCACHE_HINT:
     wpt->AllocGCData()->hint = value.trimmed();
@@ -1388,12 +1389,12 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
       break;
     case XcsvStyle::XT_GEOCACHE_CONTAINER:
       /* Geocache Container */
-      buff = QString::asprintf(fmp.printfc.constData(), CSTR(gs_get_container(wpt->gc_data->container)));
+      buff = QString::asprintf(fmp.printfc.constData(), CSTR(wpt->gc_data->gs_get_container()));
       field_is_unknown = wpt->gc_data->container == gc_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_TYPE:
       /* Geocache Type */
-      buff = QString::asprintf(fmp.printfc.constData(), CSTR(gs_get_cachetype(wpt->gc_data->type)));
+      buff = QString::asprintf(fmp.printfc.constData(), CSTR(wpt->gc_data->gs_get_cachetype()));
       field_is_unknown = wpt->gc_data->type == gt_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_HINT:

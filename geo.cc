@@ -17,6 +17,7 @@
 
  */
 #include "defs.h"
+#include "geocache.h"
 #include "src/core/file.h"
 #include <QDebug>
 #include <QXmlStreamReader>

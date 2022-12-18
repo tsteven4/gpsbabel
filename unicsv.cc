@@ -45,6 +45,7 @@
 #include "formspec.h"              // for FormatSpecificDataList
 #include "garmin_fs.h"             // for garmin_fs_flags_t, garmin_fs_t, GMSD_GET, GMSD_HAS, GMSD_SETQSTR, GMSD_FIND, garmin_fs_alloc
 #include "garmin_tables.h"         // for gt_lookup_datum_index, gt_get_mps_grid_longname, gt_lookup_grid_type
+#include "geocache.h"
 #include "jeeps/gpsmath.h"         // for GPS_Math_UKOSMap_To_WGS84_M, GPS_Math_EN_To_UKOSNG_Map, GPS_Math_Known_Datum_To_UTM_EN, GPS_Math_Known_Datum_To_WGS84_M, GPS_Math_Swiss_EN_To_WGS84, GPS_Math_UTM_EN_To_Known_Datum, GPS_Math_WGS84_To_Known_Datum_M, GPS_Math_WGS84_To_Swiss_EN, GPS_Math_WGS...
 #include "session.h"               // for session_t
 #include "src/core/datetime.h"     // for DateTime
@@ -902,10 +903,10 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
         }
         break;
       case fld_gc_type:
-        gc_data->type = gs_mktype(value);
+        gc_data->gs_set_cachetype(value);
         break;
       case fld_gc_container:
-        gc_data->container = gs_mkcont(value);
+        gc_data->gs_set_container(value);
         break;
       case fld_gc_terr:
         gc_data->terr = value.toDouble() * 10;
@@ -1618,14 +1619,14 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   }
   if FIELD_USED(fld_gc_type) {
     if (gc_data) {
-      unicsv_print_str(gs_get_cachetype(gc_data->type));
+      unicsv_print_str(gc_data->gs_get_cachetype());
     } else {
       *fout << unicsv_fieldsep;
     }
   }
   if FIELD_USED(fld_gc_container) {
     if (gc_data) {
-      unicsv_print_str(gs_get_container(gc_data->container));
+      unicsv_print_str(gc_data->gs_get_container());
     } else {
       *fout << unicsv_fieldsep;
     }

@@ -28,6 +28,7 @@
 
 #include "defs.h"
 #include "duplicate.h"
+#include "geocache.h"
 #include "src/core/datetime.h"  // for DateTime
 
 

@@ -45,6 +45,7 @@
 #include "defs.h"
 #include "kml.h"
 #include "formspec.h"                   // for FsChainFind, kFsGpx
+#include "geocache.h"
 #include "grtcirc.h"                    // for RAD, gcdist, radtometers
 #include "src/core/datetime.h"          // for DateTime
 #include "src/core/file.h"              // for File
@@ -1356,7 +1357,7 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
   kml_write_data_element("gc_lat", waypointp->latitude);
   kml_write_data_element("gc_lon", waypointp->longitude);
 
-  kml_write_data_element("gc_type", gs_get_cachetype(waypointp->gc_data->type));
+  kml_write_data_element("gc_type", waypointp->gc_data->gs_get_cachetype());
   kml_write_data_element("gc_icon", is);
   kml_write_cdata_element("gc_short_desc", waypointp->gc_data->desc_short.utfstring);
   kml_write_cdata_element("gc_long_desc", waypointp->gc_data->desc_long.utfstring);

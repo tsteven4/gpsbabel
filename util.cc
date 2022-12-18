@@ -47,6 +47,7 @@
 #include <QtGlobal>                     // for qAsConst, qEnvironmentVariableIsSet, QAddConst<>::Type, qPrintable
 
 #include "defs.h"
+#include "geocache.h"
 #include "src/core/datetime.h"          // for DateTime
 #include "src/core/logging.h"           // for Warning
 #include "src/core/xmltag.h"            // for xml_tag, xml_attribute, xml_findfirst, xml_findnext
@@ -706,53 +707,6 @@ QDateTime dotnet_time_to_qdatetime(long long dotnet)
   QDateTime epoch = QDateTime(QDate(1, 1, 1), QTime(0, 0, 0), Qt::UTC);
   qint64 millisecs = (dotnet + 5000)/ 10000;
   return epoch.addMSecs(millisecs);
-}
-
-/*
- * Return a pointer to a constant string that is suitable for icon lookup
- * based on geocache attributes.   The strings used are those present in
- * a GPX file from geocaching.com.  Thus we sort of make all the other
- * formats do lookups based on these strings.
- */
-QString
-get_cache_icon(const Waypoint* waypointp)
-{
-  if (!global_opts.smart_icons) {
-    return nullptr;
-  }
-
-  /*
-   * For icons, type overwrites container.  So a multi-micro will
-   * get the icons for "multi".
-   */
-  switch (waypointp->gc_data->type) {
-  case gt_virtual:
-    return "Virtual cache";
-  case gt_multi:
-    return "Multi-Cache";
-  case gt_event:
-    return "Event Cache";
-  case gt_surprise:
-    return "Unknown Cache";
-  case gt_webcam:
-    return "Webcam Cache";
-  default:
-    break;
-  }
-
-  switch (waypointp->gc_data->container) {
-  case gc_micro:
-    return "Micro-Cache";
-    break;
-  default:
-    break;
-  }
-
-  if (waypointp->gc_data->diff > 1) {
-    return "Geocache";
-  }
-
-  return nullptr;
 }
 
 double

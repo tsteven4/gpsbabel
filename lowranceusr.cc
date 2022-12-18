@@ -109,6 +109,7 @@
 #include "lowranceusr.h"
 #include "formspec.h"             // for FsChainFind, FsChainAdd, kFsLowranceusr4, FormatSpecificData
 #include "gbfile.h"               // for gbfgetint32, gbfputint32, gbfputint16, gbfgetc, gbfgetint16, gbfwrite, gbfputc, gbfeof, gbfgetflt, gbfclose, gbfgetdbl, gbfopen_le, gbfputdbl, gbfputs, gbfile, gbfputflt, gbfread, gbfseek
+#include "geocache.h"
 #include "src/core/datetime.h"    // for DateTime
 #include "src/core/logging.h"     // for Warning
 
@@ -1346,8 +1347,8 @@ LowranceusrFormat::lowranceusr_waypt_disp(const Waypoint* wpt) const
 
   gbfputint32(waypt_time, file_out);
 
-  if (!get_cache_icon(wpt).isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
-    SymbolId = lowranceusr_find_icon_number_from_desc(get_cache_icon(wpt));
+  if (!wpt->gc_data->gs_get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+    SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->gs_get_icon());
   } else {
     SymbolId = lowranceusr_find_icon_number_from_desc(wpt->icon_descr);
   }
@@ -1407,11 +1408,11 @@ LowranceusrFormat::lowranceusr4_waypt_disp(const Waypoint* wpt)
   gbfputint32(2, file_out);
 
   int SymbolId, ColorId;
-  if (!get_cache_icon(wpt).isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+  if (!wpt->gc_data->gs_get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
     if (writing_version == 4) {
       SymbolId = lowranceusr4_find_icon_number_from_desc(wpt->icon_descr);
     } else {
-      SymbolId = lowranceusr_find_icon_number_from_desc(get_cache_icon(wpt));
+      SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->gs_get_icon());
     }
     ColorId = 0; // default
   } else {
