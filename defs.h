@@ -50,7 +50,6 @@
 #include "formspec.h"                // for FormatSpecificData
 #include "inifile.h"                 // for inifile_t
 #include "gbfile.h"                  // doesn't really belong here, but is missing elsewhere.
-//#include "geocache.h"
 #include "session.h"                 // for session_t
 #include "src/core/datetime.h"       // for DateTime
 
@@ -990,7 +989,7 @@ time_t mkgmtime(struct tm* t);
 bool gpsbabel_testmode();
 gpsbabel::DateTime current_time();
 QDateTime dotnet_time_to_qdatetime(long long dotnet);
-QString strip_html(const QString& utfstring, bool is_html = true);
+QString strip_html(const QString& utfstring);
 QString strip_nastyhtml(const QString& in);
 QString convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
 QString convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */

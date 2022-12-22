@@ -1204,20 +1204,16 @@ strip_nastyhtml(const QString& in)
  *  pleasant for a human reader.   Yes, this falls down in all kinds of
  *  ways such as spaces within the tags, etc.
  */
-QString strip_html(const QString& utfstring, bool is_html)
+QString strip_html(const QString& utfstring)
 {
 #if 0
   // If we were willing to link core against QtGui (not out of the question)
   // we could just do...and either decide whether to add handling for [IMG]
   // or just say we don't do that any more.
   QTextDocument doc;
-  doc.setHtml(in->utfstring);
+  doc.setHtml(utfstring);
   return doc.toPlainText().simplified();
 #else
-  if (!is_html) {
-    return utfstring;
-  }
-
   char* out;
   char* instr;
   char tag[8];

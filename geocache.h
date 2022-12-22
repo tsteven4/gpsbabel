@@ -28,6 +28,11 @@
 
 class geocache_data
 {
+  /*
+   * Extended data if waypoint happens to represent a geocache.  This is
+   * totally voluntary data...
+   */
+
 public:
 
   /* Types */
@@ -72,18 +77,12 @@ public:
 
     QString strip() const
     {
-      return strip_html(utfstring, is_html);
+      return is_html? strip_html(utfstring) : utfstring;
     }
 
     bool is_html{false};
     QString utfstring;
   };
-
-  /*
-   * Extended data if waypoint happens to represent a geocache.  This is
-   * totally voluntary data...
-   */
-
 
   /* Special Member Functions */
 
