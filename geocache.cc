@@ -24,37 +24,37 @@
 
 
 const QVector<geocache_data::gs_type_mapping> geocache_data::gs_type_map = {
-  { gt_traditional, "Traditional Cache" },
-  { gt_traditional, "Traditional" }, /* opencaching.de */
-  { gt_multi, "Multi-cache" },
-  { gt_multi, "Multi" }, /* opencaching.de */
-  { gt_virtual, "Virtual Cache" },
-  { gt_virtual, "Virtual" }, /* opencaching.de */
-  { gt_event, "Event Cache" },
-  { gt_event, "Event" }, /* opencaching.de */
-  { gt_webcam, "Webcam Cache" },
-  { gt_webcam, "Webcam" }, /* opencaching.de */
-  { gt_surprise, "Unknown Cache" },
-  { gt_earth, "Earthcache" },
-  { gt_earth, "Earth" }, /* opencaching.de */
-  { gt_cito, "Cache In Trash Out Event" },
-  { gt_letterbox, "Letterbox Hybrid" },
-  { gt_locationless, "Locationless (Reverse) Cache" },
-  { gt_ape, "Project APE Cache" },
-  { gt_mega, "Mega-Event Cache" },
-  { gt_wherigo, "Wherigo Cache" },
+  {geocache_data::gt_traditional, "Traditional Cache" },
+  {geocache_data::gt_traditional, "Traditional" }, /* opencaching.de */
+  {geocache_data::gt_multi, "Multi-cache" },
+  {geocache_data::gt_multi, "Multi" }, /* opencaching.de */
+  {geocache_data::gt_virtual, "Virtual Cache" },
+  {geocache_data::gt_virtual, "Virtual" }, /* opencaching.de */
+  {geocache_data::gt_event, "Event Cache" },
+  {geocache_data::gt_event, "Event" }, /* opencaching.de */
+  {geocache_data::gt_webcam, "Webcam Cache" },
+  {geocache_data::gt_webcam, "Webcam" }, /* opencaching.de */
+  {geocache_data::gt_surprise, "Unknown Cache" },
+  {geocache_data::gt_earth, "Earthcache" },
+  {geocache_data::gt_earth, "Earth" }, /* opencaching.de */
+  {geocache_data::gt_cito, "Cache In Trash Out Event" },
+  {geocache_data::gt_letterbox, "Letterbox Hybrid" },
+  {geocache_data::gt_locationless, "Locationless (Reverse) Cache" },
+  {geocache_data::gt_ape, "Project APE Cache" },
+  {geocache_data::gt_mega, "Mega-Event Cache" },
+  {geocache_data::gt_wherigo, "Wherigo Cache" },
 
-  { gt_benchmark, "Benchmark" } /* Not Groundspeak; for GSAK  */
+  {geocache_data::gt_benchmark, "Benchmark" } /* Not Groundspeak; for GSAK  */
 };
 
 const QVector<geocache_data::gs_container_mapping> geocache_data::gs_container_map = {
-  { gc_other, "Unknown" },
-  { gc_other, "Other" }, /* Synonym on read. */
-  { gc_micro, "Micro" },
-  { gc_regular, "Regular" },
-  { gc_large, "Large" },
-  { gc_small, "Small" },
-  { gc_virtual, "Virtual" }
+  {geocache_data::gc_other, "Unknown" },
+  {geocache_data::gc_other, "Other" }, /* Synonym on read. */
+  {geocache_data::gc_micro, "Micro" },
+  {geocache_data::gc_regular, "Regular" },
+  {geocache_data::gc_large, "Large" },
+  {geocache_data::gc_small, "Small" },
+  {geocache_data::gc_virtual, "Virtual" }
 };
 
 void geocache_data::gs_set_cachetype(const QString& type_name)
@@ -65,7 +65,7 @@ void geocache_data::gs_set_cachetype(const QString& type_name)
       return;
     }
   }
-  type = gt_unknown;
+  type = geocache_data::gt_unknown;
 }
 
 QString geocache_data::gs_get_cachetype() const
@@ -86,7 +86,7 @@ void geocache_data::gs_set_container(const QString& container_name)
       return;
     }
   }
-  container = gc_unknown;
+  container = geocache_data::gc_unknown;
 }
 
 QString geocache_data::gs_get_container() const
@@ -116,22 +116,22 @@ QString geocache_data::gs_get_icon() const
    * get the icons for "multi".
    */
   switch (type) {
-  case gt_virtual:
+  case geocache_data::gt_virtual:
     return "Virtual cache";
-  case gt_multi:
+  case geocache_data::gt_multi:
     return "Multi-Cache";
-  case gt_event:
+  case geocache_data::gt_event:
     return "Event Cache";
-  case gt_surprise:
+  case geocache_data::gt_surprise:
     return "Unknown Cache";
-  case gt_webcam:
+  case geocache_data::gt_webcam:
     return "Webcam Cache";
   default:
     break;
   }
 
   switch (container) {
-  case gc_micro:
+  case geocache_data::gc_micro:
     return "Micro-Cache";
   default:
     break;

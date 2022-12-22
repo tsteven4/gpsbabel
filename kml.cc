@@ -1108,43 +1108,43 @@ QString KmlFormat::kml_lookup_gc_icon(const Waypoint* waypointp)
    * initializers...
    */
   switch (waypointp->gc_data->type) {
-  case gt_traditional:
+  case geocache_data::gt_traditional:
     icon = "2.png";
     break;
-  case gt_multi:
+  case geocache_data::gt_multi:
     icon = "3.png";
     break;
-  case gt_virtual:
+  case geocache_data::gt_virtual:
     icon = "4.png";
     break;
-  case gt_letterbox:
+  case geocache_data::gt_letterbox:
     icon = "5.png";
     break;
-  case gt_event:
+  case geocache_data::gt_event:
     icon = "6.png";
     break;
-  case gt_ape:
+  case geocache_data::gt_ape:
     icon = "7.png";
     break;
-  case gt_locationless:
+  case geocache_data::gt_locationless:
     icon = "8.png";
     break; // No unique icon.
-  case gt_surprise:
+  case geocache_data::gt_surprise:
     icon = "8.png";
     break;
-  case gt_webcam:
+  case geocache_data::gt_webcam:
     icon = "11.png";
     break;
-  case gt_cito:
+  case geocache_data::gt_cito:
     icon = "13.png";
     break;
-  case gt_earth:
+  case geocache_data::gt_earth:
     icon = "earthcache.png";
     break;
-  case gt_mega:
+  case geocache_data::gt_mega:
     icon = "453.png";
     break;
-  case gt_wherigo:
+  case geocache_data::gt_wherigo:
     icon = "1858.png";
     break;
   default:
@@ -1160,22 +1160,22 @@ const char* KmlFormat::kml_lookup_gc_container(const Waypoint* waypointp)
   const char* cont;
 
   switch (waypointp->gc_data->container) {
-  case gc_micro:
+  case geocache_data::gc_micro:
     cont="micro";
     break;
-  case gc_regular:
+  case geocache_data::gc_regular:
     cont="regular";
     break;
-  case gc_large:
+  case geocache_data::gc_large:
     cont="large";
     break;
-  case gc_small:
+  case geocache_data::gc_small:
     cont="small";
     break;
-  case gc_virtual:
+  case geocache_data::gc_virtual:
     cont="virtual";
     break;
-  case gc_other:
+  case geocache_data::gc_other:
     cont="other";
     break;
   default:
@@ -1347,9 +1347,9 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
 
   // Highlight any issues with the cache, such as temp unavail
   // or archived.
-  if (waypointp->gc_data->is_archived == status_true) {
+  if (waypointp->gc_data->is_archived == geocache_data::status_true) {
     issues = "&lt;font color=\"red\"&gt;This cache has been archived.&lt;/font&gt;&lt;br/&gt;\n";
-  } else if (waypointp->gc_data->is_available == status_false) {
+  } else if (waypointp->gc_data->is_available == geocache_data::status_false) {
     issues = "&lt;font color=\"red\"&gt;This cache is temporarily unavailable.&lt;/font&gt;&lt;br/&gt;\n";
   }
   kml_write_data_element("gc_issues", issues);

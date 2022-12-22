@@ -41,7 +41,7 @@ QVector<arglist_t> geo_args = {
 static QXmlStreamReader reader;
 static QString geo_read_fname;
 
-static geocache_container wpt_container(const QString&);
+static geocache_data::geocache_container wpt_container(const QString&);
 
 static void GeoReadLoc()
 {
@@ -117,34 +117,34 @@ geo_read()
   }
 }
 
-geocache_container wpt_container(const QString& args)
+geocache_data::geocache_container wpt_container(const QString& args)
 {
-  geocache_container v;
+  geocache_data::geocache_container v;
 
   switch (args.toInt()) {
   case 1:
-    v = gc_unknown;
+    v = geocache_data::gc_unknown;
     break;
   case 2:
-    v = gc_micro;
+    v = geocache_data::gc_micro;
     break;
   case 3:
-    v = gc_regular;
+    v = geocache_data::gc_regular;
     break;
   case 4:
-    v = gc_large;
+    v = geocache_data::gc_large;
     break;
   case 5:
-    v = gc_virtual;
+    v = geocache_data::gc_virtual;
     break;
   case 6:
-    v = gc_other;
+    v = geocache_data::gc_other;
     break;
   case 8:
-    v = gc_small;
+    v = geocache_data::gc_small;
     break;
   default:
-    v = gc_unknown;
+    v = geocache_data::gc_unknown;
     break;
   }
   return v;
@@ -210,25 +210,25 @@ geo_waypt_pr(const Waypoint* waypointp)
 
     int v = 1;
     switch (waypointp->gc_data->container) {
-    case gc_unknown:
+    case geocache_data::gc_unknown:
       v = 1;
       break;
-    case gc_micro:
+    case geocache_data::gc_micro:
       v = 2;
       break;
-    case gc_regular:
+    case geocache_data::gc_regular:
       v = 3;
       break;
-    case gc_large:
+    case geocache_data::gc_large:
       v = 4;
       break;
-    case gc_virtual:
+    case geocache_data::gc_virtual:
       v = 5;
       break;
-    case gc_other:
+    case geocache_data::gc_other:
       v = 6;
       break;
-    case gc_small:
+    case geocache_data::gc_small:
       v = 8;
       break;
     default:

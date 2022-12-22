@@ -26,45 +26,45 @@
 #include "src/core/datetime.h"
 
 
-enum geocache_type {
-  gt_unknown = 0,
-  gt_traditional,
-  gt_multi,
-  gt_virtual,
-  gt_letterbox,
-  gt_event,
-  gt_surprise,
-  gt_webcam,
-  gt_earth,
-  gt_locationless,
-  gt_benchmark, /* Extension to Groundspeak for GSAK */
-  gt_cito,
-  gt_ape,
-  gt_mega,
-  gt_wherigo
-};
-
-enum geocache_container {
-  gc_unknown = 0,
-  gc_micro,
-  gc_other,
-  gc_regular,
-  gc_large,
-  gc_virtual,
-  gc_small
-};
-
-enum status_type {
-  status_unknown=0,
-  status_true,
-  status_false
-};
-
 class geocache_data
 {
 public:
 
   /* Types */
+
+  enum geocache_type {
+    gt_unknown = 0,
+    gt_traditional,
+    gt_multi,
+    gt_virtual,
+    gt_letterbox,
+    gt_event,
+    gt_surprise,
+    gt_webcam,
+    gt_earth,
+    gt_locationless,
+    gt_benchmark, /* Extension to Groundspeak for GSAK */
+    gt_cito,
+    gt_ape,
+    gt_mega,
+    gt_wherigo
+  };
+
+  enum geocache_container {
+    gc_unknown = 0,
+    gc_micro,
+    gc_other,
+    gc_regular,
+    gc_large,
+    gc_virtual,
+    gc_small
+  };
+
+  enum status_type {
+    status_unknown = 0,
+    status_true,
+    status_false
+  };
 
   class utf_string
   {
@@ -89,14 +89,14 @@ public:
 
   geocache_data() :
     id(0),
-    type(gt_unknown),
-    container(gc_unknown),
+    type(geocache_data::gt_unknown),
+    container(geocache_data::gc_unknown),
     diff(0),
     terr(0),
-    is_archived(status_unknown),
-    is_available(status_unknown),
-    is_memberonly(status_unknown),
-    has_customcoords(status_unknown),
+    is_archived(geocache_data::status_unknown),
+    is_available(geocache_data::status_unknown),
+    is_memberonly(geocache_data::status_unknown),
+    has_customcoords(geocache_data::status_unknown),
     placer_id(0),
     favorite_points(0)
   {}

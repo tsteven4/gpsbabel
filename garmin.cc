@@ -890,25 +890,25 @@ static const char*
 get_gc_info(const Waypoint* wpt)
 {
   if (global_opts.smart_names) {
-    if (wpt->gc_data->type == gt_virtual) {
+    if (wpt->gc_data->type == geocache_data::gt_virtual) {
       return  "V ";
     }
-    if (wpt->gc_data->type == gt_unknown) {
+    if (wpt->gc_data->type == geocache_data::gt_unknown) {
       return  "? ";
     }
-    if (wpt->gc_data->type == gt_multi) {
+    if (wpt->gc_data->type == geocache_data::gt_multi) {
       return  "Mlt ";
     }
-    if (wpt->gc_data->type == gt_earth) {
+    if (wpt->gc_data->type == geocache_data::gt_earth) {
       return  "EC ";
     }
-    if (wpt->gc_data->type == gt_event) {
+    if (wpt->gc_data->type == geocache_data::gt_event) {
       return  "Ev ";
     }
-    if (wpt->gc_data->container == gc_micro) {
+    if (wpt->gc_data->container == geocache_data::gc_micro) {
       return  "M ";
     }
-    if (wpt->gc_data->container == gc_small) {
+    if (wpt->gc_data->container == geocache_data::gc_small) {
       return  "S ";
     }
   }
