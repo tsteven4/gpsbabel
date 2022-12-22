@@ -388,100 +388,6 @@ GpxFormat::gpx_start(QStringView el, const QXmlStreamAttributes& attr)
   }
 }
 
-struct
-  gs_type_mapping {
-  geocache_type type;
-  const char* name;
-} gs_type_map[] = {
-  { gt_traditional, "Traditional Cache" },
-  { gt_traditional, "Traditional" }, /* opencaching.de */
-  { gt_multi, "Multi-cache" },
-  { gt_multi, "Multi" }, /* opencaching.de */
-  { gt_virtual, "Virtual Cache" },
-  { gt_virtual, "Virtual" }, /* opencaching.de */
-  { gt_event, "Event Cache" },
-  { gt_event, "Event" }, /* opencaching.de */
-  { gt_webcam, "Webcam Cache" },
-  { gt_webcam, "Webcam" }, /* opencaching.de */
-  { gt_surprise, "Unknown Cache" },
-  { gt_earth, "Earthcache" },
-  { gt_earth, "Earth" }, /* opencaching.de */
-  { gt_cito, "Cache In Trash Out Event" },
-  { gt_letterbox, "Letterbox Hybrid" },
-  { gt_locationless, "Locationless (Reverse) Cache" },
-  { gt_ape, "Project APE Cache" },
-  { gt_mega, "Mega-Event Cache" },
-  { gt_wherigo, "Wherigo Cache" },
-
-  { gt_benchmark, "Benchmark" }, /* Not Groundspeak; for GSAK  */
-};
-
-struct
-  gs_container_mapping {
-  geocache_container type;
-  const char* name;
-} gs_container_map[] = {
-  { gc_other, "Unknown" },
-  { gc_other, "Other" }, /* Synonym on read. */
-  { gc_micro, "Micro" },
-  { gc_regular, "Regular" },
-  { gc_large, "Large" },
-  { gc_small, "Small" },
-  { gc_virtual, "Virtual" }
-};
-
-geocache_type
-gs_mktype(const QString& t)
-{
-  int sz = sizeof(gs_type_map) / sizeof(gs_type_map[0]);
-
-  for (int i = 0; i < sz; i++) {
-    if (!t.compare(gs_type_map[i].name,Qt::CaseInsensitive)) {
-      return gs_type_map[i].type;
-    }
-  }
-  return gt_unknown;
-}
-
-QString
-gs_get_cachetype(geocache_type t)
-{
-  int sz = sizeof(gs_type_map) / sizeof(gs_type_map[0]);
-
-  for (int i = 0; i < sz; i++) {
-    if (t == gs_type_map[i].type) {
-      return gs_type_map[i].name;
-    }
-  }
-  return "Unknown";
-}
-
-geocache_container
-gs_mkcont(const QString& t)
-{
-  int sz = sizeof(gs_container_map) / sizeof(gs_container_map[0]);
-
-  for (int i = 0; i < sz; i++) {
-    if (!t.compare(gs_container_map[i].name,Qt::CaseInsensitive)) {
-      return gs_container_map[i].type;
-    }
-  }
-  return gc_unknown;
-}
-
-QString
-gs_get_container(geocache_container t)
-{
-  int sz = sizeof(gs_container_map) / sizeof(gs_container_map[0]);
-
-  for (int i = 0; i < sz; i++) {
-    if (t == gs_container_map[i].type) {
-      return gs_container_map[i].name;
-    }
-  }
-  return "Unknown";
-}
-
 gpsbabel::DateTime
 xml_parse_time(const QString& dateTimeString)
 {
@@ -619,10 +525,10 @@ GpxFormat::gpx_end(QStringView /*unused*/)
     wpt_tmp->notes = cdatastr;
     break;
   case tt_cache_container:
-    wpt_tmp->AllocGCData()->container = gs_mkcont(cdatastr);
+    wpt_tmp->AllocGCData()->gs_set_container(cdatastr);
     break;
   case tt_cache_type:
-    wpt_tmp->AllocGCData()->type = gs_mktype(cdatastr);
+    wpt_tmp->AllocGCData()->gs_set_cachetype(cdatastr);
     break;
   case tt_cache_difficulty:
     wpt_tmp->AllocGCData()->diff = cdatastr.toFloat() * 10;

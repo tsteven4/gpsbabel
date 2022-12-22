@@ -82,7 +82,7 @@ void geocache_data::gs_set_container(const QString& container_name)
 {
   for (const auto& map_entry : gs_container_map) {
     if (!container_name.compare(map_entry.name,Qt::CaseInsensitive)) {
-      container =  map_entry.container;
+      container = map_entry.container;
       return;
     }
   }
