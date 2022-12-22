@@ -66,6 +66,19 @@ public:
 
   /* Types */
 
+  class utf_string
+  {
+  public:
+
+    QString strip() const
+    {
+      return strip_html(utfstring, is_html);
+    }
+
+    bool is_html{false};
+    QString utfstring;
+  };
+
   /*
    * Extended data if waypoint happens to represent a geocache.  This is
    * totally voluntary data...

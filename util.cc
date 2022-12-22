@@ -1204,8 +1204,7 @@ strip_nastyhtml(const QString& in)
  *  pleasant for a human reader.   Yes, this falls down in all kinds of
  *  ways such as spaces within the tags, etc.
  */
-QString
-strip_html(const utf_string* in)
+QString strip_html(const QString& utfstring, bool is_html)
 {
 #if 0
   // If we were willing to link core against QtGui (not out of the question)
@@ -1215,8 +1214,8 @@ strip_html(const utf_string* in)
   doc.setHtml(in->utfstring);
   return doc.toPlainText().simplified();
 #else
-  if (!in->is_html) {
-    return in->utfstring;
+  if (!is_html) {
+    return utfstring;
   }
 
   char* out;
@@ -1224,11 +1223,11 @@ strip_html(const utf_string* in)
   char tag[8];
   unsigned short int taglen = 0;
 
-  char* incopy = instr = xstrdup(in->utfstring);
+  char* incopy = instr = xstrdup(utfstring);
   /*
    * We only shorten, so just dupe the input buf for space.
    */
-  char* outstring = out = xstrdup(in->utfstring);
+  char* outstring = out = xstrdup(utfstring);
 
   tag[0] = 0;
   while (*instr) {

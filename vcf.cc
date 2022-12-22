@@ -59,13 +59,13 @@ wr_deinit()
  * newlines as we go.
  */
 static void
-vcf_print_utf(const utf_string* s)
+vcf_print_utf(const geocache_data::utf_string* s)
 {
-  if (!s) {
+  if (nullptr == s) {
     return;
   }
 
-  QString stripped_html = strip_html(s);
+  QString stripped_html = s->strip();
 
   stripped_html.replace("\n", "\\n", Qt::CaseInsensitive);
   stripped_html.replace("<p>", "\\n", Qt::CaseInsensitive);

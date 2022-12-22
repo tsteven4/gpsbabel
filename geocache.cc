@@ -143,4 +143,3 @@ QString geocache_data::gs_get_icon() const
 
   return nullptr;
 }
-

@@ -206,18 +206,6 @@ enum fix_type {
   fix_pps
 };
 
-class utf_string
-{
-public:
-  utf_string() = default;
-  utf_string(bool html, QString str) :
-    is_html{html},
-    utfstring{std::move(str)}
-  {}
-  bool is_html{false};
-  QString utfstring;
-};
-
 class gb_color
 {
 public:
@@ -1002,7 +990,7 @@ time_t mkgmtime(struct tm* t);
 bool gpsbabel_testmode();
 gpsbabel::DateTime current_time();
 QDateTime dotnet_time_to_qdatetime(long long dotnet);
-QString strip_html(const utf_string*);
+QString strip_html(const QString& utfstring, bool is_html = true);
 QString strip_nastyhtml(const QString& in);
 QString convert_human_date_format(const char* human_datef);	/* "MM,YYYY,DD" -> "%m,%Y,%d" */
 QString convert_human_time_format(const char* human_timef);	/* "HH+mm+ss"   -> "%H+%M+%S" */
