@@ -20,10 +20,11 @@
 #ifndef GEOCACHE_H_INCLUDED_
 #define GEOCACHE_H_INCLUDED_
 
-#include <QString>
+#include <QString>              // for QString
+#include <QVector>              // for QVector
 
-#include "defs.h"
-#include "src/core/datetime.h"
+#include "defs.h"               // for strip_html
+#include "src/core/datetime.h"  // for DateTime
 
 
 class geocache
