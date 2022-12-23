@@ -88,14 +88,14 @@ public:
 
   geocache_data() :
     id(0),
-    type(geocache_data::gt_unknown),
-    container(geocache_data::gc_unknown),
+    type(gt_unknown),
+    container(gc_unknown),
     diff(0),
     terr(0),
-    is_archived(geocache_data::status_unknown),
-    is_available(geocache_data::status_unknown),
-    is_memberonly(geocache_data::status_unknown),
-    has_customcoords(geocache_data::status_unknown),
+    is_archived(status_unknown),
+    is_available(status_unknown),
+    is_memberonly(status_unknown),
+    has_customcoords(status_unknown),
     placer_id(0),
     favorite_points(0)
   {}
