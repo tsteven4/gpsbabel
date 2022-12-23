@@ -322,20 +322,20 @@ UnicsvFormat::unicsv_parse_time(const QString& str, int* msec, time_t* date)
   return unicsv_parse_time(CSTR(str), msec, date);
 }
 
-geocache_data::status_type
+geocache::geocache_status
 UnicsvFormat::unicsv_parse_status(const QString& str)
 {
   if (str.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0 ||
       str.compare(QLatin1String("yes"), Qt::CaseInsensitive) == 0 ||
       str == "1") {
-    return geocache_data::status_true;
+    return geocache::gs_true;
   }
   if (str.compare(QLatin1String("false"), Qt::CaseInsensitive) == 0 ||
       str.compare(QLatin1String("no"), Qt::CaseInsensitive) == 0 ||
       str == "0") {
-    return geocache_data::status_false;
+    return geocache::gs_false;
   }
-  return geocache_data::status_unknown;
+  return geocache::gs_unknown;
 }
 
 QDateTime
@@ -506,7 +506,7 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
   int src_datum = unicsv_datum_idx;
   int ns = 1;
   int ew = 1;
-  geocache_data* gc_data = nullptr;
+  geocache* gc_data = nullptr;
   auto* wpt = new Waypoint;
   wpt->latitude = kUnicsvUnknown;
   wpt->longitude = kUnicsvUnknown;
@@ -903,10 +903,10 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
         }
         break;
       case fld_gc_type:
-        gc_data->gs_set_cachetype(value);
+        gc_data->set_type(value);
         break;
       case fld_gc_container:
-        gc_data->gs_set_container(value);
+        gc_data->set_container(value);
         break;
       case fld_gc_terr:
         gc_data->terr = value.toDouble() * 10;
@@ -1261,7 +1261,7 @@ UnicsvFormat::unicsv_waypt_enum_cb(const Waypoint* wpt)
   }
 
   if (! wpt->EmptyGCData()) {
-    const geocache_data* gc_data = wpt->gc_data;
+    const geocache* gc_data = wpt->gc_data;
 
     if (gc_data->id) {
       gb_setbit(&unicsv_outp_flags, fld_gc_id);
@@ -1306,7 +1306,7 @@ void
 UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
 {
   double lat, lon, alt;
-  const geocache_data* gc_data = nullptr;
+  const geocache* gc_data = nullptr;
   unicsv_waypt_ct++;
 
   QString shortname = wpt->shortname;
@@ -1619,14 +1619,14 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   }
   if FIELD_USED(fld_gc_type) {
     if (gc_data) {
-      unicsv_print_str(gc_data->gs_get_cachetype());
+      unicsv_print_str(gc_data->get_type());
     } else {
       *fout << unicsv_fieldsep;
     }
   }
   if FIELD_USED(fld_gc_container) {
     if (gc_data) {
-      unicsv_print_str(gc_data->gs_get_container());
+      unicsv_print_str(gc_data->get_container());
     } else {
       *fout << unicsv_fieldsep;
     }
@@ -1645,14 +1645,14 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   }
   if FIELD_USED(fld_gc_is_archived) {
     if (gc_data && gc_data->is_archived) {
-      unicsv_print_str((gc_data->is_archived == geocache_data::status_true) ? "True" : "False");
+      unicsv_print_str((gc_data->is_archived == geocache::gs_true) ? "True" : "False");
     } else {
       *fout << unicsv_fieldsep;
     }
   }
   if FIELD_USED(fld_gc_is_available) {
     if (gc_data && gc_data->is_available) {
-      unicsv_print_str((gc_data->is_available == geocache_data::status_true) ? "True" : "False");
+      unicsv_print_str((gc_data->is_available == geocache::gs_true) ? "True" : "False");
     } else {
       *fout << unicsv_fieldsep;
     }

@@ -17,8 +17,8 @@
 
  */
 
-#ifndef GEOCACHE_DATA_H_INCLUDED_
-#define GEOCACHE_DATA_H_INCLUDED_
+#ifndef GEOCACHE_H_INCLUDED_
+#define GEOCACHE_H_INCLUDED_
 
 #include <QString>
 
@@ -26,7 +26,7 @@
 #include "src/core/datetime.h"
 
 
-class geocache_data
+class geocache
 {
   /*
    * Extended data if waypoint happens to represent a geocache.  This is
@@ -65,10 +65,10 @@ public:
     gc_small
   };
 
-  enum status_type {
-    status_unknown = 0,
-    status_true,
-    status_false
+  enum geocache_status {
+    gs_unknown = 0,
+    gs_true,
+    gs_false
   };
 
   class utf_string
@@ -86,27 +86,27 @@ public:
 
   /* Special Member Functions */
 
-  geocache_data() :
+  geocache() :
     id(0),
     type(gt_unknown),
     container(gc_unknown),
     diff(0),
     terr(0),
-    is_archived(status_unknown),
-    is_available(status_unknown),
-    is_memberonly(status_unknown),
-    has_customcoords(status_unknown),
+    is_archived(gs_unknown),
+    is_available(gs_unknown),
+    is_memberonly(gs_unknown),
+    has_customcoords(gs_unknown),
     placer_id(0),
     favorite_points(0)
   {}
 
   /* Member Functions */
 
-  void gs_set_cachetype(const QString& type_name);
-  QString gs_get_cachetype() const;
-  void gs_set_container(const QString& container_name);
-  QString gs_get_container() const;
-  QString gs_get_icon() const;
+  void set_type(const QString& type_name);
+  QString get_type() const;
+  void set_container(const QString& container_name);
+  QString get_container() const;
+  QString get_icon() const;
 
   /* Data Members */
 
@@ -115,10 +115,10 @@ public:
   geocache_container container:4;
   unsigned int diff:6; /* (multiplied by ten internally) */
   unsigned int terr:6; /* (likewise) */
-  status_type is_archived:2;
-  status_type is_available:2;
-  status_type is_memberonly:2;
-  status_type has_customcoords:2;
+  geocache_status is_archived:2;
+  geocache_status is_available:2;
+  geocache_status is_memberonly:2;
+  geocache_status has_customcoords:2;
   gpsbabel::DateTime exported;
   gpsbabel::DateTime last_found;
   QString placer; /* Placer name */
@@ -133,19 +133,19 @@ private:
 
   /* Types */
 
-  struct gs_type_mapping {
+  struct type_mapping {
     geocache_type type;
     QString name;
   };
 
-  struct gs_container_mapping {
+  struct container_mapping {
     geocache_container container;
     QString name;
   };
 
   /* Constants */
 
-  static const QVector<gs_type_mapping> gs_type_map;
-  static const QVector<gs_container_mapping> gs_container_map;
+  static const QVector<type_mapping> type_map;
+  static const QVector<container_mapping> container_map;
 };
-#endif // GEOCACHE_DATA_H_INCLUDED_
+#endif // GEOCACHE_H_INCLUDED_

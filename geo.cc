@@ -41,7 +41,7 @@ QVector<arglist_t> geo_args = {
 static QXmlStreamReader reader;
 static QString geo_read_fname;
 
-static geocache_data::geocache_container wpt_container(const QString&);
+static geocache::geocache_container wpt_container(const QString&);
 
 static void GeoReadLoc()
 {
@@ -117,34 +117,34 @@ geo_read()
   }
 }
 
-geocache_data::geocache_container wpt_container(const QString& args)
+geocache::geocache_container wpt_container(const QString& args)
 {
-  geocache_data::geocache_container v;
+  geocache::geocache_container v;
 
   switch (args.toInt()) {
   case 1:
-    v = geocache_data::gc_unknown;
+    v = geocache::gc_unknown;
     break;
   case 2:
-    v = geocache_data::gc_micro;
+    v = geocache::gc_micro;
     break;
   case 3:
-    v = geocache_data::gc_regular;
+    v = geocache::gc_regular;
     break;
   case 4:
-    v = geocache_data::gc_large;
+    v = geocache::gc_large;
     break;
   case 5:
-    v = geocache_data::gc_virtual;
+    v = geocache::gc_virtual;
     break;
   case 6:
-    v = geocache_data::gc_other;
+    v = geocache::gc_other;
     break;
   case 8:
-    v = geocache_data::gc_small;
+    v = geocache::gc_small;
     break;
   default:
-    v = geocache_data::gc_unknown;
+    v = geocache::gc_unknown;
     break;
   }
   return v;
@@ -210,25 +210,25 @@ geo_waypt_pr(const Waypoint* waypointp)
 
     int v = 1;
     switch (waypointp->gc_data->container) {
-    case geocache_data::gc_unknown:
+    case geocache::gc_unknown:
       v = 1;
       break;
-    case geocache_data::gc_micro:
+    case geocache::gc_micro:
       v = 2;
       break;
-    case geocache_data::gc_regular:
+    case geocache::gc_regular:
       v = 3;
       break;
-    case geocache_data::gc_large:
+    case geocache::gc_large:
       v = 4;
       break;
-    case geocache_data::gc_virtual:
+    case geocache::gc_virtual:
       v = 5;
       break;
-    case geocache_data::gc_other:
+    case geocache::gc_other:
       v = 6;
       break;
-    case geocache_data::gc_small:
+    case geocache::gc_small:
       v = 8;
       break;
     default:

@@ -103,8 +103,8 @@ TextFormat::text_disp(const Waypoint* wpt)
   }
   if (wpt->gc_data->terr) {
     *file_out << QStringLiteral(" - %1 / %2 - (%3%4 / %5%6)\n")
-              .arg(wpt->gc_data->gs_get_cachetype(),
-                   wpt->gc_data->gs_get_container())
+              .arg(wpt->gc_data->get_type(),
+                   wpt->gc_data->get_container())
               .arg((int)(wpt->gc_data->diff / 10))
               .arg((wpt->gc_data->diff%10) ? ".5" : "")
               .arg((int)(wpt->gc_data->terr / 10))

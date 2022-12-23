@@ -191,23 +191,23 @@ GpxFormat::tag_cache_desc(const QXmlStreamAttributes& attr)
 void
 GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr) const
 {
-  geocache_data* gc_data = wpt_tmp->AllocGCData();
+  geocache* gc_data = wpt_tmp->AllocGCData();
 
   if (attr.hasAttribute(QLatin1String("id"))) {
     gc_data->id = attr.value(QLatin1String(QLatin1String("id"))).toLongLong();
   }
   if (attr.hasAttribute(QLatin1String("available"))) {
     if (attr.value(QLatin1String("available")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = geocache_data::status_true;
+      gc_data->is_available = geocache::gs_true;
     } else if (attr.value(QLatin1String("available")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = geocache_data::status_false;
+      gc_data->is_available = geocache::gs_false;
     }
   }
   if (attr.hasAttribute(QLatin1String("archived"))) {
     if (attr.value(QLatin1String("archived")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = geocache_data::status_true;
+      gc_data->is_archived = geocache::gs_true;
     } else if (attr.value(QLatin1String("archived")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = geocache_data::status_false;
+      gc_data->is_archived = geocache::gs_false;
     }
   }
 }
@@ -525,10 +525,10 @@ GpxFormat::gpx_end(QStringView /*unused*/)
     wpt_tmp->notes = cdatastr;
     break;
   case tt_cache_container:
-    wpt_tmp->AllocGCData()->gs_set_container(cdatastr);
+    wpt_tmp->AllocGCData()->set_container(cdatastr);
     break;
   case tt_cache_type:
-    wpt_tmp->AllocGCData()->gs_set_cachetype(cdatastr);
+    wpt_tmp->AllocGCData()->set_type(cdatastr);
     break;
   case tt_cache_difficulty:
     wpt_tmp->AllocGCData()->diff = cdatastr.toFloat() * 10;
@@ -537,13 +537,13 @@ GpxFormat::gpx_end(QStringView /*unused*/)
     wpt_tmp->AllocGCData()->hint = cdatastr;
     break;
   case tt_cache_desc_long: {
-    geocache_data* gc_data = wpt_tmp->AllocGCData();
+    geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_long.is_html = cache_descr_is_html;
     gc_data->desc_long.utfstring = cdatastr;
   }
   break;
   case tt_cache_desc_short: {
-    geocache_data* gc_data = wpt_tmp->AllocGCData();
+    geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_short.is_html = cache_descr_is_html;
     gc_data->desc_short.utfstring = cdatastr;
   }

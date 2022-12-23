@@ -1108,43 +1108,43 @@ QString KmlFormat::kml_lookup_gc_icon(const Waypoint* waypointp)
    * initializers...
    */
   switch (waypointp->gc_data->type) {
-  case geocache_data::gt_traditional:
+  case geocache::gt_traditional:
     icon = "2.png";
     break;
-  case geocache_data::gt_multi:
+  case geocache::gt_multi:
     icon = "3.png";
     break;
-  case geocache_data::gt_virtual:
+  case geocache::gt_virtual:
     icon = "4.png";
     break;
-  case geocache_data::gt_letterbox:
+  case geocache::gt_letterbox:
     icon = "5.png";
     break;
-  case geocache_data::gt_event:
+  case geocache::gt_event:
     icon = "6.png";
     break;
-  case geocache_data::gt_ape:
+  case geocache::gt_ape:
     icon = "7.png";
     break;
-  case geocache_data::gt_locationless:
+  case geocache::gt_locationless:
     icon = "8.png";
     break; // No unique icon.
-  case geocache_data::gt_surprise:
+  case geocache::gt_surprise:
     icon = "8.png";
     break;
-  case geocache_data::gt_webcam:
+  case geocache::gt_webcam:
     icon = "11.png";
     break;
-  case geocache_data::gt_cito:
+  case geocache::gt_cito:
     icon = "13.png";
     break;
-  case geocache_data::gt_earth:
+  case geocache::gt_earth:
     icon = "earthcache.png";
     break;
-  case geocache_data::gt_mega:
+  case geocache::gt_mega:
     icon = "453.png";
     break;
-  case geocache_data::gt_wherigo:
+  case geocache::gt_wherigo:
     icon = "1858.png";
     break;
   default:
@@ -1160,22 +1160,22 @@ const char* KmlFormat::kml_lookup_gc_container(const Waypoint* waypointp)
   const char* cont;
 
   switch (waypointp->gc_data->container) {
-  case geocache_data::gc_micro:
+  case geocache::gc_micro:
     cont="micro";
     break;
-  case geocache_data::gc_regular:
+  case geocache::gc_regular:
     cont="regular";
     break;
-  case geocache_data::gc_large:
+  case geocache::gc_large:
     cont="large";
     break;
-  case geocache_data::gc_small:
+  case geocache::gc_small:
     cont="small";
     break;
-  case geocache_data::gc_virtual:
+  case geocache::gc_virtual:
     cont="virtual";
     break;
-  case geocache_data::gc_other:
+  case geocache::gc_other:
     cont="other";
     break;
   default:
@@ -1337,9 +1337,9 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
 
   // Highlight any issues with the cache, such as temp unavail
   // or archived.
-  if (waypointp->gc_data->is_archived == geocache_data::status_true) {
+  if (waypointp->gc_data->is_archived == geocache::gs_true) {
     issues = "&lt;font color=\"red\"&gt;This cache has been archived.&lt;/font&gt;&lt;br/&gt;\n";
-  } else if (waypointp->gc_data->is_available == geocache_data::status_false) {
+  } else if (waypointp->gc_data->is_available == geocache::gs_false) {
     issues = "&lt;font color=\"red\"&gt;This cache is temporarily unavailable.&lt;/font&gt;&lt;br/&gt;\n";
   }
   kml_write_data_element("gc_issues", issues);
@@ -1347,7 +1347,7 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
   kml_write_data_element("gc_lat", waypointp->latitude);
   kml_write_data_element("gc_lon", waypointp->longitude);
 
-  kml_write_data_element("gc_type", waypointp->gc_data->gs_get_cachetype());
+  kml_write_data_element("gc_type", waypointp->gc_data->get_type());
   kml_write_data_element("gc_icon", is);
   kml_write_cdata_element("gc_short_desc", waypointp->gc_data->desc_short.utfstring);
   kml_write_cdata_element("gc_long_desc", waypointp->gc_data->desc_long.utfstring);

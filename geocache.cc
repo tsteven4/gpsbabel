@@ -20,10 +20,10 @@
 #include <QVector>               // for QVector
 #include <Qt>                    // for CaseInsensitive
 
-#include "geocache.h"            // for geocache_data, gc_other, gt_earth
+#include "geocache.h"            // for geocache, gc_other, gt_earth
 
 
-const QVector<geocache_data::gs_type_mapping> geocache_data::gs_type_map = {
+const QVector<geocache::type_mapping> geocache::type_map = {
   {gt_traditional, "Traditional Cache" },
   {gt_traditional, "Traditional" }, /* opencaching.de */
   {gt_multi, "Multi-cache" },
@@ -47,7 +47,7 @@ const QVector<geocache_data::gs_type_mapping> geocache_data::gs_type_map = {
   {gt_benchmark, "Benchmark" } /* Not Groundspeak; for GSAK  */
 };
 
-const QVector<geocache_data::gs_container_mapping> geocache_data::gs_container_map = {
+const QVector<geocache::container_mapping> geocache::container_map = {
   {gc_other, "Unknown" },
   {gc_other, "Other" }, /* Synonym on read. */
   {gc_micro, "Micro" },
@@ -57,9 +57,9 @@ const QVector<geocache_data::gs_container_mapping> geocache_data::gs_container_m
   {gc_virtual, "Virtual" }
 };
 
-void geocache_data::gs_set_cachetype(const QString& type_name)
+void geocache::set_type(const QString& type_name)
 {
-  for (const auto& map_entry : gs_type_map) {
+  for (const auto& map_entry : type_map) {
     if (!type_name.compare(map_entry.name,Qt::CaseInsensitive)) {
       type = map_entry.type;
       return;
@@ -68,9 +68,9 @@ void geocache_data::gs_set_cachetype(const QString& type_name)
   type = gt_unknown;
 }
 
-QString geocache_data::gs_get_cachetype() const
+QString geocache::get_type() const
 {
-  for (const auto& map_entry : gs_type_map) {
+  for (const auto& map_entry : type_map) {
     if (type == map_entry.type) {
       return map_entry.name;
     }
@@ -78,9 +78,9 @@ QString geocache_data::gs_get_cachetype() const
   return "Unknown";
 }
 
-void geocache_data::gs_set_container(const QString& container_name)
+void geocache::set_container(const QString& container_name)
 {
-  for (const auto& map_entry : gs_container_map) {
+  for (const auto& map_entry : container_map) {
     if (!container_name.compare(map_entry.name,Qt::CaseInsensitive)) {
       container = map_entry.container;
       return;
@@ -89,9 +89,9 @@ void geocache_data::gs_set_container(const QString& container_name)
   container = gc_unknown;
 }
 
-QString geocache_data::gs_get_container() const
+QString geocache::get_container() const
 {
-  for (const auto& map_entry : gs_container_map) {
+  for (const auto& map_entry : container_map) {
     if (container == map_entry.container) {
       return map_entry.name;
     }
@@ -105,7 +105,7 @@ QString geocache_data::gs_get_container() const
  * geocaching.com.  Thus we sort of make all the other formats do lookups
  * based on these strings.
  */
-QString geocache_data::gs_get_icon() const
+QString geocache::get_icon() const
 {
   if (!global_opts.smart_icons) {
     return nullptr;

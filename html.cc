@@ -115,8 +115,8 @@ HtmlFormat::html_disp(const Waypoint* wpt) const
               .arg((wpt->gc_data->diff%10) ? "&frac12;" : "")
               .arg((int)(wpt->gc_data->terr / 10))
               .arg((wpt->gc_data->terr%10) ? "&frac12;" : "");
-    *file_out << wpt->gc_data->gs_get_cachetype() << " / "
-              << wpt->gc_data->gs_get_container() << "</p>\n";
+    *file_out << wpt->gc_data->get_type() << " / "
+              << wpt->gc_data->get_container() << "</p>\n";
   }
   *file_out << "        </td>\n";
   *file_out << "      </tr>\n";

@@ -59,7 +59,7 @@ wr_deinit()
  * newlines as we go.
  */
 static void
-vcf_print_utf(const geocache_data::utf_string* s)
+vcf_print_utf(const geocache::utf_string* s)
 {
   if (nullptr == s) {
     return;

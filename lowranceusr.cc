@@ -1347,13 +1347,13 @@ LowranceusrFormat::lowranceusr_waypt_disp(const Waypoint* wpt) const
 
   gbfputint32(waypt_time, file_out);
 
-  if (!wpt->gc_data->gs_get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
-    SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->gs_get_icon());
+  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+    SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->get_icon());
   } else {
     SymbolId = lowranceusr_find_icon_number_from_desc(wpt->icon_descr);
   }
   /* If the waypoint is archived or disabled, use a "disabled" icon instead. */
-  if ((wpt->gc_data->is_archived== geocache_data::status_true) || (wpt->gc_data->is_available== geocache_data::status_false)) {
+  if ((wpt->gc_data->is_archived== geocache::gs_true) || (wpt->gc_data->is_available== geocache::gs_false)) {
     SymbolId = lowranceusr_find_icon_number_from_desc(DISABLED_CACHE_TXT);
   }
 
@@ -1408,11 +1408,11 @@ LowranceusrFormat::lowranceusr4_waypt_disp(const Waypoint* wpt)
   gbfputint32(2, file_out);
 
   int SymbolId, ColorId;
-  if (!wpt->gc_data->gs_get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
     if (writing_version == 4) {
       SymbolId = lowranceusr4_find_icon_number_from_desc(wpt->icon_descr);
     } else {
-      SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->gs_get_icon());
+      SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->get_icon());
     }
     ColorId = 0; // default
   } else {
@@ -1424,7 +1424,7 @@ LowranceusrFormat::lowranceusr4_waypt_disp(const Waypoint* wpt)
     }
   }
   /* If the waypoint is archived or disabled, use a "disabled" icon instead. */
-  if ((wpt->gc_data->is_archived== geocache_data::status_true) || (wpt->gc_data->is_available== geocache_data::status_false)) {
+  if ((wpt->gc_data->is_archived== geocache::gs_true) || (wpt->gc_data->is_available== geocache::gs_false)) {
     SymbolId = lowranceusr_find_icon_number_from_desc(DISABLED_CACHE_TXT);
     ColorId = 0; // default
   }

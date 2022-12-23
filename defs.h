@@ -53,7 +53,7 @@
 #include "session.h"                 // for session_t
 #include "src/core/datetime.h"       // for DateTime
 
-class geocache_data;
+class geocache;
 
 #define CSTR(qstr) ((qstr).toUtf8().constData())
 #define CSTRc(qstr) ((qstr).toLatin1().constData())
@@ -342,7 +342,7 @@ struct bounds {
 class Waypoint
 {
 private:
-  static geocache_data empty_gc_data;
+  static geocache empty_gc_data;
 
 public:
 
@@ -421,7 +421,7 @@ public:
   float power; /* watts, as measured by cyclists */
   float temperature; /* Degrees celsius */
   float odometer_distance; /* Meters */
-  geocache_data* gc_data;
+  geocache* gc_data;
   FormatSpecificDataList fs;
   const session_t* session;	/* pointer to a session struct */
   void* extra_data;	/* Extra data added by, say, a filter. */
@@ -439,7 +439,7 @@ public:
   gpsbabel::DateTime GetCreationTime() const;
   void SetCreationTime(const gpsbabel::DateTime& t);
   void SetCreationTime(qint64 t, qint64 ms = 0);
-  geocache_data* AllocGCData();
+  geocache* AllocGCData();
   int EmptyGCData() const;
 };
 

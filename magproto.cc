@@ -1360,7 +1360,7 @@ mag_waypt_pr(const Waypoint* waypointp)
     icon_token = mag_find_token_from_descr(waypointp->icon_descr);
   }
 
-  if (QString icon_descr = waypointp->gc_data->gs_get_icon(); !icon_descr.isEmpty()) {
+  if (QString icon_descr = waypointp->gc_data->get_icon(); !icon_descr.isEmpty()) {
     icon_token = mag_find_token_from_descr(icon_descr);
   }
 
