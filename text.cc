@@ -110,10 +110,10 @@ TextFormat::text_disp(const Waypoint* wpt)
               .arg((int)(wpt->gc_data->terr / 10))
               .arg((wpt->gc_data->terr%10) ? ".5" : "");
     if (!wpt->gc_data->desc_short.utfstring.isEmpty()) {
-      *file_out << "\n" << wpt->gc_data->desc_short.strip() << "\n";
+      *file_out << "\n" << wpt->gc_data->desc_short.strip_html() << "\n";
     }
     if (!wpt->gc_data->desc_long.utfstring.isEmpty()) {
-      *file_out << "\n" << wpt->gc_data->desc_long.strip() << "\n";
+      *file_out << "\n" << wpt->gc_data->desc_long.strip_html() << "\n";
     }
     if (!wpt->gc_data->hint.isEmpty()) {
       QString hint;

@@ -75,9 +75,9 @@ public:
   {
   public:
 
-    QString strip() const
+    QString strip_html() const
     {
-      return is_html? strip_html(utfstring) : utfstring;
+      return is_html? ::strip_html(utfstring) : utfstring;
     }
 
     bool is_html{false};

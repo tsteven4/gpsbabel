@@ -65,7 +65,7 @@ vcf_print_utf(const geocache_data::utf_string* s)
     return;
   }
 
-  QString stripped_html = s->strip();
+  QString stripped_html = s->strip_html();
 
   stripped_html.replace("\n", "\\n", Qt::CaseInsensitive);
   stripped_html.replace("<p>", "\\n", Qt::CaseInsensitive);
