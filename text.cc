@@ -109,10 +109,10 @@ TextFormat::text_disp(const Waypoint* wpt)
               .arg((wpt->gc_data->diff%10) ? ".5" : "")
               .arg((int)(wpt->gc_data->terr / 10))
               .arg((wpt->gc_data->terr%10) ? ".5" : "");
-    if (!wpt->gc_data->desc_short.utfstring.isEmpty()) {
+    if (!wpt->gc_data->desc_short.utf_string.isEmpty()) {
       *file_out << "\n" << wpt->gc_data->desc_short.strip_html() << "\n";
     }
-    if (!wpt->gc_data->desc_long.utfstring.isEmpty()) {
+    if (!wpt->gc_data->desc_long.utf_string.isEmpty()) {
       *file_out << "\n" << wpt->gc_data->desc_long.strip_html() << "\n";
     }
     if (!wpt->gc_data->hint.isEmpty()) {

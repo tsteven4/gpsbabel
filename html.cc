@@ -124,13 +124,13 @@ HtmlFormat::html_disp(const Waypoint* wpt) const
 
   *file_out << "      <tr>\n";
   *file_out << "        <td colspan=\"2\">\n";
-  if (!wpt->gc_data->desc_short.utfstring.isEmpty()) {
+  if (!wpt->gc_data->desc_short.utf_string.isEmpty()) {
     *file_out << "          <div><p class=\"gpsbabeldescshort\">"
-              << strip_nastyhtml(wpt->gc_data->desc_short.utfstring) << "</div>\n";
+              << strip_nastyhtml(wpt->gc_data->desc_short.utf_string) << "</div>\n";
   }
-  if (!wpt->gc_data->desc_long.utfstring.isEmpty()) {
+  if (!wpt->gc_data->desc_long.utf_string.isEmpty()) {
     *file_out << "          <div><p class=\"gpsbabeldesclong\">"
-              << strip_nastyhtml(wpt->gc_data->desc_long.utfstring) << "</div>\n";
+              << strip_nastyhtml(wpt->gc_data->desc_long.utf_string) << "</div>\n";
   }
   if (!wpt->gc_data->hint.isEmpty()) {
     QString hint;

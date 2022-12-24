@@ -1349,8 +1349,8 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
 
   kml_write_data_element("gc_type", waypointp->gc_data->get_type());
   kml_write_data_element("gc_icon", is);
-  kml_write_cdata_element("gc_short_desc", waypointp->gc_data->desc_short.utfstring);
-  kml_write_cdata_element("gc_long_desc", waypointp->gc_data->desc_long.utfstring);
+  kml_write_cdata_element("gc_short_desc", waypointp->gc_data->desc_short.utf_string);
+  kml_write_cdata_element("gc_long_desc", waypointp->gc_data->desc_long.utf_string);
   QString logs = kml_geocache_get_logs(waypointp);
   kml_write_cdata_element("gc_logs", logs);
 

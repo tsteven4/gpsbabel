@@ -539,13 +539,13 @@ GpxFormat::gpx_end(QStringView /*unused*/)
   case tt_cache_desc_long: {
     Geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_long.is_html = cache_descr_is_html;
-    gc_data->desc_long.utfstring = cdatastr;
+    gc_data->desc_long.utf_string = cdatastr;
   }
   break;
   case tt_cache_desc_short: {
     Geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_short.is_html = cache_descr_is_html;
-    gc_data->desc_short.utfstring = cdatastr;
+    gc_data->desc_short.utf_string = cdatastr;
   }
   break;
   case tt_cache_terrain:

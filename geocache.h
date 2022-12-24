@@ -78,11 +78,11 @@ public:
 
     QString strip_html() const
     {
-      return is_html? ::strip_html(utfstring) : utfstring;
+      return is_html? ::strip_html(utf_string) : utf_string;
     }
 
     bool is_html{false};
-    QString utfstring;
+    QString utf_string;
   };
 
   /* Special Member Functions */
