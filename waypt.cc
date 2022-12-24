@@ -46,7 +46,7 @@
 
 WaypointList* global_waypoint_list;
 
-geocache Waypoint::empty_gc_data;
+Geocache Waypoint::empty_gc_data;
 static global_trait traits;
 
 const global_trait* get_traits()
@@ -450,7 +450,7 @@ Waypoint::Waypoint(const Waypoint& other) :
 {
   // deep copy geocache data unless it is the special static empty_gc_data.
   if (other.gc_data != &Waypoint::empty_gc_data) {
-    gc_data = new geocache(*other.gc_data);
+    gc_data = new Geocache(*other.gc_data);
   }
 
   // deep copy fs chain data.
@@ -502,7 +502,7 @@ Waypoint& Waypoint::operator=(const Waypoint& rhs)
     extra_data = rhs.extra_data;
     // deep copy geocache data unless it is the special static empty_gc_data.
     if (rhs.gc_data != &Waypoint::empty_gc_data) {
-      gc_data = new geocache(*rhs.gc_data);
+      gc_data = new Geocache(*rhs.gc_data);
     }
 
     // deep copy fs chain data.
@@ -568,11 +568,11 @@ Waypoint::SetCreationTime(qint64 t, qint64 ms)
   creation_time.setMSecsSinceEpoch((t * 1000) + ms);
 }
 
-geocache*
+Geocache*
 Waypoint::AllocGCData()
 {
   if (gc_data == &Waypoint::empty_gc_data) {
-    gc_data = new geocache;
+    gc_data = new Geocache;
   }
   return gc_data;
 }

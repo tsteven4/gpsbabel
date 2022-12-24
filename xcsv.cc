@@ -389,7 +389,7 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
                            xcsv_parse_data* parse_data, const int line_no)
 {
   QString enclosure = "";
-  geocache* gc_data = nullptr;
+  Geocache* gc_data = nullptr;
 
   if (fmp.printfc.isNull()) {
     fatal(MYNAME ": xcsv style '%s' is missing format specifier", fmp.key.constData());
@@ -678,21 +678,21 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
   case XcsvStyle::XT_GEOCACHE_ISAVAILABLE:
     gc_data = wpt->AllocGCData();
     if (case_ignore_strcmp(value.trimmed(), "False") == 0) {
-      gc_data->is_available = geocache::gs_false;
+      gc_data->is_available = Geocache::gs_false;
     } else if (case_ignore_strcmp(value.trimmed(), "True") == 0) {
-      gc_data->is_available = geocache::gs_true;
+      gc_data->is_available = Geocache::gs_true;
     } else {
-      gc_data->is_available = geocache::gs_unknown;
+      gc_data->is_available = Geocache::gs_unknown;
     }
     break;
   case XcsvStyle::XT_GEOCACHE_ISARCHIVED:
     gc_data = wpt->AllocGCData();
     if (case_ignore_strcmp(value.trimmed(), "False") == 0) {
-      gc_data->is_archived = geocache::gs_false;
+      gc_data->is_archived = Geocache::gs_false;
     } else if (case_ignore_strcmp(value.trimmed(), "True") == 0) {
-      gc_data->is_archived = geocache::gs_true;
+      gc_data->is_archived = Geocache::gs_true;
     } else {
-      gc_data->is_archived = geocache::gs_unknown;
+      gc_data->is_archived = Geocache::gs_unknown;
     }
     break;
 
@@ -1390,12 +1390,12 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
     case XcsvStyle::XT_GEOCACHE_CONTAINER:
       /* Geocache Container */
       buff = QString::asprintf(fmp.printfc.constData(), CSTR(wpt->gc_data->get_container()));
-      field_is_unknown = wpt->gc_data->container == geocache::gc_unknown;
+      field_is_unknown = wpt->gc_data->container == Geocache::gc_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_TYPE:
       /* Geocache Type */
       buff = QString::asprintf(fmp.printfc.constData(), CSTR(wpt->gc_data->get_type()));
-      field_is_unknown = wpt->gc_data->type == geocache::gt_unknown;
+      field_is_unknown = wpt->gc_data->type == Geocache::gt_unknown;
       break;
     case XcsvStyle::XT_GEOCACHE_HINT:
       buff = QString::asprintf(fmp.printfc.constData(), CSTR(wpt->gc_data->hint));
@@ -1406,18 +1406,18 @@ XcsvFormat::xcsv_waypt_pr(const Waypoint* wpt)
       field_is_unknown = !wpt->gc_data->placer.isEmpty();
       break;
     case XcsvStyle::XT_GEOCACHE_ISAVAILABLE:
-      if (wpt->gc_data->is_available == geocache::gs_false) {
+      if (wpt->gc_data->is_available == Geocache::gs_false) {
         buff = QString::asprintf(fmp.printfc.constData(), "False");
-      } else if (wpt->gc_data->is_available == geocache::gs_true) {
+      } else if (wpt->gc_data->is_available == Geocache::gs_true) {
         buff = QString::asprintf(fmp.printfc.constData(), "True");
       } else {
         buff = QString::asprintf(fmp.printfc.constData(), "Unknown");
       }
       break;
     case XcsvStyle::XT_GEOCACHE_ISARCHIVED:
-      if (wpt->gc_data->is_archived == geocache::gs_false) {
+      if (wpt->gc_data->is_archived == Geocache::gs_false) {
         buff = QString::asprintf(fmp.printfc.constData(), "False");
-      } else if (wpt->gc_data->is_archived == geocache::gs_true) {
+      } else if (wpt->gc_data->is_archived == Geocache::gs_true) {
         buff = QString::asprintf(fmp.printfc.constData(), "True");
       } else {
         buff = QString::asprintf(fmp.printfc.constData(), "Unknown");

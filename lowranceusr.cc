@@ -1353,7 +1353,7 @@ LowranceusrFormat::lowranceusr_waypt_disp(const Waypoint* wpt) const
     SymbolId = lowranceusr_find_icon_number_from_desc(wpt->icon_descr);
   }
   /* If the waypoint is archived or disabled, use a "disabled" icon instead. */
-  if ((wpt->gc_data->is_archived== geocache::gs_true) || (wpt->gc_data->is_available== geocache::gs_false)) {
+  if ((wpt->gc_data->is_archived== Geocache::gs_true) || (wpt->gc_data->is_available== Geocache::gs_false)) {
     SymbolId = lowranceusr_find_icon_number_from_desc(DISABLED_CACHE_TXT);
   }
 
@@ -1424,7 +1424,7 @@ LowranceusrFormat::lowranceusr4_waypt_disp(const Waypoint* wpt)
     }
   }
   /* If the waypoint is archived or disabled, use a "disabled" icon instead. */
-  if ((wpt->gc_data->is_archived== geocache::gs_true) || (wpt->gc_data->is_available== geocache::gs_false)) {
+  if ((wpt->gc_data->is_archived== Geocache::gs_true) || (wpt->gc_data->is_available== Geocache::gs_false)) {
     SymbolId = lowranceusr_find_icon_number_from_desc(DISABLED_CACHE_TXT);
     ColorId = 0; // default
   }

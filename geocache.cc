@@ -23,7 +23,7 @@
 #include "geocache.h"            // for geocache, gc_other, gt_earth
 
 
-const QVector<geocache::type_mapping> geocache::type_map = {
+const QVector<Geocache::type_mapping> Geocache::type_map = {
   {gt_traditional, "Traditional Cache" },
   {gt_traditional, "Traditional" }, /* opencaching.de */
   {gt_multi, "Multi-cache" },
@@ -47,7 +47,7 @@ const QVector<geocache::type_mapping> geocache::type_map = {
   {gt_benchmark, "Benchmark" } /* Not Groundspeak; for GSAK  */
 };
 
-const QVector<geocache::container_mapping> geocache::container_map = {
+const QVector<Geocache::container_mapping> Geocache::container_map = {
   {gc_other, "Unknown" },
   {gc_other, "Other" }, /* Synonym on read. */
   {gc_micro, "Micro" },
@@ -57,7 +57,7 @@ const QVector<geocache::container_mapping> geocache::container_map = {
   {gc_virtual, "Virtual" }
 };
 
-void geocache::set_type(const QString& type_name)
+void Geocache::set_type(const QString& type_name)
 {
   for (const auto& map_entry : type_map) {
     if (!type_name.compare(map_entry.name,Qt::CaseInsensitive)) {
@@ -68,7 +68,7 @@ void geocache::set_type(const QString& type_name)
   type = gt_unknown;
 }
 
-QString geocache::get_type() const
+QString Geocache::get_type() const
 {
   for (const auto& map_entry : type_map) {
     if (type == map_entry.type) {
@@ -78,7 +78,7 @@ QString geocache::get_type() const
   return "Unknown";
 }
 
-void geocache::set_container(const QString& container_name)
+void Geocache::set_container(const QString& container_name)
 {
   for (const auto& map_entry : container_map) {
     if (!container_name.compare(map_entry.name,Qt::CaseInsensitive)) {
@@ -89,7 +89,7 @@ void geocache::set_container(const QString& container_name)
   container = gc_unknown;
 }
 
-QString geocache::get_container() const
+QString Geocache::get_container() const
 {
   for (const auto& map_entry : container_map) {
     if (container == map_entry.container) {
@@ -105,7 +105,7 @@ QString geocache::get_container() const
  * geocaching.com.  Thus we sort of make all the other formats do lookups
  * based on these strings.
  */
-QString geocache::get_icon() const
+QString Geocache::get_icon() const
 {
   if (!global_opts.smart_icons) {
     return nullptr;

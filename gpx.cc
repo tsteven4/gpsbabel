@@ -191,23 +191,23 @@ GpxFormat::tag_cache_desc(const QXmlStreamAttributes& attr)
 void
 GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr) const
 {
-  geocache* gc_data = wpt_tmp->AllocGCData();
+  Geocache* gc_data = wpt_tmp->AllocGCData();
 
   if (attr.hasAttribute(QLatin1String("id"))) {
     gc_data->id = attr.value(QLatin1String(QLatin1String("id"))).toLongLong();
   }
   if (attr.hasAttribute(QLatin1String("available"))) {
     if (attr.value(QLatin1String("available")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = geocache::gs_true;
+      gc_data->is_available = Geocache::gs_true;
     } else if (attr.value(QLatin1String("available")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = geocache::gs_false;
+      gc_data->is_available = Geocache::gs_false;
     }
   }
   if (attr.hasAttribute(QLatin1String("archived"))) {
     if (attr.value(QLatin1String("archived")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = geocache::gs_true;
+      gc_data->is_archived = Geocache::gs_true;
     } else if (attr.value(QLatin1String("archived")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = geocache::gs_false;
+      gc_data->is_archived = Geocache::gs_false;
     }
   }
 }
@@ -537,13 +537,13 @@ GpxFormat::gpx_end(QStringView /*unused*/)
     wpt_tmp->AllocGCData()->hint = cdatastr;
     break;
   case tt_cache_desc_long: {
-    geocache* gc_data = wpt_tmp->AllocGCData();
+    Geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_long.is_html = cache_descr_is_html;
     gc_data->desc_long.utfstring = cdatastr;
   }
   break;
   case tt_cache_desc_short: {
-    geocache* gc_data = wpt_tmp->AllocGCData();
+    Geocache* gc_data = wpt_tmp->AllocGCData();
     gc_data->desc_short.is_html = cache_descr_is_html;
     gc_data->desc_short.utfstring = cdatastr;
   }

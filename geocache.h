@@ -27,7 +27,7 @@
 #include "src/core/datetime.h"  // for DateTime
 
 
-class geocache
+class Geocache
 {
   /*
    * Extended data if waypoint happens to represent a geocache.  This is
@@ -72,7 +72,7 @@ public:
     gs_false
   };
 
-  class utf_string
+  class UtfString
   {
   public:
 
@@ -87,7 +87,7 @@ public:
 
   /* Special Member Functions */
 
-  geocache() :
+  Geocache() :
     id(0),
     type(gt_unknown),
     container(gc_unknown),
@@ -125,8 +125,8 @@ public:
   QString placer; /* Placer name */
   int placer_id; /* Placer id */
   QString hint; /* all these UTF8, XML entities removed, May be not HTML. */
-  utf_string desc_short;
-  utf_string desc_long;
+  UtfString desc_short;
+  UtfString desc_long;
   int favorite_points;
   QString personal_note;
 
