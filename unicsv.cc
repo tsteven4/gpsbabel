@@ -322,7 +322,7 @@ UnicsvFormat::unicsv_parse_time(const QString& str, int* msec, time_t* date)
   return unicsv_parse_time(CSTR(str), msec, date);
 }
 
-Geocache::geocache_status
+Geocache::status_t
 UnicsvFormat::unicsv_parse_status(const QString& str)
 {
   if (str.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0 ||

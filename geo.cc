@@ -41,7 +41,7 @@ QVector<arglist_t> geo_args = {
 static QXmlStreamReader reader;
 static QString geo_read_fname;
 
-static Geocache::geocache_container wpt_container(const QString&);
+static Geocache::container_t wpt_container(const QString&);
 
 static void GeoReadLoc()
 {
@@ -117,9 +117,9 @@ geo_read()
   }
 }
 
-Geocache::geocache_container wpt_container(const QString& args)
+Geocache::container_t wpt_container(const QString& args)
 {
-  Geocache::geocache_container v;
+  Geocache::container_t v;
 
   switch (args.toInt()) {
   case 1:

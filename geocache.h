@@ -38,7 +38,7 @@ public:
 
   /* Types */
 
-  enum geocache_type {
+  enum type_t {
     gt_unknown = 0,
     gt_traditional,
     gt_multi,
@@ -56,7 +56,7 @@ public:
     gt_wherigo
   };
 
-  enum geocache_container {
+  enum container_t {
     gc_unknown = 0,
     gc_micro,
     gc_other,
@@ -66,7 +66,7 @@ public:
     gc_small
   };
 
-  enum geocache_status {
+  enum status_t {
     gs_unknown = 0,
     gs_true,
     gs_false
@@ -112,14 +112,14 @@ public:
   /* Data Members */
 
   long long id; /* The decimal cache number */
-  geocache_type type:5;
-  geocache_container container:4;
+  type_t type:5;
+  container_t container:4;
   unsigned int diff:6; /* (multiplied by ten internally) */
   unsigned int terr:6; /* (likewise) */
-  geocache_status is_archived:2;
-  geocache_status is_available:2;
-  geocache_status is_memberonly:2;
-  geocache_status has_customcoords:2;
+  status_t is_archived:2;
+  status_t is_available:2;
+  status_t is_memberonly:2;
+  status_t has_customcoords:2;
   gpsbabel::DateTime exported;
   gpsbabel::DateTime last_found;
   QString placer; /* Placer name */
@@ -135,12 +135,12 @@ private:
   /* Types */
 
   struct type_mapping {
-    geocache_type type;
+    type_t type;
     QString name;
   };
 
   struct container_mapping {
-    geocache_container container;
+    container_t container;
     QString name;
   };
 

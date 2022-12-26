@@ -177,7 +177,7 @@ private:
   static time_t unicsv_parse_date(const char* str, int* consumed);
   static time_t unicsv_parse_time(const char* str, int* usec, time_t* date);
   static time_t unicsv_parse_time(const QString& str, int* msec, time_t* date);
-  static Geocache::geocache_status unicsv_parse_status(const QString& str);
+  static Geocache::status_t unicsv_parse_status(const QString& str);
   QDateTime unicsv_adjust_time(time_t time, const time_t* date) const;
   static bool unicsv_compare_fields(const QString& s, const field_t* f);
   void unicsv_fondle_header(QString header);
