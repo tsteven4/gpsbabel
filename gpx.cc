@@ -44,7 +44,6 @@
 #include <QtGlobal>                                // for qAsConst, QAddConst<>::Type
 
 #include "defs.h"
-#include "geocache.h"
 #include "gpx.h"
 #include "garmin_fs.h"                             // for garmin_fs_xml_convert, garmin_fs_xml_fprint, GMSD_FIND
 #include "garmin_tables.h"                         // for gt_color_index_by_rgb, gt_color_name, gt_color_value_by_name

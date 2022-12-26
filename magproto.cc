@@ -47,7 +47,6 @@
 #include "format.h"                // for Format
 #include "gbfile.h"                // for gbfclose, gbfeof, gbfgets, gbfopen, gbfwrite, gbfile
 #include "gbser.h"                 // for gbser_deinit, gbser_init, gbser_is_serial, gbser_read_line, gbser_set_port, gbser_write, gbser_OK
-#include "geocache.h"
 #include "magellan.h"              // for mm_meridian, mm_sportrak, magellan_icon_mapping_t, mm_gps315320, mm_unknown, mm_map330, mm_map410, pid_to_model_t, mm_gps310, m330_cleanse, mag_checksum, mag_find_descr_from_token, mag_find_token_from_descr, mag_rteparse, mag_trkparse
 #include "src/core/datetime.h"     // for DateTime
 #include "vecs.h"                  // for Vecs
@@ -1360,8 +1359,8 @@ mag_waypt_pr(const Waypoint* waypointp)
     icon_token = mag_find_token_from_descr(waypointp->icon_descr);
   }
 
-  if (QString icon_descr = waypointp->gc_data->get_icon(); !icon_descr.isEmpty()) {
-    icon_token = mag_find_token_from_descr(icon_descr);
+  if (!waypointp->gc_data->get_icon().isEmpty()) {
+    icon_token = mag_find_token_from_descr(waypointp->gc_data->get_icon());
   }
 
   QString isrc = waypointp->notes.isEmpty() ? waypointp->description : waypointp->notes;

@@ -23,7 +23,6 @@
 #include <QString>              // for operator<, QString
 
 #include "defs.h"
-#include "geocache.h"
 #include "src/core/datetime.h"  // for DateTime
 #include "sort.h"
 

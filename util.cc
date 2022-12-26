@@ -47,7 +47,6 @@
 #include <QtGlobal>                     // for qAsConst, qEnvironmentVariableIsSet, QAddConst<>::Type, qPrintable
 
 #include "defs.h"
-#include "geocache.h"
 #include "src/core/datetime.h"          // for DateTime
 #include "src/core/logging.h"           // for Warning
 #include "src/core/xmltag.h"            // for xml_tag, xml_attribute, xml_findfirst, xml_findnext

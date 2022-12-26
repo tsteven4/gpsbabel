@@ -32,7 +32,6 @@
 
 #include "defs.h"
 #include "formspec.h"              // for FormatSpecificDataList, kFsGpx
-#include "geocache.h"
 #include "jeeps/gpsmath.h"         // for GPS_Math_WGS84_To_UTM_EN
 #include "src/core/datetime.h"     // for DateTime
 #include "src/core/textstream.h"   // for TextStream

@@ -20,7 +20,7 @@
 #include <QVector>               // for QVector
 #include <Qt>                    // for CaseInsensitive
 
-#include "geocache.h"            // for geocache, gc_other, gt_earth
+#include "defs.h"
 
 
 const QVector<Geocache::type_mapping> Geocache::type_map = {
@@ -56,6 +56,11 @@ const QVector<Geocache::container_mapping> Geocache::container_map = {
   {container_t::gc_small, "Small" },
   {container_t::gc_virtual, "Virtual" }
 };
+
+QString Geocache::UtfString::strip_html() const
+{
+  return is_html? ::strip_html(utf_string) : utf_string;
+}
 
 void Geocache::set_type(const QString& type_name)
 {

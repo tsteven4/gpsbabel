@@ -30,7 +30,6 @@
 
 #include "defs.h"
 #include "format.h"               // for Format
-#include "geocache.h"
 #include "src/core/textstream.h"  // for TextStream
 
 

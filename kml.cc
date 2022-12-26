@@ -45,7 +45,6 @@
 #include "defs.h"
 #include "kml.h"
 #include "formspec.h"                   // for FsChainFind, kFsGpx
-#include "geocache.h"
 #include "grtcirc.h"                    // for RAD, gcdist, radtometers
 #include "src/core/datetime.h"          // for DateTime
 #include "src/core/file.h"              // for File

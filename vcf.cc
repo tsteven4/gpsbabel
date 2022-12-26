@@ -19,7 +19,6 @@
 */
 
 #include "defs.h"
-#include "geocache.h"
 #include "jeeps/gpsmath.h"
 #include <cctype>
 #include <cmath>

@@ -109,7 +109,6 @@
 #include "lowranceusr.h"
 #include "formspec.h"             // for FsChainFind, FsChainAdd, kFsLowranceusr4, FormatSpecificData
 #include "gbfile.h"               // for gbfgetint32, gbfputint32, gbfputint16, gbfgetc, gbfgetint16, gbfwrite, gbfputc, gbfeof, gbfgetflt, gbfclose, gbfgetdbl, gbfopen_le, gbfputdbl, gbfputs, gbfile, gbfputflt, gbfread, gbfseek
-#include "geocache.h"
 #include "src/core/datetime.h"    // for DateTime
 #include "src/core/logging.h"     // for Warning
 

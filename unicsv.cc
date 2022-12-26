@@ -45,7 +45,6 @@
 #include "formspec.h"              // for FormatSpecificDataList
 #include "garmin_fs.h"             // for garmin_fs_flags_t, garmin_fs_t, GMSD_GET, GMSD_HAS, GMSD_SETQSTR, GMSD_FIND, garmin_fs_alloc
 #include "garmin_tables.h"         // for gt_lookup_datum_index, gt_get_mps_grid_longname, gt_lookup_grid_type
-#include "geocache.h"
 #include "jeeps/gpsmath.h"         // for GPS_Math_UKOSMap_To_WGS84_M, GPS_Math_EN_To_UKOSNG_Map, GPS_Math_Known_Datum_To_UTM_EN, GPS_Math_Known_Datum_To_WGS84_M, GPS_Math_Swiss_EN_To_WGS84, GPS_Math_UTM_EN_To_Known_Datum, GPS_Math_WGS84_To_Known_Datum_M, GPS_Math_WGS84_To_Swiss_EN, GPS_Math_WGS...
 #include "session.h"               // for session_t
 #include "src/core/datetime.h"     // for DateTime

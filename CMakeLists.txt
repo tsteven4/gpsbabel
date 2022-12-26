@@ -225,7 +225,6 @@ set(HEADERS
   gbser.h
   gbser_private.h
   gdb.h
-  geocache.h
   geojson.h
   globalsat_sport.h
   gpx.h

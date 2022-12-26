@@ -40,7 +40,6 @@
 #include "garmin_device_xml.h"  // for gdx_get_info, gdx_info, gdx_file, gdx_jmp_buf
 #include "garmin_fs.h"          // for garmin_fs_garmin_after_read, garmin_fs_garmin_before_write
 #include "garmin_tables.h"      // for gt_find_icon_number_from_desc, PCX, gt_find_desc_from_icon_number
-#include "geocache.h"
 #include "grtcirc.h"            // for DEG
 #include "jeeps/gps.h"
 #include "jeeps/gpsserial.h"
