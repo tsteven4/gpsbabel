@@ -123,28 +123,28 @@ Geocache::container_t wpt_container(const QString& args)
 
   switch (args.toInt()) {
   case 1:
-    v = Geocache::gc_unknown;
+    v = Geocache::container_t::gc_unknown;
     break;
   case 2:
-    v = Geocache::gc_micro;
+    v = Geocache::container_t::gc_micro;
     break;
   case 3:
-    v = Geocache::gc_regular;
+    v = Geocache::container_t::gc_regular;
     break;
   case 4:
-    v = Geocache::gc_large;
+    v = Geocache::container_t::gc_large;
     break;
   case 5:
-    v = Geocache::gc_virtual;
+    v = Geocache::container_t::gc_virtual;
     break;
   case 6:
-    v = Geocache::gc_other;
+    v = Geocache::container_t::gc_other;
     break;
   case 8:
-    v = Geocache::gc_small;
+    v = Geocache::container_t::gc_small;
     break;
   default:
-    v = Geocache::gc_unknown;
+    v = Geocache::container_t::gc_unknown;
     break;
   }
   return v;
@@ -210,25 +210,25 @@ geo_waypt_pr(const Waypoint* waypointp)
 
     int v = 1;
     switch (waypointp->gc_data->container) {
-    case Geocache::gc_unknown:
+    case Geocache::container_t::gc_unknown:
       v = 1;
       break;
-    case Geocache::gc_micro:
+    case Geocache::container_t::gc_micro:
       v = 2;
       break;
-    case Geocache::gc_regular:
+    case Geocache::container_t::gc_regular:
       v = 3;
       break;
-    case Geocache::gc_large:
+    case Geocache::container_t::gc_large:
       v = 4;
       break;
-    case Geocache::gc_virtual:
+    case Geocache::container_t::gc_virtual:
       v = 5;
       break;
-    case Geocache::gc_other:
+    case Geocache::container_t::gc_other:
       v = 6;
       break;
-    case Geocache::gc_small:
+    case Geocache::container_t::gc_small:
       v = 8;
       break;
     default:

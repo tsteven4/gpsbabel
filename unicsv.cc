@@ -328,14 +328,14 @@ UnicsvFormat::unicsv_parse_status(const QString& str)
   if (str.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0 ||
       str.compare(QLatin1String("yes"), Qt::CaseInsensitive) == 0 ||
       str == "1") {
-    return Geocache::gs_true;
+    return Geocache::status_t::gs_true;
   }
   if (str.compare(QLatin1String("false"), Qt::CaseInsensitive) == 0 ||
       str.compare(QLatin1String("no"), Qt::CaseInsensitive) == 0 ||
       str == "0") {
-    return Geocache::gs_false;
+    return Geocache::status_t::gs_false;
   }
-  return Geocache::gs_unknown;
+  return Geocache::status_t::gs_unknown;
 }
 
 QDateTime
@@ -1266,10 +1266,10 @@ UnicsvFormat::unicsv_waypt_enum_cb(const Waypoint* wpt)
     if (gc_data->id) {
       gb_setbit(&unicsv_outp_flags, fld_gc_id);
     }
-    if (gc_data->type) {
+    if (gc_data->type != Geocache::type_t::gt_unknown) {
       gb_setbit(&unicsv_outp_flags, fld_gc_type);
     }
-    if (gc_data->container) {
+    if (gc_data->container != Geocache::container_t::gc_unknown) {
       gb_setbit(&unicsv_outp_flags, fld_gc_container);
     }
     if (gc_data->terr) {
@@ -1278,10 +1278,10 @@ UnicsvFormat::unicsv_waypt_enum_cb(const Waypoint* wpt)
     if (gc_data->diff) {
       gb_setbit(&unicsv_outp_flags, fld_gc_diff);
     }
-    if (gc_data->is_archived) {
+    if (gc_data->is_archived != Geocache::status_t::gs_unknown) {
       gb_setbit(&unicsv_outp_flags, fld_gc_is_archived);
     }
-    if (gc_data->is_available) {
+    if (gc_data->is_available != Geocache::status_t::gs_unknown) {
       gb_setbit(&unicsv_outp_flags, fld_gc_is_available);
     }
     if (gc_data->exported.isValid()) {
@@ -1644,15 +1644,15 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     }
   }
   if FIELD_USED(fld_gc_is_archived) {
-    if (gc_data && gc_data->is_archived) {
-      unicsv_print_str((gc_data->is_archived == Geocache::gs_true) ? "True" : "False");
+    if (gc_data && (gc_data->is_archived != Geocache::status_t::gs_unknown)) {
+      unicsv_print_str((gc_data->is_archived == Geocache::status_t::gs_true) ? "True" : "False");
     } else {
       *fout << unicsv_fieldsep;
     }
   }
   if FIELD_USED(fld_gc_is_available) {
-    if (gc_data && gc_data->is_available) {
-      unicsv_print_str((gc_data->is_available == Geocache::gs_true) ? "True" : "False");
+    if (gc_data && (gc_data->is_available != Geocache::status_t::gs_unknown)) {
+      unicsv_print_str((gc_data->is_available == Geocache::status_t::gs_true) ? "True" : "False");
     } else {
       *fout << unicsv_fieldsep;
     }

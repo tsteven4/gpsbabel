@@ -38,7 +38,7 @@ public:
 
   /* Types */
 
-  enum type_t {
+  enum class type_t {
     gt_unknown = 0,
     gt_traditional,
     gt_multi,
@@ -56,7 +56,7 @@ public:
     gt_wherigo
   };
 
-  enum container_t {
+  enum class container_t {
     gc_unknown = 0,
     gc_micro,
     gc_other,
@@ -66,7 +66,7 @@ public:
     gc_small
   };
 
-  enum status_t {
+  enum class status_t {
     gs_unknown = 0,
     gs_true,
     gs_false
@@ -89,14 +89,14 @@ public:
 
   Geocache() :
     id(0),
-    type(gt_unknown),
-    container(gc_unknown),
+    type(type_t::gt_unknown),
+    container(container_t::gc_unknown),
     diff(0),
     terr(0),
-    is_archived(gs_unknown),
-    is_available(gs_unknown),
-    is_memberonly(gs_unknown),
-    has_customcoords(gs_unknown),
+    is_archived(status_t::gs_unknown),
+    is_available(status_t::gs_unknown),
+    is_memberonly(status_t::gs_unknown),
+    has_customcoords(status_t::gs_unknown),
     placer_id(0),
     favorite_points(0)
   {}

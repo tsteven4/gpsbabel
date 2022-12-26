@@ -198,16 +198,16 @@ GpxFormat::tag_gs_cache(const QXmlStreamAttributes& attr) const
   }
   if (attr.hasAttribute(QLatin1String("available"))) {
     if (attr.value(QLatin1String("available")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = Geocache::gs_true;
+      gc_data->is_available = Geocache::status_t::gs_true;
     } else if (attr.value(QLatin1String("available")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_available = Geocache::gs_false;
+      gc_data->is_available = Geocache::status_t::gs_false;
     }
   }
   if (attr.hasAttribute(QLatin1String("archived"))) {
     if (attr.value(QLatin1String("archived")).compare(QLatin1String("True"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = Geocache::gs_true;
+      gc_data->is_archived = Geocache::status_t::gs_true;
     } else if (attr.value(QLatin1String("archived")).compare(QLatin1String("False"), Qt::CaseInsensitive) == 0) {
-      gc_data->is_archived = Geocache::gs_false;
+      gc_data->is_archived = Geocache::status_t::gs_false;
     }
   }
 }
