@@ -136,15 +136,6 @@ constexpr double KNOTS_TO_MPS(double a)  {return a * kMPSPerKnot;}
 #  define GB_PATHSEP '/'
 #endif
 
-/*
- *  Toss in some GNU C-specific voodoo for checking.
- */
-#if __GNUC__
-#  define PRINTFLIKE(x,y) __attribute__ ((__format__ (__printf__, (x), (y))))
-#else
-#  define PRINTFLIKE(x,y)
-#endif
-
 
 /*
  * Common definitions.   There should be no protocol or file-specific
@@ -1031,8 +1022,8 @@ struct ff_vecs_t {
 };
 
 [[noreturn]] void fatal(QDebug& msginstance);
-[[noreturn]] void fatal(const char*, ...) PRINTFLIKE(1, 2);
-void warning(const char*, ...) PRINTFLIKE(1, 2);
+[[noreturn]] [[gnu::format(printf, 1, 2)]] void fatal(const char*, ...);
+[[gnu::format(printf, 1, 2)]] void warning(const char*, ...);
 
 void printposn(double c, int is_lat);
 
@@ -1067,9 +1058,9 @@ int str_match(const char* str, const char* match);
 
 void rtrim(char* s);
 char* lrtrim(char* buff);
-int xasprintf(char** strp, const char* fmt, ...) PRINTFLIKE(2, 3);
-int xasprintf(QString* strp, const char* fmt, ...) PRINTFLIKE(2, 3);
-int xasprintf(QScopedPointer<char, QScopedPointerPodDeleter>& strp, const char* fmt, ...) PRINTFLIKE(2, 3);
+[[gnu::format(printf, 2, 3)]] int xasprintf(char** strp, const char* fmt, ...);
+[[gnu::format(printf, 2, 3)]] int xasprintf(QString* strp, const char* fmt, ...);
+[[gnu::format(printf, 2, 3)]] int xasprintf(QScopedPointer<char, QScopedPointerPodDeleter>& strp, const char* fmt, ...);
 int xvasprintf(char** strp, const char* fmt, va_list ap);
 char* strupper(char* src);
 char* strlower(char* src);
