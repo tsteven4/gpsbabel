@@ -19,39 +19,41 @@
 
  */
 
-#include <cmath>                                   // for lround
-#include <cstdio>                                  // for sscanf
-#include <cstdlib>                                 // for strtod
-#include <cstring>                                 // for strchr, strncpy
+#include "gpx.h"
 
-#include <QDate>                                   // for QDate
-#include <QDateTime>                               // for QDateTime
-#include <QHash>                                   // for QHash
-#include <QIODevice>                               // for QIODevice, operator|, QIODevice::ReadOnly, QIODevice::Text, QIODevice::WriteOnly
-#include <QLatin1Char>                             // for QLatin1Char
-#include <QLatin1String>                           // for QLatin1String
-#include <QString>                                 // for QString, QStringLiteral, operator+, operator==
-#include <QStringList>                             // for QStringList
-#include <QStringView>                             // for QStringView
-#include <QTime>                                   // for QTime
-#include <QVersionNumber>                          // for QVersionNumber
-#include <QXmlStreamAttribute>                     // for QXmlStreamAttribute
-#include <QXmlStreamAttributes>                    // for QXmlStreamAttributes
-#include <QXmlStreamNamespaceDeclaration>          // for QXmlStreamNamespaceDeclaration
-#include <QXmlStreamNamespaceDeclarations>         // for QXmlStreamNamespaceDeclarations
-#include <QXmlStreamReader>                        // for QXmlStreamReader, QXmlStreamReader::Characters, QXmlStreamReader::EndDocument, QXmlStreamReader::EndElement, QXmlStreamReader::Invalid, QXmlStreamReader::StartElement
-#include <Qt>                                      // for CaseInsensitive, UTC
-#include <QtGlobal>                                // for qAsConst, QAddConst<>::Type
+#include <cmath>                            // for lround
+#include <cstdio>                           // for sscanf
+#include <cstring>                          // for strchr, strncpy
+
+#include <QByteArray>                       // for QByteArray
+#include <QDate>                            // for QDate
+#include <QDateTime>                        // for QDateTime
+#include <QHash>                            // for QHash
+#include <QIODevice>                        // for QIODevice, operator|, QIODevice::ReadOnly, QIODevice::Text, QIODevice::WriteOnly
+#include <QLatin1Char>                      // for QLatin1Char
+#include <QLatin1String>                    // for QLatin1String
+#include <QString>                          // for QString, QStringLiteral, operator+, operator==
+#include <QStringList>                      // for QStringList
+#include <QStringView>                      // for QStringView
+#include <QTime>                            // for QTime
+#include <QVersionNumber>                   // for QVersionNumber
+#include <QXmlStreamAttribute>              // for QXmlStreamAttribute
+#include <QXmlStreamAttributes>             // for QXmlStreamAttributes
+#include <QXmlStreamNamespaceDeclaration>   // for QXmlStreamNamespaceDeclaration
+#include <QXmlStreamNamespaceDeclarations>  // for QXmlStreamNamespaceDeclarations
+#include <QXmlStreamReader>                 // for QXmlStreamReader, QXmlStreamReader::Characters, QXmlStreamReader::EndDocument, QXmlStreamReader::EndElement, QXmlStreamReader::Invalid, QXmlStreamReader::StartElement
+#include <Qt>                               // for CaseInsensitive, UTC
+#include <QtGlobal>                         // for qAsConst, QAddConst<>::Type
 
 #include "defs.h"
-#include "gpx.h"
-#include "garmin_fs.h"                             // for garmin_fs_xml_convert, garmin_fs_xml_fprint, GMSD_FIND
-#include "garmin_tables.h"                         // for gt_color_index_by_rgb, gt_color_name, gt_color_value_by_name
-#include "src/core/datetime.h"                     // for DateTime
-#include "src/core/file.h"                         // for File
-#include "src/core/logging.h"                      // for Warning, Fatal
-#include "src/core/xmlstreamwriter.h"              // for XmlStreamWriter
-#include "src/core/xmltag.h"                       // for xml_tag, fs_xml, fs_xml_alloc, free_gpx_extras
+#include "garmin_fs.h"                      // for garmin_fs_xml_convert, garmin_fs_xml_fprint, GMSD_FIND
+#include "garmin_tables.h"                  // for gt_color_index_by_rgb, gt_color_name, gt_color_value_by_name
+#include "geocache.h"                       // for Geocache, Geocache::UtfSt...
+#include "src/core/datetime.h"              // for DateTime
+#include "src/core/file.h"                  // for File
+#include "src/core/logging.h"               // for Warning, Fatal
+#include "src/core/xmlstreamwriter.h"       // for XmlStreamWriter
+#include "src/core/xmltag.h"                // for xml_tag, fs_xml, fs_xml_alloc, free_gpx_extras
 
 
 #define MYNAME "GPX"

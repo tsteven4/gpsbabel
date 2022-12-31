@@ -20,39 +20,41 @@
 
  */
 
-#include <cctype>                       // for tolower, toupper
-#include <cmath>                        // for fabs
-#include <cstdio>                       // for sscanf, printf
-#include <cstdlib>                      // for strtod
-#include <cstring>                      // for strcmp
-#include <optional>                     // for optional
-#include <tuple>                        // for tuple, make_tuple
+#include "kml.h"
 
-#include <QByteArray>                   // for QByteArray
-#include <QChar>                        // for QChar
-#include <QDate>                        // for QDate
-#include <QDateTime>                    // for QDateTime
-#include <QFile>                        // for QFile
-#include <QIODevice>                    // for operator|, QIODevice, QIODevice::Text, QIODevice::WriteOnly
-#include <QList>                        // for QList
-#include <QString>                      // for QString, QStringLiteral, operator+, operator!=
-#include <QStringList>                  // for QStringList
-#include <QVector>                      // for QVector
-#include <QXmlStreamAttributes>         // for QXmlStreamAttributes
-#include <Qt>                           // for ISODate
-#include <QtGlobal>                     // for foreach, qint64, qRound, qPrintable
+#include <cctype>                      // for tolower, toupper
+#include <cmath>                       // for fabs
+#include <cstdio>                      // for sscanf, printf
+#include <cstdlib>                     // for strtod
+#include <cstring>                     // for strcmp
+#include <optional>                    // for optional
+#include <tuple>                       // for tuple, make_tuple
+
+#include <QByteArray>                  // for QByteArray
+#include <QChar>                       // for QChar
+#include <QDate>                       // for QDate
+#include <QDateTime>                   // for QDateTime
+#include <QFile>                       // for QFile
+#include <QIODevice>                   // for operator|, QIODevice, QIODevice::Text, QIODevice::WriteOnly
+#include <QList>                       // for QList
+#include <QString>                     // for QString, QStringLiteral, operator+, operator!=
+#include <QStringList>                 // for QStringList
+#include <QVector>                     // for QVector
+#include <QXmlStreamAttributes>        // for QXmlStreamAttributes
+#include <Qt>                          // for ISODate
+#include <QtGlobal>                    // for foreach, qint64, qRound, qPrintable
 
 #include "defs.h"
-#include "kml.h"
-#include "formspec.h"                   // for FsChainFind, kFsGpx
-#include "grtcirc.h"                    // for RAD, gcdist, radtometers
-#include "src/core/datetime.h"          // for DateTime
-#include "src/core/file.h"              // for File
-#include "src/core/logging.h"           // for Warning, Fatal
-#include "src/core/xmlstreamwriter.h"   // for XmlStreamWriter
-#include "src/core/xmltag.h"            // for xml_findfirst, xml_tag, fs_xml, xml_attribute, xml_findnext
-#include "units.h"                      // for fmt_setunits, fmt_speed, fmt_altitude, fmt_distance, units_aviation, units_metric, units_nautical, units_statute
-#include "xmlgeneric.h"                 // for cb_cdata, cb_end, cb_start, xg_callback, xg_string, xg_cb_type, xml_deinit, xml_ignore_tags, xml_init, xml_read, xg_tag_mapping
+#include "formspec.h"                  // for FsChainFind, kFsGpx
+#include "geocache.h"                  // for Geocache, Geocache::type_t
+#include "grtcirc.h"                   // for RAD, gcdist, radtometers
+#include "src/core/datetime.h"         // for DateTime
+#include "src/core/file.h"             // for File
+#include "src/core/logging.h"          // for Warning, Fatal
+#include "src/core/xmlstreamwriter.h"  // for XmlStreamWriter
+#include "src/core/xmltag.h"           // for xml_findfirst, xml_tag, fs_xml, xml_attribute, xml_findnext
+#include "units.h"                     // for fmt_setunits, fmt_speed, fmt_altitude, fmt_distance, units_aviation, units_metric, units_nautical, units_statute
+#include "xmlgeneric.h"                // for cb_cdata, cb_end, cb_start, xg_callback, xg_string, xg_cb_type, xml_deinit, xml_ignore_tags, xml_init, xml_read, xg_tag_mapping
 
 
 //  Icons provided and hosted by Google.  Used with permission.

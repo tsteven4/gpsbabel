@@ -19,9 +19,10 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#include "unicsv.h"
+
 #include <cmath>                   // for fabs, lround
 #include <cstdio>                  // for NULL, sscanf
-#include <cstdint>
 #include <cstring>                 // for memset, strchr, strncpy
 #include <ctime>                   // for gmtime
 
@@ -30,7 +31,6 @@
 #include <QDateTime>               // for QDateTime
 #include <QIODevice>               // for QIODevice, QIODevice::ReadOnly, QIODevice::WriteOnly
 #include <QLatin1Char>             // for QLatin1Char
-#include <QLatin1String>           // for QLatin1String
 #include <QString>                 // for QString, operator!=, operator==
 #include <QStringList>             // for QStringList
 #include <QTextStream>             // for QTextStream, operator<<, qSetRealNumberPrecision, qSetFieldWidth, QTextStream::FixedNotation
@@ -40,11 +40,11 @@
 #include <QtGlobal>                // for qPrintable
 
 #include "defs.h"
-#include "unicsv.h"
 #include "csv_util.h"              // for csv_linesplit, human_to_dec
 #include "formspec.h"              // for FormatSpecificDataList
 #include "garmin_fs.h"             // for garmin_fs_flags_t, garmin_fs_t, GMSD_GET, GMSD_HAS, GMSD_SETQSTR, GMSD_FIND, garmin_fs_alloc
 #include "garmin_tables.h"         // for gt_lookup_datum_index, gt_get_mps_grid_longname, gt_lookup_grid_type
+#include "geocache.h"              // for Geocache, Geocache::status_t, Geoc...
 #include "jeeps/gpsmath.h"         // for GPS_Math_UKOSMap_To_WGS84_M, GPS_Math_EN_To_UKOSNG_Map, GPS_Math_Known_Datum_To_UTM_EN, GPS_Math_Known_Datum_To_WGS84_M, GPS_Math_Swiss_EN_To_WGS84, GPS_Math_UTM_EN_To_Known_Datum, GPS_Math_WGS84_To_Known_Datum_M, GPS_Math_WGS84_To_Swiss_EN, GPS_Math_WGS...
 #include "session.h"               // for session_t
 #include "src/core/datetime.h"     // for DateTime

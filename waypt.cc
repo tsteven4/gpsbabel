@@ -37,6 +37,7 @@
 #include "defs.h"
 #include "formspec.h"           // for FormatSpecificDataList
 #include "garmin_fs.h"          // for garmin_ilink_t, garmin_fs_t
+#include "geocache.h"           // for Geocache
 #include "grtcirc.h"            // for RAD, gcdist, heading_true_degrees, radtometers
 #include "session.h"            // for curr_session, session_t
 #include "src/core/datetime.h"  // for DateTime

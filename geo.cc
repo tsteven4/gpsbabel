@@ -29,6 +29,7 @@
 
 #include "defs.h"
 #include "gbfile.h"              // for gbfclose, gbfopen, gbfputs, gbfile
+#include "geocache.h"            // for Geocache, Geocache::container_t, Geo...
 #include "src/core/file.h"       // for File
 
 

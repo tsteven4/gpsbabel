@@ -85,32 +85,33 @@
 
 */
 
-#include <cinttypes>              // for PRId64
-#include <cmath>                  // for M_PI, round, atan, exp, log, tan
-#include <cstdio>                 // for printf, sprintf, SEEK_CUR
-#include <cstdint>                // for int64_t
-#include <cstdlib>                // for abs
-#include <cstring>                // for strcmp, strlen
+#include "lowranceusr.h"
 
-#include <QByteArray>             // for QByteArray
-#include <QDate>                  // for QDate
-#include <QDateTime>              // for QDateTime
-#include <QLatin1String>          // for QLatin1String
-#include <QList>                  // for QList
-#include <QScopedPointer>         // for QScopedPointer
-#include <QString>                // for QString, operator+, operator==, operator!=
-#include <QTextCodec>             // for QTextCodec, QTextCodec::IgnoreHeader
-#include <QTextEncoder>           // for QTextEncoder
-#include <QTime>                  // for QTime
-#include <Qt>                     // for CaseInsensitive, UTC
-#include <QtGlobal>               // for qPrintable, uint, qAsConst, QAddConst<>::Type
+#include <cinttypes>            // for PRId64
+#include <cmath>                // for M_PI, round, atan, exp, log, tan
+#include <cstdio>               // for printf, sprintf, SEEK_CUR
+#include <cstdint>              // for int64_t
+#include <cstdlib>              // for abs
+#include <cstring>              // for strcmp, strlen
+
+#include <QByteArray>           // for QByteArray
+#include <QDate>                // for QDate
+#include <QDateTime>            // for QDateTime
+#include <QList>                // for QList
+#include <QScopedPointer>       // for QScopedPointer
+#include <QString>              // for QString, operator+, operator==, operator!=
+#include <QTextCodec>           // for QTextCodec, QTextCodec::IgnoreHeader
+#include <QTextEncoder>         // for QTextEncoder
+#include <QTime>                // for QTime
+#include <Qt>                   // for CaseInsensitive, UTC
+#include <QtGlobal>             // for qPrintable, uint, qAsConst, QAddConst<>::Type
 
 #include "defs.h"
-#include "lowranceusr.h"
-#include "formspec.h"             // for FsChainFind, FsChainAdd, kFsLowranceusr4, FormatSpecificData
-#include "gbfile.h"               // for gbfgetint32, gbfputint32, gbfputint16, gbfgetc, gbfgetint16, gbfwrite, gbfputc, gbfeof, gbfgetflt, gbfclose, gbfgetdbl, gbfopen_le, gbfputdbl, gbfputs, gbfile, gbfputflt, gbfread, gbfseek
-#include "src/core/datetime.h"    // for DateTime
-#include "src/core/logging.h"     // for Warning
+#include "formspec.h"           // for FsChainFind, FsChainAdd, kFsLowranceusr4, FormatSpecificData
+#include "gbfile.h"             // for gbfgetint32, gbfputint32, gbfputint16, gbfgetc, gbfgetint16, gbfwrite, gbfputc, gbfeof, gbfgetflt, gbfclose, gbfgetdbl, gbfopen_le, gbfputdbl, gbfputs, gbfile, gbfputflt, gbfread, gbfseek
+#include "geocache.h"           // for Geocache, Geocache::status_t, Geocach...
+#include "src/core/datetime.h"  // for DateTime
+#include "src/core/logging.h"   // for Warning
 
 
 /* from waypt.c, we need to iterate over waypoints when extracting routes */
