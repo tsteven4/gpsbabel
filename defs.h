@@ -19,21 +19,13 @@
 #ifndef DEFS_H_INCLUDED_
 #define DEFS_H_INCLUDED_
 
-#include <algorithm>                 // for sort, stable_sort
 #include <cmath>                     // for M_PI
-#include <cstdarg>                   // for va_list
 #include <cstddef>                   // for NULL, nullptr_t, size_t
 #include <cstdint>                   // for int32_t, uint32_t
 #include <cstdio>                    // for NULL, fprintf, FILE, stdout
 #include <ctime>                     // for time_t
 #include <optional>                  // for optional
 #include <utility>                   // for move
-
-#if HAVE_LIBZ
-#include <zlib.h>                    // doesn't really belong here, but is missing elsewhere.
-#elif !ZLIB_INHIBITED
-#include "zlib.h"                    // doesn't really belong here, but is missing elsewhere.
-#endif
 
 #include <QDateTime>                 // for QDateTime
 #include <QDebug>                    // for QDebug
@@ -49,7 +41,6 @@
 
 #include "formspec.h"                // for FormatSpecificData
 #include "inifile.h"                 // for inifile_t
-#include "gbfile.h"                  // doesn't really belong here, but is missing elsewhere.
 #include "session.h"                 // for session_t
 #include "src/core/datetime.h"       // for DateTime
 
@@ -128,6 +119,9 @@ constexpr double KNOTS_TO_MPS(double a)  {return a * kMPSPerKnot;}
 #define MICRO_TO_MILLI(t) ((t) / 1000)  /* Microseconds to Milliseconds*/
 #define CENTI_TO_MICRO(t) ((t) * 10000) /* Centiseconds to Microseconds */
 #define MICRO_TO_CENTI(t) ((t) / 10000) /* Centiseconds to Microseconds */
+
+constexpr int kDatumOSGB36 = 86; // GPS_Lookup_Datum_Index("OSGB36")
+constexpr int kDautmWGS84 = 118; // GPS_Lookup_Datum_Index("WGS 84")
 
 /* Pathname separator character */
 #if __WIN32__
@@ -1180,9 +1174,6 @@ enum grid_type {
 #define GRID_INDEX_MIN	grid_lat_lon_ddd
 #define GRID_INDEX_MAX	grid_swiss
 
-#define DATUM_OSGB36	86
-#define DATUM_WGS84	118
-
 /* bit manipulation functions (util.c) */
 
 char gb_getbit(const void* buf, uint32_t nr);
@@ -1224,9 +1215,5 @@ int color_to_bbggrr(const char* cname);
  */
 #define unknown_alt 	-99999999.0
 #define unknown_color	-1
-
-// TODO: this is a (probably temporary) shim for the C->QString conversion.
-// It's here instead of gps to avoid C/C++ linkage issues.
-int32_t GPS_Lookup_Datum_Index(const QString& n);
 
 #endif // DEFS_H_INCLUDED_

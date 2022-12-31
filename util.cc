@@ -720,7 +720,7 @@ endian_read_double(const void* ptr, int read_le)
     p = ptr;
   } else {
     for (int i = 0; i < 8; i++) {
-      r[i] = ((char*)ptr)[7-i];
+      r[i] = static_cast<const char*>(ptr)[7-i];
     }
     p = r;
   }
@@ -747,7 +747,7 @@ endian_read_float(const void* ptr, int read_le)
     p = ptr;
   } else {
     for (int i = 0; i < 4; i++) {
-      r[i] = ((char*)ptr)[3-i];
+      r[i] = static_cast<const char*>(ptr)[3-i];
     }
     p = r;
   }

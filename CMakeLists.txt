@@ -67,14 +67,12 @@ set(RESOURCES gpsbabel.qrc)
 
 # MINIMAL_FMTS
 set(MINIMAL_FMTS
-  explorist_ini.cc
   garmin.cc
   garmin_device_xml.cc
   garmin_tables.cc
   geo.cc
   gpx.cc
   kml.cc
-  magproto.cc
   nmea.cc
   wbt-200.cc
 )
@@ -210,7 +208,6 @@ set(HEADERS
   defs.h
   dg-100.h
   exif.h
-  explorist_ini.h
   filter.h
   filter_vecs.h
   format.h
@@ -238,7 +235,6 @@ set(HEADERS
   kml.h
   legacyformat.h
   lowranceusr.h
-  magellan.h
   navilink.h
   nmea.h
   osm.h
@@ -372,12 +368,16 @@ message(STATUS "Libs are: \"${LnkLibs}\"")
 get_target_property(IncDirs gpsbabel INCLUDE_DIRECTORIES)
 message(STATUS "Include Directores are: \"${IncDirs}\"")
 
+# In case we ever update the garmin_icons mkicondoc helps 
+# update the related document table.
+add_executable(mkicondoc EXCLUDE_FROM_ALL mkicondoc.cc)
+target_link_libraries(mkicondoc PRIVATE ${QT_LIBRARIES})
+
 set(TESTS
   arc-project
   arc
   batch
   bend
-  classic-1
   classic-2
   classic-3
   dg100
@@ -409,8 +409,6 @@ set(TESTS
   kml-read
   kml
   lowranceusr
-  magellan_sd
-  magellan
   mtk
   multiurlgpx
   navilink

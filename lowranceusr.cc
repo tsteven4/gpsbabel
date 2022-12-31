@@ -1346,7 +1346,7 @@ LowranceusrFormat::lowranceusr_waypt_disp(const Waypoint* wpt) const
 
   gbfputint32(waypt_time, file_out);
 
-  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(u"Geocache Found") == 0) {
     SymbolId = lowranceusr_find_icon_number_from_desc(wpt->gc_data->get_icon());
   } else {
     SymbolId = lowranceusr_find_icon_number_from_desc(wpt->icon_descr);
@@ -1408,7 +1408,7 @@ LowranceusrFormat::lowranceusr4_waypt_disp(const Waypoint* wpt)
   gbfputint32(2, file_out);
 
   int SymbolId, ColorId;
-  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(QLatin1String("Geocache Found")) == 0) {
+  if (!wpt->gc_data->get_icon().isEmpty() && wpt->icon_descr.compare(u"Geocache Found") == 0) {
     if (writing_version == 4) {
       SymbolId = lowranceusr4_find_icon_number_from_desc(wpt->icon_descr);
     } else {
