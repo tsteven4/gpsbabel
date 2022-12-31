@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2022 Robert Lipe, robertlipe+source@gpsbabel.org
+    Copyright (C) 2002-2023 Robert Lipe, robertlipe+source@gpsbabel.org
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,14 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
  */
+
+#include "geocache.h"
+
 #include <QString>               // for QString
 #include <QVector>               // for QVector
 #include <Qt>                    // for CaseInsensitive
 
-#include "defs.h"
+#include "defs.h"                // for strip_html, global_options, global_opts
 
 
 const QVector<Geocache::type_mapping> Geocache::type_map = {
