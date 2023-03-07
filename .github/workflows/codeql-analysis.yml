@@ -38,6 +38,11 @@ jobs:
         # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
 
     steps:
+    - name: git safe
+      run: |
+        # when using containers manually whitelist the checkout directory to allow git commands to work
+        git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
     - name: Checkout repository
       uses: actions/checkout@v3
 
