@@ -72,63 +72,6 @@
 
 #define MYNAME "exif"
 
-#define IFD0    0
-#define IFD1    1
-#define EXIF_IFD  2   /* dummy index */
-#define GPS_IFD   3   /* dummy index */
-#define INTER_IFD 4   /* dummy index */
-
-#define EXIF_TYPE_BYTE    1
-#define EXIF_TYPE_ASCII   2
-#define EXIF_TYPE_SHORT   3
-#define EXIF_TYPE_LONG    4
-#define EXIF_TYPE_RAT     5
-#define EXIF_TYPE_SBYTE   6   /* TIFF 6.0 */
-#define EXIF_TYPE_UNK     7   /* TIFF 6.0 */
-#define EXIF_TYPE_SSHORT  8   /* TIFF 6.0 */
-#define EXIF_TYPE_SLONG   9   /* TIFF 6.0 */
-#define EXIF_TYPE_SRAT    10  /* TIFF 6.0 */
-#define EXIF_TYPE_FLOAT   11  /* TIFF 6.0 */
-#define EXIF_TYPE_DOUBLE  12  /* TIFF 6.0 */
-#define EXIF_TYPE_IFD     13
-#define EXIF_TYPE_UNICODE 14
-#define EXIF_TYPE_COMPLEX 15
-#define EXIF_TYPE_LONG8   16  /* BigTIFF */
-#define EXIF_TYPE_SLONG8  17  /* BigTIFF */
-#define EXIF_TYPE_IFD8    18  /* BigTIFF */
-
-#define BYTE_TYPE(a) ( (a==EXIF_TYPE_BYTE) || (a==EXIF_TYPE_ASCII) || (a==EXIF_TYPE_SBYTE) || (a==EXIF_TYPE_UNK) )
-#define WORD_TYPE(a) ( (a==EXIF_TYPE_SHORT) || (a==EXIF_TYPE_SSHORT) )
-#define LONG_TYPE(a) ( (a==EXIF_TYPE_LONG) || (a==EXIF_TYPE_SLONG) || (a==EXIF_TYPE_IFD) )
-
-#define IFD0_TAG_EXIF_IFD_OFFS  0x8769
-#define IFD0_TAG_GPS_IFD_OFFS   0x8825
-
-#define IFD1_TAG_COMPRESSION       0x0103  // Compression, 1 => uncompressed, 6 => JPEG compression
-#define IFD1_TAG_STRIP_OFFS        0x0111  // StripOffsets
-#define IFD1_TAG_STRIP_BYTE_COUNTS 0x0117  // StripByteCounts
-#define IFD1_TAG_JPEG_OFFS         0x0201  // JPEGInterchangeFormat
-#define IFD1_TAG_JPEG_SIZE         0x0202  // JPEGInterchangeFormatLength
-
-#define EXIF_IFD_TAG_USER_CMT       0x9286
-#define EXIF_IFD_TAG_INTER_IFD_OFFS 0xA005
-
-#define GPS_IFD_TAG_VERSION   0x0000
-#define GPS_IFD_TAG_LATREF    0x0001
-#define GPS_IFD_TAG_LAT       0x0002
-#define GPS_IFD_TAG_LONREF    0x0003
-#define GPS_IFD_TAG_LON       0x0004
-#define GPS_IFD_TAG_ALTREF    0x0005
-#define GPS_IFD_TAG_ALT       0x0006
-#define GPS_IFD_TAG_TIMESTAMP 0x0007
-#define GPS_IFD_TAG_SAT       0x0008
-#define GPS_IFD_TAG_MODE      0x000A
-#define GPS_IFD_TAG_DOP       0x000B
-#define GPS_IFD_TAG_SPEEDREF  0x000C
-#define GPS_IFD_TAG_SPEED     0x000D
-#define GPS_IFD_TAG_DATUM     0x0012
-#define GPS_IFD_TAG_DATESTAMP 0x001D
-
 // for debug only
 void
 ExifFormat::print_buff(const char* buf, int sz, const char* cmt)
@@ -204,7 +147,7 @@ ExifFormat::exif_time_str(const QDateTime& time)
 }
 
 QByteArray
-ExifFormat::exif_read_str(ExifTag* tag)
+ExifFormat::exif_read_str(const ExifTag* tag)
 {
   // Panasonic DMC-TZ10 stores datum with trailing spaces.
   // Kodak stores zero count ASCII tags.
@@ -578,9 +521,6 @@ ExifFormat::exif_read_ifd(ExifApp* app, const uint16_t ifd_nr, const gbsize_t of
 void
 ExifFormat::exif_read_app(ExifApp* app)
 {
-  gbsize_t offs;
-  uint32_t exif_ifd_ofs, gps_ifd_ofs, inter_ifd_ofs;
-  ExifIfd* ifd;
   gbfile* fin = app->fexif;
 
   if (global_opts.debug_level >= 3) {
@@ -588,12 +528,14 @@ ExifFormat::exif_read_app(ExifApp* app)
     print_buff((const char*)fin->handle.mem, 8, MYNAME "-offs 0x00000000: Image File Header");
     printf("\n");
   }
-  exif_ifd_ofs = gps_ifd_ofs = inter_ifd_ofs = 0;
 
   gbfseek(fin, 4, SEEK_SET);
-  offs = gbfgetuint32(fin); // Image File Header Bytes 4-7, the offset (in bytes) of the first IFD.
+  gbsize_t offs = gbfgetuint32(fin); // Image File Header Bytes 4-7, the offset (in bytes) of the first IFD.
 
-  ifd = exif_read_ifd(app, IFD0, offs, &exif_ifd_ofs, &gps_ifd_ofs, &inter_ifd_ofs);
+  uint32_t exif_ifd_ofs = 0;
+  uint32_t gps_ifd_ofs = 0;
+  uint32_t inter_ifd_ofs = 0;
+  ExifIfd* ifd = exif_read_ifd(app, IFD0, offs, &exif_ifd_ofs, &gps_ifd_ofs, &inter_ifd_ofs);
   if (ifd == nullptr) {
     return;
   }
@@ -761,7 +703,6 @@ ExifFormat::exif_waypt_from_exif_app(ExifApp* app) const
   double alt = unknown_alt;
   QTime timestamp;
   QDate datestamp;
-  QDateTime gps_datetime;
 
   ExifIfd* ifd = exif_find_ifd(app, GPS_IFD);
   if (ifd == nullptr) {
@@ -910,7 +851,7 @@ ExifFormat::exif_waypt_from_exif_app(ExifApp* app) const
     }
   }
 
-  gps_datetime = QDateTime(datestamp, timestamp, Qt::UTC);
+  QDateTime gps_datetime = QDateTime(datestamp, timestamp, Qt::UTC);
   if (gps_datetime.isValid()) {
     if (global_opts.debug_level >= 3) {
       printf(MYNAME "-GPSTimeStamp =   %s\n", qPrintable(gps_datetime.toString(Qt::ISODateWithMs)));
@@ -1121,9 +1062,8 @@ ExifFormat::exif_put_coord(const int ifd_nr, const int tag_id, const double val)
 {
   double vdeg;
   double vmin;
-  double fractional_part;
 
-  fractional_part = modf(val, &vdeg);
+  double fractional_part = modf(val, &vdeg);
   fractional_part = modf(60.0 * fractional_part, &vmin);
   double vsec = 60.0 * fractional_part;
 
@@ -1188,22 +1128,22 @@ ExifFormat::exif_sort_ifds_cb(const ExifIfd& A, const ExifIfd& B)
 }
 
 void
-ExifFormat::exif_write_value(ExifTag* tag, gbfile* fout)
+ExifFormat::exif_write_value(const ExifTag* tag, gbfile* fout)
 {
   if (tag->size > 4) {
     gbfputuint32(tag->offset, fout);  /* offset to data */
   } else {
-    if BYTE_TYPE(tag->type) {
+    if (BYTE_TYPE(tag->type)) {
       assert(tag->count <= 4);
       if (tag->count > 0) {
         gbfwrite(tag->data.at(0).toByteArray().constData(), tag->count, 1, fout);
       }
-    } else if WORD_TYPE(tag->type) {
+    } else if (WORD_TYPE(tag->type)) {
       assert(tag->count <= 2);
       for (unsigned idx = 0; idx < tag->count; ++idx) {
         gbfputuint16(tag->data.at(idx).value<uint16_t>(), fout);
       }
-    } else if LONG_TYPE(tag->type) {
+    } else if (LONG_TYPE(tag->type)) {
       assert(tag->count <= 1);
       if (tag->count > 0) {
         gbfputuint32(tag->data.at(0).value<uint32_t>(), fout);
@@ -1261,7 +1201,7 @@ ExifFormat::exif_write_ifd(ExifIfd* ifd, const char next, gbfile* fout)
     ExifTag* tag = &tag_instance;
 
     if (tag->size > 4) {
-      if BYTE_TYPE(tag->type) {
+      if (BYTE_TYPE(tag->type)) {
         gbfwrite(tag->data.at(0).toByteArray().constData(), tag->size, 1, fout);
       } else for (unsigned i = 0; i < tag->count; i++) {
           switch (tag->type) {
@@ -1538,11 +1478,9 @@ ExifFormat::write()
     } else if (labs(exif_time_ref.secsTo(exif_wpt_ref->creation_time)) > frame) {
       QString time_str = exif_time_str(exif_time_ref);
       warning(MYNAME ": No matching point found for image date %s!\n", qPrintable(time_str));
-      if (exif_wpt_ref != nullptr) {
-        QString str = exif_time_str(exif_wpt_ref->creation_time);
-        warning(MYNAME ": Best is from %s, %ld second(s) away.\n",
-                qPrintable(str), labs(exif_time_ref.secsTo(exif_wpt_ref->creation_time)));
-      }
+      QString str = exif_time_str(exif_wpt_ref->creation_time);
+      warning(MYNAME ": Best is from %s, %ld second(s) away.\n",
+              qPrintable(str), labs(exif_time_ref.secsTo(exif_wpt_ref->creation_time)));
       exif_wpt_ref = nullptr;
     }
   }

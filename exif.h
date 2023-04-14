@@ -36,6 +36,7 @@
 #ifndef EXIF_H_INCLUDED_
 #define EXIF_H_INCLUDED_
 
+#include <QByteArray> // for QByteArray
 #include <QDate>      // for QDate
 #include <QDateTime>  // for QDateTime
 #include <QList>      // for QList
@@ -151,12 +152,74 @@ private:
 
   static constexpr uint8_t writer_gps_tag_version[4] = {2, 0, 0, 0};
 
+  static constexpr int IFD0    = 0;
+  static constexpr int IFD1    = 1;
+  static constexpr int EXIF_IFD  = 2;  /* dummy index */
+  static constexpr int GPS_IFD   = 3;  /* dummy index */
+  static constexpr int INTER_IFD = 4;  /* dummy index */
+
+  static constexpr int EXIF_TYPE_BYTE    = 1;
+  static constexpr int EXIF_TYPE_ASCII   = 2;
+  static constexpr int EXIF_TYPE_SHORT   = 3;
+  static constexpr int EXIF_TYPE_LONG    = 4;
+  static constexpr int EXIF_TYPE_RAT     = 5;
+  static constexpr int EXIF_TYPE_SBYTE   = 6;  /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_UNK     = 7;  /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_SSHORT  = 8;  /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_SLONG   = 9;  /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_SRAT    = 10; /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_FLOAT   = 11; /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_DOUBLE  = 12; /* TIFF 6.0 */
+  static constexpr int EXIF_TYPE_IFD     = 13;
+  static constexpr int EXIF_TYPE_UNICODE = 14;
+  static constexpr int EXIF_TYPE_COMPLEX = 15;
+  static constexpr int EXIF_TYPE_LONG8   = 16; /* BigTIFF */
+  static constexpr int EXIF_TYPE_SLONG8  = 17; /* BigTIFF */
+  static constexpr int EXIF_TYPE_IFD8    = 18; /* BigTIFF */
+
+  static constexpr int IFD0_TAG_EXIF_IFD_OFFS  = 0x8769;
+  static constexpr int IFD0_TAG_GPS_IFD_OFFS   = 0x8825;
+
+  static constexpr int IFD1_TAG_COMPRESSION       = 0x0103; // Compression, 1 => uncompressed, 6 => JPEG compression
+  static constexpr int IFD1_TAG_STRIP_OFFS        = 0x0111; // StripOffsets
+  static constexpr int IFD1_TAG_STRIP_BYTE_COUNTS = 0x0117; // StripByteCounts
+  static constexpr int IFD1_TAG_JPEG_OFFS         = 0x0201; // JPEGInterchangeFormat
+  static constexpr int IFD1_TAG_JPEG_SIZE         = 0x0202; // JPEGInterchangeFormatLength
+
+  static constexpr int EXIF_IFD_TAG_USER_CMT       = 0x9286;
+  static constexpr int EXIF_IFD_TAG_INTER_IFD_OFFS = 0xA005;
+
+  static constexpr int GPS_IFD_TAG_VERSION   = 0x0000;
+  static constexpr int GPS_IFD_TAG_LATREF    = 0x0001;
+  static constexpr int GPS_IFD_TAG_LAT       = 0x0002;
+  static constexpr int GPS_IFD_TAG_LONREF    = 0x0003;
+  static constexpr int GPS_IFD_TAG_LON       = 0x0004;
+  static constexpr int GPS_IFD_TAG_ALTREF    = 0x0005;
+  static constexpr int GPS_IFD_TAG_ALT       = 0x0006;
+  static constexpr int GPS_IFD_TAG_TIMESTAMP = 0x0007;
+  static constexpr int GPS_IFD_TAG_SAT       = 0x0008;
+  static constexpr int GPS_IFD_TAG_MODE      = 0x000A;
+  static constexpr int GPS_IFD_TAG_DOP       = 0x000B;
+  static constexpr int GPS_IFD_TAG_SPEEDREF  = 0x000C;
+  static constexpr int GPS_IFD_TAG_SPEED     = 0x000D;
+  static constexpr int GPS_IFD_TAG_DATUM     = 0x0012;
+  static constexpr int GPS_IFD_TAG_DATESTAMP = 0x001D;
+
   /* Member Functions */
 
+  static bool BYTE_TYPE(int type) {
+    return (type==EXIF_TYPE_BYTE) || (type==EXIF_TYPE_ASCII) || (type==EXIF_TYPE_SBYTE) || (type==EXIF_TYPE_UNK);
+  }
+  static bool WORD_TYPE(int type) {
+    return (type==EXIF_TYPE_SHORT) || (type==EXIF_TYPE_SSHORT);
+  }
+  static bool LONG_TYPE(int type) {
+    return (type==EXIF_TYPE_LONG) || (type==EXIF_TYPE_SLONG) || (type==EXIF_TYPE_IFD);
+  }
   static void print_buff(const char* buf, int sz, const char* cmt);
   static uint16_t exif_type_size(uint16_t type);
   static QString exif_time_str(const QDateTime& time);
-  static QByteArray exif_read_str(ExifTag* tag);
+  static QByteArray exif_read_str(const ExifTag* tag);
   static double exif_read_double(const ExifTag* tag, int index);
   static double exif_read_coord(const ExifTag* tag);
   static QTime exif_read_timestamp(const ExifTag* tag);
@@ -186,7 +249,7 @@ private:
   void exif_find_wpt_by_name(const Waypoint* wpt);
   static bool exif_sort_tags_cb(const ExifTag& A, const ExifTag& B);
   static bool exif_sort_ifds_cb(const ExifIfd& A, const ExifIfd& B);
-  static void exif_write_value(ExifTag* tag, gbfile* fout);
+  static void exif_write_value(const ExifTag* tag, gbfile* fout);
   static void exif_write_ifd(ExifIfd* ifd, char next, gbfile* fout);
   void exif_write_apps() const;
 
