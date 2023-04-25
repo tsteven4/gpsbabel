@@ -171,11 +171,11 @@ extern const char gpsbabel_version[];
 extern time_t gpsbabel_time;	/* gpsbabel startup-time; initialized in main.c with current_time(), ! ZERO within testo ! */
 
 /* mask objective testing */
-inline bool	doing_nothing() {return global_opts.masked_objective == NOTHINGMASK;}
-inline bool	doing_wpts() {return (global_opts.masked_objective & WPTDATAMASK) == WPTDATAMASK;}
-inline bool	doing_trks() {return (global_opts.masked_objective & TRKDATAMASK) == TRKDATAMASK;}
-inline bool	doing_rtes() {return (global_opts.masked_objective & RTEDATAMASK) == RTEDATAMASK;}
-inline bool	doing_posn() {return (global_opts.masked_objective & POSNDATAMASK) == POSNDATAMASK;}
+inline bool doing_nothing() {return global_opts.masked_objective == NOTHINGMASK;}
+inline bool doing_wpts() {return (global_opts.masked_objective & WPTDATAMASK) == WPTDATAMASK;}
+inline bool doing_trks() {return (global_opts.masked_objective & TRKDATAMASK) == TRKDATAMASK;}
+inline bool doing_rtes() {return (global_opts.masked_objective & RTEDATAMASK) == RTEDATAMASK;}
+inline bool doing_posn() {return (global_opts.masked_objective & POSNDATAMASK) == POSNDATAMASK;}
 
 enum fix_type {
   fix_unknown=-1,
