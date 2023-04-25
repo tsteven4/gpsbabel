@@ -821,12 +821,12 @@ static int wbt201_data_chunk(struct read_state* st, const void* buf)
 
   time_t rtim = decode_date(tim);
 
-  if ((flags & WBT201_WAYPOINT) && (global_opts.masked_objective & WPTDATAMASK)) {
+  if ((flags & WBT201_WAYPOINT) && doing_wpts()) {
     Waypoint* wpt = make_waypoint(st, lat, lon, alt, rtim);
     waypt_add(wpt);
   }
 
-  if (global_opts.masked_objective & TRKDATAMASK) {
+  if (doing_trks()) {
     if (flags & WBT201_TRACK_START) {
       st->route_head_ = nullptr;
     }

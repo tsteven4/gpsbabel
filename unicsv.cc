@@ -455,7 +455,7 @@ UnicsvFormat::rd_init(const QString& fname)
 
   unicsv_fields_tab.clear();
   unicsv_data_type = global_opts.objective;
-  unicsv_detect = (!(global_opts.masked_objective & (WPTDATAMASK | TRKDATAMASK | RTEDATAMASK | POSNDATAMASK)));
+  unicsv_detect = doing_nothing();
 
   unicsv_track = unicsv_route = nullptr;
   unicsv_datum_idx = gt_lookup_datum_index(opt_datum, MYNAME);
@@ -1775,15 +1775,15 @@ UnicsvFormat::write()
   switch (global_opts.objective) {
   case wptdata:
   case unknown_gpsdata:
-    unicsv_check_modes(doing_rtes || doing_trks);
+    unicsv_check_modes(doing_rtes() || doing_trks());
     waypt_disp_all(unicsv_waypt_enum_cb_lambda);
     break;
   case trkdata:
-    unicsv_check_modes(doing_rtes);
+    unicsv_check_modes(doing_rtes());
     track_disp_all(nullptr, nullptr, unicsv_waypt_enum_cb_lambda);
     break;
   case rtedata:
-    unicsv_check_modes(doing_trks);
+    unicsv_check_modes(doing_trks());
     route_disp_all(nullptr, nullptr, unicsv_waypt_enum_cb_lambda);
     break;
   case posndata:

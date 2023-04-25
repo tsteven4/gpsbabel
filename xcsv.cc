@@ -1858,7 +1858,7 @@ XcsvFormat::rd_init(const QString& fname)
   }
 
   if ((xcsv_style->datatype == 0) || (xcsv_style->datatype == wptdata)) {
-    if (global_opts.masked_objective & (TRKDATAMASK|RTEDATAMASK)) {
+    if (doing_trks() || doing_rtes()) {
       warning(MYNAME " attempt to read %s as a track or route, but this format only supports waypoints on read.  Reading as waypoints instead.\n", qPrintable(fname));
     }
   }

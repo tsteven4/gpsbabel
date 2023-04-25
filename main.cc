@@ -384,12 +384,12 @@ run(const char* prog_name)
       if (!ivecs) {
         fatal("No valid input type specified\n");
       }
-      if (global_opts.masked_objective & POSNDATAMASK) {
+      if (doing_posn()) {
         did_something = true;
         break;
       }
       /* simulates the default behaviour of waypoints */
-      if (doing_nothing) {
+      if (doing_nothing()) {
         global_opts.masked_objective |= WPTDATAMASK;
       }
 
@@ -403,9 +403,9 @@ run(const char* prog_name)
       if (ofname.isEmpty()) {
         fatal("No output file or device name specified.\n");
       }
-      if (ovecs && (!(global_opts.masked_objective & POSNDATAMASK))) {
+      if (ovecs && (!(doing_posn()))) {
         /* simulates the default behaviour of waypoints */
-        if (doing_nothing) {
+        if (doing_nothing()) {
           global_opts.masked_objective |= WPTDATAMASK;
         }
 
@@ -590,7 +590,7 @@ run(const char* prog_name)
   } else if ((!qargs.isEmpty()) && ivecs) {
     did_something = true;
     /* simulates the default behaviour of waypoints */
-    if (doing_nothing) {
+    if (doing_nothing()) {
       global_opts.masked_objective |= WPTDATAMASK;
     }
 
@@ -619,7 +619,7 @@ run(const char* prog_name)
    * the special "read position" and "write position" vectors
    * in our most recent vecs.
    */
-  if (global_opts.masked_objective & POSNDATAMASK) {
+  if (doing_posn()) {
 
     if (!ivecs) {
       fatal("Realtime tracking (-T) requires an input type (-t)i such as Garmin or NMEA.\n");

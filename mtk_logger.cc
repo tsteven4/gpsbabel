@@ -800,7 +800,7 @@ static int add_trackpoint(int idx, unsigned long bmask, struct data_item* itm)
 {
   auto* trk = new Waypoint;
 
-  if (global_opts.masked_objective& TRKDATAMASK && (trk_head == nullptr || (mtk_info.track_event & MTK_EVT_START))) {
+  if (doing_trks() && (trk_head == nullptr || (mtk_info.track_event & MTK_EVT_START))) {
     trk_head = new route_head;
     trk_head->rte_name = QStringLiteral("track-%1").arg(1 + track_count());
 
@@ -889,7 +889,7 @@ static int add_trackpoint(int idx, unsigned long bmask, struct data_item* itm)
 
   // RCR is a bitmask of possibly several log reasons..
   // Holux devices use a Event prefix for each waypt.
-  if (global_opts.masked_objective & WPTDATAMASK
+  if (doing_wpts()
       && ((bmask & (1U<<RCR) && itm->rcr & 0x0008)
           || (mtk_info.track_event & MTK_EVT_WAYPT)
          )
@@ -905,7 +905,7 @@ static int add_trackpoint(int idx, unsigned long bmask, struct data_item* itm)
   // log session from the button press we would loose a
   // trackpoint unless we include/duplicate it.
 
-  if (global_opts.masked_objective & TRKDATAMASK) {
+  if (doing_trks()) {
     trk->shortname = QString::asprintf("TP%06d", idx);
 
     track_add_wpt(trk_head, trk);

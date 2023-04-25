@@ -750,17 +750,16 @@ data_read()
     return;
   }
 
-  if (global_opts.masked_objective & WPTDATAMASK) {
+  if (doing_wpts()) {
     waypt_read();
   }
-  if (global_opts.masked_objective & TRKDATAMASK) {
+  if (doing_trks()) {
     track_read();
   }
-  if (global_opts.masked_objective & RTEDATAMASK) {
+  if (doing_rtes()) {
     route_read();
   }
-  if (!(global_opts.masked_objective &
-        (WPTDATAMASK | TRKDATAMASK | RTEDATAMASK | POSNDATAMASK))) {
+  if (doing_nothing()) {
     fatal(MYNAME ": Nothing to do.\n");
   }
 }
@@ -1138,19 +1137,19 @@ data_write()
    * supports courses, combine them to a course. Otherwise,
    * send tracks & waypoints separately.
    */
-  if ((global_opts.masked_objective & WPTDATAMASK) &&
-      (global_opts.masked_objective & TRKDATAMASK) &&
+  if ((doing_wpts()) &&
+      (doing_trks()) &&
       gps_course_transfer != -1) {
     course_write();
   } else {
-    if (global_opts.masked_objective & WPTDATAMASK) {
+    if (doing_wpts()) {
       waypoint_write();
     }
-    if (global_opts.masked_objective & TRKDATAMASK) {
+    if (doing_trks()) {
       track_write();
     }
   }
-  if (global_opts.masked_objective & RTEDATAMASK) {
+  if (doing_rtes()) {
     route_write();
   }
 }

@@ -477,7 +477,7 @@ serial_read_waypoints()
   Waypoint**       waypts = nullptr;
   unsigned char  information[32];
 
-  if (global_opts.masked_objective & RTEDATAMASK) {
+  if (doing_rtes()) {
     waypts = (Waypoint**) xcalloc(MAX_WAYPOINTS, sizeof(Waypoint*));
   }
 
@@ -507,10 +507,10 @@ serial_read_waypoints()
     read_packet(PID_DATA, waypoints, count * 32, count * 32, false);
 
     for (unsigned char*  w = waypoints; w < waypoints + count * 32; w = w + 32) {
-      if (global_opts.masked_objective & WPTDATAMASK) {
+      if (doing_wpts()) {
         waypt_add(decode_waypoint(w));
       }
-      if (global_opts.masked_objective & RTEDATAMASK) {
+      if (doing_rtes()) {
         waypts[decode_waypoint_id(w)] = decode_waypoint(w);
       }
     }
@@ -941,12 +941,12 @@ file_read()
       fatal(MYNAME ": Subroute objects not supported in file sources\n");
       break;
     case 0x4000:
-      if (global_opts.masked_objective & WPTDATAMASK) {
+      if (doing_wpts()) {
         waypt_add(decode_waypoint(data));
       }
       break;
     default:
-      if (global_opts.masked_objective & TRKDATAMASK) {
+      if (doing_trks()) {
         if (track == nullptr) {
           track = new route_head;
           track_add_head(track);
@@ -1139,7 +1139,7 @@ static void
 navilink_read()
 {
   if (datalog) {
-    if (global_opts.masked_objective & TRKDATAMASK) {
+    if (doing_trks()) {
       if (serial_handle) {
         serial_read_datalog();
       } else if (file_handle) {
@@ -1150,15 +1150,15 @@ navilink_read()
     if (serial_handle) {
       Waypoint** waypts = nullptr;
 
-      if (global_opts.masked_objective & (WPTDATAMASK|RTEDATAMASK)) {
+      if (doing_wpts() || doing_rtes()) {
         waypts = serial_read_waypoints();
       }
 
-      if (global_opts.masked_objective & TRKDATAMASK) {
+      if (doing_trks()) {
         serial_read_track();
       }
 
-      if (global_opts.masked_objective & RTEDATAMASK) {
+      if (doing_rtes()) {
         serial_read_routes(waypts);
       }
 

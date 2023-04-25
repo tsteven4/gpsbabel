@@ -206,7 +206,7 @@ private:
   char* opt_fields{nullptr};
   char* opt_codec{nullptr};
   int unicsv_waypt_ct{};
-  char unicsv_detect{};
+  bool unicsv_detect{};
   int llprec{};
 
   QVector<arglist_t> unicsv_args = {

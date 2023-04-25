@@ -297,7 +297,7 @@ sbn_rd_deinit()
 static void
 sbn_read()
 {
-  if (global_opts.masked_objective & TRKDATAMASK) {
+  if (doing_trks()) {
     auto* track = new route_head;
     track_add_head(track);
 

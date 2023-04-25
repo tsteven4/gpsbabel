@@ -679,17 +679,16 @@ GlobalsatSportFormat::read()
     printf(MYNAME " read()\n");
   }
 
-  if (global_opts.masked_objective & WPTDATAMASK) {
+  if (doing_wpts()) {
     waypoint_read();
   }
-  if (global_opts.masked_objective & TRKDATAMASK) {
+  if (doing_trks()) {
     track_read();
   }
-  if (global_opts.masked_objective & RTEDATAMASK) {
+  if (doing_rtes()) {
     route_read();
   }
-  if (!(global_opts.masked_objective &
-        (WPTDATAMASK | TRKDATAMASK | RTEDATAMASK | POSNDATAMASK))) {
+  if (doing_nothing()) {
     fatal(MYNAME ": Nothing to do.\n");
   }
 }

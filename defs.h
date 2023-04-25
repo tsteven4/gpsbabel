@@ -155,13 +155,6 @@ enum gpsdata_type {
 #define	RTEDATAMASK		4U
 #define	POSNDATAMASK		8U
 
-/* mask objective testing */
-#define	doing_nothing (global_opts.masked_objective == NOTHINGMASK)
-#define	doing_wpts ((global_opts.masked_objective & WPTDATAMASK) == WPTDATAMASK)
-#define	doing_trks ((global_opts.masked_objective & TRKDATAMASK) == TRKDATAMASK)
-#define	doing_rtes ((global_opts.masked_objective & RTEDATAMASK) == RTEDATAMASK)
-#define	doing_posn ((global_opts.masked_objective & POSNDATAMASK) == POSNDATAMASK)
-
 struct global_options {
   int debug_level;
   gpsdata_type objective;
@@ -176,6 +169,13 @@ struct global_options {
 extern global_options global_opts;
 extern const char gpsbabel_version[];
 extern time_t gpsbabel_time;	/* gpsbabel startup-time; initialized in main.c with current_time(), ! ZERO within testo ! */
+
+/* mask objective testing */
+inline bool	doing_nothing() {return global_opts.masked_objective == NOTHINGMASK;}
+inline bool	doing_wpts() {return (global_opts.masked_objective & WPTDATAMASK) == WPTDATAMASK;}
+inline bool	doing_trks() {return (global_opts.masked_objective & TRKDATAMASK) == TRKDATAMASK;}
+inline bool	doing_rtes() {return (global_opts.masked_objective & RTEDATAMASK) == RTEDATAMASK;}
+inline bool	doing_posn() {return (global_opts.masked_objective & POSNDATAMASK) == POSNDATAMASK;}
 
 enum fix_type {
   fix_unknown=-1,

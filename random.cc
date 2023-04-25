@@ -140,7 +140,7 @@ RandomFormat::random_generate_wpt(int i, const QDateTime& time, const Waypoint* 
 
   wpt->SetCreationTime(time);
 
-  if (doing_trks || doing_posn) {
+  if (doing_trks() || doing_posn()) {
     if (i > 0) {
       wpt->latitude = prev->latitude + rand_dbl(0.001);
       wpt->longitude = prev->longitude + rand_dbl(0.001);
@@ -162,7 +162,7 @@ RandomFormat::random_generate_wpt(int i, const QDateTime& time, const Waypoint* 
       wpt->power = rand_flt(500.0);
     }
   } else {
-    if (doing_rtes && (i > 0)) {
+    if (doing_rtes() && (i > 0)) {
       wpt->latitude = prev->latitude + rand_dbl(0.01);
       wpt->longitude = prev->longitude + rand_dbl(0.01);
     }
@@ -206,9 +206,9 @@ RandomFormat::read()
   QDateTime time = current_time().toUTC();
 
   int points = (opt_points) ? xstrtoi(opt_points, nullptr, 10) : rand_int(128) + 1;
-  if (doing_trks || doing_rtes) {
+  if (doing_trks() || doing_rtes()) {
     head = new route_head;
-    if (doing_trks) {
+    if (doing_trks()) {
       head->rte_name = rand_str(8, "Trk_%s");
       track_add_head(head);
     } else {
@@ -225,9 +225,9 @@ RandomFormat::read()
 
   for (int i = 0; i < points; i++) {
     Waypoint* wpt = random_generate_wpt(i, time, prev);
-    if (doing_trks) {
+    if (doing_trks()) {
       track_add_wpt(head, wpt);
-    } else if (doing_rtes) {
+    } else if (doing_rtes()) {
       route_add_wpt(head, wpt);
     } else {
       waypt_add(wpt);

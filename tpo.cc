@@ -1502,17 +1502,17 @@ static void tpo_process_compass()
 static void tpo_read_3_x()
 {
 
-  if (doing_trks) {
+  if (doing_trks()) {
 //printf("Processing Tracks\n");
     tpo_process_tracks();
   }
 
-  if (doing_wpts || doing_rtes) {
+  if (doing_wpts() || doing_rtes()) {
 //printf("Processing Waypoints\n");
     tpo_process_waypoints();
   }
 
-  if (doing_rtes) {
+  if (doing_rtes()) {
     //
     // Note:  To process routes we _MUST_ process waypoints
     // first!  This creates the index of waypoints that we need
@@ -1522,7 +1522,7 @@ static void tpo_read_3_x()
     tpo_process_routes();
   }
 
-  if (doing_wpts) {
+  if (doing_wpts()) {
     //
     // Other blocks in the file have waypoint-type information
     // in them.  Map Notes, Symbols, and Text Labels.  We
@@ -1568,7 +1568,7 @@ tpo_rd_init(const QString& fname)
   tpo_check_version_string();
 
   if (tpo_version == 2.0) {
-    if (doing_wpts || doing_rtes) {
+    if (doing_wpts() || doing_rtes()) {
       fatal(MYNAME ": this file format only supports tracks, not waypoints or routes.\n");
     }
 
@@ -2044,7 +2044,7 @@ tpo_track_tlr(const route_head*)
 static void
 tpo_wr_init(const QString& fname)
 {
-  if (doing_wpts || doing_rtes) {
+  if (doing_wpts() || doing_rtes()) {
     fatal(MYNAME ": this file format only supports tracks, not waypoints or routes.\n");
   }
 
