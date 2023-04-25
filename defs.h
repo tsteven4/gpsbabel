@@ -149,11 +149,13 @@ enum gpsdata_type {
   posndata
 };
 
-#define NOTHINGMASK		0U
-#define WPTDATAMASK		1U
-#define TRKDATAMASK		2U
-#define	RTEDATAMASK		4U
-#define	POSNDATAMASK		8U
+enum {
+  NOTHINGMASK = 0U,
+  WPTDATAMASK = 1U,
+  TRKDATAMASK = 2U,
+  RTEDATAMASK = 4U,
+  POSNDATAMASK = 8U
+};
 
 struct global_options {
   int debug_level;
