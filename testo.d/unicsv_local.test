@@ -1,6 +1,8 @@
-if [ "$(id -u)" = "0" ]; then
+if command -v sudo >/dev/null 2>&1 ; then
   if command -v timedatectl >/dev/null 2>&1; then
-      timedatectl set-timezone America/Los_Angeles
+      timezone=$(timedatectl show -p Timezone | sed 's/.*=//')
+      sudo timedatectl set-timezone America/Los_Angeles
+
       echo "Runnning local tests"
       # test interpretation of local date and time,
       # with and without optional utc override, with and without offsets.
@@ -20,6 +22,8 @@ if [ "$(id -u)" = "0" ]; then
       compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local-utc~gpx.csv
       gpsbabel -i gpx -f ${REFERENCE}/unicsv-local-utc1.gpx -o unicsv,utc=1 -F ${TMPDIR}/unicsv-local-utc1~gpx.csv
       compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local-utc1~gpx.csv
+
+      sudo timedatectl set-timezone ${timezone}
   fi
 
   # make sure utc_d, utc_t ignore utc option - it only overrides local times.
