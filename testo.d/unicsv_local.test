@@ -1,0 +1,33 @@
+if [ "$(id -u)" = "0" ]; then
+  if command -v timedatectl >/dev/null 2>&1; then
+      timedatectl set-timezone America/Los_Angeles
+      echo "Runnning local tests"
+      # test interpretation of local date and time,
+      # with and without optional utc override, with and without offsets.
+      # these gpx files erroneously show the invented 1970/01/01 date.
+      gpsbabel -i unicsv -f ${REFERENCE}/unicsv-local.csv -o gpx -F ${TMPDIR}/unicsv-local.gpx
+      compare ${REFERENCE}/unicsv-local.gpx ${TMPDIR}/unicsv-local.gpx
+      gpsbabel -i unicsv,utc -f ${REFERENCE}/unicsv-local.csv -o gpx -F ${TMPDIR}/unicsv-local-utc.gpx
+      compare ${REFERENCE}/unicsv-local-utc.gpx ${TMPDIR}/unicsv-local-utc.gpx
+      gpsbabel -i unicsv,utc=1 -f ${REFERENCE}/unicsv-local.csv -o gpx -F ${TMPDIR}/unicsv-local-utc1.gpx
+      compare ${REFERENCE}/unicsv-local-utc1.gpx ${TMPDIR}/unicsv-local-utc1.gpx
+
+      # test display of local date and time,
+      # with and without optional utc override, with and without offsets.
+      gpsbabel -i gpx -f ${REFERENCE}/unicsv-local.gpx -o unicsv -F ${TMPDIR}/unicsv-local~gpx.csv
+      compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local~gpx.csv
+      gpsbabel -i gpx -f ${REFERENCE}/unicsv-local-utc.gpx -o unicsv,utc -F ${TMPDIR}/unicsv-local-utc~gpx.csv
+      compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local-utc~gpx.csv
+      gpsbabel -i gpx -f ${REFERENCE}/unicsv-local-utc1.gpx -o unicsv,utc=1 -F ${TMPDIR}/unicsv-local-utc1~gpx.csv
+      compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local-utc1~gpx.csv
+  fi
+
+  # make sure utc_d, utc_t ignore utc option - it only overrides local times.
+  gpsbabel -i unicsv -f ${REFERENCE}/unicsv-utc.csv -o gpx -F ${TMPDIR}/unicsv-utc.gpx
+  compare ${REFERENCE}/unicsv-utc.gpx ${TMPDIR}/unicsv-utc.gpx
+  gpsbabel -i unicsv,utc -f ${REFERENCE}/unicsv-utc.csv -o gpx -F ${TMPDIR}/unicsv-utc-utc.gpx
+  compare ${REFERENCE}/unicsv-utc.gpx ${TMPDIR}/unicsv-utc-utc.gpx
+  gpsbabel -i unicsv,utc=1 -f ${REFERENCE}/unicsv-utc.csv -o gpx -F ${TMPDIR}/unicsv-utc-utc1.gpx
+  compare ${REFERENCE}/unicsv-utc.gpx ${TMPDIR}/unicsv-utc-utc1.gpx
+fi
+
