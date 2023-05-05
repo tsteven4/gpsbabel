@@ -35,6 +35,7 @@
 #include <QStringList>             // for QStringList
 #include <QTextStream>             // for QTextStream, operator<<, qSetRealNumberPrecision, qSetFieldWidth, QTextStream::FixedNotation
 #include <QTime>                   // for QTime
+#include <QTimeZone>               // for QTimeZone
 #include <QVector>                 // for QVector
 #include <Qt>                      // for CaseInsensitive
 #include <QtGlobal>                // for qPrintable
@@ -354,21 +355,29 @@ UnicsvFormat::unicsv_adjust_time(const QDate date, const QTime time, bool is_loc
   } else {
     timespec = (opt_utc == nullptr)? Qt::LocalTime : Qt::OffsetFromUTC;
   }
+  // Avoid Qt 6.5.0 warnings with non-zero offsets when not using them.
+  int offset = (timespec == Qt::OffsetFromUTC)? utc_offset : 0;
 
     
   if (date.isValid() && time.isValid()) {
-    result = QDateTime(date, time, timespec, utc_offset);
+    result = QDateTime(date, time, timespec, offset);
   } else if (time.isValid()) {
     // TODO: Wouldn't it be better to return an invalid QDateTime
     // that contained an invalid QDate, a valid QTime and a valid
     // Qt::TimeSpec?
-    result = QDateTime(QDate(1970, 1, 1), time, timespec, utc_offset);
+    result = QDateTime(QDate(1970, 1, 1), time, timespec, offset);
   } else if (date.isValid()) {
     //  no time, use start of day in the given Qt::TimeSpec.
 #if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    result = QDateTime(date, QTime(0,0), timespec, utc_offset);
+    result = QDateTime(date, QTime(0,0), timespec, offset);
 #else
-    result = date.startOfDay(timespec, utc_offset);
+    if (timespec == Qt::OffsetFromUTC) {
+      // work around bug in 6.5.0 with deprecated
+      // QDate::startOfDay(Qt::TimeSpec spec, int offsetSeconds = 0)
+      result = date.startOfDay(QTimeZone(offset));
+    } else {
+      result = date.startOfDay(timespec);
+    }
 #endif
   }
  
