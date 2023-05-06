@@ -349,16 +349,25 @@ UnicsvFormat::unicsv_adjust_time(const QDate date, const QTime time, bool is_loc
 {
   QDateTime result;
   Qt::TimeSpec timespec;
+  int offset = 0;
 
-  if (!is_localtime) {
-    timespec = Qt::UTC;
+  if (is_localtime) {
+    if (opt_utc != nullptr) { // override with passed option value
+      if (utc_offset == 0) {
+        // Qt 6.5.0 QDate::startOfDay(Qt::OffsetFromUTC, 0) returns an invalid QDateTime.
+        timespec = Qt::UTC;
+      } else {
+        timespec = Qt::OffsetFromUTC;
+        // Avoid Qt 6.5.0 warnings with non-zero offsets when not using Qt::OffsetFromUTC.
+        offset = utc_offset;
+      }
+    } else {
+      timespec = Qt::LocalTime;
+    }
   } else {
-    timespec = (opt_utc == nullptr)? Qt::LocalTime : Qt::OffsetFromUTC;
+    timespec = Qt::UTC;
   }
-  // Avoid Qt 6.5.0 warnings with non-zero offsets when not using them.
-  int offset = (timespec == Qt::OffsetFromUTC)? utc_offset : 0;
 
-    
   if (date.isValid() && time.isValid()) {
     result = QDateTime(date, time, timespec, offset);
   } else if (time.isValid()) {
@@ -371,13 +380,7 @@ UnicsvFormat::unicsv_adjust_time(const QDate date, const QTime time, bool is_loc
 #if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
     result = QDateTime(date, QTime(0,0), timespec, offset);
 #else
-    if (timespec == Qt::OffsetFromUTC) {
-      // work around bug in 6.5.0 with deprecated
-      // QDate::startOfDay(Qt::TimeSpec spec, int offsetSeconds = 0)
-      result = date.startOfDay(QTimeZone(offset));
-    } else {
-      result = date.startOfDay(timespec);
-    }
+    result = date.startOfDay(timespec, offset);
 #endif
   }
  

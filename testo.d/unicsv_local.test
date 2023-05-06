@@ -21,6 +21,15 @@ if command -v tzselect >/dev/null 2>&1 ; then
     gpsbabel -i gpx -f ${REFERENCE}/unicsv-local-utc1.gpx -o unicsv,utc=1 -F ${TMPDIR}/unicsv-local-utc1~gpx.csv
     compare ${REFERENCE}/unicsv-local~gpx.csv ${TMPDIR}/unicsv-local-utc1~gpx.csv
 
+    # test echo of local date and time,
+    # with and without optional utc override, with and without offsets.
+    gpsbabel -i unicsv -f ${REFERENCE}/unicsv-local.csv -o unicsv -F ${TMPDIR}/unicsv-local~csv.csv
+    compare ${REFERENCE}/unicsv-local~csv.csv ${TMPDIR}/unicsv-local~csv.csv
+    gpsbabel -i unicsv,utc -f ${REFERENCE}/unicsv-local.csv -o unicsv,utc -F ${TMPDIR}/unicsv-local-utc~csv.csv
+    compare ${REFERENCE}/unicsv-local~csv.csv ${TMPDIR}/unicsv-local-utc~csv.csv
+    gpsbabel -i unicsv,utc=1 -f ${REFERENCE}/unicsv-local.csv -o unicsv,utc=1 -F ${TMPDIR}/unicsv-local-utc1~csv.csv
+    compare ${REFERENCE}/unicsv-local~csv.csv ${TMPDIR}/unicsv-local-utc1~csv.csv
+
     unset -v TZ
 fi
 
