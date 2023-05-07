@@ -437,7 +437,7 @@ xml_parse_time(const QString& dateTimeString)
   }
 
   int year = 0, mon = 0, mday = 0, hour = 0, min = 0, sec = 0;
-  gpsbabel::DateTime dt;
+  QDateTime dt;
   int res = sscanf(timestr, "%d-%d-%dT%d:%d:%d", &year, &mon, &mday, &hour,
                    &min, &sec);
   if (res > 0) {
@@ -452,6 +452,8 @@ xml_parse_time(const QString& dateTimeString)
 
     // Any offsets that were stuck at the end.
     dt = dt.addSecs(-off_sign * off_hr * 3600 - off_sign * off_min * 60);
+  } else {
+    dt = QDateTime();
   }
   return dt;
 }
@@ -459,7 +461,7 @@ xml_parse_time(const QString& dateTimeString)
 void
 GpxFormat::gpx_end(QStringView /*unused*/)
 {
-  static gpsbabel::DateTime gc_log_date;
+  static QDateTime gc_log_date;
 
   // Remove leading, trailing whitespace.
   cdatastr = cdatastr.trimmed();
@@ -566,7 +568,7 @@ GpxFormat::gpx_end(QStringView /*unused*/)
         (!wpt_tmp->gc_data->last_found.isValid())) {
       wpt_tmp->AllocGCData()->last_found = gc_log_date;
     }
-    gc_log_date = gpsbabel::DateTime();
+    gc_log_date = QDateTime();
     break;
   case tt_cache_favorite_points:
     wpt_tmp->AllocGCData()->favorite_points  = cdatastr.toInt();

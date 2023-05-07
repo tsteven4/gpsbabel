@@ -35,6 +35,7 @@
 #include <QStringList>             // for QStringList
 #include <QTextStream>             // for QTextStream, operator<<, qSetRealNumberPrecision, qSetFieldWidth, QTextStream::FixedNotation
 #include <QTime>                   // for QTime
+#include <QTimeZone>               // for QTimeZone
 #include <QVector>                 // for QVector
 #include <Qt>                      // for CaseInsensitive
 #include <QtGlobal>                // for qPrintable
