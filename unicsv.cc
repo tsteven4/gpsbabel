@@ -531,9 +531,11 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
   double swiss_easting = kUnicsvUnknown;
   double swiss_northing = kUnicsvUnknown;
   int checked = 0;
-  QDate date;
-  QTime time;
-  char is_localtime = 0;
+  QDate local_date;
+  QTime local_time;
+  QDate utc_date;
+  QTime utc_time;
+  bool need_datetime = true;
   garmin_fs_t* gmsd;
   double d;
   std::tm ymd{};
@@ -717,16 +719,14 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
       break;
 
     case fld_utc_date:
-      if ((is_localtime < 2) && !date.isValid()) {
-        date = unicsv_parse_date(CSTR(value), nullptr);
-        is_localtime = 0;
+      if (need_datetime && !utc_date.isValid()) {
+        utc_date = unicsv_parse_date(CSTR(value), nullptr);
       }
       break;
 
     case fld_utc_time:
-      if ((is_localtime < 2) && !time.isValid()) {
-        time = unicsv_parse_time(value, &date);
-        is_localtime = 0;
+      if (need_datetime && !utc_time.isValid()) {
+        utc_time = unicsv_parse_time(value, &utc_date);
       }
       break;
 
@@ -798,21 +798,19 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
       break;
 
     case fld_iso_time:
-      is_localtime = 2;	/* fix result */
+      need_datetime = false;	/* fix result */
       wpt->SetCreationTime(xml_parse_time(value));
       break;
 
     case fld_time:
-      if ((is_localtime < 2) && !time.isValid()) {
-        time = unicsv_parse_time(value, &date);
-        is_localtime = 1;
+      if (need_datetime && !local_time.isValid()) {
+        local_time = unicsv_parse_time(value, &local_date);
       }
       break;
 
     case fld_date:
-      if ((is_localtime < 2) && !date.isValid()) {
-        date = unicsv_parse_date(CSTR(value), nullptr);
-        is_localtime = 1;
+      if (need_datetime && !local_date.isValid()) {
+        local_date = unicsv_parse_date(CSTR(value), nullptr);
       }
       break;
 
@@ -841,9 +839,8 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
       break;
 
     case fld_datetime:
-      if ((is_localtime < 2) && !date.isValid() && !time.isValid()) {
-        time = unicsv_parse_time(value, &date);
-        is_localtime = 1;
+      if (need_datetime && !local_date.isValid() && !local_time.isValid()) {
+        local_time = unicsv_parse_time(value, &local_date);
       }
       break;
 
@@ -995,9 +992,19 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
     return;
   }
 
-  if (is_localtime < 2) {	/* not fixed */
-    if (date.isValid() || time.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(date, time, is_localtime));
+  if (need_datetime) {	/* not fixed */
+    if (utc_date.isValid() && utc_time.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+    } else if (local_date.isValid() && local_time.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
+    } else if (utc_date.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+    } else if (local_date.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
+    } else if (utc_time.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+    } else if (local_time.isValid()) {
+      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
     } else if (ymd.tm_year || ymd.tm_mon || ymd.tm_mday) {
       if (ymd.tm_year < 100) {
         if (ymd.tm_year <= 70) {
