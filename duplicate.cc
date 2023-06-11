@@ -79,7 +79,7 @@ void DuplicateFilter::free_tree(btree_node* tree)
   if (tree->right) {
     free_tree(tree->right);
   }
-  xfree(tree);
+  delete tree;
 }
 
 /*
@@ -156,7 +156,7 @@ void DuplicateFilter::process()
 
     unsigned long crc = get_crc32(&dupe, sizeof(dupe));
 
-    auto* newnode = (btree_node*)xcalloc(sizeof(btree_node), 1);
+    auto* newnode = new btree_node;
     newnode->data = crc;
     newnode->wpt = waypointp;
 
@@ -170,7 +170,7 @@ void DuplicateFilter::process()
       }
       delwpt = waypointp;
       waypt_del(waypointp); /* collision */
-      xfree(newnode);
+      delete newnode;
       if (purge_duplicates && oldnode) {
         if (oldnode->wpt) {
           waypt_del(oldnode->wpt);
