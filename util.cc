@@ -599,8 +599,8 @@ rot13(const QString& s)
 QString
 convert_human_date_format(const char* human_datef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_datef)) + 1, 1);
-  char* cout = result;
+  QByteArray result((2*strlen(human_datef)) + 1, '\0');
+  char* cout = result.data();
   char prev = '\0';
   int ylen = 0;
 
@@ -654,9 +654,7 @@ convert_human_date_format(const char* human_datef)
       fatal("Invalid character \"%c\" in date format!", *cin);
     }
   }
-  QString rv(result);
-  xfree(result);
-  return rv;
+  return result.constData();
 }
 
 /*
@@ -667,8 +665,8 @@ convert_human_date_format(const char* human_datef)
 QString
 convert_human_time_format(const char* human_timef)
 {
-  char* result = (char*) xcalloc((2*strlen(human_timef)) + 1, 1);
-  char* cout = result;
+  QByteArray result((2*strlen(human_timef)) + 1, '\0');
+  char* cout = result.data();
   char prev = '\0';
 
   for (const char* cin = human_timef; *cin; cin++) {
@@ -748,9 +746,7 @@ convert_human_time_format(const char* human_timef)
       fatal("Invalid character \"%c\" in time format!", *cin);
     }
   }
-  QString rv(result);
-  xfree(result);
-  return rv;
+  return result.constData();
 }
 
 
