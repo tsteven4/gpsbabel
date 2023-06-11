@@ -26,7 +26,7 @@
 #include <cmath>                        // for fabs, floor
 #include <cstdio>                       // for size_t, vsnprintf, FILE, fopen, printf, sprintf, stderr, stdin, stdout
 #include <cstdlib>                      // for abs, calloc, free, malloc, realloc
-#include <cstring>                      // for strlen, strcat, strstr, memcpy, strcmp, strcpy, strdup, strchr, strerror
+#include <cstring>                      // for strcat, strstr, memcpy, strcmp, strlen, strdup, strchr, strerror
 
 #include <QByteArray>                   // for QByteArray
 #include <QChar>                        // for QChar, operator<=, operator>=
@@ -175,8 +175,8 @@ ufopen(const QString& fname, const char* mode)
 #if __WIN32__
   // On Windows standard fopen() doesn't support UTF-8, so we have to convert
   // to wchar_t* (UTF-16) and use the wide-char version of fopen(), _wfopen().
-  return _wfopen((const wchar_t*) fname.utf16(),
-                 (const wchar_t*) QString(mode).utf16());
+  return _wfopen(reinterpret_cast<const wchar_t*>(fname.utf16()),
+                 reinterpret_cast<const wchar_t*>(QString(mode).utf16()));
 #else
   // On other platforms, convert to native locale (UTF-8 or other 8-bit).
   return fopen(qPrintable(fname), mode);

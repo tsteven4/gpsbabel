@@ -30,7 +30,7 @@
 #include <cctype>              // for tolower
 #include <cstdarg>             // for va_list, va_end, va_copy, va_start
 #include <cstdio>              // for EOF, ferror, ftell, SEEK_SET, SEEK_CUR, SEEK_END, clearerr, fclose, feof, fflush, fileno, fread, fseek, fwrite, ungetc, vsnprintf, FILE, stdin, stdout
-#include <cstring>             // for memcpy, strlen, strchr, strcpy, strncat
+#include <cstring>             // for memcpy, strchr, strlen
 
 #include "defs.h"
 #include "gbfile.h"
@@ -71,15 +71,13 @@
 static gbfile*
 gzapi_open(gbfile* self, const char* mode)
 {
-  char openmode[32];
-
-  self->gzapi = 1;
+  self->gzapi = true;
 
   /* under non-posix systems files MUST be opened in binary mode */
 
-  strcpy(openmode, mode);
-  if (strchr(mode, 'b') == nullptr) {
-    strncat(openmode, "b", sizeof(openmode) - strlen(openmode) - 1);
+  QByteArray openmode(mode);
+  if (!openmode.contains('b')) {
+    openmode.append('b');
   }
 
   if (self->is_pipe) {
@@ -90,14 +88,16 @@ gzapi_open(gbfile* self, const char* mode)
       fd = stdout;
     }
     SET_BINARY_MODE(fd);
-    self->handle.gz = gzdopen(fileno(fd), openmode);
+    self->handle.gz = gzdopen(fileno(fd), openmode.constData());
   } else {
 #if __WIN32__
-    // On Windows, convert UTF-8 to wchar_t[] and use gzopen_w().
-    self->handle.gz = gzopen_w(reinterpret_cast<const wchar_t*>(self->name.utf16()), openmode);
+    // On Windows, convert to wchar_t[] and use gzopen_w().
+    self->handle.gz = gzopen_w(reinterpret_cast<const wchar_t*>(self->name.utf16()),
+                               openmode.constData());
 #else
     // On other platforms, convert to native locale (UTF-8 or other 8-bit).
-    self->handle.gz = gzopen(qPrintable(self->name), openmode);
+    self->handle.gz = gzopen(qPrintable(self->name),
+                             openmode.constData());
 #endif
   }
 
@@ -508,14 +508,14 @@ gbfopen(const QString& filename, const char* mode, const char* module)
   file->mode = 'r'; // default
   file->binary = (strchr(mode, 'b') != nullptr);
   file->back = -1;
-  file->memapi = (filename == nullptr);
+  file->memapi = filename.isNull();
 
   for (const char* m = mode; *m; m++) {
     switch (tolower(*m)) {
     case 'r':
       file->mode = 'r';
 #if !ZLIB_INHIBITED
-      file->gzapi = 1;	/* native or transparent */
+      file->gzapi = true;	/* native or transparent */
 #endif
       break;
     case 'w':
@@ -525,7 +525,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
   }
 
   if (file->memapi) {
-    file->gzapi = 0;
+    file->gzapi = false;
     file->name = "(Memory stream)";
 
     file->fileclearerr = memapi_clearerr;
@@ -547,7 +547,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
     if (file->name.endsWith(".gz", Qt::CaseInsensitive)) {
 #if !ZLIB_INHIBITED
       /* force gzipped files on output */
-      file->gzapi = 1;
+      file->gzapi = true;
 #else
       fatal(NO_ZLIB);
 #endif
@@ -602,7 +602,7 @@ gbfile*
 gbfopen_be(const QString& filename, const char* mode, const char* module)
 {
   gbfile* result = gbfopen(filename, mode, module);
-  result->big_endian = 1;
+  result->big_endian = true;
 
   return result;
 }
@@ -1194,12 +1194,12 @@ gbfgetstr(gbfile* file)
       if (c1 != EOF) {
         int cx = c | (c1 << 8);
         if (cx == 0xFEFF) {
-          file->unicode = 1;
-          file->big_endian = 0;
+          file->unicode = true;
+          file->big_endian = false;
           return gbfgetutf16str(file);
         } else if (cx == 0xFFFE) {
-          file->unicode = 1;
-          file->big_endian = 1;
+          file->unicode = true;
+          file->big_endian = true;
           return gbfgetutf16str(file);
         } else {
           gbfungetc(c1, file);
@@ -1207,7 +1207,7 @@ gbfgetstr(gbfile* file)
       }
     }
 
-    file->unicode_checked = 1;
+    file->unicode_checked = true;
 
     if ((len + 1) == file->buffsz) {
       file->buffsz += 64;
