@@ -24,7 +24,7 @@
 #include <QString>          // for QString
 #include <QtGlobal>         // for qAsConst, QAddConst<>::Type, foreach
 
-#include "defs.h"           // for Waypoint, waypt_del, route_add_head, route_add_wpt, route_head, waypt_add, waypt_count, xcalloc, xfree, kMilesPerKilometer
+#include "defs.h"           // for Waypoint, route_add_head, route_add_wpt, route_head, waypt_add, waypt_del, waypt_sort, waypt_swap, xstrtoi, WaypointList, kMilesPerKilometer
 #include "radius.h"
 #include "grtcirc.h"        // for RAD, gcdist, radtomiles
 

@@ -110,93 +110,93 @@
 void PolygonFilter::polytest(double lat1, double lon1,
                              double lat2, double lon2,
                              double wlat, double wlon,
-                             unsigned short* state, int first, int last)
+                             unsigned short& state, bool first, bool last)
 {
 
   if (lat1 == wlat) {
     if (lat2 < wlat) {
       /* going down */
-      if (*state & LIMBO) {
-        if (*state & LIMBO_UP) {
-          *state = *state ^ INSIDE;
+      if (state & LIMBO) {
+        if (state & LIMBO_UP) {
+          state = state ^ INSIDE;
         }
-        *state = *state & ~LIMBO &~LIMBO_UP;
-      } else if (*state & LIMBO_BEGIN) {
-        if (*state & BEGIN_HOR) {
-          *state = *state & ~BEGIN_HOR;
+        state = state & ~LIMBO &~LIMBO_UP;
+      } else if (state & LIMBO_BEGIN) {
+        if (state & BEGIN_HOR) {
+          state = state & ~BEGIN_HOR;
         } else if (last) {
-          if (*state & BEGIN_UP) {
-            *state = *state ^ INSIDE;
+          if (state & BEGIN_UP) {
+            state = state ^ INSIDE;
           }
-          *state = *state & ~LIMBO_BEGIN & ~BEGIN_UP;
+          state = state & ~LIMBO_BEGIN & ~BEGIN_UP;
         }
       } else if (first && (lon1 > wlon)) {
-        *state |= LIMBO_BEGIN;
+        state |= LIMBO_BEGIN;
       }
     } else if (lat2 == wlat) {
       if (first & (lon1 > wlon || lon2 > wlon)) {
-        *state |= LIMBO_BEGIN | BEGIN_HOR;
-      } else if (last && (*state & LIMBO_BEGIN) && (*state & LIMBO)) {
-        if ((!!(*state & LIMBO_UP)) != (!!(*state & BEGIN_UP))) {
-          *state = *state ^ INSIDE;
+        state |= LIMBO_BEGIN | BEGIN_HOR;
+      } else if (last && (state & LIMBO_BEGIN) && (state & LIMBO)) {
+        if ((!!(state & LIMBO_UP)) != (!!(state & BEGIN_UP))) {
+          state = state ^ INSIDE;
         }
-        *state = *state & ~LIMBO & ~LIMBO_UP &
+        state = state & ~LIMBO & ~LIMBO_UP &
                  ~LIMBO_BEGIN & ~BEGIN_UP;
-      } else if (*state & LIMBO) {
+      } else if (state & LIMBO) {
         /* do nothing */
       } else {
         if (lon1 <= wlon && lon2 > wlon) {
-          if (*state & UP) {
-            *state &= ~UP;
-            *state |= LIMBO_UP;
+          if (state & UP) {
+            state &= ~UP;
+            state |= LIMBO_UP;
           }
-          *state = *state | LIMBO;
+          state = state | LIMBO;
         }
       }
     } else {
       /* going up */
-      if (*state & LIMBO) {
-        if (!(*state & LIMBO_UP)) {
-          *state = *state ^ INSIDE;
+      if (state & LIMBO) {
+        if (!(state & LIMBO_UP)) {
+          state = state ^ INSIDE;
         }
-        *state = *state & ~LIMBO & ~LIMBO_UP;
-      } else if (*state & LIMBO_BEGIN) {
-        if (*state & BEGIN_HOR) {
-          *state &= ~BEGIN_HOR;
-          *state |= BEGIN_UP;
+        state = state & ~LIMBO & ~LIMBO_UP;
+      } else if (state & LIMBO_BEGIN) {
+        if (state & BEGIN_HOR) {
+          state &= ~BEGIN_HOR;
+          state |= BEGIN_UP;
         } else if (last) {
-          if (!(*state & BEGIN_UP)) {
-            *state = *state ^ INSIDE;
+          if (!(state & BEGIN_UP)) {
+            state = state ^ INSIDE;
           }
-          *state = *state & ~LIMBO_BEGIN & ~BEGIN_UP;
+          state = state & ~LIMBO_BEGIN & ~BEGIN_UP;
         }
       } else if (first && (lon1 > wlon)) {
-        *state |= LIMBO_BEGIN | BEGIN_UP;
+        state |= LIMBO_BEGIN | BEGIN_UP;
       }
     }
-    *state = *state & ~UP;
+    state = state & ~UP;
   } else if (lat2 == wlat) {
     if (lat1 < wlat) {
       if (last) {
-        if (*state & BEGIN_UP) {
-          *state = *state ^ INSIDE;
+        if (state & BEGIN_UP) {
+          state = state ^ INSIDE;
         }
-        *state = *state & ~LIMBO_BEGIN & ~BEGIN_UP;
+        state = state & ~LIMBO_BEGIN & ~BEGIN_UP;
       } else if (lon2 > wlon) {
-        *state |= LIMBO;
+        state |= LIMBO;
       }
     }
     /* no case for lat1==wlat; that's above */
     else {
       if (last) {
-        if (!(*state & BEGIN_UP)) {
-          *state = *state ^ INSIDE;
+        if (!(state & BEGIN_UP)) {
+          state = state ^ INSIDE;
         }
-        *state = *state & ~LIMBO_BEGIN & ~BEGIN_UP;
+        state = state & ~LIMBO_BEGIN & ~BEGIN_UP;
       } else if (lon2 > wlon) {
-        *state |= LIMBO | LIMBO_UP;
+        state |= LIMBO | LIMBO_UP;
       } else {
-        *state |= UP;
+        state |= UP;
       }
     }
   } else {
@@ -204,12 +204,12 @@ void PolygonFilter::polytest(double lat1, double lon1,
         (lat1 < wlat && lat2 > wlat)) {
       /* we only care if the lines might intersect */
       if (lon1 > wlon && lon2 > wlon) {
-        *state = *state ^ INSIDE;
+        state = state ^ INSIDE;
       } else if (!(lon1 <= wlon && lon2 <= wlon)) {
         /* we're inside the bbox of a diagonal line.  math time. */
         double loni = lon1+(lon2-lon1)/(lat2-lat1)*(wlat-lat1);
         if (loni > wlon) {
-          *state = *state ^ INSIDE;
+          state = state ^ INSIDE;
         }
       }
     }
@@ -223,8 +223,8 @@ void PolygonFilter::process()
 {
   extra_data* ed;
   int fileline = 0;
-  int first = 1;
-  int last = 0;
+  bool first = true;
+  bool last = false;
   QString line;
 
   gpsbabel::TextStream stream;
@@ -239,8 +239,7 @@ void PolygonFilter::process()
   while (stream.readLineInto(&line)) {
     fileline++;
 
-    auto pound = line.indexOf('#');
-    if (pound >= 0) {
+    if (auto pound = line.indexOf('#'); pound >= 0) {
       line.truncate(pound);
     }
 
@@ -257,25 +256,25 @@ void PolygonFilter::process()
         if (waypointp->extra_data) {
           ed = (extra_data*) waypointp->extra_data;
         } else {
-          ed = (extra_data*) xcalloc(1, sizeof(*ed));
+          ed = new extra_data;
           ed->state = OUTSIDE;
-          ed->override = 0;
+          ed->override = false;
           waypointp->extra_data = ed;
         }
         if (lat2 == waypointp->latitude &&
             lon2 == waypointp->longitude) {
-          ed->override = 1;
+          ed->override = true;
         }
         if (olat != BADVAL && olon != BADVAL &&
             olat == lat2 && olon == lon2) {
-          last = 1;
+          last = true;
         }
         polytest(lat1, lon1, lat2, lon2,
                  waypointp->latitude,
                  waypointp->longitude,
-                 &ed->state, first, last);
-        first = 0;
-        last = 0;
+                 ed->state, first, last);
+        first = false;
+        last = false;
       }
     }
     if (olat != BADVAL && olon != BADVAL &&
@@ -284,7 +283,7 @@ void PolygonFilter::process()
       olon = BADVAL;
       lat1 = BADVAL;
       lon1 = BADVAL;
-      first = 1;
+      first = true;
     } else if (lat1 == BADVAL || lon1 == BADVAL) {
       olat = lat2;
       olon = lon2;
@@ -308,7 +307,7 @@ void PolygonFilter::process()
         waypt_del(wp);
         delete wp;
       }
-      xfree(ed);
+      delete ed;
     }
   }
 }

@@ -22,7 +22,7 @@
 #ifndef POLYGON_H_INCLUDED_
 #define POLYGON_H_INCLUDED_
 
-#include <QVector>         // for QVector
+#include <QVector>   // for QVector
 
 #include "defs.h"    // for ARG_NOMINMAX, arglist_t, ARGTYPE_BOOL, ARGTYPE_FILE
 #include "filter.h"  // for Filter
@@ -43,8 +43,8 @@ private:
   char* exclopt = nullptr;
 
   struct extra_data {
-    unsigned short state;
-    unsigned short override;
+    unsigned short state{0};
+    bool override{false};
   };
 
   QVector<arglist_t> args = {
@@ -59,9 +59,9 @@ private:
   };
 
   static void polytest(double lat1, double lon1,
-                double lat2, double lon2,
-                double wlat, double wlon,
-                unsigned short* state, int first, int last);
+                       double lat2, double lon2,
+                       double wlat, double wlon,
+                       unsigned short& state, bool first, bool last);
 
 };
 #endif // FILTERS_ENABLED
