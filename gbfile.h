@@ -58,34 +58,34 @@ struct gbfile {
 #if !ZLIB_INHIBITED
     gzFile gz;
 #endif
-  } handle{nullptr};
-  char* name{nullptr};
-  char* module{nullptr};
-  char* buff{nullptr};	/* static growing buffer, primary used by gbprintf */
-  int buffsz{0};
-  char mode{0};
-  int back{0};
-  gbsize_t mempos{0};	/* curr. position in memory */
-  gbsize_t memlen{0};	/* max. number of written bytes to memory */
-  gbsize_t memsz{0};		/* curr. size of allocated memory */
-  bool big_endian{false};
-  bool binary{false};
-  bool gzapi{false};
-  bool memapi{false};
-  bool unicode{false};
-  bool unicode_checked{false};
-  bool is_pipe{false};
-  gbfclearerr_cb fileclearerr{nullptr};
-  gbfclose_cb fileclose{nullptr};
-  gbfeof_cb fileeof{nullptr};
-  gbferror_cb fileerror{nullptr};
-  gbfflush_cb fileflush{nullptr};
-  gbfopen_cb fileopen{nullptr};
-  gbfread_cb fileread{nullptr};
-  gbfseek_cb fileseek{nullptr};
-  gbftell_cb filetell{nullptr};
-  gbfungetc_cb fileungetc{nullptr};
-  gbfwrite_cb filewrite{nullptr};
+  } handle;
+  char* name;
+  char* module;
+  char* buff;	/* static growing buffer, primary used by gbprintf */
+  int buffsz;
+  char mode;
+  int back;
+  gbsize_t mempos;	/* curr. position in memory */
+  gbsize_t memlen;	/* max. number of written bytes to memory */
+  gbsize_t memsz;		/* curr. size of allocated memory */
+  bool big_endian;
+  bool binary;
+  bool gzapi;
+  bool memapi;
+  bool unicode;
+  bool unicode_checked;
+  bool is_pipe;
+  gbfclearerr_cb fileclearerr;
+  gbfclose_cb fileclose;
+  gbfeof_cb fileeof;
+  gbferror_cb fileerror;
+  gbfflush_cb fileflush;
+  gbfopen_cb fileopen;
+  gbfread_cb fileread;
+  gbfseek_cb fileseek;
+  gbftell_cb filetell;
+  gbfungetc_cb fileungetc;
+  gbfwrite_cb filewrite;
 };
 
 

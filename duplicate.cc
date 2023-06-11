@@ -156,7 +156,7 @@ void DuplicateFilter::process()
 
     unsigned long crc = get_crc32(&dupe, sizeof(dupe));
 
-    auto* newnode = new btree_node;
+    auto* newnode = new btree_node{};
     newnode->data = crc;
     newnode->wpt = waypointp;
 

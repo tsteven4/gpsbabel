@@ -65,10 +65,10 @@ private:
   };
 
   struct btree_node {
-    btree_node* left{nullptr};
-    btree_node* right{nullptr};
-    unsigned long data{0};
-    Waypoint* wpt{nullptr};
+    btree_node* left;
+    btree_node* right;
+    unsigned long data;
+    Waypoint* wpt;
   };
 
   static btree_node* addnode(btree_node* tree, btree_node* newnode, btree_node** oldnode);

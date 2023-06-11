@@ -503,7 +503,7 @@ memapi_error(gbfile* self)
 gbfile*
 gbfopen(const QString& filename, const char* mode, const char* module)
 {
-  auto* file = new gbfile;
+  auto* file = new gbfile{};
 
   file->module = xstrdup(module);
   file->mode = 'r'; // default

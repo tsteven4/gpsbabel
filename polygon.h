@@ -43,8 +43,8 @@ private:
   char* exclopt = nullptr;
 
   struct extra_data {
-    unsigned short state{0};
-    bool override{false};
+    unsigned short state;
+    bool override;
   };
 
   QVector<arglist_t> args = {

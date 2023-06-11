@@ -256,7 +256,7 @@ void PolygonFilter::process()
         if (waypointp->extra_data) {
           ed = (extra_data*) waypointp->extra_data;
         } else {
-          ed = new extra_data;
+          ed = new extra_data{};
           ed->state = OUTSIDE;
           ed->override = false;
           waypointp->extra_data = ed;
