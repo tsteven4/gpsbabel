@@ -29,7 +29,7 @@
 #include <cstdio>               // for snprintf, SEEK_SET
 #include <cstring>              // for strncpy, memcpy, memset
 
-#include "defs.h"               // for Waypoint, be_read32, be_read16, be_write32, fatal, xfree, be_write16, route_head, xcalloc, track_add_wpt, xstrndup, mkshort, mkshort_del_handle, mkshort_new_handle, setshort_badchars, setshort_defname, setshort_length, setshort_mustuniq, setshort_...
+#include "defs.h"               // for Waypoint, be_read32, be_read16, be_write32, fatal, xfree, be_write16, route_head, track_add_wpt, xstrndup, mkshort, mkshort_del_handle, mkshort_new_handle, setshort_badchars, setshort_defname, setshort_length, setshort_mustuniq, setshort_...
 #include "src/core/datetime.h"  // for DateTime
 
 
@@ -367,7 +367,7 @@ HumminbirdBase::humminbird_read_track(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  auto* points = (humminbird_trk_point_t*) xcalloc(th.num_points, sizeof(humminbird_trk_point_t));
+  auto* points = new humminbird_trk_point_t[th.num_points]{};
   if (! gbfread(points, sizeof(humminbird_trk_point_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -438,7 +438,7 @@ HumminbirdBase::humminbird_read_track(gbfile* fin)
     }
     track_add_wpt(trk, wpt);
   }
-  xfree(points);
+  delete[] points;
 }
 
 void
@@ -474,7 +474,7 @@ HumminbirdBase::humminbird_read_track_old(gbfile* fin)
   /* num_points is actually one too big, because it includes the value in
      the header. But we want the extra point at the end because the
      freak-value filter below looks at points[i+1] */
-  auto* points = (humminbird_trk_point_old_t*)xcalloc(th.num_points, sizeof(humminbird_trk_point_old_t));
+  auto* points = new humminbird_trk_point_old_t[th.num_points]{};
   if (! gbfread(points, sizeof(humminbird_trk_point_old_t), th.num_points-1, fin)) {
     fatal(MYNAME ": Unexpected end of file reading points!\n");
   }
@@ -545,7 +545,7 @@ HumminbirdBase::humminbird_read_track_old(gbfile* fin)
     }
     track_add_wpt(trk, wpt);
   }
-  xfree(points);
+  delete[] points;
 }
 
 void
@@ -683,8 +683,8 @@ HumminbirdHTFormat::humminbird_track_head(const route_head* trk)
   trk_head = nullptr;
   last_time = 0;
   if (!trk->rte_waypt_empty()) {
-    trk_head = (humminbird_trk_header_t*) xcalloc(1, sizeof(humminbird_trk_header_t));
-    trk_points = (humminbird_trk_point_t*) xcalloc(max_points, sizeof(humminbird_trk_point_t));
+    trk_head = new humminbird_trk_header_t{};
+    trk_points = new humminbird_trk_point_t[max_points]{};
 
     QString name = mkshort(trkname_sh, trk->rte_name);
     strncpy(trk_head->name, CSTR(name), sizeof(trk_head->name)-1);
@@ -722,8 +722,8 @@ HumminbirdHTFormat::humminbird_track_tail(const route_head* /*unused*/)
   gbfwrite(trk_points, max_points, sizeof(humminbird_trk_point_t), fout_);
   gbfputuint16(0, fout_); /* Odd but true. The format doesn't fit an int nr of entries. */
 
-  xfree(trk_head);
-  xfree(trk_points);
+  delete trk_head;
+  delete[] trk_points;
 
   trk_head   = nullptr;
   trk_points = nullptr;
@@ -814,7 +814,7 @@ HumminbirdFormat::humminbird_rte_head(const route_head* rte)
 {
   humrte = nullptr;
   if (!rte->rte_waypt_empty()) {
-    humrte = (humminbird_rte_t*) xcalloc(1, sizeof(*humrte));
+    humrte = new humminbird_rte_t{};
   }
 }
 
@@ -842,7 +842,7 @@ HumminbirdFormat::humminbird_rte_tail(const route_head* rte)
     gbfwrite(humrte, sizeof(*humrte), 1, fout_);
   }
 
-  xfree(humrte);
+  delete humrte;
   humrte = nullptr;
 }
 
