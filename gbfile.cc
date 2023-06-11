@@ -73,7 +73,7 @@ gzapi_open(gbfile* self, const char* mode)
 {
   char openmode[32];
 
-  self->gzapi = 1;
+  self->gzapi = true;
 
   /* under non-posix systems files MUST be opened in binary mode */
 
@@ -503,7 +503,7 @@ memapi_error(gbfile* self)
 gbfile*
 gbfopen(const QString& filename, const char* mode, const char* module)
 {
-  auto* file = (gbfile*) xcalloc(1, sizeof(gbfile));
+  auto* file = new gbfile;
 
   file->module = xstrdup(module);
   file->mode = 'r'; // default
@@ -516,7 +516,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
     case 'r':
       file->mode = 'r';
 #if !ZLIB_INHIBITED
-      file->gzapi = 1;	/* native or transparent */
+      file->gzapi = true;	/* native or transparent */
 #endif
       break;
     case 'w':
@@ -526,7 +526,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
   }
 
   if (file->memapi) {
-    file->gzapi = 0;
+    file->gzapi = false;
     file->name = xstrdup("(Memory stream)");
 
     file->fileclearerr = memapi_clearerr;
@@ -549,7 +549,7 @@ gbfopen(const QString& filename, const char* mode, const char* module)
     if ((len > 3) && (case_ignore_strcmp(&file->name[len-3], ".gz") == 0)) {
 #if !ZLIB_INHIBITED
       /* force gzipped files on output */
-      file->gzapi = 1;
+      file->gzapi = true;
 #else
       fatal(NO_ZLIB);
 #endif
@@ -604,7 +604,7 @@ gbfile*
 gbfopen_be(const QString& filename, const char* mode, const char* module)
 {
   gbfile* result = gbfopen(filename, mode, module);
-  result->big_endian = 1;
+  result->big_endian = true;
 
   return result;
 }
@@ -625,7 +625,7 @@ gbfclose(gbfile* file)
   xfree(file->name);
   xfree(file->module);
   xfree(file->buff);
-  xfree(file);
+  delete file;
 }
 
 /*
@@ -1197,12 +1197,12 @@ gbfgetstr(gbfile* file)
       if (c1 != EOF) {
         int cx = c | (c1 << 8);
         if (cx == 0xFEFF) {
-          file->unicode = 1;
-          file->big_endian = 0;
+          file->unicode = true;
+          file->big_endian = false;
           return gbfgetutf16str(file);
         } else if (cx == 0xFFFE) {
-          file->unicode = 1;
-          file->big_endian = 1;
+          file->unicode = true;
+          file->big_endian = true;
           return gbfgetutf16str(file);
         } else {
           gbfungetc(c1, file);
@@ -1210,7 +1210,7 @@ gbfgetstr(gbfile* file)
       }
     }
 
-    file->unicode_checked = 1;
+    file->unicode_checked = true;
 
     if ((len + 1) == file->buffsz) {
       file->buffsz += 64;
