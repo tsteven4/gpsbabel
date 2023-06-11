@@ -91,14 +91,14 @@ GdbFormat::disp_summary(const gbfile* f) const
 {
   int i, len;
 
-  len = strlen(f->name);
+  len = f->name.size();
 
   warning(MYNAME ": =====================");
   for (i = 0; i < len; i++) {
     warning("=");
   }
   warning("\n" MYNAME ": %s summary for \"%s\"\n",
-          (f->mode == 'r') ? "Reader" : "Writer", f->name);
+          (f->mode == 'r') ? "Reader" : "Writer", qPrintable(f->name));
 
   warning(MYNAME ": ---------------------");
   for (i = 0; i < len; i++) {
@@ -364,14 +364,14 @@ GdbFormat::read_file_header()
   	misinterpreted.
   */
   if (strcmp(buf, "MsRcf") != 0) {
-    fatal(MYNAME ": Invalid file \"%s\"!", fin->name);
+    fatal(MYNAME ": Invalid file \"%s\"!", qPrintable(fin->name));
   }
 
   int reclen = FREAD_i32;
   Q_UNUSED(reclen);
   QByteArray drec = FREAD_STR();
   if (drec.at(0) != 'D') {
-    fatal(MYNAME ": Invalid file \"%s\"!", fin->name);
+    fatal(MYNAME ": Invalid file \"%s\"!", qPrintable(fin->name));
   }
 
   gdb_ver = drec.at(1) - 'k' + 1;
@@ -470,9 +470,9 @@ GdbFormat::read_waypoint(gt_waypt_classes_e* waypt_class_out)
   if (FREAD_C == 1) {
     res->set_proximity(FREAD_DBL);
 #if GDB_DEBUG
-    DBG(GDB_DBG_WPTe, 1)
+    DBG(GDB_DBG_WPTe, res->proximity_has_value())
     printf(MYNAME "-wpt \"%s\" (%d): Proximity = %.1f\n",
-           qPrintable(res->shortname), wpt_class, res->proximity / 1000);
+           qPrintable(res->shortname), wpt_class, res->proximity_value() / 1000);
 #endif
   }
   int display = FREAD_i32;
@@ -506,9 +506,9 @@ GdbFormat::read_waypoint(gt_waypt_classes_e* waypt_class_out)
   if (FREAD_C == 1) {
     res->set_depth(FREAD_DBL);
 #if GDB_DEBUG
-    DBG(GDB_DBG_WPTe, 1)
+    DBG(GDB_DBG_WPTe, res->depth_has_value())
     printf(MYNAME "-wpt \"%s\" (%d): Depth = %.1f\n",
-           qPrintable(res->shortname), wpt_class, res->depth);
+           qPrintable(res->shortname), wpt_class, res->depth_value());
 #endif
   }
 
@@ -595,9 +595,9 @@ GdbFormat::read_waypoint(gt_waypt_classes_e* waypt_class_out)
   if (FREAD_C == 1) {
     res->set_temperature(FREAD_DBL);
 #if GDB_DEBUG
-    DBG(GDB_DBG_WPTe, 1)
+    DBG(GDB_DBG_WPTe, res->temperature_has_value())
     printf(MYNAME "-wpt \"%s\" (%d): temperature = %.1f\n",
-           qPrintable(res->shortname), wpt_class, res->temperature);
+           qPrintable(res->shortname), wpt_class, res->temperature_value());
 #endif
   }
 
@@ -1070,7 +1070,7 @@ GdbFormat::read()
 
   if (incomplete) {
     warning(MYNAME ":------------------------------------------\n");
-    warning(MYNAME ": \"%s\"\n", fin->name);
+    warning(MYNAME ": \"%s\"\n", qPrintable(fin->name));
     warning(MYNAME ":------------------------------------------\n");
     warning(MYNAME ":       Please mail this information\n");
     warning(MYNAME "     and, if you can, the used GDB file\n");

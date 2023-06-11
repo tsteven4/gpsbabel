@@ -59,7 +59,7 @@ struct gbfile {
     gzFile gz;
 #endif
   } handle;
-  char*   name;
+  QString name;
   char*   module;
   char*   buff;	/* static growing buffer, primary used by gbprintf */
   int    buffsz;

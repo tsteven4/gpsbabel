@@ -140,19 +140,19 @@ xrealloc(void* p, size_t s)
  * Wrapper for open that honours - for stdin, stdout, unifies error text.
  */
 FILE*
-xfopen(const char* fname, const char* type, const char* errtxt)
+xfopen(const QString& fname, const char* type, const char* errtxt)
 {
   bool am_writing = strchr(type, 'w') != nullptr;
 
-  if (fname == nullptr) {
+  if (fname.isEmpty()) {
     fatal("%s must have a filename specified for %s.\n",
           errtxt, am_writing ? "write" : "read");
   }
 
-  if (0 == strcmp(fname, "-")) {
+  if (fname == QLatin1String("-")) {
     return am_writing ? stdout : stdin;
   }
-  FILE* f = ufopen(QString::fromUtf8(fname), type);
+  FILE* f = ufopen(fname, type);
   if (nullptr == f) {
     // There are some possible vagaries of using Qt for the full pathname
     // vs. the STD C library used for the actual file I/O. It's worth it
