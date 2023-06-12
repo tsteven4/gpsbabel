@@ -581,7 +581,7 @@ SkytraqBase::ECEF_to_LLA(double x, double y, long z, double* lat, double* lon, d
 }
 
 void
-SkytraqBase::state_init(struct read_state* pst)
+SkytraqBase::state_init(read_state* pst)
 {
   auto* track = new route_head;
   track->rte_name = "SkyTraq tracklog";
