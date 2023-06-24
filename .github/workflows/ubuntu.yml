@@ -59,6 +59,10 @@ jobs:
           CXX=clang++
           export CXX
         fi
+        # set timezone for test
+        sudo timedatectl America/Denver
+        GPSBABEL_ENABLE_TZ_TEST=America/Denver
+        export GPSBSBEL_ENABLE_TZ_TEST
         "${JOB_SCRIPT}"
 
   coverage:
