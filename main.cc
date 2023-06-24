@@ -22,6 +22,7 @@
 #include <csignal>                    // for signal, SIGINT, SIG_ERR
 #include <cstdio>                     // for printf, fflush, fgetc, fprintf, stderr, stdin, stdout
 #include <cstring>                    // for strcmp
+#include <ctime>                      // for tzset (posix)
 
 #include <QCoreApplication>           // for QCoreApplication
 #include <QFile>                      // for QFile
@@ -772,6 +773,9 @@ main(int argc, char* argv[])
       printf("LC_ALL: %s\n",setlocale(LC_ALL, NULL));
     }
   }
+
+  tzset();
+
   qInstallMessageHandler(MessageHandler);
 
   (void) new gpsbabel::UsAsciiCodec(); /* make sure a US-ASCII codec is available */
