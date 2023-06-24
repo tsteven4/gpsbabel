@@ -27,7 +27,7 @@ namespace gpsbabel
 char* strptime(const char* buf, const char* format, struct tm* tm)
 {
   // For efficiency assume the locale is constant.
-  static auto current_locale = std::locale(setlocale(LC_ALL, nullptr));
+  static auto current_locale = std::locale();
 
   std::istringstream bufstream(buf);
   bufstream.imbue(current_locale);
