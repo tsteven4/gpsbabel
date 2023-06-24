@@ -179,12 +179,12 @@ set(SUPPORT
   session.cc
   src/core/logging.cc
   src/core/nvector.cc
+  src/core/strptime.cc
   src/core/textstream.cc
   src/core/usasciicodec.cc
   src/core/vector3d.cc
   src/core/xmlstreamwriter.cc
   src/core/xmltag.cc
-  strptime.c
   units.cc
   util.cc
   util_crc.cc
@@ -238,7 +238,6 @@ set(HEADERS
   session.h
   shape.h
   skytraq.h
-  strptime.h
   subrip.h
   text.h
   unicsv.h
@@ -268,6 +267,7 @@ set(HEADERS
   src/core/file.h
   src/core/logging.h
   src/core/nvector.h
+  src/core/strptime.h
   src/core/textstream.h
   src/core/usasciicodec.h
   src/core/vector3d.h
@@ -285,8 +285,6 @@ if(UNIX)
   set(SOURCES ${SOURCES} gbser_posix.cc)
   set(HEADERS ${HEADERS} gbser_posix.h)
   target_compile_options(gpsbabel PRIVATE -Wall)
-  # disable warning from strptime.c, which we don't want to own or modify
-  set_source_files_properties(strptime.c PROPERTIES COMPILE_OPTIONS -Wno-unused-but-set-variable)
 endif()
 
 if(WIN32)

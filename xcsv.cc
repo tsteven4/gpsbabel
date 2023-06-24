@@ -60,7 +60,7 @@
 #include "src/core/datetime.h"     // for DateTime
 #include "src/core/logging.h"      // for FatalMsg
 #include "src/core/textstream.h"   // for TextStream
-#include "strptime.h"              // for strptime
+#include "src/core/strptime.h"     // for strptime
 
 
 #if CSVFMTS_ENABLED
@@ -273,7 +273,7 @@ XcsvFormat::sscanftime(const char* s, const char* format, QDate& date, QTime& ti
   stm.tm_yday = -1;
   stm.tm_isdst = -1;
 
-  if (strptime(s, format, &stm)) {
+  if (gpsbabel::strptime(s, format, &stm)) {
 
     std::optional<QTime> time_result;
     bool bad_time_parse = false;
