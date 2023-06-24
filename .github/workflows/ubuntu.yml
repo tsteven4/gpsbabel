@@ -79,7 +79,7 @@ jobs:
       run: |
         sudo timedatectl set-timezone America/Denver
         GPSBABEL_ENABLE_TZ_TEST=America/Denver
-        export GPSBSBEL_ENABLE_TZ_TEST
+        export GPSBABEL_ENABLE_TZ_TEST
         ./tools/travis_script_linux_coverage
 
   snap:
@@ -103,7 +103,7 @@ jobs:
         mkdir -p "$GBTEMP"
         sudo timedatectl set-timezone America/Denver
         GPSBABEL_ENABLE_TZ_TEST=America/Denver
-        export GPSBSBEL_ENABLE_TZ_TEST
+        export GPSBABEL_ENABLE_TZ_TEST
         /snap/bin/gpsbabel -D3 || true
         ./testo -p /snap/bin/gpsbabel 
 
