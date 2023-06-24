@@ -95,6 +95,7 @@ compare ${REFERENCE}/gmsd.unicsv ${TMPDIR}/gmsd.unicsv
 
 if command -v timedatectl >/dev/null 2>&1 ; then
   sudo timedatectl set-timezone 'America/Denver'
+  timedatectl
   echo "  including xcsv timezone conversion test"
 
 # xcsv writer time handling
