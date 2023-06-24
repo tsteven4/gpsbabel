@@ -77,7 +77,7 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
-        sudo timedatectl America/Denver
+        sudo timedatectl set-timezone America/Denver
         GPSBABEL_ENABLE_TZ_TEST=America/Denver
         export GPSBSBEL_ENABLE_TZ_TEST
         ./tools/travis_script_linux_coverage
@@ -101,7 +101,7 @@ jobs:
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
         export GBTEMP=$(pwd)/gbtemp
         mkdir -p "$GBTEMP"
-        sudo timedatectl America/Denver
+        sudo timedatectl set-timezone America/Denver
         GPSBABEL_ENABLE_TZ_TEST=America/Denver
         export GPSBSBEL_ENABLE_TZ_TEST
         /snap/bin/gpsbabel -D3 || true
