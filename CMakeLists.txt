@@ -282,7 +282,6 @@ set(HEADERS ${HEADERS} ${FILTER_HEADERS})
 if(UNIX)
   set(SOURCES ${SOURCES} gbser_posix.cc)
   set(HEADERS ${HEADERS} gbser_posix.h)
-  target_compile_options(gpsbabel PRIVATE -Wall)
 endif()
 
 if(WIN32)
@@ -303,11 +302,16 @@ endif()
 if(MSVC)
   target_compile_definitions(gpsbabel PRIVATE _CRT_SECURE_NO_WARNINGS)
   target_compile_definitions(gpsbabel PRIVATE _CRT_NONSTDC_NO_WARNINGS)
-  target_compile_options(gpsbabel PRIVATE /MP -wd4100 -wd4267 -wd5030)
 endif()
 
-if(APPLE)
-  target_compile_options(gpsbabel PRIVATE -Wall -Wsign-compare)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  target_compile_options(gpsbabel PRIVATE -wd4267 -wd5030)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU)|(Clang)|(AppleClang)$")
+  if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    # MSVC frontend clang-cl turns -Wall into -Weverything.
+    # default includes /W3 which is equivalent to -Wall.
+    target_compile_options(gpsbabel PRIVATE -Wall)
+  endif()
 endif()
 
 include(shapelib.cmake)
