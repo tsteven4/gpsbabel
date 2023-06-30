@@ -28,8 +28,10 @@ else()
     if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
       target_compile_options(shp PRIVATE -wd4267)
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-      # MSVC frontend clang-cl default includes /W3 which is equivalent to -Wall.
-      target_compile_options(shp PRIVATE -Wno-unused-but-set-variable)
+      if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        # MSVC frontend clang-cl default includes /W3 which is equivalent to -Wall.
+        target_compile_options(shp PRIVATE -Wno-unused-but-set-variable)
+      endif()
     endif()
     list(APPEND LIBS shp)
   elseif(GPSBABEL_WITH_SHAPELIB STREQUAL "custom")
