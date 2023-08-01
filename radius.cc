@@ -35,19 +35,16 @@ int RadiusFilter::delete_flag{}; // ODR-use
 
 void RadiusFilter::process()
 {
-  // Don't invalidate the hidden iterator inside the range based for loop
-  // by modifying the global waypoint_list from within the loop, for
-  // example, by calling something that modifies the list like waypt_del.
-  for (Waypoint* wp : qAsConst(*global_waypoint_list)) {
-    double dist = gc_distance(wp->latitude, wp->longitude,
+  foreach (Waypoint* waypointp, *global_waypoint_list) {
+    double dist = gc_distance(waypointp->latitude, waypointp->longitude,
                               home_pos->latitude, home_pos->longitude);
 
     if ((dist >= pos_dist) == (exclopt == nullptr)) {
-      wp->extra_data = &delete_flag; // mark for deletion
+      waypointp->extra_data = &delete_flag; // mark for deletion
     } else {
       auto* ed = new extra_data;
       ed->distance = dist;
-      wp->extra_data = ed;
+      waypointp->extra_data = ed;
     }
   }
   del_wpts(wpt_deletion_evaluator); // delete marked wpts
