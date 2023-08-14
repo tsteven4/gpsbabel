@@ -72,7 +72,7 @@
 // #define INCLUDE_IGC_TRT // Generally not very useful to graph on Google Earth
 // #define INCLUDE_IGC_SIU // Satellites in use, not entirely useful to graph
 
-void KmlFormat::kml_init_color_sequencer(unsigned int steps_per_rev)
+void KmlFormat::kml_init_color_sequencer(int steps_per_rev)
 {
   if (rotate_colors) {
     float color_step = strtod(opt_rotate_colors, nullptr);

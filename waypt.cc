@@ -94,7 +94,7 @@ del_marked_wpts()
   global_waypoint_list->del_marked_wpts();
 }
 
-unsigned int
+int
 waypt_count()
 {
   return global_waypoint_list->count();
