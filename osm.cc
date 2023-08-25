@@ -459,7 +459,8 @@ OsmFormat::osm_node(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 void
 OsmFormat::osm_node_tag(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
-  QString key, value;
+  QString key;
+  QString value;
   signed char ikey;
 
   if (attrv->hasAttribute("k")) {
@@ -539,7 +540,8 @@ OsmFormat::osm_way_nd(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 void
 OsmFormat::osm_way_tag(xg_string /*unused*/, const QXmlStreamAttributes* attrv)
 {
-  QString key, value;
+  QString key;
+  QString value;
   signed char ikey;
 
   if (attrv->hasAttribute("k")) {

@@ -99,7 +99,8 @@ top:
   pkt_id = le_read16(&ibuf->gusb_pkt.pkt_id);
   if (gps_show_bytes) {
     int i;
-    const char* m1, *m2;
+    const char* m1;
+    const char* m2;
     unsigned short pkttype = le_read16(&ibuf->gusb_pkt.databuf[0]);
 
     GPS_Diag("RX (%s) [%d]:",

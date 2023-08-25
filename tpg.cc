@@ -171,7 +171,8 @@ tpg_read()
 static void
 tpg_waypt_pr(const Waypoint* wpt)
 {
-  double lon, lat;
+  double lon;
+  double lat;
   double amt;
   char ocount;
   QString shortname;

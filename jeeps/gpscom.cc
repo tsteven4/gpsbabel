@@ -950,8 +950,10 @@ Calculate_Course_Lap_Data(GPS_PCourse_Lap clp, GPS_PTrack* ctk,
                           int ctk_start, int ctk_end)
 {
   int i;
-  double heartrate_sum = 0, cadence_sum = 0;
-  int heartrate_sum_time = 0, cadence_sum_time = 0;
+  double heartrate_sum = 0;
+  double cadence_sum = 0;
+  int heartrate_sum_time = 0;
+  int cadence_sum_time = 0;
   double time_synth_speed = 10.0 * 1000 / 3600; /* speed in m/s */
 
   if (ctk_start && ctk_end && !ctk[ctk_start]->Time) {
@@ -1040,7 +1042,8 @@ Course_Garbage_Collect(GPS_PCourse* crs, int* n_crs,
                        GPS_PTrack* ctk, int* n_ctk,
                        GPS_PCourse_Point* cpt, int* n_cpt)
 {
-  int i, j;
+  int i;
+  int j;
 
   /* Remove courses with duplicate names, keeping newest.
    * This is actually pretty important: Sending two courses with the same
@@ -1157,8 +1160,15 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
   GPS_PCourse_Lap* clp = nullptr;
   GPS_PTrack* ctk = nullptr;
   GPS_PCourse_Point* cpt = nullptr;
-  int n_crs, n_clp=0, n_ctk=0, n_cpt=0;
-  int i, j, trk_end, new_crs, first_new_ctk;
+  int n_crs;
+  int n_clp=0;
+  int n_ctk=0;
+  int n_cpt=0;
+  int i;
+  int j;
+  int trk_end;
+  int new_crs;
+  int first_new_ctk;
   int32 ret;
 
   /* Read existing courses from device */
@@ -1247,8 +1257,11 @@ int32 GPS_Command_Send_Track_As_Course(const char* port, GPS_PTrack* trk, int32 
    */
   cpt = (struct GPS_SCourse_Point**) xrealloc(cpt, (n_cpt+n_wpt) * sizeof(GPS_PCourse_Point));
   for (i=0; i<n_wpt; i++) {
-    double dist, min_dist = DBL_MAX;
-    uint32 min_dist_idx = 0, trk_idx = 0, min_dist_trk_idx = 0;
+    double dist;
+    double min_dist = DBL_MAX;
+    uint32 min_dist_idx = 0;
+    uint32 trk_idx = 0;
+    uint32 min_dist_trk_idx = 0;
 
     /* Find closest track point */
     for (j=first_new_ctk; j<n_ctk; j++) {

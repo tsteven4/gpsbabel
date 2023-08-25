@@ -3799,8 +3799,11 @@ int32 GPS_A301_Get(const char* port, GPS_PTrack** trk, pcb_fn cb, int protoid)
   GPS_PPacket rec;
   int32 n;
   int32 i;
-  US Pid_Trk_Data, Pid_Trk_Hdr, Cmnd_Transfer_Trk;
-  int32 trk_type, trk_hdr_type;
+  US Pid_Trk_Data;
+  US Pid_Trk_Hdr;
+  US Cmnd_Transfer_Trk;
+  int32 trk_type;
+  int32 trk_hdr_type;
 
   if (gps_trk_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -4072,8 +4075,11 @@ int32 GPS_A301_Send(const char* port, GPS_PTrack* trk, int32 n, int protoid,
   int32 i;
   int32 len;
   US  method;
-  US Pid_Trk_Data, Pid_Trk_Hdr, Cmnd_Transfer_Trk;
-  int32 trk_type, trk_hdr_type;
+  US Pid_Trk_Data;
+  US Pid_Trk_Hdr;
+  US Cmnd_Transfer_Trk;
+  int32 trk_type;
+  int32 trk_hdr_type;
 
   if (gps_trk_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -4365,8 +4371,10 @@ void GPS_D303b_Get(GPS_PTrack* trk, UC* data)
 {
   UC* p;
   uint32 t;
-  uint32 raw_lat, raw_lon;
-  int lat_undefined, lon_undefined;
+  uint32 raw_lat;
+  uint32 raw_lon;
+  int lat_undefined;
+  int lon_undefined;
   p=data;
 
   /* Latitude and longitude are sometimes invalid (0x7fffffff or
@@ -5271,7 +5279,8 @@ int32 GPS_A500_Get(const char* port, GPS_PAlmanac** alm)
   gpsdevh* fd;
   GPS_PPacket trapkt;
   GPS_PPacket recpkt;
-  int32 i, n;
+  int32 i;
+  int32 n;
 
   if (gps_almanac_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -6272,7 +6281,8 @@ int32 GPS_A906_Get(const char* port, GPS_PLap** lap, pcb_fn cb)
   gpsdevh* fd;
   GPS_PPacket trapkt;
   GPS_PPacket recpkt;
-  int32 i, n;
+  int32 i;
+  int32 n;
 
   if (gps_lap_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -6488,7 +6498,8 @@ int32  GPS_A1006_Get
   gpsdevh* fd;
   GPS_PPacket trapkt;
   GPS_PPacket recpkt;
-  int32 i, n;
+  int32 i;
+  int32 n;
 
   if (gps_course_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -6723,7 +6734,8 @@ int32 GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb)
   gpsdevh* fd;
   GPS_PPacket trapkt;
   GPS_PPacket recpkt;
-  int32 i, n;
+  int32 i;
+  int32 n;
 
   if (gps_course_lap_transfer == -1) {
     return GPS_UNSUPPORTED;
@@ -6993,7 +7005,8 @@ int32 GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb)
   gpsdevh* fd;
   GPS_PPacket trapkt;
   GPS_PPacket recpkt;
-  int32 i, n;
+  int32 i;
+  int32 n;
 
   if (gps_course_point_transfer == -1) {
     return GPS_UNSUPPORTED;

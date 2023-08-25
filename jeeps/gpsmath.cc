@@ -696,7 +696,11 @@ int32 GPS_Math_WGS84_To_Swiss_EN(double lat, double lon, double* E,
   const double lambda0 = 7.43958333;
   const double E0 = 600000.0;
   const double N0 = 200000.0;
-  double phi, lambda, alt, a, b;
+  double phi;
+  double lambda;
+  double alt;
+  double a;
+  double b;
 
   if (lat < 44.89022757) {
     return 0;
@@ -733,7 +737,11 @@ void GPS_Math_Swiss_EN_To_WGS84(double E, double N, double* lat, double* lon)
   const double lambda0 = 7.43958333;
   const double E0 = 600000.0;
   const double N0 = 200000.0;
-  double phi, lambda, alt, a, b;
+  double phi;
+  double lambda;
+  double alt;
+  double a;
+  double b;
 
   a = GPS_Ellipse[4].a;
   b = a - (a / GPS_Ellipse[4].invf);
@@ -1093,7 +1101,11 @@ int32 GPS_Math_WGS84_To_ICS_EN(double lat, double lon, double* E,
   double const lambda0 = 35.21208055556; // 35 12 43.49
   double const E0      = 170251.555;
   double const N0      = 1126867.909;
-  double phi, lambda, alt, a, b;
+  double phi;
+  double lambda;
+  double alt;
+  double a;
+  double b;
 
   int32 datum   = GPS_Lookup_Datum_Index("Palestine 1923");
   if (datum < 0) {
@@ -1130,7 +1142,11 @@ void GPS_Math_ICS_EN_To_WGS84(double E, double N, double* lat, double* lon)
   double const lambda0 = 35.21208055556; // 35 12 43.49
   double const E0      = 170251.555;
   double const N0      = 1126867.909;
-  double phi, lambda, alt, a, b;
+  double phi;
+  double lambda;
+  double alt;
+  double a;
+  double b;
   int32 datum   = GPS_Lookup_Datum_Index("Palestine 1923");
   if (datum < 0) {
     fatal("Unable to find Palestine 1923 in internal tables");
@@ -2506,13 +2522,21 @@ void GPS_Math_UTM_EN_to_LatLon(int ReferenceEllipsoid,
 //found at http://www.gpsy.com/gpsinfo/geotoutm/index.html
 
   double k0 = 0.9996;
-  double a, b;
+  double a;
+  double b;
   double eccSquared;
   double eccPrimeSquared;
   double e1;
-  double N1, T1, C1, R1, D, M;
-  double mu, phi1Rad;
-  double x, y;
+  double N1;
+  double T1;
+  double C1;
+  double R1;
+  double D;
+  double M;
+  double mu;
+  double phi1Rad;
+  double x;
+  double y;
 
   a = GPS_Ellipse[ReferenceEllipsoid].a;
   b = 1 / GPS_Ellipse[ReferenceEllipsoid].invf;

@@ -67,7 +67,8 @@ void
 TextFormat::text_disp(const Waypoint* wpt)
 {
   int32_t utmz;
-  double utme, utmn;
+  double utme;
+  double utmn;
   char utmzc;
 
   waypoint_count++;

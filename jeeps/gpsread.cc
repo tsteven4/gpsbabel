@@ -75,7 +75,8 @@ int32 GPS_Serial_Packet_Read(gpsdevh* fd, GPS_PPacket* packet)
   int32 len = 0;
   UC u;
   UC* p;
-  UC chk = 0, chk_read;
+  UC chk = 0;
+  UC chk_read;
   const char* m1;
   const char* m2;
   bool isDLE = false;

@@ -359,7 +359,9 @@ mkshort(short_handle h, const char* istring, bool is_utf8)
   char* ostring;
   char* tstring;
   char* cp;
-  int i, l, replaced;
+  int i;
+  int l;
+  int replaced;
   auto* hdl = (mkshort_handle_imp*) h;
 
   if (is_utf8) {

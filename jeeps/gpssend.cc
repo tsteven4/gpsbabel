@@ -119,7 +119,8 @@ DiagS(void* buf, size_t sz)
 int32 GPS_Serial_Write_Packet(gpsdevh* fd, GPS_PPacket& packet)
 {
   int32 ret;
-  const char* m1, *m2;
+  const char* m1;
+  const char* m2;
   GPS_Serial_OPacket ser_pkt;
   UC ser_pkt_data[MAX_GPS_PACKET_SIZE * sizeof(UC)];
   US bytes;
