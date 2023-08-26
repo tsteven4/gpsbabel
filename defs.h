@@ -617,6 +617,23 @@ struct computed_trkdata {
 class route_head
 {
 public:
+  /* Special Member Functions */
+
+  route_head();
+  // the default copy constructor and assignment operator are not appropriate as we do deep copy of some members,
+  // and we haven't bothered to write an appropriate one.
+  // Catch attempts to use the default copy constructor and assignment operator.
+  route_head(const route_head& other) = delete;
+  route_head& operator=(const route_head& rhs) = delete;
+  ~route_head();
+
+  /* Member Functions */
+
+  int rte_waypt_ct() const {return waypoint_list.count();}		/* # waypoints in waypoint list */
+  bool rte_waypt_empty() const {return waypoint_list.empty();}
+
+  /* Data Members */
+
   WaypointList waypoint_list;	/* List of child waypoints */
   QString rte_name;
   QString rte_desc;
@@ -626,18 +643,6 @@ public:
   gb_color line_color;         /* Optional line color for rendering */
   int line_width;         /* in pixels (sigh).  < 0 is unknown. */
   const session_t* session;	/* pointer to a session struct */
-
-public:
-  route_head();
-  // the default copy constructor and assignment operator are not appropriate as we do deep copy of some members,
-  // and we haven't bothered to write an appropriate one.
-  // Catch attempts to use the default copy constructor and assignment operator.
-  route_head(const route_head& other) = delete;
-  route_head& operator=(const route_head& rhs) = delete;
-  ~route_head();
-
-  int rte_waypt_ct() const {return waypoint_list.count();}		/* # waypoints in waypoint list */
-  bool rte_waypt_empty() const {return waypoint_list.empty();}
 };
 
 using route_hdr = void (*)(const route_head*);

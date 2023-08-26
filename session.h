@@ -27,11 +27,14 @@
 
 struct session_t {
 public:
+  /* Special Member Functions */
+
+  session_t(QString name_p, QString filename_p) : name{std::move(name_p)},filename{std::move(filename_p)} {}
+
+  /* Data Members */
+
   QString name;					/* in normal case the name of a format */
   QString filename;			/* used file within format */
-
-public:
-  session_t(QString name_p, QString filename_p) : name{std::move(name_p)},filename{std::move(filename_p)} {}
 };
 
 void session_init();
