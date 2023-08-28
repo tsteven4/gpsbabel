@@ -1440,7 +1440,7 @@ ExifFormat::read()
 
   exif_app_ = exif_load_apps();
   if (exif_app_ == nullptr) {
-    fatal(MYNAME ": No EXIF header in source file \"%s\".", fin_->name);
+    fatal(MYNAME ": No EXIF header in source file \"%s\".", qPrintable(fin_->name));
   }
 
   exif_examine_app(exif_app_);
@@ -1469,7 +1469,7 @@ ExifFormat::wr_init(const QString& fname)
   }
   exif_app_ = exif_load_apps();
   if (exif_app_ == nullptr) {
-    fatal(MYNAME ": No EXIF header found in source file \"%s\".", fin_->name);
+    fatal(MYNAME ": No EXIF header found in source file \"%s\".", qPrintable(fin_->name));
   }
   exif_examine_app(exif_app_);
   gbfclose(fin_);
@@ -1489,7 +1489,7 @@ ExifFormat::wr_deinit()
 {
 
   exif_release_apps();
-  QString tmpname = QString(fout_->name);
+  QString tmpname = fout_->name;
   gbfclose(fout_);
 
   if (exif_success) {

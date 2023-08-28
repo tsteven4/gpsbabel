@@ -129,14 +129,14 @@ GarminFitFormat::fit_parse_header()
       for (unsigned int i = 0; i < kReadHeaderCrcLen; ++i) {
         int data = gbfgetc(fin);
         if (data == EOF) {
-          fatal(MYNAME ": File %s truncated\n", fin->name);
+          fatal(MYNAME ": File %s truncated\n", qPrintable(fin->name));
         }
         crc = fit_crc16(data, crc);
       }
       if (crc != 0) {
-        Warning().nospace() << MYNAME ": Header CRC mismatch in file " <<  fin->name << ".";
+        Warning().nospace().noquote() << MYNAME ": Header CRC mismatch in file " <<  fin->name << ".";
         if (!opt_recoverymode) {
-          fatal(FatalMsg().nospace() << MYNAME ": File " << fin->name << " is corrupt.  Use recoverymode option at your risk.");
+          fatal(FatalMsg().nospace().noquote() << MYNAME ": File " << fin->name << " is corrupt.  Use recoverymode option at your risk.");
         }
       } else if (global_opts.debug_level >= 1) {
         Debug(1) << MYNAME ": Header CRC verified.";
@@ -830,9 +830,9 @@ GarminFitFormat::fit_check_file_crc() const
     crc = fit_crc16(data, crc);
   }
   if (crc != 0) {
-    Warning().nospace() << MYNAME ": File CRC mismatch in file " <<  fin->name << ".";
+    Warning().nospace().noquote() << MYNAME ": File CRC mismatch in file " <<  fin->name << ".";
     if (!opt_recoverymode) {
-      fatal(FatalMsg().nospace() << MYNAME ": File " << fin->name << " is corrupt.  Use recoverymode option at your risk.");
+      fatal(FatalMsg().nospace().noquote() << MYNAME ": File " << fin->name << " is corrupt.  Use recoverymode option at your risk.");
     }
   } else if (global_opts.debug_level >= 1) {
     Debug(1) << MYNAME ": File CRC verified.";
@@ -1096,7 +1096,7 @@ GarminFitFormat::fit_write_file_finish() const
   // Update data records size in file header
   gbsize_t file_size = gbftell(fout);
   if (file_size < kWriteHeaderCrcLen) {
-    fatal(MYNAME ": File %s truncated\n", fout->name);
+    fatal(MYNAME ": File %s truncated\n", qPrintable(fout->name));
   }
   gbfseek(fout, 0, SEEK_SET);
   fit_write_file_header(file_size - kWriteHeaderCrcLen, 0);
@@ -1107,7 +1107,7 @@ GarminFitFormat::fit_write_file_finish() const
   for (unsigned int i = 0; i < kWriteHeaderLen; ++i) {
     int data = gbfgetc(fout);
     if (data == EOF) {
-      fatal(MYNAME ": File %s truncated\n", fout->name);
+      fatal(MYNAME ": File %s truncated\n", qPrintable(fout->name));
     }
     crc = fit_crc16(data, crc);
   }

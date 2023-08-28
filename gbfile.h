@@ -52,40 +52,42 @@ using gbfwrite_cb = gbsize_t (*)(const void* buf, const gbsize_t size, const gbs
 using gbfungetc_cb = int (*)(const int c, gbfile* self);
 
 struct gbfile {
-  union {
-    FILE* std;
-    unsigned char* mem;
+    gbfile() : big_endian(0), binary(0), gzapi(0), memapi(0), unicode(0), unicode_checked(0), is_pipe(0) {}
+
+    union {
+        FILE* std;
+        unsigned char* mem;
 #if !ZLIB_INHIBITED
-    gzFile gz;
+        gzFile gz;
 #endif
-  } handle;
-  char*   name;
-  char*   module;
-  char*   buff;	/* static growing buffer, primary used by gbprintf */
-  int    buffsz;
-  char   mode;
-  int    back;
-  gbsize_t mempos;	/* curr. position in memory */
-  gbsize_t memlen;	/* max. number of written bytes to memory */
-  gbsize_t memsz;		/* curr. size of allocated memory */
-  unsigned char big_endian:1;
-  unsigned char binary:1;
-  unsigned char gzapi:1;
-  unsigned char memapi:1;
-  unsigned char unicode:1;
-  unsigned char unicode_checked:1;
-  unsigned char is_pipe:1;
-  gbfclearerr_cb fileclearerr;
-  gbfclose_cb fileclose;
-  gbfeof_cb fileeof;
-  gbferror_cb fileerror;
-  gbfflush_cb fileflush;
-  gbfopen_cb fileopen;
-  gbfread_cb fileread;
-  gbfseek_cb fileseek;
-  gbftell_cb filetell;
-  gbfungetc_cb fileungetc;
-  gbfwrite_cb filewrite;
+    } handle{nullptr};
+    QString name;
+    QString module;
+    char* buff{nullptr};	/* static growing buffer, primary used by gbprintf */
+    int    buffsz{0};
+    char   mode{'\0'};
+    int    back{0};
+    gbsize_t mempos{0};	/* curr. position in memory */
+    gbsize_t memlen{0};	/* max. number of written bytes to memory */
+    gbsize_t memsz{0};		/* curr. size of allocated memory */
+    unsigned char big_endian : 1;
+    unsigned char binary : 1;
+    unsigned char gzapi : 1;
+    unsigned char memapi : 1;
+    unsigned char unicode : 1;
+    unsigned char unicode_checked : 1;
+    unsigned char is_pipe : 1;
+    gbfclearerr_cb fileclearerr{nullptr};
+    gbfclose_cb fileclose{nullptr};
+    gbfeof_cb fileeof{nullptr};
+    gbferror_cb fileerror{nullptr};
+    gbfflush_cb fileflush{nullptr};
+    gbfopen_cb fileopen{nullptr};
+    gbfread_cb fileread{nullptr};
+    gbfseek_cb fileseek{nullptr};
+    gbftell_cb filetell{nullptr};
+    gbfungetc_cb fileungetc{nullptr};
+    gbfwrite_cb filewrite{nullptr};
 };
 
 

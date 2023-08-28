@@ -993,7 +993,7 @@ char* xstrdup(const QString& s);
 char* xstrndup(const char* str, size_t sz);
 char* xstrdup(const char* s);
 
-FILE* xfopen(const char* fname, const char* type, const char* errtxt);
+FILE* xfopen(const QString& fname, const char* type, const QString& errtxt);
 
 // Thin wrapper around fopen() that supports Unicode fname on all platforms.
 FILE* ufopen(const QString& fname, const char* mode);
