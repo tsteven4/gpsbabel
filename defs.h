@@ -854,8 +854,8 @@ using ff_readposn = Waypoint* (*)(posn_status*);
 struct mkshort_handle_imp; // forward declare, definition in mkshort.cc
 using short_handle = mkshort_handle_imp*;
 
-char* mkshort(short_handle,  const char*, bool);
-QString mkshort(short_handle,  const QString&);
+QByteArray mkshort(short_handle, const char*, bool);
+QString mkshort(short_handle, const QString&);
 short_handle mkshort_new_handle();
 QString mkshort_from_wpt(short_handle h, const Waypoint* wpt);
 void mkshort_del_handle(short_handle* h);
@@ -1012,8 +1012,6 @@ inline int case_ignore_strncmp(const QString& s1, const QString& s2, int n)
   return s1.left(n).compare(s2.left(n), Qt::CaseInsensitive);
 }
 
-char* strupper(char* src);
-char* strlower(char* src);
 QDateTime make_datetime(QDate date, QTime time, bool is_localtime, bool force_utc, int utc_offset);
 bool gpsbabel_testmode();
 gpsbabel::DateTime current_time();
