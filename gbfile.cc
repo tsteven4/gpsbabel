@@ -711,8 +711,8 @@ QByteArray gbfreadbuf(gbsize_t size, gbfile* file) {
   gbsize_t nbytes = gbfread(tmp.data(), 1, size, file);
 
   if (nbytes != size) {
-    fatal(FatalMsg().noquote() << file->module << "Attempted to read " << size <<
-    "bytes, but only " << nbytes << "were available.");
+    fatal(FatalMsg().nospace().noquote() << file->module << ": Attempted to read " << size <<
+    " bytes from " << file->name << ", but only " << nbytes << " were available.");
   }
   return tmp;
 }
