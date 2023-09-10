@@ -118,13 +118,6 @@ constexpr double KNOTS_TO_MPS(double a)  {return a * kMPSPerKnot;}
 constexpr int kDatumOSGB36 = 86; // GPS_Lookup_Datum_Index("OSGB36")
 constexpr int kDautmWGS84 = 118; // GPS_Lookup_Datum_Index("WGS 84")
 
-/* Pathname separator character */
-#if __WIN32__
-#  define GB_PATHSEP '\\'
-#else
-#  define GB_PATHSEP '/'
-#endif
-
 
 /*
  * Common definitions.   There should be no protocol or file-specific
@@ -844,29 +837,6 @@ using ff_write = void (*)();
 using ff_exit = void (*)();
 using ff_writeposn = void (*)(Waypoint*);
 using ff_readposn = Waypoint* (*)(posn_status*);
-
-/*
- * All shortname functions take a shortname handle as the first arg.
- * This is an opaque pointer.  Callers must not fondle the contents of it.
- */
-// This is a crutch until the new C++ shorthandle goes in.
-
-struct mkshort_handle_imp; // forward declare, definition in mkshort.cc
-using short_handle = mkshort_handle_imp*;
-
-QByteArray mkshort(short_handle, const char*, bool);
-QString mkshort(short_handle, const QString&);
-short_handle mkshort_new_handle();
-QString mkshort_from_wpt(short_handle h, const Waypoint* wpt);
-void mkshort_del_handle(short_handle* h);
-void setshort_length(short_handle, int n);
-void setshort_badchars(short_handle,  const char*);
-void setshort_goodchars(short_handle,  const char*);
-void setshort_mustupper(short_handle,  int n);
-void setshort_mustuniq(short_handle,  int n);
-void setshort_whitespace_ok(short_handle,  int n);
-void setshort_repeating_whitespace_ok(short_handle,  int n);
-void setshort_defname(short_handle, const char* s);
 
 #define ARGTYPE_UNKNOWN    0x00000000U
 #define ARGTYPE_INT        0x00000001U

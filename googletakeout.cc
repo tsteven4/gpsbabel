@@ -68,13 +68,13 @@ static Waypoint* takeout_waypoint(
   Waypoint* waypoint = new Waypoint();
   waypoint->latitude = lat_e7 / 1e7;
   waypoint->longitude = lon_e7 / 1e7;
-  if (shortname && (*shortname).length() > 0) {
+  if (shortname && shortname->length() > 0) {
     waypoint->shortname = *shortname;
   }
-  if (description && (*description).length() > 0) {
+  if (description && description->length() > 0) {
     waypoint->description = *description;
   }
-  if (start_str && (*start_str).length() > 0) {
+  if (start_str && start_str->length() > 0) {
     gpsbabel::DateTime start = QDateTime::fromString(*start_str, Qt::ISODate);
     waypoint->SetCreationTime(start);
   }
@@ -217,16 +217,13 @@ GoogleTakeoutFormat::title_case(QString& title)
 }
 
 void
-GoogleTakeoutFormat::rd_init(const QString& fname) {
+GoogleTakeoutFormat::read()
+{
   if (global_opts.debug_level >= 4) {
     Debug(4) << "rd_init(" << fname << ")";
   }
-  inputStream = GoogleTakeoutInputStream(fname);
-}
+  GoogleTakeoutInputStream inputStream(fname);
 
-void
-GoogleTakeoutFormat::read()
-{
   int items = 0;
   int points = 0;
   int place_visits = 0;
