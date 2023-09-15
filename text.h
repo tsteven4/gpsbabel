@@ -33,6 +33,8 @@
 class TextFormat : public Format
 {
 public:
+  using Format::Format;
+
   QVector<arglist_t>* get_args() override
   {
     return &text_args;

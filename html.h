@@ -33,6 +33,8 @@
 class HtmlFormat : public Format
 {
 public:
+  using Format::Format;
+
   QVector<arglist_t>* get_args() override
   {
     return &html_args;

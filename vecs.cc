@@ -127,8 +127,6 @@ struct Vecs::Impl {
 #if SHAPELIB_ENABLED
   ShapeFormat shape_fmt;
 #endif
-  TextFormat text_fmt;
-  HtmlFormat html_fmt;
   IgcFormat igc_fmt;
   LegacyFormat mtk_fmt {mtk_vecs};
   LegacyFormat mtk_ffmt {mtk_fvecs};
@@ -265,18 +263,20 @@ struct Vecs::Impl {
     },
 #endif
     {
-      &text_fmt,
+      nullptr,
       "text",
       "Textual Output",
       "txt",
       nullptr,
+      &fmtfactory<TextFormat>
     },
     {
-      &html_fmt,
+      nullptr,
       "html",
       "HTML Output",
       "html",
       nullptr,
+      &fmtfactory<HtmlFormat>
     },
     {
       &igc_fmt,
