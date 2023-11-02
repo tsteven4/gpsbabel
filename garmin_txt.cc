@@ -29,10 +29,9 @@
 #include <cctype>                  // for toupper
 #include <cmath>                   // for fabs, floor
 #include <cstdint>                 // for uint16_t
-#include <cstdio>                  // for sscanf, fprintf, snprintf, stderr
-#include <cstdlib>                 // for abs
-#include <cstring>                 // for strstr, strlen
-#include <ctime>                   // for time_t, gmtime, localtime, strftime
+#include <cstdio>                  // for sscanf, fprintf, stderr
+#include <cstdlib>                 // for abs, div
+#include <cstring>                 // for strstr
 #include <optional>                // for optional
 #include <utility>                 // for pair, make_pair
 
@@ -153,9 +152,9 @@ QVector<arglist_t> garmin_txt_args = {
 class PathInfo
 {
 public:
-  double cum_length_meters {0};
+  double length {0};
   QDateTime start;
-  int cum_time_secs {0};
+  int time {0};
   double speed {0};
   double total {0};
   int count {0};
@@ -263,8 +262,8 @@ prework_wpt_cb(const Waypoint* wpt)
   const Waypoint* prev = cur_info->prev_wpt;
 
   if (prev != nullptr) {
-    cur_info->cum_time_secs += prev->GetCreationTime().secsTo(wpt->GetCreationTime());
-    cur_info->cum_length_meters += waypt_distance_ex(prev, wpt);
+    cur_info->time += prev->GetCreationTime().secsTo(wpt->GetCreationTime());
+    cur_info->length += waypt_distance_ex(prev, wpt);
   } else {
     cur_info->first_wpt = wpt;
     cur_info->start = wpt->GetCreationTime();
@@ -451,9 +450,9 @@ print_distance(const double distance, const bool no_scale, const bool with_tab, 
 }
 
 static void
-print_speed(const double distance_meters, int time_seconds)
+print_speed(const double distance, int time)
 {
-  double dist = distance_meters;
+  double dist = distance;
   const char* unit;
 
   if (!gtxt_flags.metric) {
@@ -464,8 +463,8 @@ print_speed(const double distance_meters, int time_seconds)
   }
   int idist = qRound(dist);
 
-  if ((time_seconds != 0) && (idist > 0)) {
-    double speed = MPS_TO_KPH(dist / (double)time_seconds);
+  if ((time != 0) && (idist > 0)) {
+    double speed = MPS_TO_KPH(dist / (double)time);
     int ispeed = qRound(speed);
 
     if (speed < 0.01) {
@@ -610,7 +609,7 @@ route_disp_hdr_cb(const route_head* rte)
     *fout << QStringLiteral("\r\n\r\nHeader\t%1\r\n").arg(headers[route_header]);
   }
   print_string("\r\nRoute\t%s\t", rte->rte_name);
-  print_distance(cur_info->cum_length_meters, false, true, 0);
+  print_distance(cur_info->length, false, true, 0);
   print_course(cur_info->first_wpt, cur_info->last_wpt);
   *fout << QString::asprintf("\t%d waypoints\t", cur_info->count);
   if (rte->rte_urls.HasUrlLink()) {
@@ -665,9 +664,9 @@ track_disp_hdr_cb(const route_head* track)
   }
   print_string("\r\nTrack\t%s\t", track->rte_name);
   print_date_and_time(cur_info->start);
-  print_duration(cur_info->cum_time_secs);
-  print_distance(cur_info->cum_length_meters, false, true, 0);
-  print_speed(cur_info->cum_length_meters, cur_info->cum_time_secs);
+  print_duration(cur_info->time);
+  print_distance(cur_info->length, false, true, 0);
+  print_speed(cur_info->length, cur_info->time);
   if (track->rte_urls.HasUrlLink()) {
     print_string("%s", track->rte_urls.GetUrlLink().url_);
   } else {
@@ -703,7 +702,7 @@ track_disp_wpt_cb(const Waypoint* wpt)
 
   if (prev != nullptr) {
     *fout << "\t";
-    int delta_time_secs = prev->GetCreationTime().secsTo(wpt->GetCreationTime());
+    int delta = prev->GetCreationTime().secsTo(wpt->GetCreationTime());
     float temp = wpt->temperature_value_or(-999);
     if (temp != -999) {
       print_temperature(temp);
@@ -711,8 +710,8 @@ track_disp_wpt_cb(const Waypoint* wpt)
     *fout << "\t";
     double dist = waypt_distance_ex(prev, wpt);
     print_distance(dist, false, true, 0);
-    print_duration(delta_time_secs);
-    print_speed(dist, delta_time_secs);
+    print_duration(delta);
+    print_speed(dist, delta);
     print_course(prev, wpt);
   }
   *fout << "\r\n";
@@ -872,88 +871,12 @@ free_headers()
                 [](auto& list)->void { list.clear(); });
 }
 
-// Super simple attempt to convert strftime/strptime spec to Qt spec.
-// This misses a LOT of cases and vagaries, but the reality is that we
-// see very few date formats here.
-static QString
-strftime_to_timespec(const char* s)
-{
-  QString q;
-  int l = strlen(s);
-  q.reserve(l * 2); // no penalty if our guess is wrong.
-
-  for (int i = 0; i < l; i++) {
-    switch (s[i]) {
-    case '%':
-      if (i < l-1) {
-        switch (s[++i]) {
-        case 'd':
-          q += "dd";
-          continue;
-        case 'm':
-          q += "MM";
-          continue;
-        case 'y':
-          q += "yy";
-          continue;
-        case 'Y':
-          q += "yyyy";
-          continue;
-        case 'H':
-          q += "HH";
-          continue;
-        case 'M':
-          q += "mm";
-          continue;
-        case 'S':
-          q += "ss";
-          continue;
-        case 'A':
-          q += "dddd";
-          continue;
-        case 'a':
-          q += "ddd";
-          continue;
-        case 'B':
-          q += "MMMM";
-          continue;
-        case 'C':
-          q += "yy";
-          continue;
-        case 'D':
-          q += "MM/dd/yyyy";
-          continue;
-        case 'T':
-          q += "hh:mm:ss";
-          continue;
-        case 'F':
-          q += "yyyy-MM-dd";
-          continue;
-        case 'p':
-          q += "AP";
-          continue;
-        default:
-          warning(MYNAME ": omitting unknown strptime conversion \"%%%c\" in \"%s\"\n", s[i], s);
-          break;
-        }
-      }
-      break;
-    default:
-      q += s[i];
-      break;
-    }
-  }
-  return q;
-}
-
-
 /* data parsers */
 
 static QDateTime
 parse_date_and_time(const QString& str)
 {
-  QString timespec = strftime_to_timespec(CSTR(date_time_format));
-  return QDateTime::fromString(QString(str).trimmed(), timespec);
+  return QDateTime::fromString(QString(str).trimmed(), date_time_format);
 }
 
 static uint16_t
