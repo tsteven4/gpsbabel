@@ -83,7 +83,7 @@ static const char* datum_str;
 static int current_line;
 static QString date_time_format;
 static int precision = 3;
-static time_t utc_offs = 0;
+static int utc_offs = 0;
 static gtxt_flags_t gtxt_flags;
 
 enum header_type {
@@ -153,9 +153,9 @@ QVector<arglist_t> garmin_txt_args = {
 class PathInfo
 {
 public:
-  double length {0};
-  time_t start {0};
-  time_t time {0};
+  double cum_length_meters {0};
+  QDateTime start;
+  int cum_time_secs {0};
   double speed {0};
   double total {0};
   int count {0};
@@ -188,16 +188,16 @@ get_option_val(const char* option, const char* def)
 }
 
 static void
-init_date_and_time_format()
+init_date_and_time_format(bool read)
 {
   // This is old, and weird, code.. date_time_format is a global that's
   // explicitly malloced and freed elsewhere. This isn't very C++ at all,
   // but this format is on its deathbead for deprecation.
   const char* d = get_option_val(opt_date_format, kDefaultDateFormat);
-  QString d1 = convert_human_date_format(d);
+  QString d1 = convert_human_date_format(d, read);
 
   const char* t = get_option_val(opt_time_format, kDefaultTimeFormat);
-  QString t1 = convert_human_time_format(t);
+  QString t1 = convert_human_time_format(t, read);
 
   date_time_format = QStringLiteral("%1 %2").arg(d1, t1);
 }
@@ -263,11 +263,11 @@ prework_wpt_cb(const Waypoint* wpt)
   const Waypoint* prev = cur_info->prev_wpt;
 
   if (prev != nullptr) {
-    cur_info->time += (wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t());
-    cur_info->length += waypt_distance_ex(prev, wpt);
+    cur_info->cum_time_secs += prev->GetCreationTime().secsTo(wpt->GetCreationTime());
+    cur_info->cum_length_meters += waypt_distance_ex(prev, wpt);
   } else {
     cur_info->first_wpt = wpt;
-    cur_info->start = wpt->GetCreationTime().toTime_t();
+    cur_info->start = wpt->GetCreationTime();
   }
   cur_info->prev_wpt = wpt;
   cur_info->count++;
@@ -364,28 +364,35 @@ print_position(const Waypoint* wpt)
 }
 
 static void
-print_date_and_time(const time_t time, const bool time_only)
+print_duration(int duration_secs)
 {
-  std::tm tm{};
-  char tbuf[32];
-
-  if (time < 0) {
+  if (duration_secs < 0) {
     *fout << "\t";
     return;
   }
-  if (time_only) {
-    tm = *gmtime(&time);
-    snprintf(tbuf, sizeof(tbuf), "%d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
-    *fout << QString::asprintf("%s", tbuf);
-  } else if (time != 0) {
+#if 1
+  // perhaps durations can be longer than the max QTime of 23:59:59
+  auto res = std::div(duration_secs, 60);
+  auto sec = res.rem;
+  res = std::div(res.quot, 60);
+  *fout << QString::asprintf("%d:%02d:%02d\t", res.quot, res.rem, sec);
+#else
+  QTime qt = QTime(0, 0).addSecs(duration_secs);
+  *fout << qt.toString("H:mm:ss\t");
+#endif
+}
+
+static void
+print_date_and_time(const QDateTime& dt)
+{
+  if (!dt.isValid()) {
+    *fout << "\t";
+    return;
+  }
     if (gtxt_flags.utc) {
-      time_t t = time + utc_offs;
-      tm = *gmtime(&t);
+    *fout << dt.toOffsetFromUtc(utc_offs).toString(date_time_format);
     } else {
-      tm = *localtime(&time);
-    }
-    strftime(tbuf, sizeof(tbuf), CSTR(date_time_format), &tm);
-    *fout << QString::asprintf("%s ", tbuf);
+    *fout << dt.toLocalTime().toString(date_time_format);
   }
   *fout << "\t";
 }
@@ -444,9 +451,9 @@ print_distance(const double distance, const bool no_scale, const bool with_tab, 
 }
 
 static void
-print_speed(const double distance, const time_t time)
+print_speed(const double distance_meters, int time_seconds)
 {
-  double dist = distance;
+  double dist = distance_meters;
   const char* unit;
 
   if (!gtxt_flags.metric) {
@@ -457,8 +464,8 @@ print_speed(const double distance, const time_t time)
   }
   int idist = qRound(dist);
 
-  if ((time != 0) && (idist > 0)) {
-    double speed = MPS_TO_KPH(dist / (double)time);
+  if ((time_seconds != 0) && (idist > 0)) {
+    double speed = MPS_TO_KPH(dist / (double)time_seconds);
     int ispeed = qRound(speed);
 
     if (speed < 0.01) {
@@ -576,7 +583,7 @@ write_waypt(const Waypoint* wpt)
   print_string("%s\t", garmin_fs_t::get_state(gmsd, ""));
   const char* country = gt_get_icao_country(garmin_fs_t::get_cc(gmsd, ""));
   print_string("%s\t", (country != nullptr) ? country : "");
-  print_date_and_time(wpt->GetCreationTime().toTime_t(), false);
+  print_date_and_time(wpt->GetCreationTime());
   if (wpt->HasUrlLink()) {
     UrlLink l = wpt->GetUrlLink();
     print_string("%s\t", l.url_);
@@ -603,7 +610,7 @@ route_disp_hdr_cb(const route_head* rte)
     *fout << QStringLiteral("\r\n\r\nHeader\t%1\r\n").arg(headers[route_header]);
   }
   print_string("\r\nRoute\t%s\t", rte->rte_name);
-  print_distance(cur_info->length, false, true, 0);
+  print_distance(cur_info->cum_length_meters, false, true, 0);
   print_course(cur_info->first_wpt, cur_info->last_wpt);
   *fout << QString::asprintf("\t%d waypoints\t", cur_info->count);
   if (rte->rte_urls.HasUrlLink()) {
@@ -657,10 +664,10 @@ track_disp_hdr_cb(const route_head* track)
     *fout << QStringLiteral("\r\n\r\nHeader\t%1\r\n").arg(headers[track_header]);
   }
   print_string("\r\nTrack\t%s\t", track->rte_name);
-  print_date_and_time(cur_info->start, false);
-  print_date_and_time(cur_info->time, true);
-  print_distance(cur_info->length, false, true, 0);
-  print_speed(cur_info->length, cur_info->time);
+  print_date_and_time(cur_info->start);
+  print_duration(cur_info->cum_time_secs);
+  print_distance(cur_info->cum_length_meters, false, true, 0);
+  print_speed(cur_info->cum_length_meters, cur_info->cum_time_secs);
   if (track->rte_urls.HasUrlLink()) {
     print_string("%s", track->rte_urls.GetUrlLink().url_);
   } else {
@@ -679,13 +686,11 @@ static void
 track_disp_wpt_cb(const Waypoint* wpt)
 {
   const Waypoint* prev = cur_info->prev_wpt;
-  time_t delta;
-  double dist;
 
   *fout << "Trackpoint\t";
 
   print_position(wpt);
-  print_date_and_time(wpt->GetCreationTime().toTime_t(), false);
+  print_date_and_time(wpt->GetCreationTime());
   if (is_valid_alt(wpt->altitude)) {
     print_distance(wpt->altitude, true, false, 0);
   }
@@ -698,16 +703,16 @@ track_disp_wpt_cb(const Waypoint* wpt)
 
   if (prev != nullptr) {
     *fout << "\t";
-    delta = wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t();
+    int delta_time_secs = prev->GetCreationTime().secsTo(wpt->GetCreationTime());
     float temp = wpt->temperature_value_or(-999);
     if (temp != -999) {
       print_temperature(temp);
     }
     *fout << "\t";
-    dist = waypt_distance_ex(prev, wpt);
+    double dist = waypt_distance_ex(prev, wpt);
     print_distance(dist, false, true, 0);
-    print_date_and_time(delta, true);
-    print_speed(dist, delta);
+    print_duration(delta_time_secs);
+    print_speed(dist, delta_time_secs);
     print_course(prev, wpt);
   }
   *fout << "\r\n";
@@ -737,7 +742,7 @@ static void
 garmin_txt_adjust_time(QDateTime& dt)
 {
   if (gtxt_flags.utc) {
-    dt = dt.toUTC().addSecs(dt.offsetFromUtc() - utc_offs);
+    dt.setOffsetFromUtc(utc_offs);
   }
 }
 
@@ -751,7 +756,7 @@ garmin_txt_wr_init(const QString& fname)
 
   gtxt_flags.metric = (toupper(*get_option_val(opt_dist, "m")) == 'M');
   gtxt_flags.celsius = (toupper(*get_option_val(opt_temp, "c")) == 'C');
-  init_date_and_time_format();
+  init_date_and_time_format(false);
   if (opt_precision) {
     precision = xstrtoi(opt_precision, nullptr, 10);
     if (precision < 0) {
@@ -1363,7 +1368,7 @@ garmin_txt_rd_init(const QString& fname)
   datum_index = -1;
   grid_index = (grid_type) -1;
 
-  init_date_and_time_format();
+  init_date_and_time_format(true);
   garmin_txt_utc_option();
 }
 
