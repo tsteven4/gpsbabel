@@ -1,15 +1,15 @@
-#ifndef gpsdatum_h
-#define gpsdatum_h
+#ifndef JEEPS_GPSDATUM_H_INCLUDED_
+#define JEEPS_GPSDATUM_H_INCLUDED_
 
 
 
-  typedef struct GPS_SEllipse {
+  struct GPS_Ellipse {
     const char*   name;
     double a;
     double invf;
-  } GPS_OEllipse, *GPS_PEllipse;
+  };
 
-  GPS_OEllipse GPS_Ellipse[]= {
+  const GPS_Ellipse GPS_Ellipses[]= {
     { "Airy 1830",               6377563.396, 299.3249646 },
     { "Airy 1830 Modified",      6377340.189, 299.3249646 },
     { "Australian National",     6378160.000, 298.25 },
@@ -42,15 +42,15 @@
 
 
 
-  typedef struct GPS_SDatum {
+  struct GPS_Datum {
     const char*   name;
     int    ellipse;
     double dx;
     double dy;
     double dz;
-  } GPS_ODatum, *GPS_PDatum;
+  };
 
-  GPS_ODatum GPS_Datum[]= {
+  const GPS_Datum GPS_Datums[]= {
     /* 000 */    { "Adindan",  		6,	-166,  	-15,	204 	},
     /* 001 */    { "AFG",     		18,	-43,   	-163,  	45 	},
     /* 002 */    { "Ain-El-Abd",  		17,	-150,  	-251,  	-2 	},
@@ -181,12 +181,12 @@
   };
 
 
-  typedef struct GPS_SDatum_Alias {
+  struct GPS_Datum_Alias {
     const char* alias;
-    const int datum;
-  } GPS_ODatum_Alias, *GPS_PDatum_Alias;
+    int datum;
+  };
 
-  GPS_ODatum_Alias GPS_DatumAlias[] = {
+  const GPS_Datum_Alias GPS_DatumAliases[] = {
     { "Australian GDA94", 122 },
     { "Australian Geocentric 1994 (GDA94)", 122},  /* Observed in Ozi */
     { "GDA94", 122 },
@@ -222,7 +222,7 @@
 
 
   /* UK Ordnance Survey Nation Grid Map Codes */
-  static const char* UKNG[]= {
+  static const char* const UKNG[]= {
     "SV","SW","SX","SY","SZ","TV","TW","SQ","SR","SS","ST","SU","TQ","TR",
     "SL","SM","SN","SO","SP","TL","TM","SF","SG","SH","SJ","SK","TF","TG",
     "SA","SB","SC","SD","SE","TA","TB","NV","NW","NX","NY","NZ","OV","OW",
@@ -234,4 +234,4 @@
 
 
 
-#endif
+#endif // JEEPS_GPSDATUM_H_INCLUDED_

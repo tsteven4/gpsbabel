@@ -63,9 +63,9 @@ char* rxdata[] = {
 #include <windows.h>
 #include "gbser_win.h"
 
-typedef struct {
+struct win_serial_data {
   HANDLE comport;
-} win_serial_data;
+};
 
 /*
  * Display an error from the serial subsystem.
@@ -317,10 +317,10 @@ int32 GPS_Serial_Set_Baud_Rate(gpsdevh* fd, int br)
 #include <termios.h>
 #include <unistd.h>
 
-typedef struct {
+struct posix_serial_data {
   int fd;		/* File descriptor */
   struct termios gps_ttysave;
-} posix_serial_data;
+};
 
 /* @func GPS_Serial_Open ***********************************************
 **

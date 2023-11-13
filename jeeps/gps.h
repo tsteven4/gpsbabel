@@ -1,5 +1,5 @@
-#ifndef gps_h
-#define gps_h
+#ifndef JEEPS_GPS_H_INCLUDED_
+#define JEEPS_GPS_H_INCLUDED_
 
 #include "defs.h"
 #include "jeeps/gpsport.h"
@@ -255,9 +255,9 @@ extern char   gps_save_string[GPS_ARB_LEN];
 extern int gps_is_usb;
 extern int gps_baud_rate;
 
-extern COMMANDDATA COMMAND_ID[2];
-extern LINKDATA LINK_ID[3];
-extern GPS_MODEL_PROTOCOL GPS_MP[];
+extern const COMMANDDATA COMMAND_ID[2];
+extern const LINKDATA LINK_ID[3];
+extern const GPS_MODEL_PROTOCOL GPS_MP[];
 
 extern const char* gps_marine_sym[];
 extern const char* gps_land_sym[];
@@ -265,4 +265,4 @@ extern const char* gps_aviation_sym[];
 extern const char* gps_16_sym[];
 
 
-#endif
+#endif // JEEPS_GPS_H_INCLUDED_

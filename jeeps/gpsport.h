@@ -7,9 +7,16 @@
  * defs.h includes gbtypes.h before this file, just use that.
  */
 
-typedef unsigned char UC;
-typedef uint16_t      US;
-typedef uint16_t      uint16;
-typedef int16_t       int16;
-typedef uint32_t      uint32;
-typedef int32_t       int32;
+#ifndef JEEPS_GPSPORT_H_INCLUDED_
+#define JEEPS_GPSPORT_H_INCLUDED_
+
+#include <cstdint>
+
+using UC = unsigned char;
+using US = uint16_t;
+using uint16 = uint16_t;
+using int16 = int16_t;
+using uint32 = uint32_t;
+using int32 = int32_t;
+
+#endif // JEEPS_GPSPORT_H_INCLUDED_

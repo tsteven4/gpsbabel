@@ -19,10 +19,10 @@
 
  */
 
-#ifndef gpsdevice_h
-#define gpsdevice_h
+#ifndef JEEPS_GPSDEVICE_H_INCLUDED_
+#define JEEPS_GPSDEVICE_H_INCLUDED_
 
-  typedef struct gpsdevh gpsdevh;
+  struct gpsdevh;
 
 #include "jeeps/gps.h"
 
@@ -48,7 +48,7 @@
   using gps_device_op12 = int32 (*)(gpsdevh* fd, const GPS_Packet& packet);
   using gps_device_op13 = int32 (*)(gpsdevh* fd, GPS_Packet* packet);
 
-  typedef struct {
+  struct gps_device_ops {
     gps_device_op5 Device_On;
     gps_device_op Device_Off;
     gps_device_op Device_Chars_Ready;
@@ -58,6 +58,6 @@
     gps_device_op10 Get_Ack;
     gps_device_op13 Read_Packet;
     gps_device_op12 Write_Packet;
-  } gps_device_ops;
+  };
 
-#endif /* gpsdevice_h */
+#endif /* JEEPS_GPSDEVICE_H_INCLUDED_ */

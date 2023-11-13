@@ -52,9 +52,9 @@
 #define TMOUT_I 5000 /*  Milliseconds to timeout intr pipe access. */
 #define TMOUT_B 5000 /*  Milliseconds to timeout bulk pipe access. */
 
-typedef struct {
+struct libusb_unit_data {
   unsigned product_id;
-} libusb_unit_data;
+};
 
 /*
  * TODO: this should all be moved into libusbdata in gpslibusb.h,

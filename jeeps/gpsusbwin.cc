@@ -48,9 +48,9 @@ DEFINE_GUID(GARMIN_GUID, 0x2c9c45c2L, 0x8e7d, 0x4c08, 0xa1, 0x2d, 0x81, 0x6b, 0x
 #define IOCTL_GARMIN_USB_BULK_OUT_PACKET_SIZE CTL_CODE \
 	(FILE_DEVICE_UNKNOWN, 0x851, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-typedef struct {
+struct winusb_unit_data {
   int booger;
-} winusb_unit_data;
+};
 
 static HANDLE usb_handle = INVALID_HANDLE_VALUE;
 static int usb_tx_packet_size ;
