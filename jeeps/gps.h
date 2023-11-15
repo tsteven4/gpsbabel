@@ -46,7 +46,7 @@ struct GPS_Serial_Packet {
 };
 
 
-typedef struct GPS_SPvt_Data_Type {
+struct GPS_SPvt_Data {
   float alt;
   float epe;
   float eph;
@@ -61,11 +61,12 @@ typedef struct GPS_SPvt_Data_Type {
   float msl_hght;
   int16_t leap_scnds;
   int32_t wn_days;
-} GPS_OPvt_Data, *GPS_PPvt_Data;
+};
+using GPS_PPvt_Data = GPS_SPvt_Data*;
 
 
 
-typedef struct GPS_STrack {
+struct GPS_STrack {
   double   lat;		/* Degrees */
   double   lon;		/* Degrees */
   time_t   Time;		/* Unix time */
@@ -84,12 +85,12 @@ typedef struct GPS_STrack {
   float    distance; /* distance traveled in meters.*/
   int      distance_populated; /* True if above is valid. */
   char     trk_ident[256];	/* Track identifier */
-}
-GPS_OTrack, *GPS_PTrack;
+};
+using GPS_PTrack = GPS_STrack*;
 
 
 
-typedef struct GPS_SAlmanac {
+struct GPS_SAlmanac {
   UC    svid;
   int16_t wn;
   float toa;
@@ -103,10 +104,11 @@ typedef struct GPS_SAlmanac {
   float odot;
   float i;
   UC    hlth;
-} GPS_OAlmanac, *GPS_PAlmanac;
+};
+using GPS_PAlmanac = GPS_SAlmanac*;
 
 
-typedef struct GPS_SWay {
+struct GPS_SWay {
   char   ident[256];
   double lat;
   double lon;
@@ -148,12 +150,13 @@ typedef struct GPS_SWay {
   float    temperature;		/* Degrees celsius. */
   uint16_t category;
 
-} GPS_OWay, *GPS_PWay;
+};
+using GPS_PWay = GPS_SWay*;
 
 /*
  * Forerunner/Edge Lap data.
  */
-typedef struct GPS_SLap {
+struct GPS_SLap {
   uint32_t index; /* unique index in device or -1 */
   time_t	start_time;
   uint32_t total_time;	/* Hundredths of a second */
@@ -175,18 +178,20 @@ typedef struct GPS_SLap {
   int16 unk1015_2;
   int16 unk1015_3;
   */
-} GPS_OLap, *GPS_PLap;
+};
+using GPS_PLap = GPS_SLap*;
 
 
-typedef struct GPS_SCourse {
+struct GPS_SCourse {
   uint32_t index;                    /* Unique among courses on device */
   char      course_name[16];          /* Null-terminated unique course name */
   uint32_t track_index;              /* Index of the associated track
                                          * Must be 0xFFFFFFFF if there is none*/
-} GPS_OCourse, *GPS_PCourse;
+};
+using GPS_PCourse = GPS_SCourse*;
 
 
-typedef struct GPS_SCourse_Lap {
+struct GPS_SCourse_Lap {
   uint32_t course_index;         /* Index of associated course */
   uint32_t lap_index;            /* This lap's index in the course */
   uint32_t total_time;           /* In hundredths of a second */
@@ -200,9 +205,10 @@ typedef struct GPS_SCourse_Lap {
   UC            intensity;            /* 0=standard, active lap.
                                            1=rest lap in a workout */
   UC            avg_cadence;          /* In revolutions-per-minute */
-} GPS_OCourse_Lap, *GPS_PCourse_Lap;
+};
+using GPS_PCourse_Lap = GPS_SCourse_Lap*;
 
-typedef struct GPS_SCourse_Point {
+struct GPS_SCourse_Point {
   char        name[11];               /* Null-terminated name */
   uint32_t course_index;           /* Index of associated course */
   time_t      track_point_time;       /* Time */
@@ -222,14 +228,16 @@ typedef struct GPS_SCourse_Point {
                                          * first_category = 13,
                                          * hors_category = 14,
                                          * sprint = 15 */
-} GPS_OCourse_Point, *GPS_PCourse_Point;
+};
+using GPS_PCourse_Point = GPS_SCourse_Point*;
 
-typedef struct GPS_SCourse_Limits {
+struct GPS_SCourse_Limits {
   int32_t max_courses;
   int32_t max_course_laps;
   int32_t max_course_pnt;
   int32_t max_course_trk_pnt;
-} GPS_OCourse_Limits, *GPS_PCourse_Limits;
+};
+using GPS_PCourse_Limits =  GPS_SCourse_Limits*;
 
 
 using pcb_fn = int (*)(int, GPS_SWay**);
@@ -241,7 +249,6 @@ using pcb_fn = int (*)(int, GPS_SWay**);
 #include "jeeps/gpsapp.h"
 #include "jeeps/gpsprot.h"
 #include "jeeps/gpscom.h"
-#include "jeeps/gpsfmt.h"
 #include "jeeps/gpsmath.h"
 #include "jeeps/gpsmem.h"
 #include "jeeps/gpsrqst.h"
@@ -251,18 +258,12 @@ extern double gps_save_lat;
 extern double gps_save_lon;
 extern int32_t gps_save_id;
 extern double gps_save_version;
-extern char   gps_save_string[GPS_ARB_LEN];
+extern char   gps_save_string[];
 extern int gps_is_usb;
 extern int gps_baud_rate;
 
-extern COMMANDDATA COMMAND_ID[2];
-extern LINKDATA LINK_ID[3];
-extern GPS_MODEL_PROTOCOL GPS_MP[];
-
-extern const char* gps_marine_sym[];
-extern const char* gps_land_sym[];
-extern const char* gps_aviation_sym[];
-extern const char* gps_16_sym[];
-
+extern const COMMANDDATA COMMAND_ID[2];
+extern const LINKDATA LINK_ID[3];
+extern const GPS_MODEL_PROTOCOL GPS_MP[];
 
 #endif // JEEPS_GPS_H_INCLUDED_

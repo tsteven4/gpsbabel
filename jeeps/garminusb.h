@@ -29,8 +29,7 @@
  * fields in the USB packets of the Garmin USB receivers (60C, 76C, etc.)
  * All data are little endian.
  */
-typedef
-union {
+union garmin_usb_packet {
   struct {
     unsigned char type;
     unsigned char reserved1;
@@ -43,20 +42,20 @@ union {
     unsigned char databuf[1]; /* actually an variable length array... */
   } gusb_pkt;
   unsigned char dbuf[1024];
-} garmin_usb_packet;
+};
 
 /*
  * Internal interfaces that are common regardless of underlying
  * OS implementation.
  */
 #define GUSB_MAX_UNITS 20
-typedef struct {
+struct garmin_unit_info_t {
   unsigned long serial_number;
   unsigned long unit_id;
   unsigned long unit_version;
   char* os_identifier; /* In case the OS has another name for it. */
   char* product_identifier; /* From the hardware itself. */
-} garmin_unit_info_t;
+};
 
 extern garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 

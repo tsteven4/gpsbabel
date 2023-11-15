@@ -41,7 +41,7 @@ GPS_PPvt_Data GPS_Pvt_New()
 {
   GPS_PPvt_Data ret;
 
-  if (!(ret=(GPS_PPvt_Data)calloc(1, sizeof(GPS_OPvt_Data)))) {
+  if (!(ret=(GPS_PPvt_Data)calloc(1, sizeof(GPS_SPvt_Data)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Pvt_New: Insufficient memory");
     fflush(stderr);
@@ -82,7 +82,7 @@ GPS_PAlmanac GPS_Almanac_New()
 {
   GPS_PAlmanac ret;
 
-  if (!(ret=(GPS_PAlmanac)calloc(1, sizeof(GPS_OAlmanac)))) {
+  if (!(ret=(GPS_PAlmanac)calloc(1, sizeof(GPS_SAlmanac)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Almanac_New: Insufficient memory");
     fflush(stderr);
@@ -127,7 +127,7 @@ GPS_PTrack GPS_Track_New()
 {
   GPS_PTrack ret;
 
-  if (!(ret=(GPS_PTrack)calloc(1,sizeof(GPS_OTrack)))) {
+  if (!(ret=(GPS_PTrack)calloc(1,sizeof(GPS_STrack)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Track_New: Insufficient memory");
     fflush(stderr);
@@ -169,7 +169,7 @@ GPS_PWay GPS_Way_New()
   GPS_PWay ret;
   int32_t i;
 
-  if (!(ret=(GPS_PWay)xcalloc(sizeof(GPS_OWay),1))) {
+  if (!(ret=(GPS_PWay)xcalloc(sizeof(GPS_SWay),1))) {
     perror("malloc");
     fprintf(stderr,"GPS_Way_New: Insufficient memory");
     fflush(stderr);
@@ -256,7 +256,7 @@ GPS_PLap GPS_Lap_New()
 {
   GPS_PLap ret;
 
-  if (!(ret=(GPS_PLap)calloc(1,sizeof(GPS_OLap)))) {
+  if (!(ret=(GPS_PLap)calloc(1,sizeof(GPS_SLap)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Lap_New: Insufficient memory");
     fflush(stderr);
@@ -295,7 +295,7 @@ GPS_PCourse GPS_Course_New()
 {
   GPS_PCourse ret;
 
-  if (!(ret=(GPS_PCourse)calloc(1,sizeof(GPS_OCourse)))) {
+  if (!(ret=(GPS_PCourse)calloc(1,sizeof(GPS_SCourse)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Course_New: Insufficient memory");
     fflush(stderr);
@@ -333,7 +333,7 @@ GPS_PCourse_Lap GPS_Course_Lap_New()
 {
   GPS_PCourse_Lap ret;
 
-  if (!(ret=(GPS_PCourse_Lap)calloc(1,sizeof(GPS_OCourse_Lap)))) {
+  if (!(ret=(GPS_PCourse_Lap)calloc(1,sizeof(GPS_SCourse_Lap)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Course_Lap_New: Insufficient memory");
     fflush(stderr);
@@ -372,7 +372,7 @@ GPS_PCourse_Point GPS_Course_Point_New()
 {
   GPS_PCourse_Point ret;
 
-  if (!(ret=(GPS_PCourse_Point)calloc(1,sizeof(GPS_OCourse_Point)))) {
+  if (!(ret=(GPS_PCourse_Point)calloc(1,sizeof(GPS_SCourse_Point)))) {
     perror("malloc");
     fprintf(stderr,"GPS_Course_Point_New: Insufficient memory");
     fflush(stderr);

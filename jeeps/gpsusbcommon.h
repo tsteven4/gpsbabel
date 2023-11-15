@@ -30,17 +30,17 @@ using gusb_llop_get = int (*)(garmin_usb_packet* ibuf, size_t sz);
 using gusb_llop_send = int (*)(const garmin_usb_packet* opkt, size_t sz);
 using gusb_llop_close = int (*)(gpsdevh* dh, bool exit_lib);
 
-typedef struct gusb_llops {
+struct gusb_llops_t {
   gusb_llop_get  llop_get_intr;
   gusb_llop_get  llop_get_bulk;
   gusb_llop_send llop_send;
   gusb_llop_close llop_close;
   int max_tx_size;
-} gusb_llops_t;
+};
 
 /* Provided by the common code. */
 void gusb_syncup();
-void gusb_register_ll(gusb_llops* p);
+void gusb_register_ll(gusb_llops_t* p);
 void gusb_list_units();
 
 /* Provided by the OS layers */

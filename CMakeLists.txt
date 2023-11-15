@@ -248,7 +248,6 @@ set(HEADERS
   jeeps/gpscom.h
   jeeps/gpsdatum.h
   jeeps/gpsdevice.h
-  jeeps/gpsfmt.h
   jeeps/gpsmath.h
   jeeps/gpsmem.h
   jeeps/gpsport.h

@@ -33,7 +33,7 @@
 #include <QString>           // for QString
 
 #include "defs.h"            // for case_ignore_strcmp, fatal, CSTR
-#include "jeeps/gpsdatum.h"  // for GPS_ODatum, GPS_OEllipse, GPS_Datums, GPS_Ellipses, UKNG, GPS_SDatum_Alias, GPS_SDatum, GPS_DatumAliases, GPS_PDatum, GPS_PDatum_Alias
+#include "jeeps/gpsdatum.h"  // for GPS_Datum, GPS_Ellipse, GPS_Datums, GPS_Ellipses, GPS_Datum_Alias, UKNG, GPS_DatumAliases
 
 
 static int32_t GPS_Math_LatLon_To_UTM_Param(double lat, double lon, int32_t* zone,

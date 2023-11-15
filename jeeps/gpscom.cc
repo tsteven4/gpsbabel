@@ -780,7 +780,7 @@ int32_t GPS_Command_Send_Course
  int32_t n_cpt)
 {
   gpsdevh* fd;
-  GPS_OCourse_Limits limits;
+  GPS_SCourse_Limits limits;
   int32_t ret;
   int32_t ret_crs = 0;
   int32_t ret_clp = 0;
