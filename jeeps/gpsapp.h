@@ -4,6 +4,9 @@
 
 #include "jeeps/gps.h"
 
+namespace jeeps
+{
+
 int32_t GPS_Init(const char* port);
 
 int32_t GPS_A100_Get(const char* port, GPS_PWay** way, int (*cb)(int ct, GPS_PWay*));
@@ -111,5 +114,7 @@ const char* Get_Pkt_Type(US p, US d0, const char** xinfo);
 
 void GPS_Prepare_Track_For_Device(GPS_PTrack** trk, int32_t* n);
 int32_t GPS_Set_Baud_Rate(const char* port, int br);
+
+} // namespace jeeps
 
 #endif // JEEPS_GPSAPP_H_INCLUDED_

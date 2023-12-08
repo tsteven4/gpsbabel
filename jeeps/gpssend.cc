@@ -30,6 +30,9 @@
 #include "jeeps/gps.h"
 #include "jeeps/gpsserial.h"
 
+namespace jeeps
+{
+
 /* @funcstatic Build_Serial_Packet *************************************
 **
 ** Forms a complete packet to send on serial port
@@ -203,3 +206,5 @@ bool GPS_Serial_Send_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec)
 
   return true;
 }
+
+} // namespace jeeps

@@ -30,6 +30,9 @@
 #include <cstdio>
 #include <cstdlib>
 
+namespace jeeps
+{
+
 /* @func GPS_Pvt_New ***********************************************
 **
 ** Pvt constructor
@@ -399,3 +402,5 @@ void GPS_Course_Point_Del(GPS_PCourse_Point* thys)
 
   return;
 }
+
+} // namespace jeeps

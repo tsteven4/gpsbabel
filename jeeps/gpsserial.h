@@ -4,6 +4,9 @@
 
 #include "jeeps/gps.h"
 
+namespace jeeps
+{
+
 #define usecDELAY 180000	/* Microseconds before GPS sends A001 */
 #define DEFAULT_BAUD 9600
 
@@ -23,5 +26,7 @@ int32_t GPS_Serial_Write(gpsdevh* fd, const void* obuf, int size);
 
 
 int32_t GPS_Serial_Set_Baud_Rate(gpsdevh* fd, int br);
+
+} // namespace jeeps
 
 #endif // JEEPS_GPSSERIAL_H_INCLUDED_

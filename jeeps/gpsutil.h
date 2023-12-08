@@ -4,6 +4,9 @@
 
 #include "jeeps/gps.h"
 
+namespace jeeps
+{
+
 int32_t GPS_Util_Little();
 
 US     GPS_Util_Get_Short(const UC* s);
@@ -36,5 +39,6 @@ void   GPS_Diagnose(int32_t c);
 void   GPS_Enable_Diagnose();
 void   GPS_Disable_Diagnose();
 
+} // namespace jeeps
 
 #endif // JEEPS_GPSUTIL_H_INCLUDED_

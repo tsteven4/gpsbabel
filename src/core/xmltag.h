@@ -55,9 +55,6 @@ private:
 
 struct fs_xml : FormatSpecificData {
   explicit fs_xml(FsType type) : FormatSpecificData(type) {}
-private:
-  fs_xml(const fs_xml&) = default;
-public:
   fs_xml& operator=(const fs_xml&) = delete;
   fs_xml(fs_xml&&) = delete;
   fs_xml& operator=(fs_xml&&) = delete;
@@ -66,5 +63,12 @@ public:
   fs_xml* clone() const override;
 
   XmlTag* tag{nullptr};
+
+private:
+
+  fs_xml(const fs_xml&) = default;
+
+  static void free_xml_tag(XmlTag* tag);
+  static void copy_xml_tag(XmlTag** copy, const XmlTag* src, XmlTag* parent);
 };
 #endif // SRC_CORE_XMLTAG_H

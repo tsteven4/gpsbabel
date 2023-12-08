@@ -22,9 +22,17 @@
 #ifndef JEEPS_GPSDEVICE_H_INCLUDED_
 #define JEEPS_GPSDEVICE_H_INCLUDED_
 
-typedef struct gpsdevh gpsdevh;
+namespace jeeps
+{
+
+struct gpsdevh; // forward declare, opaque to users.
+
+} // namespace jeeps
 
 #include "jeeps/gps.h"
+
+namespace jeeps
+{
 
 #define usecDELAY 180000	/* Microseconds before GPS sends A001 */
 
@@ -48,7 +56,7 @@ using gps_device_op10 = bool (*)(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
 using gps_device_op12 = int32_t (*)(gpsdevh* fd, const GPS_Packet& packet);
 using gps_device_op13 = int32_t (*)(gpsdevh* fd, GPS_Packet* packet);
 
-typedef struct {
+struct gps_device_ops {
   gps_device_op5 Device_On;
   gps_device_op Device_Off;
   gps_device_op Device_Chars_Ready;
@@ -58,6 +66,8 @@ typedef struct {
   gps_device_op10 Get_Ack;
   gps_device_op13 Read_Packet;
   gps_device_op12 Write_Packet;
-} gps_device_ops;
+};
+
+} // namespace jeeps
 
 #endif /* JEEPS_GPSDEVICE_H_INCLUDED_ */

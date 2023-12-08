@@ -12,8 +12,12 @@
 
 #include <cstdint>
 
+namespace jeeps
+{
 
 typedef unsigned char UC;
 typedef uint16_t      US;
+
+} // namespace jeeps
 
 #endif // JEEPS_GPSPORT_H_INCLUDED_

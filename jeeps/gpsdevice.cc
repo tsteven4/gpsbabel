@@ -23,6 +23,9 @@
 #include "jeeps/gpsdevice.h"
 #include "jeeps/gpsserial.h"
 
+namespace jeeps
+{
+
 extern gps_device_ops gps_serial_ops;
 extern gps_device_ops gps_usb_ops;
 static gps_device_ops* ops = nullptr;
@@ -88,3 +91,5 @@ void GPS_Make_Packet(GPS_Packet* packet, US type, UC* data, uint32_t n)
   }
   packet->n = n;
 }
+
+} // namespace jeeps

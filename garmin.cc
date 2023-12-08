@@ -24,6 +24,7 @@
 #include <cassert>               // for assert
 #include <climits>               // for INT_MAX
 #include <cmath>                 // for atan2, floor, sqrt
+#include <cstdint>               // for int32_t
 #include <cstdio>                // for fprintf, fflush, snprintf, snprintf
 #include <cstdlib>               // for strtol
 #include <cstring>               // for memcpy, strlen, strncpy, strchr
@@ -46,7 +47,6 @@
 #include "jeeps/gpsapp.h"        // for GPS_Set_Baud_Rate, GPS_Init, GPS_Pre...
 #include "jeeps/gpscom.h"        // for GPS_Command_Get_Lap, GPS_Command_Get...
 #include "jeeps/gpsmem.h"        // for GPS_Track_Del, GPS_Way_Del, GPS_Pvt_Del
-#include "jeeps/gpsport.h"       // for int32
 #include "jeeps/gpsprot.h"       // for gps_waypt_type, gps_category_type
 #include "jeeps/gpssend.h"       // for GPS_SWay, GPS_PWay, GPS_STrack, GPS_...
 #include "jeeps/gpsserial.h"     // for DEFAULT_BAUD
@@ -90,16 +90,16 @@ GarminFormat::rw_init(const QString& fname)
   }
 
   if (global_opts.debug_level > 0)  {
-    GPS_Enable_Warning();
-    GPS_Enable_User();
+    jeeps::GPS_Enable_Warning();
+    jeeps::GPS_Enable_User();
   }
   if (global_opts.debug_level > 1)  {
-    GPS_Enable_Diagnose();
+    jeeps::GPS_Enable_Diagnose();
   }
-  GPS_Enable_Error();
+  jeeps::GPS_Enable_Error();
 
   if (poweroff) {
-    GPS_Command_Off(qPrintable(fname));
+    jeeps::GPS_Command_Off(qPrintable(fname));
     return;
   }
 
@@ -121,7 +121,7 @@ GarminFormat::rw_init(const QString& fname)
     }
   }
 
-  if (GPS_Init(qPrintable(fname)) < 0) {
+  if (jeeps::GPS_Init(qPrintable(fname)) < 0) {
     fatal(MYNAME ":Can't init %s\n", qPrintable(fname));
   }
 
@@ -131,16 +131,16 @@ GarminFormat::rw_init(const QString& fname)
    * an affected unit.
    */
   if (resettime) {
-    GPS_User("Issuing Time Reset...\n");
-    GPS_Command_Send_Time(qPrintable(fname), current_time().toTime_t());
-    GPS_User("done.\n");
+    jeeps::GPS_User("Issuing Time Reset...\n");
+    jeeps::GPS_Command_Send_Time(qPrintable(fname), current_time().toTime_t());
+    jeeps::GPS_User("done.\n");
   }
 
   portname = xstrdup(qPrintable(fname));
 
   if (baud && baud != DEFAULT_BAUD) {
-    if (0 == GPS_Set_Baud_Rate(portname, baud)) {
-      gps_baud_rate = baud;
+    if (0 == jeeps::GPS_Set_Baud_Rate(portname, baud)) {
+      jeeps::gps_baud_rate = baud;
     }
   }
 
@@ -154,10 +154,10 @@ GarminFormat::rw_init(const QString& fname)
    */
   int receiver_short_length = 10;
 
-  switch (gps_waypt_type) {	/* waypoint type as defined by jeeps */
+  switch (jeeps::gps_waypt_type) {	/* waypoint type as defined by jeeps */
   case 0:
     fatal("Garmin unit %d does not support waypoint xfer.",
-          gps_save_id);
+          jeeps::gps_save_id);
 
     break;
   case 100:	/* The GARMIN GPS Interface Specification, */
@@ -178,7 +178,7 @@ GarminFormat::rw_init(const QString& fname)
   case 108: 	/* Need GPSr id to know the actual length */
   case 109:
   case 110:
-    switch (gps_save_id) {
+    switch (jeeps::gps_save_id) {
     case 130:	/* Garmin Etrex (yellow) */
       receiver_short_length = 6;
       break;
@@ -248,10 +248,10 @@ GarminFormat::rw_init(const QString& fname)
   if (global_opts.debug_level > 0)  {
     fprintf(stderr, "Waypoint type: %d\n"
             "Chosen waypoint length %d\n",
-            gps_waypt_type, receiver_short_length);
-    if (gps_category_type) {
+            jeeps::gps_waypt_type, receiver_short_length);
+    if (jeeps::gps_category_type) {
       fprintf(stderr, "Waypoint category type: %d\n",
-              gps_category_type);
+              jeeps::gps_category_type);
     }
   }
 
@@ -319,9 +319,9 @@ GarminFormat::rd_init(const QString& fname)
 void
 GarminFormat::rw_deinit()
 {
-  if (gps_baud_rate != DEFAULT_BAUD) {
-    if (0 == GPS_Set_Baud_Rate(portname, DEFAULT_BAUD)) {
-      gps_baud_rate = baud;
+  if (jeeps::gps_baud_rate != DEFAULT_BAUD) {
+    if (0 == jeeps::GPS_Set_Baud_Rate(portname, DEFAULT_BAUD)) {
+      jeeps::gps_baud_rate = baud;
     }
   }
 
@@ -333,7 +333,7 @@ GarminFormat::rw_deinit()
 }
 
 int
-GarminFormat::waypt_read_cb(int total_ct, GPS_PWay* /*unused*/)
+GarminFormat::waypt_read_cb(int total_ct, jeeps::GPS_PWay* /*unused*/)
 {
   if (global_opts.verbose_status) {
     static int i;
@@ -347,21 +347,21 @@ void
 GarminFormat::waypt_read()
 {
   int n;
-  GPS_PWay* way = nullptr;
+  jeeps::GPS_PWay* way = nullptr;
 
   if (getposn) {
     auto* wpt = new Waypoint;
-    wpt->latitude = gps_save_lat;
-    wpt->longitude = gps_save_lon;
+    wpt->latitude = jeeps::gps_save_lat;
+    wpt->longitude = jeeps::gps_save_lon;
     wpt->shortname = "Position";
-    if (gps_save_time) {
-      wpt->SetCreationTime(gps_save_time);
+    if (jeeps::gps_save_time) {
+      wpt->SetCreationTime(jeeps::gps_save_time);
     }
     waypt_add(wpt);
     return;
   }
 
-  if ((n = GPS_Command_Get_Waypoint(portname, &way, waypt_read_cb)) < 0) {
+  if ((n = jeeps::GPS_Command_Get_Waypoint(portname, &way, waypt_read_cb)) < 0) {
     fatal(MYNAME  ":Can't get waypoint from %s\n", portname);
   }
 
@@ -374,7 +374,7 @@ GarminFormat::waypt_read()
     wpt_tmp->description = wpt_tmp->description.simplified();
     wpt_tmp->longitude = way[i]->lon;
     wpt_tmp->latitude = way[i]->lat;
-    if (gps_waypt_type == 103) {
+    if (jeeps::gps_waypt_type == 103) {
       wpt_tmp->icon_descr = d103_symbol_from_icon_number(
                               way[i]->smbl);
     } else {
@@ -401,7 +401,7 @@ GarminFormat::waypt_read()
     if (way[i]->time_populated) {
       wpt_tmp->SetCreationTime(way[i]->time);
     }
-    garmin_fs_garmin_after_read(way[i], wpt_tmp, gps_waypt_type);
+    garmin_fs_garmin_after_read(way[i], wpt_tmp, jeeps::gps_waypt_type);
     waypt_add(wpt_tmp);
     GPS_Way_Del(&way[i]);
   }
@@ -410,20 +410,20 @@ GarminFormat::waypt_read()
   }
 }
 
-int GarminFormat::lap_read_nop_cb(int /*unused*/, GPS_SWay** /*unused*/)
+int GarminFormat::lap_read_nop_cb(int /*unused*/, jeeps::GPS_SWay** /*unused*/)
 {
   return 0;
 }
 
 // returns 1 if the waypoint's start_time can be found
 // in the laps array, 0 otherwise
-unsigned int GarminFormat::checkWayPointIsAtSplit(Waypoint* wpt, GPS_PLap* laps, int nlaps)
+unsigned int GarminFormat::checkWayPointIsAtSplit(Waypoint* wpt, jeeps::GPS_PLap* laps, int nlaps)
 {
   int result = 0;
 
   if ((laps != nullptr) && (nlaps > 0)) {
     for (int i = (nlaps-1); i >= 0; i--) {
-      GPS_PLap lap = laps[i];
+      jeeps::GPS_PLap lap = laps[i];
       time_t delta = lap->start_time - wpt->GetCreationTime().toTime_t();
       if ((delta >= -1) && (delta <= 1)) {
         result = 1;
@@ -446,20 +446,20 @@ unsigned int GarminFormat::checkWayPointIsAtSplit(Waypoint* wpt, GPS_PLap* laps,
 void
 GarminFormat::track_read()
 {
-  GPS_PTrack* array;
+  jeeps::GPS_PTrack* array;
   route_head* trk_head = nullptr;
   int trk_num = 0;
   const char* trk_name = "";
-  GPS_PLap* laps = nullptr;
+  jeeps::GPS_PLap* laps = nullptr;
   int nlaps = 0;
   int next_is_new_trkseg = 0;
 
-  if (gps_lap_type != -1) {
-    nlaps = GPS_Command_Get_Lap(portname, &laps, &lap_read_nop_cb);
+  if (jeeps::gps_lap_type != -1) {
+    nlaps = jeeps::GPS_Command_Get_Lap(portname, &laps, &lap_read_nop_cb);
   }
 
 
-  int32_t ntracks = GPS_Command_Get_Track(portname, &array, waypt_read_cb);
+  int32_t ntracks = jeeps::GPS_Command_Get_Track(portname, &array, waypt_read_cb);
 
   if (ntracks <= 0) {
     return;
@@ -529,14 +529,14 @@ GarminFormat::track_read()
 void
 GarminFormat::route_read()
 {
-  GPS_PWay* array;
+  jeeps::GPS_PWay* array;
   /* TODO: Fixes warning but is it right?
    * RJL:  No, the warning isn't right; GCC's flow analysis is broken.
    * still, it's good taste...
    */
   route_head* rte_head = nullptr;
 
-  int32_t nroutepts = GPS_Command_Get_Route(portname, &array);
+  int32_t nroutepts = jeeps::GPS_Command_Get_Route(portname, &array);
 
 //	fprintf(stderr, "Routes %d\n", (int) nroutepts);
 #if 1
@@ -585,7 +585,7 @@ GarminFormat::route_read()
  * to the data type we use throughout.   Yes, we do lose some data that way.
  */
 void
-GarminFormat::pvt2wpt(GPS_PPvt_Data pvt, Waypoint* wpt)
+GarminFormat::pvt2wpt(jeeps::GPS_PPvt_Data pvt, Waypoint* wpt)
 {
   wpt->altitude = pvt->alt;
   wpt->latitude = pvt->lat;
@@ -648,22 +648,22 @@ void
 GarminFormat::rd_position_init(const QString& fname)
 {
   rw_init(fname);
-  GPS_Command_Pvt_On(qPrintable(fname), &pvt_fd);
+  jeeps::GPS_Command_Pvt_On(qPrintable(fname), &pvt_fd);
 }
 
 Waypoint*
 GarminFormat::rd_position(posn_status* posn_status)
 {
   auto* wpt = new Waypoint;
-  GPS_PPvt_Data pvt = GPS_Pvt_New();
+  jeeps::GPS_PPvt_Data pvt = jeeps::GPS_Pvt_New();
 
-  if (GPS_Command_Pvt_Get(&pvt_fd, &pvt)) {
+  if (jeeps::GPS_Command_Pvt_Get(&pvt_fd, &pvt)) {
     pvt2wpt(pvt, wpt);
     GPS_Pvt_Del(&pvt);
 
     wpt->shortname = "Position";
 
-    if (gps_errno && posn_status) {
+    if (jeeps::gps_errno && posn_status) {
       posn_status->request_terminate = 1;
     }
 
@@ -674,7 +674,7 @@ GarminFormat::rd_position(posn_status* posn_status)
    * If the caller has not given us a better way to return the
    * error, do it now.
    */
-  if (gps_errno) {
+  if (jeeps::gps_errno) {
     fatal(MYNAME ": Fatal error reading position.\n");
   }
 
@@ -706,10 +706,10 @@ GarminFormat::read()
   }
 }
 
-GPS_PWay
+jeeps::GPS_PWay
 GarminFormat::sane_GPS_Way_New()
 {
-  GPS_PWay way = GPS_Way_New();
+  jeeps::GPS_PWay way = jeeps::GPS_Way_New();
   if (!way) {
     fatal(MYNAME ":not enough memory\n");
   }
@@ -733,7 +733,7 @@ GarminFormat::sane_GPS_Way_New()
 }
 
 int
-GarminFormat::waypt_write_cb(GPS_PWay* /*unused*/)
+GarminFormat::waypt_write_cb(jeeps::GPS_PWay* /*unused*/)
 {
   int n = waypt_count();
 
@@ -786,7 +786,7 @@ GarminFormat::waypoint_prepare()
   extern WaypointList* global_waypoint_list;
   int icon;
 
-  tx_waylist = (GPS_SWay**) xcalloc(n,sizeof(*tx_waylist));
+  tx_waylist = (jeeps::GPS_SWay**) xcalloc(n,sizeof(*tx_waylist));
 
   for (i = 0; i < n; i++) {
     tx_waylist[i] = sane_GPS_Way_New();
@@ -862,7 +862,7 @@ GarminFormat::waypoint_prepare()
     /* For units that support tiny numbers of waypoints, just
      * overwrite that and go very literal.
      */
-    if (gps_waypt_type == 103) {
+    if (jeeps::gps_waypt_type == 103) {
       icon = d103_icon_number_from_symbol(wpt->icon_descr);
     }
     tx_waylist[i]->smbl = icon;
@@ -883,7 +883,7 @@ GarminFormat::waypoint_prepare()
     if (categorybits) {
       tx_waylist[i]->category = categorybits;
     }
-    garmin_fs_garmin_before_write(wpt, tx_waylist[i], gps_waypt_type);
+    garmin_fs_garmin_before_write(wpt, tx_waylist[i], jeeps::gps_waypt_type);
     i++;
   }
 
@@ -895,7 +895,7 @@ GarminFormat::waypoint_write()
 {
   int n = waypoint_prepare();
 
-  if (int32_t ret = GPS_Command_Send_Waypoint(portname, tx_waylist, n, waypt_write_cb); ret < 0) {
+  if (int32_t ret = jeeps::GPS_Command_Send_Waypoint(portname, tx_waylist, n, waypt_write_cb); ret < 0) {
     fatal(MYNAME ":communication error sending waypoints..\n");
   }
 
@@ -924,7 +924,7 @@ GarminFormat::route_hdr_pr(const route_head* rte)
 void
 GarminFormat::route_waypt_pr(const Waypoint* wpt)
 {
-  GPS_PWay rte = *cur_tx_routelist_entry;
+  jeeps::GPS_PWay rte = *cur_tx_routelist_entry;
 
   /*
    * As stupid as this is, libjeeps seems to want an empty
@@ -979,7 +979,7 @@ GarminFormat::route_write()
 {
   int n = 2 * route_waypt_count(); /* Doubled for the islink crap. */
 
-  tx_routelist = (GPS_SWay**) xcalloc(n,sizeof(GPS_PWay));
+  tx_routelist = (jeeps::GPS_SWay**) xcalloc(n,sizeof(jeeps::GPS_PWay));
   cur_tx_routelist_entry = tx_routelist;
 
   for (int i = 0; i < n; i++) {
@@ -993,7 +993,7 @@ GarminFormat::route_write()
     route_waypt_pr(waypointp);
   };
   route_disp_all(route_hdr_pr_lambda, nullptr, route_waypt_pr_lambda);
-  GPS_Command_Send_Route(portname, tx_routelist, n);
+  jeeps::GPS_Command_Send_Route(portname, tx_routelist, n);
 }
 
 void
@@ -1032,10 +1032,10 @@ GarminFormat::track_prepare()
 {
   int32_t n = track_waypt_count() + track_count();
 
-  tx_tracklist = (GPS_STrack**) xcalloc(n, sizeof(GPS_PTrack));
+  tx_tracklist = (jeeps::GPS_STrack**) xcalloc(n, sizeof(jeeps::GPS_PTrack));
   cur_tx_tracklist_entry = tx_tracklist;
   for (int i = 0; i < n; i++) {
-    tx_tracklist[i] = GPS_Track_New();
+    tx_tracklist[i] = jeeps::GPS_Track_New();
   }
   my_track_count = 0;
   auto track_hdr_pr_lambda = [this](const route_head* rte)->void {
@@ -1055,7 +1055,7 @@ void
 GarminFormat::track_write()
 {
   int n = track_prepare();
-  GPS_Command_Send_Track(portname, tx_tracklist, n, (eraset)? 1 : 0);
+  jeeps::GPS_Command_Send_Track(portname, tx_tracklist, n, (eraset)? 1 : 0);
 
   for (int i = 0; i < n; i++) {
     GPS_Track_Del(&tx_tracklist[i]);
@@ -1071,7 +1071,7 @@ GarminFormat::course_write()
   int n_wpt = waypoint_prepare();
   int n_trk = track_prepare();
 
-  GPS_Command_Send_Track_As_Course(portname, tx_tracklist, n_trk,
+  jeeps::GPS_Command_Send_Track_As_Course(portname, tx_tracklist, n_trk,
                                    tx_waylist, n_wpt, (eraset)? 1 : 0);
 
   for (i = 0; i < n_wpt; ++i) {
@@ -1098,7 +1098,7 @@ GarminFormat::write()
    */
   if ((global_opts.masked_objective & WPTDATAMASK) &&
       (global_opts.masked_objective & TRKDATAMASK) &&
-      gps_course_transfer != -1) {
+      jeeps::gps_course_transfer != -1) {
     course_write();
   } else {
     if (global_opts.masked_objective & WPTDATAMASK) {
@@ -1139,7 +1139,7 @@ GarminFormat::d103_icon_number_from_symbol(const QString& s)
 }
 
 void
-GarminFormat::garmin_fs_garmin_after_read(const GPS_PWay way, Waypoint* wpt, const int protoid)
+GarminFormat::garmin_fs_garmin_after_read(const jeeps::GPS_PWay way, Waypoint* wpt, const int protoid)
 {
   auto* gmsd = new garmin_fs_t(protoid);
   wpt->fs.FsChainAdd(gmsd);
@@ -1150,7 +1150,7 @@ GarminFormat::garmin_fs_garmin_after_read(const GPS_PWay way, Waypoint* wpt, con
   garmin_fs_t::set_wpt_class(gmsd, way[i]->wpt_class);
   */
   /* flagged data fields */
-  garmin_fs_t::set_display(gmsd, gt_switch_display_mode_value(way->dspl, gps_waypt_type, 1));
+  garmin_fs_t::set_display(gmsd, gt_switch_display_mode_value(way->dspl, jeeps::gps_waypt_type, 1));
   if (way->category != 0) {
     garmin_fs_t::set_category(gmsd, way->category);
   }
@@ -1173,7 +1173,7 @@ GarminFormat::garmin_fs_garmin_after_read(const GPS_PWay way, Waypoint* wpt, con
 }
 
 void
-GarminFormat::garmin_fs_garmin_before_write(const Waypoint* wpt, GPS_PWay way, const int protoid)
+GarminFormat::garmin_fs_garmin_before_write(const Waypoint* wpt, jeeps::GPS_PWay way, const int protoid)
 {
   const garmin_fs_t* gmsd = garmin_fs_t::find(wpt);
 
@@ -1187,7 +1187,7 @@ GarminFormat::garmin_fs_garmin_before_write(const Waypoint* wpt, GPS_PWay way, c
   way[i]->wpt_class = garmin_fs_t::get_wpt_class(gmsd, way[i]->wpt_class);
   	*/
   way->dspl = gt_switch_display_mode_value(
-                garmin_fs_t::get_display(gmsd, way->dspl), gps_waypt_type, 0);
+                garmin_fs_t::get_display(gmsd, way->dspl), jeeps::gps_waypt_type, 0);
   way->category = garmin_fs_t::get_category(gmsd, way->category);
   if (wpt->depth_has_value()) {
     way->dpth = wpt->depth_value();

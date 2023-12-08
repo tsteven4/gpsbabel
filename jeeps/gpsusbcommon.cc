@@ -23,6 +23,9 @@
 #include "jeeps/garminusb.h"
 #include "jeeps/gpsusbcommon.h"
 
+namespace jeeps
+{
+
 /*
  * This receive logic is a little convoluted as we go to some efforts here
  * to hide most of the differences between the bulk only and bulk-interrupt
@@ -49,9 +52,7 @@ gusb_register_ll(gusb_llops_t* p)
 int
 gusb_close(gpsdevh* dh, bool exit_lib)
 {
-  garmin_usb_packet scratch;
-
-  memset(&scratch, 0, sizeof(scratch));
+  garmin_usb_packet scratch = {};
 
   switch (receive_state) {
   case rs_frombulk:
@@ -274,3 +275,5 @@ gusb_syncup()
   }
   fatal("Unable to establish USB syncup\n");
 }
+
+} // namespace jeeps

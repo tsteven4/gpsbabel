@@ -5,6 +5,9 @@
 #include "jeeps/gpsport.h"
 #include <ctime>
 
+namespace jeeps
+{
+
 #define FRAMING_ERROR  -1
 #define PROTOCOL_ERROR -2
 #define HARDWARE_ERROR -3
@@ -234,6 +237,8 @@ typedef struct GPS_SCourse_Limits {
 
 using pcb_fn = int (*)(int, GPS_SWay**);
 
+} // namespace jeeps
+
 #include "jeeps/gpsdevice.h"
 #include "jeeps/gpssend.h"
 #include "jeeps/gpsread.h"
@@ -245,6 +250,9 @@ using pcb_fn = int (*)(int, GPS_SWay**);
 #include "jeeps/gpsmem.h"
 #include "jeeps/gpsrqst.h"
 
+namespace jeeps
+{
+
 extern time_t gps_save_time;
 extern double gps_save_lat;
 extern double gps_save_lon;
@@ -254,9 +262,9 @@ extern char   gps_save_string[GPS_ARB_LEN];
 extern int gps_is_usb;
 extern int gps_baud_rate;
 
-extern COMMANDDATA COMMAND_ID[2];
-extern LINKDATA LINK_ID[3];
-extern GPS_MODEL_PROTOCOL GPS_MP[];
+extern const COMMANDDATA COMMAND_ID[2];
+extern const LINKDATA LINK_ID[3];
+extern const GPS_MODEL_PROTOCOL GPS_MP[];
 
 extern const char* gps_marine_sym[];
 extern const char* gps_land_sym[];
@@ -264,4 +272,5 @@ extern const char* gps_aviation_sym[];
 extern const char* gps_16_sym[];
 
 
+}; // namespace jeeps
 #endif // JEEPS_GPS_H_INCLUDED_

@@ -23,6 +23,9 @@
 #include "jeeps/gpsusbint.h"
 #include <cctype>
 
+namespace jeeps
+{
+
 /*
  * Return values are:
  * Negative on error.
@@ -33,9 +36,8 @@ int32_t GPS_Packet_Read_usb(gpsdevh* /*unused*/, GPS_Packet* packet, int eat_bul
 	int32_t n;
 	int32_t payload_size;
 
-  garmin_usb_packet pkt;
+  garmin_usb_packet pkt = {};
 
-  memset(&pkt, 0, sizeof(pkt));
 do_over:
   n = gusb_cmd_get(&pkt, sizeof(pkt));
 
@@ -110,3 +112,5 @@ do_over:
 
   return 1;
 }
+
+} // namespace jeeps

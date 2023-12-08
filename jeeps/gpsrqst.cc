@@ -25,6 +25,9 @@
 #include "jeeps/gps.h"
 
 
+namespace jeeps
+{
+
 static int32_t GPS_A600_Rqst(gpsdevh* fd, time_t Time);
 static int32_t GPS_A700_Rqst(gpsdevh* fd, double lat, double lon);
 
@@ -158,3 +161,4 @@ static int32_t GPS_A700_Rqst(gpsdevh* fd, double lat, double lon)
   return 1;
 }
 
+} // namespace jeeps

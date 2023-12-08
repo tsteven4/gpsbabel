@@ -29,6 +29,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+namespace jeeps
+{
 
 /* @func GPS_Command_Off ***********************************************
 **
@@ -1334,3 +1336,5 @@ int32_t GPS_Command_Get_Course_Limits(const char* /* port */, void** /* lap */, 
 {
   return 0;
 }
+
+} // namespace jeeps

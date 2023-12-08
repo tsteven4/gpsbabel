@@ -25,11 +25,13 @@
 #include <cerrno>
 #include <cstdio>
 
+namespace jeeps
+{
+
 int32_t
 GPS_Write_Packet_usb(gpsdevh* /*unused*/, const GPS_Packet& packet)
 {
-  garmin_usb_packet gp;
-  memset(&gp, 0, sizeof(gp));
+  garmin_usb_packet gp = {};
 
 
   /*
@@ -43,3 +45,5 @@ GPS_Write_Packet_usb(gpsdevh* /*unused*/, const GPS_Packet& packet)
 
   return  gusb_cmd_send(&gp, packet.n + 12);
 }
+
+} // namespace jeeps

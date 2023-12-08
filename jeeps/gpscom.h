@@ -5,6 +5,9 @@
 #include "jeeps/gps.h"
 #include <ctime>
 
+namespace jeeps
+{
+
 int32_t GPS_Command_Off(const char* port);
 
 time_t GPS_Command_Get_Time(const char* port);
@@ -44,4 +47,7 @@ int32_t GPS_Command_Get_Workout(const char* port, void** lap, int (*cb)(int, GPS
 int32_t GPS_Command_Get_Fitness_User_Profile(const char* port, void** lap, int (*cb)(int, GPS_SWay**));
 int32_t GPS_Command_Get_Workout_Limits(const char* port, void** lap, int (*cb)(int, GPS_SWay**));
 int32_t GPS_Command_Get_Course_Limits(const char* port, void** lap, int (*cb)(int, GPS_SWay**));
+
+} // namespace jeeps
+
 #endif // JEEPS_GPSCOM_H_INCLUDED_

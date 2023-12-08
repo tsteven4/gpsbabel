@@ -24,6 +24,9 @@
 #include "jeeps/gpsread.h"
 #include "jeeps/gpsserial.h"
 
+namespace jeeps
+{
+
 gps_device_ops  gps_serial_ops = {
   GPS_Serial_On,
   GPS_Serial_Off,
@@ -35,3 +38,5 @@ gps_device_ops  gps_serial_ops = {
   GPS_Serial_Packet_Read,
   GPS_Serial_Write_Packet,
 };
+
+} // namespace jeeps

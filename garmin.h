@@ -84,15 +84,15 @@ private:
   static void write_char_string(char* dest, const char* source, size_t destsize);
   void rw_init(const QString& fname);
   void rw_deinit();
-  static int waypt_read_cb(int total_ct, GPS_SWay** /* unused */);
+  static int waypt_read_cb(int total_ct, jeeps::GPS_SWay** /* unused */);
   void waypt_read();
-  static int lap_read_nop_cb(int /* unused */, GPS_SWay** /* unused */);
-  static unsigned int checkWayPointIsAtSplit(Waypoint* wpt, GPS_SLap** laps, int nlaps);
+  static int lap_read_nop_cb(int /* unused */, jeeps::GPS_SWay** /* unused */);
+  static unsigned int checkWayPointIsAtSplit(Waypoint* wpt, jeeps::GPS_SLap** laps, int nlaps);
   void track_read();
   void route_read();
-  static void pvt2wpt(GPS_PPvt_Data pvt, Waypoint* wpt);
-  static GPS_SWay* sane_GPS_Way_New();
-  static int waypt_write_cb(GPS_SWay** /* unused */);
+  static void pvt2wpt(jeeps::GPS_PPvt_Data pvt, Waypoint* wpt);
+  static jeeps::GPS_SWay* sane_GPS_Way_New();
+  static int waypt_write_cb(jeeps::GPS_SWay** /* unused */);
   static const char* get_gc_info(const Waypoint* wpt);
   int waypoint_prepare();
   void waypoint_write();
@@ -106,18 +106,18 @@ private:
   void course_write();
   static const char* d103_symbol_from_icon_number(unsigned int n);
   static int d103_icon_number_from_symbol(const QString& s);
-  void garmin_fs_garmin_after_read(GPS_PWay way, Waypoint* wpt, int protoid);
-  void garmin_fs_garmin_before_write(const Waypoint* wpt, GPS_PWay way, int protoid);
+  void garmin_fs_garmin_after_read(jeeps::GPS_PWay way, Waypoint* wpt, int protoid);
+  void garmin_fs_garmin_before_write(const Waypoint* wpt, jeeps::GPS_PWay way, int protoid);
 
   /* Data Members */
 
   const char* portname{};
   MakeShort* mkshort_handle{};
-  GPS_PWay* tx_waylist{};
-  GPS_PWay* tx_routelist{};
-  GPS_PWay* cur_tx_routelist_entry{};
-  GPS_PTrack* tx_tracklist{};
-  GPS_PTrack* cur_tx_tracklist_entry{};
+  jeeps::GPS_PWay* tx_waylist{};
+  jeeps::GPS_PWay* tx_routelist{};
+  jeeps::GPS_PWay* cur_tx_routelist_entry{};
+  jeeps::GPS_PTrack* tx_tracklist{};
+  jeeps::GPS_PTrack* cur_tx_tracklist_entry{};
   int my_track_count = 0;
   char* getposn = nullptr;
   char* poweroff = nullptr;
@@ -182,7 +182,7 @@ private:
 
   };
 
-  gpsdevh* pvt_fd{};
+  jeeps::gpsdevh* pvt_fd{};
 
   static constexpr const char* d103_icons[16] = {
     "dot",

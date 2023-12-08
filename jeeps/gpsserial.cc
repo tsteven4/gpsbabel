@@ -34,6 +34,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+namespace jeeps
+{
+
 int gps_baud_rate = DEFAULT_BAUD;
 
 #if 0
@@ -60,12 +63,17 @@ char* rxdata[] = {
  */
 #if defined (__WIN32__) || defined (__CYGWIN__)
 
+} // namespace jeeps
+
 #include <windows.h>
 #include "gbser_win.h"
 
-typedef struct {
+namespace jeeps
+{
+
+struct win_serial_data {
   HANDLE comport;
-} win_serial_data;
+};
 
 /*
  * Display an error from the serial subsystem.
@@ -311,16 +319,21 @@ int32_t GPS_Serial_Set_Baud_Rate(gpsdevh* fd, int br)
 }
 #else
 
+} // namespace jeeps
+
 #include "gbser_posix.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
 
-typedef struct {
+namespace jeeps
+{
+
+struct posix_serial_data {
   int fd;		/* File descriptor */
   struct termios gps_ttysave;
-} posix_serial_data;
+};
 
 /* @func GPS_Serial_Open ***********************************************
 **
@@ -691,3 +704,5 @@ int32_t GPS_Serial_Set_Baud_Rate(gpsdevh* fd, int br)
 }
 
 #endif /* __WIN32__ */
+
+} // namespace jeeps

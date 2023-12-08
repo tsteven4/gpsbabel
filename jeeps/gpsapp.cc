@@ -40,6 +40,9 @@
 #include "jeeps/gpsserial.h"
 #include "jeeps/gpsusbint.h"
 
+namespace jeeps
+{
+
 time_t gps_save_time;
 double gps_save_lat;
 double gps_save_lon;
@@ -125,7 +128,7 @@ char	gps_save_string[GPS_ARB_LEN];
  * we uppercase the string because some models (III's and 12's) react
  * violently to lower case data.
  */
-typedef enum { UpperNo = 0, UpperYes = 1 } copycase;
+enum copycase { UpperNo = 0, UpperYes = 1 };
 
 static
 void copy_char_array(UC** dst, char* src, int count, copycase mustupper)
@@ -7603,3 +7606,5 @@ int32_t GPS_Set_Baud_Rate(const char* port, int br)
   return 0;
 
 }
+
+} // namespace jeeps

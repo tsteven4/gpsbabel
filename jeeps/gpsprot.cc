@@ -22,9 +22,11 @@
 ** Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ** Boston, MA  02110-1301, USA.
 ********************************************************************/
-#define COMMON
 #include "jeeps/gps.h"
 #include <cstdio>
+
+namespace jeeps
+{
 
 #define GPS_TAGUNK  20
 
@@ -34,7 +36,7 @@ static int32_t gps_tag_data_unknown[GPS_TAGUNK];
 static int32_t gps_n_tag_unknown = 0;
 
 
-COMMANDDATA COMMAND_ID[2]= {
+const COMMANDDATA COMMAND_ID[2]= {
   /* Device Command Protocol 1 (A010) */
   {
     0,1,2,3,4,5,6,7,8,49,50,92,117,121,450,451,452,453,454,561,562,563,564,565
@@ -46,7 +48,7 @@ COMMANDDATA COMMAND_ID[2]= {
   }
 };
 
-LINKDATA LINK_ID[3]= {
+const LINKDATA LINK_ID[3]= {
   /* Basic Link Protocol (L000) */
   {
     253,254,255,248,
@@ -72,7 +74,7 @@ LINKDATA LINK_ID[3]= {
   }
 };
 
-GPS_MODEL_PROTOCOL GPS_MP[]= {
+const GPS_MODEL_PROTOCOL GPS_MP[]= {
   {
     7,pL001,pA010,pA100,pD100,pA200,pD200,-1,-1,-1,-1,-1,
     pA500,pD500
@@ -424,3 +426,5 @@ void GPS_Unknown_Protocol_Print()
                    (int)gps_tag_data_unknown[i]);
   return;
 }
+
+} // namespace jeeps

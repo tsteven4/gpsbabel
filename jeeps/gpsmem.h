@@ -1,10 +1,14 @@
 #ifndef JEEPS_GPSMEM_H_INCLUDED_
 #define JEEPS_GPSMEM_H_INCLUDED_
 
+#include "jeeps/gps.h"
+
+namespace jeeps
+{
+
 constexpr double GPS_FLTMIN = 1.75494351E-38;
 constexpr double GPS_FLTMAX = 3.402823466E+38;
 
-#include "jeeps/gps.h"
 GPS_PPvt_Data     GPS_Pvt_New();
 void              GPS_Pvt_Del(GPS_PPvt_Data* thys);
 GPS_PAlmanac      GPS_Almanac_New();
@@ -21,5 +25,7 @@ GPS_PCourse_Lap   GPS_Course_Lap_New();
 void              GPS_Course_Lap_Del(GPS_PCourse_Lap* thys);
 GPS_PCourse_Point GPS_Course_Point_New();
 void              GPS_Course_Point_Del(GPS_PCourse_Point* thys);
+
+} // namespace jeeps
 
 #endif // JEEPS_GPSMEM_H_INCLUDED_

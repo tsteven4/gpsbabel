@@ -25,6 +25,9 @@
 #include "jeeps/gpsusbcommon.h"
 #include "jeeps/gpsusbint.h"
 
+namespace jeeps
+{
+
 garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 
 static bool success_stub()
@@ -59,3 +62,5 @@ gps_device_ops gps_usb_ops = {
   gdu_read,
   GPS_Write_Packet_usb
 };
+
+} // namespace jeeps

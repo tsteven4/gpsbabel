@@ -31,6 +31,8 @@
 #include "jeeps/gps.h"
 #include "jeeps/gpsserial.h"
 
+namespace jeeps
+{
 
 /* @func GPS_Time_Now ***********************************************
 **
@@ -205,3 +207,5 @@ bool GPS_Serial_Get_Ack(gpsdevh *fd, GPS_Packet *tra, GPS_Packet *rec)
 
   return true;
 }
+
+} // namespace jeeps

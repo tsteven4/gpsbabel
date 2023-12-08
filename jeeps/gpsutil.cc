@@ -26,6 +26,9 @@
 #include <cstdlib>
 #include <fcntl.h>
 
+namespace jeeps
+{
+
 static int32_t gps_endian_called = 0;
 static int32_t GPS_Little = 0;
 
@@ -691,3 +694,5 @@ void GPS_Disable_Diagnose()
   gps_show_bytes = 0;
   return;
 }
+
+} // namespace jeeps

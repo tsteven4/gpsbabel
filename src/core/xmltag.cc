@@ -75,8 +75,8 @@ QString XmlTag::xml_attribute(const QString& attrname) const
   return QString();
 }
 
-static void
-free_xml_tag(XmlTag* tag)
+void
+fs_xml::free_xml_tag(XmlTag* tag)
 {
   while (tag) {
     if (tag->child) {
@@ -90,8 +90,8 @@ free_xml_tag(XmlTag* tag)
 }
 
 // FIXME: at some point, this becomes a plain ole copy constructor.
-static void
-copy_xml_tag(XmlTag** copy, const XmlTag* src, XmlTag* parent)
+void
+fs_xml::copy_xml_tag(XmlTag** copy, const XmlTag* src, XmlTag* parent)
 {
   if (!src) {
     *copy = nullptr;

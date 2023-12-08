@@ -38,6 +38,9 @@
 #include "jeeps/gpsdevice.h"
 #include "jeeps/gpsusbcommon.h"
 
+namespace jeeps
+{
+
 #define GARMIN_VID 0x91e
 
 /* This is very sensitive to timing; libusb and/or the unit is kind of
@@ -52,9 +55,9 @@
 #define TMOUT_I 5000 /*  Milliseconds to timeout intr pipe access. */
 #define TMOUT_B 5000 /*  Milliseconds to timeout bulk pipe access. */
 
-typedef struct {
+struct libusb_unit_data {
   unsigned product_id;
-} libusb_unit_data;
+};
 
 /*
  * TODO: this should all be moved into libusbdata in gpslibusb.h,
@@ -524,5 +527,7 @@ gusb_init(const char* portname, gpsdevh** dh)
   }
   return garmin_usb_scan(lud, req_unit_number);
 }
+
+} // namespace jeeps
 
 #endif /* HAVE_LIBUSB_1_0 */

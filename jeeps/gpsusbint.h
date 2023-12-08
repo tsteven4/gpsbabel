@@ -24,8 +24,13 @@
 #ifndef JEEPS_GPSUSBINT_H_INCLUDED_
 #define JEEPS_GPSUSBINT_H_INCLUDED_
 
+namespace jeeps
+{
+
 int32_t GPS_Packet_Read_usb(gpsdevh* fd, GPS_Packet* packet, int eatbulk);
 int32_t GPS_Write_Packet_usb(gpsdevh* fd, const GPS_Packet& packet);
+
+} // namespace jeeps
 
 #endif // JEEPS_GPSUSBINT_H_INCLUDED_
 
