@@ -32,6 +32,9 @@
 #include "jeeps/gpsapp.h"
 #include "jeeps/gpsusbcommon.h"
 
+namespace jeeps
+{
+
 /* Constants from Garmin doc. */
 
 // {2C9C45C2-8E7D-4C08-A12D-816BBAE722C0}
@@ -258,3 +261,5 @@ gusb_init(const char* pname, gpsdevh** dh)
   gusb_list_units();
   exit(0);
 }
+
+} // namespace jeeps
