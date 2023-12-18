@@ -129,6 +129,12 @@ else # Mac
   rm -f GPSBabelFE.dmg
   # macdeploytqt likes relative paths or else the dmg mount points get funky.
   APPBUNDLE="$(basename "$APPDIR")"
-  "${MACDEPLOYQT}" "${APPBUNDLE}" -executable="${APPBUNDLE}/Contents/MacOS/gpsbabel" -dmg -verbose=2
+  if command -v retry >/dev/null 2>&1; then
+    # work around github failures\
+    # ERROR: Bundle creation error: "hdiutil: create failed - Resource busy\n"
+    retry -t 3 -d 1 -- "${MACDEPLOYQT}" "${APPBUNDLE}" -executable="${APPBUNDLE}/Contents/MacOS/gpsbabel" -dmg -verbose=2
+  else
+    "${MACDEPLOYQT}" "${APPBUNDLE}" -executable="${APPBUNDLE}/Contents/MacOS/gpsbabel" -dmg -verbose=2
+  fi
   popd
 fi

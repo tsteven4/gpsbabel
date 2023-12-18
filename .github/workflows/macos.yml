@@ -79,6 +79,7 @@ jobs:
         if [ "${{ matrix.os }}" != "macos-11" ]; then
           brew install jing-trang
         fi
+        brew install retry
 
     - name: Script
       env:
