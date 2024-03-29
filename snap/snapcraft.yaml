@@ -22,15 +22,30 @@ apps:
       - removable-media
       - serial-port
     command: usr/bin/gpsbabel
+    extensions: [kde-neon]
+  gpsbabelfe:
+    plugs:
+      - home
+      - removable-media
+      - network
+#      - opengl
+#      - wayland
+#      - x11
+    command: usr/bin/gpsbabelfe
+#    environment:
+#      QT_DEBUG_PLUGINS: 1
+    extensions: [kde-neon]
 
-# remap the ubuntu qt6 install directories to the snap.
-layout:
-  /usr/share/qt6:
-    symlink: $SNAP/usr/share/qt6
-  /usr/lib/qt6:
-    symlink: $SNAP/usr/lib/qt6
-  /usr/lib/x86_64-linux-gnu/qt6:
-    symlink: $SNAP/usr/lib/x86_64-linux-gnu/qt6
+# remap the ubuntu qt5 install directories to the snap.
+# kde-neon trys use a qt.conf file, but they put it in a place that requires
+# a patch to qt that is no longer used!
+#layout:
+#  /usr/share/qt5:
+#    symlink: $SNAP/kf5/usr/share/qt5
+#  /usr/lib/qt5:
+#    symlink: $SNAP/kf5/usr/lib/qt5
+#  /usr/lib/x86_64-linux-gnu/qt5:
+#    symlink: $SNAP/kf5/usr/lib/x86_64-linux-gnu/qt5
 
 adopt-info: gpsbabel
 parts:
@@ -39,16 +54,15 @@ parts:
     plugin: cmake
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
-      - -DGPSBABEL_WITH_ZLIB=pkgconfig
+      - -DGPSBABEL_WITH_ZLIB=included
       - -DGPSBABEL_WITH_SHAPELIB=pkgconfig
+#      - -DGPSBABEL_MAPPREVIEW=OFF
     cmake-generator: Ninja
     source: .
     override-pull: |
       craftctl default
       # add install command to CMakeLists.txt
-      echo "install(TARGETS gpsbabel CONFIGURATIONS Release RUNTIME DESTINATION /usr/bin)" >> CMakeLists.txt
-      # no gui
-      sed -i -e's/add_subdirectory(gui)/#add_subdirectory(gui)/' CMakeLists.txt
+      echo "install(TARGETS gpsbabel gpsbabelfe CONFIGURATIONS Release RUNTIME DESTINATION /usr/bin)" >> CMakeLists.txt
       # jam repo sha into GITHUB_SHA
       sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake
       # set snap version
@@ -60,16 +74,25 @@ parts:
       - vim
       - g++
       - ninja-build
-      - zlib1g-dev
+#      - zlib1g-dev
       - libshp-dev
       - libusb-1.0-0-dev
       - pkg-config
       - libudev-dev
-      - qt6-base-dev
-      - libqt6core5compat6-dev
+      - qtbase5-dev
+      - qttools5-dev
+      - qttools5-dev-tools
+      - qttranslations5-l10n
+      - qtwebengine5-dev
+      - libqt5serialport5-dev
+#      - libgl-dev
+#      - libopengl-dev
+#      - libvulkan-dev
+#      - libx11-xcb-dev
+#      - libxkbcommon-dev
     stage-packages:
-      - zlib1g
+#      - zlib1g
       - libshp2
       - libusb-1.0-0
-      - libqt6core6
-      - libqt6core5compat6
+#      - libgl1-mesa-dri
+
