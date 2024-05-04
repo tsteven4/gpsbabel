@@ -37,7 +37,6 @@
 
 #include <cstdint>
 #include <cstdio>               // for printf
-#include <cstdlib>              // for free, malloc
 
 #include <QByteArray>           // for QByteArray
 #include <QDate>                // for QDate
@@ -201,7 +200,7 @@ GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_Devic
     printf("len=%d Payload:", length);
   }
 
-  auto* payload = (uint8_t*) malloc(length);
+  auto* payload = new uint8_t[length];
   if (payload == nullptr) {
     goto error_out;
   }
@@ -221,7 +220,7 @@ GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_Devic
     return payload;
   }
   //crc error
-  free(payload);
+  delete[] payload;
 error_out:
   *out_length = 0;
   return nullptr;
@@ -257,7 +256,7 @@ GlobalsatSportFormat::globalsat_probe_device()
   }
 
   if (payload) {
-    free(payload);
+    delete[] payload;
   }
 }
 
@@ -344,7 +343,7 @@ GlobalsatSportFormat::waypoint_read()
     }
   }
   if (in_payload) {
-    free(in_payload);
+    delete[] in_payload;
   }
   track_read();
 }
@@ -479,7 +478,7 @@ GlobalsatSportFormat::track_read()
         }
         int total_laps = db_train.LapCnts;
         int total_laps_left = total_laps;
-        free(track_payload);
+        delete[] track_payload;
         track_payload = nullptr;
 
         gpsbabel::DateTime gpsDateTime;
@@ -566,7 +565,7 @@ GlobalsatSportFormat::track_read()
               printf(" StartPt:%u EndPt:%u\n", db_lap.StartPt, db_lap.EndPt);
             }
           }
-          free(track_payload);
+          delete[] track_payload;
           track_payload = nullptr;
 
           total_laps_left -= laps_in_package;
@@ -576,7 +575,7 @@ GlobalsatSportFormat::track_read()
         do {
           if (track_payload) {
             // rest of the time in the loop
-            free(track_payload);
+            delete[] track_payload;
             globalsat_send_simple(CommandGetNextTrackSection);
           }
 
@@ -654,13 +653,13 @@ GlobalsatSportFormat::track_read()
           }
         } while (trackDeviceCommand == CommandGetTrackFileSections);
         if (track_payload) {
-          free(track_payload);
+          delete[] track_payload;
         }
       }
     }
   }
   if (payload) {
-    free(payload);
+    delete[] payload;
   }
 }
 
