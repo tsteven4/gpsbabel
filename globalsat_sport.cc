@@ -200,7 +200,7 @@ GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_Devic
     printf("len=%d Payload:", length);
   }
 
-  auto* payload = new uint8_t[length];
+  auto* payload = new(std::nothrow) uint8_t[length];
   if (payload == nullptr) {
     goto error_out;
   }
