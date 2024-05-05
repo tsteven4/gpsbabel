@@ -236,7 +236,7 @@ else()
                         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gpsbabelfe> package
                         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gpsbabel> package
                         # use --plugindir option to locate the plugins.
-                        COMMAND ${WINDEPLOYQT} --verbose 1 --plugindir package\\plugins package\\GPSBabelFE.exe package\\GPSBabel.exe
+                        COMMAND ${WINDEPLOYQT} --verbose 2 --plugindir package\\plugins package\\GPSBabelFE.exe package\\GPSBabel.exe
                         # set location to location of generated setup.iss file.
                         COMMAND ${INNO_COMPILER} /Doutput_dir=${_win_binary_path} /Dsource_dir=${_win_source_path} setup.iss
                         DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
