@@ -37,7 +37,7 @@
 
 #include <cstdint>
 #include <cstdio>               // for printf
-#include <cstdlib>              // for free, malloc
+#include <new>                  // for nothrow
 
 #include <QByteArray>           // for QByteArray
 #include <QDate>                // for QDate
@@ -181,7 +181,7 @@ GlobalsatSportFormat::globalsat_write_package(uint8_t* payload, uint32_t size)
   }
 }
 
-uint8_t*
+std::unique_ptr<uint8_t[]>
 GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand)
 {
   uint8_t crc;
@@ -201,7 +201,7 @@ GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_Devic
     printf("len=%d Payload:", length);
   }
 
-  auto* payload = (uint8_t*) malloc(length);
+  auto payload = std::unique_ptr<uint8_t[]>(new (std::nothrow) uint8_t[length]);
   if (payload == nullptr) {
     goto error_out;
   }
@@ -221,7 +221,6 @@ GlobalsatSportFormat::globalsat_read_package(int* out_length, uint8_t* out_Devic
     return payload;
   }
   //crc error
-  free(payload);
 error_out:
   *out_length = 0;
   return nullptr;
@@ -248,7 +247,7 @@ GlobalsatSportFormat::globalsat_probe_device()
 
   int len;
   uint8_t DeviceCommand;
-  uint8_t* payload = globalsat_read_package(&len, &DeviceCommand);
+  auto payload = globalsat_read_package(&len, &DeviceCommand);
   if ((len > 0) && (payload != nullptr)) {
     if (global_opts.debug_level > 1) {
       printf("Got package!!!\n");
@@ -256,9 +255,6 @@ GlobalsatSportFormat::globalsat_probe_device()
     //TODO figure out what device it is if we start to support more devices then gh625XT
   }
 
-  if (payload) {
-    free(payload);
-  }
 }
 
 void
@@ -337,14 +333,11 @@ GlobalsatSportFormat::waypoint_read()
 
   int len;
   uint8_t DeviceCommand;
-  uint8_t* in_payload = globalsat_read_package(&len, &DeviceCommand);
+  auto in_payload = globalsat_read_package(&len, &DeviceCommand);
   if ((len > 0) && (in_payload != nullptr)) {
     if (global_opts.debug_level > 1) {
       printf("Got package!!!\n");
     }
-  }
-  if (in_payload) {
-    free(in_payload);
   }
   track_read();
 }
@@ -363,7 +356,7 @@ GlobalsatSportFormat::track_read()
 
   int length;
   uint8_t DeviceCommand;
-  uint8_t* payload = globalsat_read_package(&length, &DeviceCommand);
+  auto payload = globalsat_read_package(&length, &DeviceCommand);
   if ((length > 0) && (payload != nullptr)) {
     if (global_opts.debug_level > 1) {
       printf("Got package!!! headers\n");
@@ -430,13 +423,13 @@ GlobalsatSportFormat::track_read()
 
         uint8_t trackDeviceCommand;
         int track_length;
-        uint8_t* track_payload = globalsat_read_package(&track_length, &trackDeviceCommand);
+        auto track_payload = globalsat_read_package(&track_length, &trackDeviceCommand);
         if ((track_length == 0) || (track_payload == nullptr)) {
           fatal(MYNAME ": track length is 0 bytes or payload nonexistent.\n");
         }
         //      printf("Got track package!!! Train data\n");
 
-        uint8_t* dbtrain = track_payload;
+        uint8_t* dbtrain = track_payload.get();
         gh_db_train db_train;
         db_train.dateStart.Year = dbtrain[0];
         db_train.dateStart.Month = dbtrain[1];
@@ -479,7 +472,6 @@ GlobalsatSportFormat::track_read()
         }
         int total_laps = db_train.LapCnts;
         int total_laps_left = total_laps;
-        free(track_payload);
         track_payload = nullptr;
 
         gpsbabel::DateTime gpsDateTime;
@@ -493,7 +485,7 @@ GlobalsatSportFormat::track_read()
           }
           //	printf("Got track package!!! Laps data\n");
 
-          uint8_t* hdr = track_payload;
+          uint8_t* hdr = track_payload.get();
           gh_trainheader header;
           header.dateStart.Year = hdr[0];
           header.dateStart.Month = hdr[1];
@@ -534,7 +526,7 @@ GlobalsatSportFormat::track_read()
 
           int laps_in_package = header.gh_laprec.LapIndex - header.gh_ptrec.Index + 1;
 //					printf("Lap Data:\n");
-          uint8_t* lap_start_pos = track_payload + 29;	//29=packed sizeof(gh_trainheader)
+          auto lap_start_pos = track_payload.get() + 29;	//29=packed sizeof(gh_trainheader)
           for (int lap = 0; lap < laps_in_package; lap++) {
             uint8_t* dblap = (lap_start_pos) + lap * 41;	//  packed sizeof(gh_db_lap)=41
             gh_db_lap db_lap;
@@ -566,7 +558,6 @@ GlobalsatSportFormat::track_read()
               printf(" StartPt:%u EndPt:%u\n", db_lap.StartPt, db_lap.EndPt);
             }
           }
-          free(track_payload);
           track_payload = nullptr;
 
           total_laps_left -= laps_in_package;
@@ -576,14 +567,13 @@ GlobalsatSportFormat::track_read()
         do {
           if (track_payload) {
             // rest of the time in the loop
-            free(track_payload);
             globalsat_send_simple(CommandGetNextTrackSection);
           }
 
           track_payload = globalsat_read_package(&track_length, &trackDeviceCommand);
           if ((track_length > 0) && (track_payload != nullptr)) {
             //	  printf("Got track package!!! Train data\n");
-            uint8_t* laptrain_hdr = track_payload;
+            uint8_t* laptrain_hdr = track_payload.get();
             gh_trainheader laptrain_header;
             laptrain_header.dateStart.Year = laptrain_hdr[0];
             laptrain_header.dateStart.Month = laptrain_hdr[1];
@@ -611,7 +601,7 @@ GlobalsatSportFormat::track_read()
 
             int recpoints_in_package = laptrain_header.gh_laprec.EndPt - laptrain_header.gh_ptrec.StartPt + 1;
             //	  printf("Recpoints Data:\n");
-            uint8_t* recpoints_start_pos = track_payload + 29;	//29=packed sizeof(gh_trainheader)
+            uint8_t* recpoints_start_pos = track_payload.get() + 29;	//29=packed sizeof(gh_trainheader)
             for (int recpoint = 0; recpoint < recpoints_in_package; recpoint++) {
               uint8_t* ghpoint = (recpoints_start_pos + recpoint * 25);	//  packed sizeof(gh_recpoint)=25
               gh_recpoint point;
@@ -653,14 +643,8 @@ GlobalsatSportFormat::track_read()
             }
           }
         } while (trackDeviceCommand == CommandGetTrackFileSections);
-        if (track_payload) {
-          free(track_payload);
-        }
       }
     }
-  }
-  if (payload) {
-    free(payload);
   }
 }
 

@@ -38,6 +38,7 @@
 #define GLOBALSATSPORT_H_INCLUDED_
 
 #include <cstdint>           // for uint32_t, uint8_t, uint16_t, int16_t
+#include <memory>            // for unique_ptr
 
 #include <QString>           // for QString
 #include <QTimeZone>         // for QTimeZone
@@ -215,7 +216,7 @@ private:
   int recv_byte();
   void write_byte(uint8_t byte);
   void globalsat_write_package(uint8_t* payload, uint32_t size);
-  uint8_t* globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand);
+  std::unique_ptr<uint8_t[]> globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand);
   void globalsat_send_simple(uint8_t command);
   void globalsat_probe_device();
   void waypoint_read();
