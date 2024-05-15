@@ -40,7 +40,7 @@
 int32_t GPS_Command_Off(const char* port)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
 
@@ -551,7 +551,7 @@ int32_t GPS_Command_Send_Position(const char* port, double lat, double lon)
 ** @return [int32] success if supported and GPS starts sending
 ************************************************************************/
 
-int32_t GPS_Command_Pvt_On(const char* port, gpsdevh** fd)
+int32_t GPS_Command_Pvt_On(const char* port, GpsDevice** fd)
 {
 	int32_t ret = 0;
 
@@ -586,7 +586,7 @@ int32_t GPS_Command_Pvt_On(const char* port, gpsdevh** fd)
 ** @return [int32] success
 ************************************************************************/
 
-int32_t GPS_Command_Pvt_Off(const char* port, gpsdevh** fd)
+int32_t GPS_Command_Pvt_Off(const char* port, GpsDevice** fd)
 {
 	int32_t ret = 0;
 
@@ -619,7 +619,7 @@ int32_t GPS_Command_Pvt_Off(const char* port, gpsdevh** fd)
 ** @return [int32] success
 ************************************************************************/
 
-int32_t GPS_Command_Pvt_Get(gpsdevh** fd, GPS_PPvt_Data* pvt)
+int32_t GPS_Command_Pvt_Get(GpsDevice** fd, GPS_PPvt_Data* pvt)
 {
 	int32_t ret = 0;
 
@@ -779,7 +779,7 @@ int32_t GPS_Command_Send_Course
  int32_t n_trk,
  int32_t n_cpt)
 {
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_OCourse_Limits limits;
   int32_t ret;
   int32_t ret_crs = 0;

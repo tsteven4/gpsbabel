@@ -19,9 +19,9 @@ int32_t GPS_A300_Get(const char* port, GPS_PTrack** trk, pcb_fn cb);
 int32_t GPS_A301_Get(const char* port, GPS_PTrack** trk, pcb_fn cb, int protoid);
 int32_t GPS_A300_Send(const char* port, GPS_PTrack* trk, int32_t n);
 int32_t GPS_A301_Send(const char* port, GPS_PTrack* trk, int32_t n, int protoid,
-                      gpsdevh* fd);
+                      GpsDevice* fd);
 
-int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, gpsdevh* h);
+int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, GpsDevice* h);
 void   GPS_D300b_Get(GPS_PTrack* trk, UC* data);
 void   GPS_D301b_Get(GPS_PTrack* trk, UC* data);
 void   GPS_D302b_Get(GPS_PTrack* trk, UC* data);
@@ -50,9 +50,9 @@ int32_t GPS_A700_Send(const char* port, double lat, double lon);
 void   GPS_D700_Get(const GPS_Packet& packet, double* lat, double* lon);
 void   GPS_D700_Send(GPS_Packet& packet, double lat, double lon);
 
-int32_t GPS_A800_On(const char* port, gpsdevh** fd);
-int32_t GPS_A800_Off(const char* port, gpsdevh** fd);
-int32_t GPS_A800_Get(gpsdevh** fd, GPS_PPvt_Data* packet);
+int32_t GPS_A800_On(const char* port, GpsDevice** fd);
+int32_t GPS_A800_Off(const char* port, GpsDevice** fd);
+int32_t GPS_A800_Get(GpsDevice** fd, GPS_PPvt_Data* packet);
 void   GPS_D800_Get(const GPS_Packet& packet, GPS_PPvt_Data* pvt);
 
 int32_t GPS_A906_Get(const char* port, GPS_PLap** lap, pcb_fn cb);
@@ -60,19 +60,19 @@ void   GPS_D1011b_Get(GPS_PLap* Lap,UC* data); /*D906 D1001 D1015*/
 
 int32_t GPS_A1006_Get(const char* port, GPS_PCourse** crs, pcb_fn cb);
 int32_t GPS_A1006_Send(const char* port, GPS_PCourse* crs, int32_t n_crs,
-                       gpsdevh* fd);
+                       GpsDevice* fd);
 void   GPS_D1006_Get(GPS_PCourse* crs, UC* p);
 void   GPS_D1006_Send(UC* data, GPS_PCourse crs, int32_t* len);
 
 int32_t GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb);
 int32_t GPS_A1007_Send(const char* port, GPS_PCourse_Lap* clp, int32_t n_clp,
-                       gpsdevh* fd);
+                       GpsDevice* fd);
 void   GPS_D1007_Get(GPS_PCourse_Lap* clp, UC* p);
 void   GPS_D1007_Send(UC* data, GPS_PCourse_Lap clp, int32_t* len);
 
 int32_t GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb);
 int32_t GPS_A1008_Send(const char* port, GPS_PCourse_Point* cpt, int32_t n_cpt,
-                       gpsdevh* fd);
+                       GpsDevice* fd);
 void   GPS_D1012_Get(GPS_PCourse_Point* cpt, UC* p);
 void   GPS_D1012_Send(UC* data, GPS_PCourse_Point cpt, int32_t* len);
 

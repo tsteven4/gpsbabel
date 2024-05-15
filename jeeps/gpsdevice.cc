@@ -25,7 +25,7 @@
 #include "jeeps/gpsdevice_usb.h"
 
 
-int32_t GPS_Device_On(const char* port, gpsdevh** fd)
+int32_t GPS_Device_On(const char* port, GpsDevice** fd)
 {
   gps_is_usb = (0 == case_ignore_strncmp(port, "usb:", 4));
 
@@ -40,42 +40,42 @@ int32_t GPS_Device_On(const char* port, gpsdevh** fd)
   return device->On(port);
 }
 
-int32_t GPS_Device_Off(gpsdevh* fd)
+int32_t GPS_Device_Off(GpsDevice* fd)
 {
   return fd->Off();
 }
 
-int32_t GPS_Device_Wait(gpsdevh* fd)
+int32_t GPS_Device_Wait(GpsDevice* fd)
 {
   return fd->Wait();
 }
 
-int32_t GPS_Device_Chars_Ready(gpsdevh* fd)
+int32_t GPS_Device_Chars_Ready(GpsDevice* fd)
 {
   return fd->Chars_Ready();
 }
 
-int32_t GPS_Device_Flush(gpsdevh* fd)
+int32_t GPS_Device_Flush(GpsDevice* fd)
 {
   return fd->Flush();
 }
 
-int32_t GPS_Write_Packet(gpsdevh* fd, const GPS_Packet& packet)
+int32_t GPS_Write_Packet(GpsDevice* fd, const GPS_Packet& packet)
 {
   return fd->Write_Packet(packet);
 }
 
-int32_t GPS_Packet_Read(gpsdevh* fd, GPS_Packet* packet)
+int32_t GPS_Packet_Read(GpsDevice* fd, GPS_Packet* packet)
 {
   return fd->Packet_Read(packet);
 }
 
-bool GPS_Send_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec)
+bool GPS_Send_Ack(GpsDevice* fd, GPS_Packet* tra, GPS_Packet* rec)
 {
   return fd->Send_Ack(tra, rec);
 }
 
-bool GPS_Get_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec)
+bool GPS_Get_Ack(GpsDevice* fd, GPS_Packet* tra, GPS_Packet* rec)
 {
   return fd->Get_Ack(tra, rec);
 }

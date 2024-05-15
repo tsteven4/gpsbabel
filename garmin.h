@@ -182,7 +182,7 @@ private:
 
   };
 
-  gpsdevh* pvt_fd{};
+  GpsDevice* pvt_fd{};
 
   static constexpr const char* d103_icons[16] = {
     "dot",

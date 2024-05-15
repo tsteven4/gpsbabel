@@ -200,7 +200,7 @@ int32_t GPS_Init(const char* port)
 ************************************************************************/
 static int32_t GPS_A000(const char* port)
 {
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int16_t version;
@@ -861,7 +861,7 @@ static void GPS_A001(const GPS_Packet& packet)
 int32_t GPS_A100_Get(const char* port, GPS_PWay** way, int (*cb)(int, GPS_PWay*))
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -1013,7 +1013,7 @@ int32_t GPS_A100_Get(const char* port, GPS_PWay** way, int (*cb)(int, GPS_PWay*)
 int32_t GPS_A100_Send(const char* port, GPS_PWay* way, int32_t n, int (*cb)(GPS_PWay*))
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -1134,7 +1134,7 @@ int32_t GPS_A100_Send(const char* port, GPS_PWay* way, int32_t n, int (*cb)(GPS_
 int32_t GPS_A101_Get(const char* port)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -2789,7 +2789,7 @@ static void GPS_D155_Send(UC* data, GPS_PWay way, int32_t* len)
 int32_t GPS_A200_Get(const char* port, GPS_PWay** way)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -2961,7 +2961,7 @@ int32_t GPS_A200_Get(const char* port, GPS_PWay** way)
 int32_t GPS_A201_Get(const char* port, GPS_PWay** way)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -3150,7 +3150,7 @@ int32_t GPS_A201_Get(const char* port, GPS_PWay** way)
 int32_t GPS_A200_Send(const char* port, GPS_PWay* way, int32_t n)
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -3289,7 +3289,7 @@ int32_t GPS_A200_Send(const char* port, GPS_PWay* way, int32_t n)
 int32_t GPS_A201_Send(const char* port, GPS_PWay* way, int32_t n)
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -3661,7 +3661,7 @@ static void GPS_D210_Send(UC* data, GPS_PWay way, int32_t* len)
 int32_t GPS_A300_Get(const char* port, GPS_PTrack** trk, pcb_fn /*unused*/)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -3749,7 +3749,7 @@ int32_t GPS_A300_Get(const char* port, GPS_PTrack** trk, pcb_fn /*unused*/)
  * Hopefully, this won't be needed forever.
  */
 int
-drain_run_cmd(gpsdevh* fd)
+drain_run_cmd(GpsDevice* fd)
 {
   GPS_Packet tra;
   GPS_Packet rec;
@@ -3795,7 +3795,7 @@ drain_run_cmd(gpsdevh* fd)
 int32_t GPS_A301_Get(const char* port, GPS_PTrack** trk, pcb_fn cb, int protoid)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -3975,7 +3975,7 @@ int32_t GPS_A301_Get(const char* port, GPS_PTrack** trk, pcb_fn cb, int protoid)
 int32_t GPS_A300_Send(const char* port, GPS_PTrack* trk, int32_t n)
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -4065,7 +4065,7 @@ int32_t GPS_A300_Send(const char* port, GPS_PTrack* trk, int32_t n)
 ** @return [int32] success
 ************************************************************************/
 int32_t GPS_A301_Send(const char* port, GPS_PTrack* trk, int32_t n, int protoid,
-                      gpsdevh* fd)
+                      GpsDevice* fd)
 {
   UC data[GPS_ARB_LEN];
   GPS_Packet tra;
@@ -4203,7 +4203,7 @@ int32_t GPS_A301_Send(const char* port, GPS_PTrack* trk, int32_t n, int protoid,
 **
 ** @return [int32] number of entries read
 ************************************************************************/
-int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, gpsdevh* fd)
+int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, GpsDevice* fd)
 {
   GPS_Packet tra;
   GPS_Packet rec;
@@ -4723,7 +4723,7 @@ static void GPS_A300_Encode(UC* s, GPS_PTrack trk)
 int32_t GPS_A400_Get(const char* port, GPS_PWay** way)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t n;
@@ -4884,7 +4884,7 @@ int32_t GPS_A400_Get(const char* port, GPS_PWay** way)
 int32_t GPS_A400_Send(const char* port, GPS_PWay* way, int32_t n)
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -5269,7 +5269,7 @@ static void GPS_D450_Send(UC* data, GPS_PWay way, int32_t* len)
 int32_t GPS_A500_Get(const char* port, GPS_PAlmanac** alm)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
   int32_t i, n;
@@ -5381,7 +5381,7 @@ int32_t GPS_A500_Get(const char* port, GPS_PAlmanac** alm)
 int32_t GPS_A500_Send(const char* port, GPS_PAlmanac* alm, int32_t n)
 {
   UC data[GPS_ARB_LEN];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t i;
@@ -5731,7 +5731,7 @@ static void GPS_A500_Encode(UC* s, GPS_PAlmanac alm)
 time_t GPS_A600_Get(const char* port)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   time_t ret;
@@ -5789,7 +5789,7 @@ time_t GPS_A600_Get(const char* port)
 ************************************************************************/
 int32_t GPS_A600_Send(const char* port, time_t Time)
 {
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
   int32_t posnsent = 0;
@@ -5937,7 +5937,7 @@ void GPS_D600_Send(GPS_Packet& packet, time_t Time)
 int32_t GPS_A700_Get(const char* port, double* lat, double* lon)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
 
@@ -5994,7 +5994,7 @@ int32_t GPS_A700_Get(const char* port, double* lat, double* lon)
 ************************************************************************/
 int32_t GPS_A700_Send(const char* port, double lat, double lon)
 {
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet tra;
   GPS_Packet rec;
 
@@ -6095,7 +6095,7 @@ void GPS_D700_Send(GPS_Packet& packet, double lat, double lon)
 **
 ** @return [int32] success
 ************************************************************************/
-int32_t GPS_A800_On(const char* port, gpsdevh** fd)
+int32_t GPS_A800_On(const char* port, GpsDevice** fd)
 {
   static UC data[2];
   GPS_Packet tra;
@@ -6132,7 +6132,7 @@ int32_t GPS_A800_On(const char* port, gpsdevh** fd)
 **
 ** @return [int32] success
 ************************************************************************/
-int32_t GPS_A800_Off(const char* /*unused*/, gpsdevh** fd)
+int32_t GPS_A800_Off(const char* /*unused*/, GpsDevice** fd)
 {
   static UC data[2];
   GPS_Packet tra;
@@ -6168,7 +6168,7 @@ int32_t GPS_A800_Off(const char* /*unused*/, gpsdevh** fd)
 **
 ** @return [int32] success
 ************************************************************************/
-int32_t GPS_A800_Get(gpsdevh** fd, GPS_PPvt_Data* packet)
+int32_t GPS_A800_Get(GpsDevice** fd, GPS_PPvt_Data* packet)
 {
   GPS_Packet tra;
   GPS_Packet rec;
@@ -6270,7 +6270,7 @@ void GPS_D800_Get(const GPS_Packet& packet, GPS_PPvt_Data* pvt)
 int32_t GPS_A906_Get(const char* port, GPS_PLap** lap, pcb_fn cb)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
   int32_t i, n;
@@ -6486,7 +6486,7 @@ int32_t GPS_A1006_Get
 
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
   int32_t i, n;
@@ -6594,7 +6594,7 @@ int32_t GPS_A1006_Get
 int32_t GPS_A1006_Send(const char* /*unused*/,
                        GPS_PCourse* crs,
                        int32_t n_crs,
-                       gpsdevh* fd)
+                       GpsDevice* fd)
 {
   UC data[GPS_ARB_LEN];
   GPS_Packet tra;
@@ -6721,7 +6721,7 @@ void GPS_D1006_Send(UC* data, GPS_PCourse crs, int32_t* len)
 int32_t GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
   int32_t i, n;
@@ -6829,7 +6829,7 @@ int32_t GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb)
 int32_t GPS_A1007_Send(const char* /*unused*/,
                        GPS_PCourse_Lap* clp,
                        int32_t n_clp,
-                       gpsdevh* fd)
+                       GpsDevice* fd)
 {
   UC data[GPS_ARB_LEN];
   GPS_Packet tra;
@@ -6991,7 +6991,7 @@ void GPS_D1007_Send(UC* data, GPS_PCourse_Lap clp, int32_t* len)
 int32_t GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
   int32_t i, n;
@@ -7100,7 +7100,7 @@ int32_t GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb)
 int32_t GPS_A1008_Send(const char* /*unused*/,
                        GPS_PCourse_Point* cpt,
                        int32_t n_cpt,
-                       gpsdevh* fd)
+                       GpsDevice* fd)
 {
   UC data[GPS_ARB_LEN];
   GPS_Packet tra;
@@ -7240,7 +7240,7 @@ void GPS_D1012_Send(UC* data, GPS_PCourse_Point cpt, int32_t* len)
 int32_t GPS_A1009_Get(const char* port, GPS_PCourse_Limits limits)
 {
   static UC data[2];
-  gpsdevh* fd;
+  GpsDevice* fd;
   GPS_Packet trapkt;
   GPS_Packet recpkt;
 
@@ -7588,7 +7588,7 @@ void GPS_Prepare_Track_For_Device(GPS_PTrack** trk, int32_t* n)
 int32_t GPS_Set_Baud_Rate(const char* port, int br)
 {
   int32_t status = INPUT_ERROR;
-  gpsdevh* fd;
+  GpsDevice* fd;
 
   if (!GPS_Device_On(port, &fd)) {
     return gps_errno;
