@@ -51,7 +51,7 @@ int gps_baud_rate = GpsSerialDevice::DEFAULT_BAUD;
   msg.append(": ");
   msg.append(sp.errorString());
 
-  Error("%s", qPrintable(msg));
+  GPS_Error("%s", qPrintable(msg));
 
   va_end(ap);
 }
