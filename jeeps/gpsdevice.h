@@ -70,11 +70,11 @@ public:
   {
     return true;
   }
-  virtual bool Send_Ack(GPS_Packet* tra, GPS_Packet* rec)
+  virtual bool Send_Ack(GPS_Packet* /* tra */, GPS_Packet* /* rec */)
   {
     return true;
   }
-  virtual bool Get_Ack(GPS_Packet* tra, GPS_Packet* rec)
+  virtual bool Get_Ack(GPS_Packet* /* tra */, GPS_Packet* /* rec */)
   {
     return true;
   }

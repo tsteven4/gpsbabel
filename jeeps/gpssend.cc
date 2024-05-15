@@ -41,8 +41,8 @@
 **
 ** @return [US] number of data bytes to send
 ************************************************************************/
-static US
-Build_Serial_Packet(const GPS_Packet& in, GPS_Serial_Packet* out)
+US
+GpsSerialDevice::Build_Serial_Packet(const GPS_Packet& in, GPS_Serial_Packet* out)
 {
   const UC* p;
   UC* q;
@@ -89,7 +89,7 @@ Build_Serial_Packet(const GPS_Packet& in, GPS_Serial_Packet* out)
 
 
 void
-Diag(void* buf, size_t sz)
+GpsSerialDevice::Diag(void* buf, size_t sz)
 {
   auto* cbuf = (unsigned char*) buf;
   while (sz--) {
@@ -98,7 +98,7 @@ Diag(void* buf, size_t sz)
 }
 
 void
-DiagS(void* buf, size_t sz)
+GpsSerialDevice::DiagS(void* buf, size_t sz)
 {
   auto* cbuf = (unsigned char*) buf;
 

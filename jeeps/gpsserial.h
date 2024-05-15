@@ -28,6 +28,9 @@ private:
   int32_t Chars_Ready_After(int msec_timeout);
   int32_t Read(void* ibuf, int size);
   int32_t Write(const void* obuf, int size);
+  static US Build_Serial_Packet(const GPS_Packet& in, GPS_Serial_Packet* out);
+  static void Diag(void* buf, size_t sz);
+  static void DiagS(void* buf, size_t sz);
 
   QSerialPort sp;
 };
