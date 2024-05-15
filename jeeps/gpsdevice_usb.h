@@ -18,6 +18,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
  */
+#ifndef JEEPS_GPSDEVICE_USB_H_INCLUDED_
+#define JEEPS_GPSDEVICE_USB_H_INCLUDED_
 
 #include "jeeps/gps.h"
 #include "jeeps/garminusb.h"
@@ -56,3 +58,4 @@ private:
 
   gpsusbdevh* fd{nullptr};
 };
+#endif // JEEPS_GPSDEVICE_USB_H_INCLUDED_
