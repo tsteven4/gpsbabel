@@ -136,7 +136,6 @@ set(JEEPS
   jeeps/gpsapp.cc
   jeeps/gpscom.cc
   jeeps/gpsdevice.cc
-  jeeps/gpsdevice_ser.cc
   jeeps/gpsmath.cc
   jeeps/gpsmem.cc
   jeeps/gpsprot.cc
