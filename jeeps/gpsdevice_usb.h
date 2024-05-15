@@ -45,15 +45,15 @@ public:
   int32_t Packet_Read(GPS_Packet* packet) override
   {
     /* Default is to eat bulk request packets. */
-    return GPS_Packet_Read_usb(fd, packet, 1);
+    return GPS_Packet_Read_usb(fd, packet, true);
   }
   int32_t Packet_Read_bulk(GPS_Packet* packet)
   {
-    return GPS_Packet_Read_usb(fd, packet, 0);
+    return GPS_Packet_Read_usb(fd, packet, false);
   }
 
 private:
-  int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, int eat_bulk);
+  int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, bool eat_bulk);
   int32_t GPS_Write_Packet_usb(gpsusbdevh* fd, const GPS_Packet& packet);
 
   gpsusbdevh* fd{nullptr};

@@ -34,7 +34,7 @@
 
 /*
  * This violates the layering design, but is needed for device discovery.
- * See the use of gps_is_usb and GPS_Packet_Read_usb below.
+ * See the use of gps_is_usb and GpsUsbDevice::Packet_Read_bulk below.
  */
 #include "jeeps/garminusb.h"
 #include "jeeps/gpsserial.h"
@@ -313,7 +313,7 @@ static int32_t GPS_A000(const char* port)
      *
      * Worse _yet_, this is the one place in all of Garmin Protocolsville
      * where we don't know a priori how many packets will be sent in
-     * response.   Since we want the lower levels of the USB handler
+     * response.  Since we want the lower levels of the USB handler
      * to handle the ugliness of the "return to interrupt" packets, we
      * reach behind that automation here and hand that ourselves.
      */
