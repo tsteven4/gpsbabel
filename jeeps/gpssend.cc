@@ -23,13 +23,14 @@
 ** Boston, MA  02110-1301, USA.
 ********************************************************************/
 
+#include "gpsserial.h"
 
 #include <cctype>
 #include <cerrno>
 #include <cstdio>
 
 #include "jeeps/gps.h"
-#include "jeeps/gpsdevice_ser.h"
+#include "jeeps/gpsserial.h"
 
 /* @funcstatic Build_Serial_Packet *************************************
 **

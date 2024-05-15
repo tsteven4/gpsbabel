@@ -143,6 +143,7 @@ set(JEEPS
   jeeps/gpsread.cc
   jeeps/gpsrqst.cc
   jeeps/gpssend.cc
+  jeeps/gpsserial.cc
   jeeps/gpsusbcommon.cc
   jeeps/gpsusbread.cc
   jeeps/gpsusbsend.cc
@@ -247,7 +248,6 @@ set(HEADERS
   jeeps/gpscom.h
   jeeps/gpsdatum.h
   jeeps/gpsdevice.h
-  jeeps/gpsdevice_ser.h
   jeeps/gpsdevice_usb.h
   jeeps/gpsmath.h
   jeeps/gpsmem.h
@@ -256,6 +256,7 @@ set(HEADERS
   jeeps/gpsread.h
   jeeps/gpsrqst.h
   jeeps/gpssend.h
+  jeeps/gpsserial.h
   jeeps/gpsusbcommon.h
   jeeps/gpsutil.h
   src/core/codecdevice.h

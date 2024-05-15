@@ -21,7 +21,7 @@
 
 #include "jeeps/gps.h"
 #include "jeeps/gpsdevice.h"
-#include "jeeps/gpsdevice_ser.h"
+#include "jeeps/gpsserial.h"
 #include "jeeps/gpsdevice_usb.h"
 
 
