@@ -69,10 +69,14 @@ int32_t GpsSerialDevice::On(const char* port)
   ok = sp.setDataTerminalReady(true);
   if (!ok) {
     Error("Couldn't set DTR");
+    gps_errno = SERIAL_ERROR;
+    return 0;
   }
   ok = sp.setRequestToSend(true);
   if (!ok) {
     Error("Couldn't set RTS");
+    gps_errno = SERIAL_ERROR;
+    return 0;
   }
 #if 0
   GPS_Diag("baudRate %d\n", sp.baudRate());
