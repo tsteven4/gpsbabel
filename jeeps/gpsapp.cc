@@ -4053,14 +4053,14 @@ int32_t GPS_A300_Send(const char* port, GPS_PTrack* trk, int32_t n)
 **
 ** Send track log to GPS (A301/A302). Note that in case of A302, track
 ** log transfer is part of the course transfer sequence, so we must not
-** call GPS_Device_On/Off() but expect to get a usable gpsdevh from our
+** call GPS_Device_On/Off() but expect to get a usable GpsDevice from our
 ** caller.
 **
 ** @param [r] port [const char *] serial port
 ** @param [r] trk [GPS_PTrack *] track array
 ** @param [r] n [int32] number of track entries
 ** @param [r] protoid [int] protocol ID (301 or 302)
-** @param [r] fd [gpsdevh *] pointer to communication port (for A302 only)
+** @param [r] fd [GpsDevice *] pointer to communication port (for A302 only)
 **
 ** @return [int32] success
 ************************************************************************/
@@ -6587,7 +6587,7 @@ int32_t GPS_A1006_Get
 ** @param [r] port [const char *] serial port
 ** @param [r] crs [GPS_PCourse *] pointer to Course array
 ** @param [r] n_wkt [int32] number of Course entries
-** @param [r] fd [gpsdevh *] pointer to the communication port
+** @param [r] fd [GpsDevice *] pointer to the communication port
 **
 ** @return [int32] success
 ************************************************************************/
@@ -6822,7 +6822,7 @@ int32_t GPS_A1007_Get(const char* port, GPS_PCourse_Lap** clp, pcb_fn cb)
 ** @param [r] port [const char *] serial port
 ** @param [r] clp [GPS_PCourse_Lap *] pointer to CourseLap array
 ** @param [r] n_clp [int32] number of CourseLap entries
-** @param [r] fd [gpsdevh *] pointer to the communication port
+** @param [r] fd [GpsDevice *] pointer to the communication port
 **
 ** @return [int32] success
 ************************************************************************/
@@ -7093,7 +7093,7 @@ int32_t GPS_A1008_Get(const char* port, GPS_PCourse_Point** cpt, pcb_fn cb)
 ** @param [r] port [const char *] serial port
 ** @param [r] cpt [GPS_PCourse_Point *] pointer to CoursePoint array
 ** @param [r] n_cpt [int32] number of CoursePoint entries
-** @param [r] fd [gpsdevh *] pointer to the communication port
+** @param [r] fd [GpsDevice *] pointer to the communication port
 **
 ** @return [int32] success
 ************************************************************************/
