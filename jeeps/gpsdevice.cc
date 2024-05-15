@@ -35,9 +35,16 @@ int32_t GPS_Device_On(const char* port, GpsDevice** fd)
   } else {
     device = new GpsSerialDevice;
   }
-  *fd = device;
 
-  return device->On(port);
+  int32_t status = device->On(port);
+  if (!status) {
+    delete device;
+    *fd = nullptr;
+  } else {
+    *fd = device;
+  }
+  
+  return status;
 }
 
 int32_t GPS_Device_Off(GpsDevice* fd)
