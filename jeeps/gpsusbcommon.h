@@ -28,7 +28,7 @@
  */
 using gusb_llop_get = int (*)(garmin_usb_packet* ibuf, size_t sz);
 using gusb_llop_send = int (*)(const garmin_usb_packet* opkt, size_t sz);
-using gusb_llop_close = int (*)(gpsdevh* dh, bool exit_lib);
+using gusb_llop_close = int (*)(gpsusbdevh* dh, bool exit_lib);
 
 typedef struct gusb_llops {
   gusb_llop_get  llop_get_intr;
@@ -44,6 +44,6 @@ void gusb_register_ll(gusb_llops* p);
 void gusb_list_units();
 
 /* Provided by the OS layers */
-// int gusb_init(const char *portname, gpsdev **dh);
+// int gusb_init(const char *portname, gpsusbdev **dh);
 
 #endif // JEEPS_GPSUSBCOMMON_H_INCLUDED_

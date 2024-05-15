@@ -35,6 +35,7 @@ static enum {
 } receive_state;
 
 static gusb_llops_t* gusb_llops;
+static garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 
 /* Decide when to truncate packets for debug output */
 #define DEBUG_THRESH  ((global_opts.debug_level < 5) && (i > 10))
@@ -47,7 +48,7 @@ gusb_register_ll(gusb_llops_t* p)
 }
 
 int
-gusb_close(gpsdevh* dh, bool exit_lib)
+gusb_close(gpsusbdevh* dh, bool exit_lib)
 {
   garmin_usb_packet scratch;
 

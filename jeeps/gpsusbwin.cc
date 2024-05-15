@@ -77,7 +77,7 @@ static int usb_tx_packet_size ;
 }
 
 static int
-gusb_win_close(gpsdevh* /* handle */, bool /* exit_lib */)
+gusb_win_close(gpsusbdevh* /* handle */, bool /* exit_lib */)
 {
   if (usb_handle != INVALID_HANDLE_VALUE) {
     CloseHandle(usb_handle);
@@ -209,7 +209,7 @@ HANDLE garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* infodata)
  * device, and light it up.
  */
 int
-gusb_init(const char* pname, gpsdevh** dh)
+gusb_init(const char* pname, gpsusbdevh** dh)
 {
   int req_unit_number = 0;
   int un = 0;
@@ -219,7 +219,7 @@ gusb_init(const char* pname, gpsdevh** dh)
   SP_DEVICE_INTERFACE_DATA devinterface;
 
   winusb_unit_data* wud = (winusb_unit_data*) xcalloc(sizeof(winusb_unit_data), 1);
-  *dh = (gpsdevh*) wud;
+  *dh = (gpsusbdevh*) wud;
 
   gusb_register_ll(&win_llops);
 

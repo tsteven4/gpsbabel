@@ -18,20 +18,3 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
  */
-
-#include "jeeps/gps.h"
-#include "jeeps/gpsdevice.h"
-#include "jeeps/gpsread.h"
-#include "jeeps/gpsserial.h"
-
-gps_device_ops  gps_serial_ops = {
-  GPS_Serial_On,
-  GPS_Serial_Off,
-  GPS_Serial_Chars_Ready,
-  GPS_Serial_Wait,
-  GPS_Serial_Flush,
-  GPS_Serial_Send_Ack,
-  GPS_Serial_Get_Ack,
-  GPS_Serial_Packet_Read,
-  GPS_Serial_Write_Packet,
-};

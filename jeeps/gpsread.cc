@@ -69,7 +69,7 @@ time_t GPS_Time_Now()
 ** @return [int32] number of bytes read
 **********************************************************************/
 
-int32_t GPS_Serial_Packet_Read(gpsdevh* fd, GPS_Packet* packet)
+int32_t GpsSerialDevice::Packet_Read(GPS_Packet* packet)
 {
   time_t start;
   int32_t len = 0;
@@ -84,8 +84,8 @@ int32_t GPS_Serial_Packet_Read(gpsdevh* fd, GPS_Packet* packet)
   start = GPS_Time_Now();
   GPS_Diag("Rx Data:");
   while (GPS_Time_Now() < start + GPS_TIME_OUT) {
-    if (GPS_Serial_Chars_Ready(fd)) {
-      if (GPS_Serial_Read(fd, &u, 1) < 0) {
+    if (Chars_Ready()) {
+      if (Read(&u, 1) < 0) {
         perror("read");
         GPS_Error("GPS_Packet_Read: Read error");
         gps_errno = FRAMING_ERROR;
@@ -187,9 +187,9 @@ int32_t GPS_Serial_Packet_Read(gpsdevh* fd, GPS_Packet* packet)
 ** @return [bool] true if ACK
 **********************************************************************/
 
-bool GPS_Serial_Get_Ack(gpsdevh *fd, GPS_Packet *tra, GPS_Packet *rec)
+bool GpsSerialDevice::Get_Ack(GPS_Packet *tra, GPS_Packet *rec)
 {
-  if (!GPS_Serial_Packet_Read(fd, rec)) {
+  if (!Packet_Read(rec)) {
     return false;
   }
 

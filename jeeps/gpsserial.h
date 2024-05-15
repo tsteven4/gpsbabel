@@ -1,19 +1,34 @@
 #ifndef JEEPS_GPSSERIAL_H_INCLUDED_
 #define JEEPS_GPSSERIAL_H_INCLUDED_
 
+#include <QSerialPort>
 
 #include "jeeps/gps.h"
 
-constexpr int msecDELAY = 180;	/* Milliseconds before GPS sends A001 */
-constexpr int DEFAULT_BAUD = 9600;
+class GpsSerialDevice : public GpsDevice
+{
+public:
+  static constexpr int DEFAULT_BAUD = 9600;
 
-int32_t GPS_Serial_Chars_Ready(gpsdevh* dh);
-int32_t GPS_Serial_On(const char* port, gpsdevh** dh);
-int32_t GPS_Serial_Off(gpsdevh* dh);
-int32_t GPS_Serial_Wait(gpsdevh* dh);
-int32_t GPS_Serial_Flush(gpsdevh* dh);
-int32_t GPS_Serial_Read(gpsdevh* dh, void* ibuf, int size);
-int32_t GPS_Serial_Write(gpsdevh* dh, const void* obuf, int size);
-int32_t GPS_Serial_Set_Baud_Rate(gpsdevh* dh, int br);
+  int32_t Chars_Ready() override;
+  int32_t On(const char* port) override;
+  int32_t Off() override;
+  int32_t Wait() override;
+  int32_t Flush() override;
+  int32_t Set_Baud_Rate(int br);
+  int32_t Write_Packet(const GPS_Packet& packet) override;
+  bool Send_Ack(GPS_Packet* tra, GPS_Packet* rec) override;
+  int32_t Packet_Read(GPS_Packet* packet) override;
+  bool Get_Ack(GPS_Packet *tra, GPS_Packet *rec) override;
 
+private:
+  static constexpr int msecDELAY = 180;	/* Milliseconds before GPS sends A001 */
+
+  [[gnu::format(printf, 2, 3)]] void Error(const char* fmt, ...);
+  int32_t Chars_Ready_After(int msec_timeout);
+  int32_t Read(void* ibuf, int size);
+  int32_t Write(const void* obuf, int size);
+
+  QSerialPort sp;
+};
 #endif // JEEPS_GPSSERIAL_H_INCLUDED_

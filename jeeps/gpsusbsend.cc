@@ -21,12 +21,12 @@
 
 #include "jeeps/gps.h"
 #include "jeeps/garminusb.h"
-#include "jeeps/gpsusbint.h"
+#include "jeeps/gpsdevice_usb.h"
 #include <cerrno>
 #include <cstdio>
 
 int32_t
-GPS_Write_Packet_usb(gpsdevh* /*unused*/, const GPS_Packet& packet)
+GpsUsbDevice::GPS_Write_Packet_usb(gpsusbdevh* /*unused*/, const GPS_Packet& packet)
 {
   garmin_usb_packet gp;
   memset(&gp, 0, sizeof(gp));

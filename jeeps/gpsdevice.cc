@@ -22,62 +22,62 @@
 #include "jeeps/gps.h"
 #include "jeeps/gpsdevice.h"
 #include "jeeps/gpsserial.h"
+#include "jeeps/gpsdevice_usb.h"
 
-extern gps_device_ops gps_serial_ops;
-extern gps_device_ops gps_usb_ops;
-static gps_device_ops* ops = nullptr;
 
 int32_t GPS_Device_On(const char* port, gpsdevh** fd)
 {
   gps_is_usb = (0 == case_ignore_strncmp(port, "usb:", 4));
 
+  GpsDevice* device;
   if (gps_is_usb) {
-    ops = &gps_usb_ops;
+    device = new GpsUsbDevice;
   } else {
-    ops = &gps_serial_ops;
+    device = new GpsSerialDevice;
   }
+  *fd = device;
 
-  return (ops->Device_On)(port, fd);
+  return device->On(port);
 }
 
 int32_t GPS_Device_Off(gpsdevh* fd)
 {
-  return (ops->Device_Off)(fd);
+  return fd->Off();
 }
 
 int32_t GPS_Device_Wait(gpsdevh* fd)
 {
-  return (ops->Device_Wait)(fd);
+  return fd->Wait();
 }
 
 int32_t GPS_Device_Chars_Ready(gpsdevh* fd)
 {
-  return (ops->Device_Chars_Ready)(fd);
+  return fd->Chars_Ready();
 }
 
 int32_t GPS_Device_Flush(gpsdevh* fd)
 {
-  return (ops->Device_Flush)(fd);
+  return fd->Flush();
 }
 
 int32_t GPS_Write_Packet(gpsdevh* fd, const GPS_Packet& packet)
 {
-  return (ops->Write_Packet)(fd, packet);
+  return fd->Write_Packet(packet);
 }
 
 int32_t GPS_Packet_Read(gpsdevh* fd, GPS_Packet* packet)
 {
-  return (ops->Read_Packet)(fd, packet);
+  return fd->Packet_Read(packet);
 }
 
 bool GPS_Send_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec)
 {
-  return (ops->Send_Ack)(fd, tra, rec);
+  return fd->Send_Ack(tra, rec);
 }
 
 bool GPS_Get_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec)
 {
-  return (ops->Get_Ack)(fd, tra, rec);
+  return fd->Get_Ack(tra, rec);
 }
 
 void GPS_Make_Packet(GPS_Packet* packet, US type, UC* data, uint32_t n)

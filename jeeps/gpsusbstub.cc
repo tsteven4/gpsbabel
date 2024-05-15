@@ -25,9 +25,9 @@
 #if !HAVE_LIBUSB_1_0
 
 const char no_usb[] = "USB support is not available in this build.\n";
-typedef struct gpsdevh gpsdevh;
+class gpsusbdevh;
 int
-gusb_init(const char* portname, gpsdevh** dh)
+gusb_init(const char* portname, gpsusbdevh** dh)
 {
   fatal(no_usb);
   return 0;

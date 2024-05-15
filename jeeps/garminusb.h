@@ -24,6 +24,8 @@
 #include <cstdio>
 #include "jeeps/gpsdevice.h"
 
+class gpsusbdevh; // Opaque
+
 /* This structure is a bit funny looking to avoid variable length
  * arrays which aren't present in C89.   This contains the visible
  * fields in the USB packets of the Garmin USB receivers (60C, 76C, etc.)
@@ -50,20 +52,18 @@ union {
  * OS implementation.
  */
 #define GUSB_MAX_UNITS 20
-typedef struct {
+struct garmin_unit_info_t {
   unsigned long serial_number;
   unsigned long unit_id;
   unsigned long unit_version;
   char* os_identifier; /* In case the OS has another name for it. */
   char* product_identifier; /* From the hardware itself. */
-} garmin_unit_info_t;
-
-extern garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
+};
 
 int gusb_cmd_send(const garmin_usb_packet* obuf, size_t sz);
 int gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz);
-int gusb_init(const char* portname, gpsdevh** dh);
-int gusb_close(gpsdevh* dh, bool exit_lib = true);
+int gusb_init(const char* portname, gpsusbdevh** dh);
+int gusb_close(gpsusbdevh* dh, bool exit_lib = true);
 
 /*
  * New packet types in USB.

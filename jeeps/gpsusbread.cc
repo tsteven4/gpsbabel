@@ -20,7 +20,7 @@
  */
 #include "jeeps/garminusb.h"
 #include "jeeps/gps.h"
-#include "jeeps/gpsusbint.h"
+#include "jeeps/gpsdevice_usb.h"
 #include <cctype>
 
 /*
@@ -28,7 +28,7 @@
  * Negative on error.
  * 1 if read success - even if empty packet.
  */
-int32_t GPS_Packet_Read_usb(gpsdevh* /*unused*/, GPS_Packet* packet, int eat_bulk)
+int32_t GpsUsbDevice::GPS_Packet_Read_usb(gpsusbdevh* /*unused*/, GPS_Packet* packet, int eat_bulk)
 {
 	int32_t n;
 	int32_t payload_size;

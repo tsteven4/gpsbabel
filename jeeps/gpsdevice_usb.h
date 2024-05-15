@@ -22,40 +22,37 @@
 #include "jeeps/gps.h"
 #include "jeeps/garminusb.h"
 #include "jeeps/gpsdevice.h"
-#include "jeeps/gpsusbcommon.h"
-#include "jeeps/gpsusbint.h"
 
-garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
+class gpsusbdevh;  // Opaque
 
-static bool success_stub()
+class GpsUsbDevice : public GpsDevice
 {
-  return true;
-}
+public:
+  int32_t On(const char* port) override
+  {
+    return gusb_init(port, &fd);
+  }
+  int32_t Off() override
+  {
+    return gusb_close(fd);
+  }
+  int32_t Write_Packet(const GPS_Packet& packet) override
+  {
+    return GPS_Write_Packet_usb(fd, packet);
+  }
+  int32_t Packet_Read(GPS_Packet* packet) override
+  {
+    /* Default is to eat bulk request packets. */
+    return GPS_Packet_Read_usb(fd, packet, 1);
+  }
+  int32_t Packet_Read_bulk(GPS_Packet* packet)
+  {
+    return GPS_Packet_Read_usb(fd, packet, 0);
+  }
 
-static int32_t gdu_on(const char* port, gpsdevh** fd)
-{
-  return gusb_init(port, fd);
-}
+private:
+  int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, int eatbulk);
+  int32_t GPS_Write_Packet_usb(gpsusbdevh* fd, const GPS_Packet& packet);
 
-static int32_t gdu_off(gpsdevh* dh)
-{
-  return gusb_close(dh);
-}
-
-static int32_t gdu_read(gpsdevh* fd, GPS_Packet* packet)
-{
-  /* Default is to eat bulk request packets. */
-  return GPS_Packet_Read_usb(fd, packet, 1);
-}
-
-gps_device_ops gps_usb_ops = {
-  gdu_on,
-  gdu_off,
-  (gps_device_op) success_stub,
-  (gps_device_op) success_stub,
-  (gps_device_op) success_stub,
-  (gps_device_op10) success_stub,
-  (gps_device_op10) success_stub,
-  gdu_read,
-  GPS_Write_Packet_usb
+  gpsusbdevh* fd;
 };

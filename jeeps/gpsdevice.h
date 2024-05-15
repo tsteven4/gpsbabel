@@ -22,10 +22,10 @@
 #ifndef JEEPS_GPSDEVICE_H_INCLUDED_
 #define JEEPS_GPSDEVICE_H_INCLUDED_
 
-typedef struct gpsdevh gpsdevh;
+class GpsDevice;
+using gpsdevh = GpsDevice;
 
 #include "jeeps/gps.h"
-
 
 int32_t GPS_Device_Chars_Ready(gpsdevh* fd);
 int32_t GPS_Device_On(const char* port, gpsdevh** fd);
@@ -34,28 +34,53 @@ int32_t GPS_Device_Wait(gpsdevh* fd);
 int32_t GPS_Device_Flush(gpsdevh* fd);
 int32_t GPS_Device_Read(int32_t ignored, void* ibuf, int size);
 int32_t GPS_Device_Write(int32_t ignored, const void* obuf, int size);
-void   GPS_Device_Error(char* hdr, ...);
+void    GPS_Device_Error(char* hdr, ...);
 int32_t GPS_Write_Packet(gpsdevh* fd, const GPS_Packet& packet);
-bool   GPS_Send_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
+bool    GPS_Send_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
 int32_t GPS_Packet_Read(gpsdevh* fd, GPS_Packet* packet);
-bool   GPS_Get_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
+bool    GPS_Get_Ack(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
 
-using gps_device_op = int32_t (*)(gpsdevh*);
-using gps_device_op5 = int32_t (*)(const char*, gpsdevh** fd);
-using gps_device_op10 = bool (*)(gpsdevh* fd, GPS_Packet* tra, GPS_Packet* rec);
-using gps_device_op12 = int32_t (*)(gpsdevh* fd, const GPS_Packet& packet);
-using gps_device_op13 = int32_t (*)(gpsdevh* fd, GPS_Packet* packet);
+class GpsDevice
+{
+public:
+  GpsDevice() = default;
+  // Provide virtual public destructor to avoid undefined behavior when
+  // an object of derived class type is deleted through a pointer to
+  // its base class type.
+  // https://wiki.sei.cmu.edu/confluence/display/cplusplus/OOP52-CPP.+Do+not+delete+a+polymorphic+object+without+a+virtual+destructor
+  virtual ~GpsDevice() = default;
+  // And that requires us to explicitly default or delete the move and copy operations.
+  // To prevent slicing we delete them.
+  // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#c21-if-you-define-or-delete-any-default-operation-define-or-delete-them-all.
+  GpsDevice(const GpsDevice&) = delete;
+  GpsDevice& operator=(const GpsDevice&) = delete;
+  GpsDevice(GpsDevice&&) = delete;
+  GpsDevice& operator=(GpsDevice&&) = delete;
 
-typedef struct {
-  gps_device_op5 Device_On;
-  gps_device_op Device_Off;
-  gps_device_op Device_Chars_Ready;
-  gps_device_op Device_Wait;
-  gps_device_op Device_Flush;
-  gps_device_op10 Send_Ack;
-  gps_device_op10 Get_Ack;
-  gps_device_op13 Read_Packet;
-  gps_device_op12 Write_Packet;
-} gps_device_ops;
+  virtual int32_t On(const char* port) = 0;
+  virtual int32_t Off() = 0;
+  virtual int32_t Chars_Ready()
+  {
+    return true;
+  }
+  virtual int32_t Wait()
+  {
+    return true;
+  }
+  virtual int32_t Flush()
+  {
+    return true;
+  }
+  virtual bool Send_Ack(GPS_Packet* tra, GPS_Packet* rec)
+  {
+    return true;
+  }
+  virtual bool Get_Ack(GPS_Packet* tra, GPS_Packet* rec)
+  {
+    return true;
+  }
+  virtual int32_t Packet_Read(GPS_Packet* packet) = 0;
+  virtual int32_t Write_Packet(const GPS_Packet& packet) = 0;
+};
 
 #endif /* JEEPS_GPSDEVICE_H_INCLUDED_ */

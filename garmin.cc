@@ -138,7 +138,7 @@ GarminFormat::rw_init(const QString& fname)
 
   portname = xstrdup(qPrintable(fname));
 
-  if (baud && baud != DEFAULT_BAUD) {
+  if (baud && baud != GpsSerialDevice::DEFAULT_BAUD) {
     if (0 == GPS_Set_Baud_Rate(portname, baud)) {
       gps_baud_rate = baud;
     }
@@ -319,8 +319,8 @@ GarminFormat::rd_init(const QString& fname)
 void
 GarminFormat::rw_deinit()
 {
-  if (gps_baud_rate != DEFAULT_BAUD) {
-    if (0 == GPS_Set_Baud_Rate(portname, DEFAULT_BAUD)) {
+  if (gps_baud_rate != GpsSerialDevice::DEFAULT_BAUD) {
+    if (0 == GPS_Set_Baud_Rate(portname, GpsSerialDevice::DEFAULT_BAUD)) {
       gps_baud_rate = baud;
     }
   }

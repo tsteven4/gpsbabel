@@ -38,7 +38,7 @@
  */
 #include "jeeps/garminusb.h"
 #include "jeeps/gpsserial.h"
-#include "jeeps/gpsusbint.h"
+#include "jeeps/gpsdevice_usb.h"
 
 time_t gps_save_time;
 double gps_save_lat;
@@ -321,7 +321,8 @@ static int32_t GPS_A000(const char* port)
       rec.type = 0;
 
       if (gps_is_usb) {
-        GPS_Packet_Read_usb(fd, &rec, 0);
+        auto* ud = dynamic_cast<GpsUsbDevice*>(fd);
+        ud->Packet_Read_bulk(&rec);
       } else {
         if (!GPS_Device_Wait(fd)) {
           goto carry_on;
@@ -7586,20 +7587,22 @@ void GPS_Prepare_Track_For_Device(GPS_PTrack** trk, int32_t* n)
 
 int32_t GPS_Set_Baud_Rate(const char* port, int br)
 {
-
+  int32_t status = INPUT_ERROR;
   gpsdevh* fd;
 
   if (!GPS_Device_On(port, &fd)) {
     return gps_errno;
   }
 
-  if (gps_is_usb) return -1; // this feature is serial only
-  GPS_Serial_Set_Baud_Rate(fd, br);
+  if (!gps_is_usb) {
+    auto* sd = dynamic_cast<GpsSerialDevice*>(fd);
+    status = sd->Set_Baud_Rate(br);
+  }
 
   if (!GPS_Device_Off(fd)) {
     return gps_errno;
   }
 
-  return 0;
+  return status;
 
 }

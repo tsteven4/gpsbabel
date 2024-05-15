@@ -70,7 +70,7 @@ static int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number);
 
 static int gusb_libusb_get(garmin_usb_packet* ibuf, size_t sz);
 static int gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz);
-static int gusb_teardown(gpsdevh* dh, bool exit_lib);
+static int gusb_teardown(gpsusbdevh* dh, bool exit_lib);
 static int gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz);
 
 static gusb_llops_t libusb_llops = {
@@ -136,7 +136,7 @@ gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz)
 
 
 static int
-gusb_teardown(gpsdevh* dh, bool exit_lib)
+gusb_teardown(gpsusbdevh* dh, bool exit_lib)
 {
   if (udev != nullptr) {
     int ret = libusb_release_interface(udev, 0);
@@ -489,12 +489,12 @@ int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number)
 
 
 int
-gusb_init(const char* portname, gpsdevh** dh)
+gusb_init(const char* portname, gpsusbdevh** dh)
 {
   int req_unit_number = 0;
   auto* lud = (libusb_unit_data*) xcalloc(sizeof(libusb_unit_data), 1);
 
-  *dh = (gpsdevh*) lud;
+  *dh = (gpsusbdevh*) lud;
 
 //  To enable debug logging
 //  set the LIBUSB_DEBUG environment variable to the log level, or
