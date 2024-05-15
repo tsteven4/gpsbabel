@@ -53,7 +53,7 @@ public:
   }
 
 private:
-  int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, int eatbulk);
+  int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, int eat_bulk);
   int32_t GPS_Write_Packet_usb(gpsusbdevh* fd, const GPS_Packet& packet);
 
   gpsusbdevh* fd{nullptr};

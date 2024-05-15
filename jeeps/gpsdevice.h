@@ -31,8 +31,6 @@ int32_t GPS_Device_On(const char* port, GpsDevice** fd);
 int32_t GPS_Device_Off(GpsDevice* fd);
 int32_t GPS_Device_Wait(GpsDevice* fd);
 int32_t GPS_Device_Flush(GpsDevice* fd);
-int32_t GPS_Device_Read(int32_t ignored, void* ibuf, int size);
-int32_t GPS_Device_Write(int32_t ignored, const void* obuf, int size);
 void    GPS_Device_Error(char* hdr, ...);
 int32_t GPS_Write_Packet(GpsDevice* fd, const GPS_Packet& packet);
 bool    GPS_Send_Ack(GpsDevice* fd, GPS_Packet* tra, GPS_Packet* rec);

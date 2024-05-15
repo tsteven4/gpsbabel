@@ -21,7 +21,7 @@ int32_t GPS_A300_Send(const char* port, GPS_PTrack* trk, int32_t n);
 int32_t GPS_A301_Send(const char* port, GPS_PTrack* trk, int32_t n, int protoid,
                       GpsDevice* fd);
 
-int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, GpsDevice* h);
+int32_t GPS_D300_Get(GPS_PTrack* trk, int32_t entries, GpsDevice* fd);
 void   GPS_D300b_Get(GPS_PTrack* trk, UC* data);
 void   GPS_D301b_Get(GPS_PTrack* trk, UC* data);
 void   GPS_D302b_Get(GPS_PTrack* trk, UC* data);
@@ -56,7 +56,7 @@ int32_t GPS_A800_Get(GpsDevice** fd, GPS_PPvt_Data* packet);
 void   GPS_D800_Get(const GPS_Packet& packet, GPS_PPvt_Data* pvt);
 
 int32_t GPS_A906_Get(const char* port, GPS_PLap** lap, pcb_fn cb);
-void   GPS_D1011b_Get(GPS_PLap* Lap,UC* data); /*D906 D1001 D1015*/
+void   GPS_D1011b_Get(GPS_PLap* Lap,UC* p); /*D906 D1001 D1015*/
 
 int32_t GPS_A1006_Get(const char* port, GPS_PCourse** crs, pcb_fn cb);
 int32_t GPS_A1006_Send(const char* port, GPS_PCourse* crs, int32_t n_crs,
