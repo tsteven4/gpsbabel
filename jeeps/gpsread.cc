@@ -29,7 +29,7 @@
 #include <ctime>
 
 #include "jeeps/gps.h"
-#include "jeeps/gpsserial.h"
+#include "jeeps/gpsdevice_ser.h"
 
 
 /* @func GPS_Time_Now ***********************************************

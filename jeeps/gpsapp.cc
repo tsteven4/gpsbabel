@@ -37,7 +37,7 @@
  * See the use of gps_is_usb and GPS_Packet_Read_usb below.
  */
 #include "jeeps/garminusb.h"
-#include "jeeps/gpsserial.h"
+#include "jeeps/gpsdevice_ser.h"
 #include "jeeps/gpsdevice_usb.h"
 
 time_t gps_save_time;
