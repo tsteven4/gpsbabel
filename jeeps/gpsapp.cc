@@ -7587,7 +7587,6 @@ void GPS_Prepare_Track_For_Device(GPS_PTrack** trk, int32_t* n)
 
 int32_t GPS_Set_Baud_Rate(const char* port, int br)
 {
-  int32_t status = INPUT_ERROR;
   GpsDevice* fd;
 
   if (!GPS_Device_On(port, &fd)) {
@@ -7596,13 +7595,13 @@ int32_t GPS_Set_Baud_Rate(const char* port, int br)
 
   if (!gps_is_usb) {
     auto* sd = dynamic_cast<GpsSerialDevice*>(fd);
-    status = sd->Set_Baud_Rate(br);
+    (void) sd->Set_Baud_Rate(br);
   }
 
   if (!GPS_Device_Off(fd)) {
     return gps_errno;
   }
 
-  return status;
+  return 0;
 
 }
