@@ -56,6 +56,14 @@ int gps_baud_rate = GpsSerialDevice::DEFAULT_BAUD;
   va_end(ap);
 }
 
+/* @func GPS_Serial_On *************************************************
+**
+** Open a serial port 8 data bits, 1 stop bit, 9600 baud
+**
+** @param [r] port [const char *] port e.g. COM4
+**
+** @return [int32_t] false upon error
+************************************************************************/
 int32_t GpsSerialDevice::On(const char* port)
 {
   GPS_Diag("Opening %s\n", port);
@@ -95,6 +103,13 @@ int32_t GpsSerialDevice::On(const char* port)
   return 1;
 }
 
+/* @func GPS_Serial_Off *************************************************
+**
+** Close serial port
+**
+**
+** @return [int32_t] false upon error
+************************************************************************/
 int32_t GpsSerialDevice::Off()
 {
   sp.close();
@@ -118,11 +133,27 @@ int32_t GpsSerialDevice::Chars_Ready_After(int msec_timeout)
   return sp.bytesAvailable() > 0;
 }
 
+/* @func GPS_Serial_Chars_Ready *****************************************
+**
+** Query port to see if characters are waiting to be read
+**
+**
+** @return [int32_t] true if chars waiting
+************************************************************************/
 int32_t GpsSerialDevice::Chars_Ready()
 {
   return Chars_Ready_After(1);
 }
 
+/* @func GPS_Serial_Wait ***********************************************
+**
+** Wait 80 milliseconds before testing for input. The GPS delay
+** appears to be around 40-50 milliseconds. Doubling the value is to
+** allow some leeway.
+**
+**
+** @return [int32_t] true if serial chars waiting
+************************************************************************/
 int32_t GpsSerialDevice::Wait()
 {
   /* Wait a short time before testing if data is ready.
@@ -135,6 +166,13 @@ int32_t GpsSerialDevice::Wait()
   return Chars_Ready_After(msecDELAY);
 }
 
+/* @func GPS_Serial_Flush ***********************************************
+**
+** Flush the serial lines
+**
+**
+** @return [int32_t] false upon error
+************************************************************************/
 int32_t GpsSerialDevice::Flush()
 {
   bool ok = sp.clear(QSerialPort::AllDirections);
