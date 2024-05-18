@@ -25,15 +25,17 @@
 ********************************************************************/
 #include "jeeps/gpsserial.h"
 
-#include <cstdarg>          // for va_end, va_list, va_start
-#include <cstdio>           // for fprintf, vsnprintf, stderr, va_list
+#include <cstdarg>              // for va_end, va_list, va_start
+#include <cstdio>               // for fprintf, vsnprintf, stderr, va_list
 
-#include <QByteArray>       // for QByteArray
-#include <QIODeviceBase>    // for QIODeviceBase, QIODeviceBase::ReadWrite
-#include <QSerialPort>      // for QSerialPort, QSerialPort::AllDirections
-#include <QString>          // for QString
-#include <QThread>          // for QThread
-#include <QtGlobal>         // for qint64
+#include <QByteArray>           // for QByteArray
+#include <QDebug>               // for QDebug, operator<<
+#include <QIODeviceBase>        // for QIODeviceBase, QIODeviceBase::ReadWrite
+#include <QSerialPort>          // for QSerialPort, QSerialPort::AllDirections
+#include <QString>              // for QString
+#include <QTextStreamFunction>  // for endl
+#include <QThread>              // for QThread
+#include <QtGlobal>             // for qPrintable, qint64
 
 #include "jeeps/gps.h"
 
@@ -86,19 +88,21 @@ int32_t GpsSerialDevice::On(const char* port)
     gps_errno = SERIAL_ERROR;
     return 0;
   }
-#if 0
-  GPS_Diag("baudRate %d\n", sp.baudRate());
-  GPS_Diag("parity %d\n", sp.parity());
-  GPS_Diag("stopBits %d\n", sp.stopBits());
-  GPS_Diag("flow control %d\n", sp.flowControl());
-  GPS_Diag("break enabled %d\n", sp.isBreakEnabled());
-  GPS_Diag("pinout signals 0x%0x\n", sp.pinoutSignals());
-  GPS_Diag("read buffer %d\n", sp.readBufferSize());
-  GPS_Diag("dtr %d\n", sp.isDataTerminalReady());
-  GPS_Diag("rts %d\n", sp.isRequestToSend());
-
-  GPS_Diag("GPS_Serial_On error", sp.error());
-#endif
+  if (global_opts.debug_level > 2) {
+    QString debugstr;
+    QDebug debug(&debugstr);
+    debug << "  baudRate:" << sp.baudRate() << Qt::endl;
+    debug << "  parity:" << sp.parity() << Qt::endl;
+    debug << "  stopBits:" << sp.stopBits() << Qt::endl;
+    debug << "  flow control:" << sp.flowControl() << Qt::endl;
+    debug << "  break enabled:" << sp.isBreakEnabled() << Qt::endl;
+    debug << "  pinout signals:" << sp.pinoutSignals() << Qt::endl;
+    debug << "  read buffer size:" << sp.readBufferSize() << Qt::endl;
+    debug << "  DTR:" << sp.isDataTerminalReady() << Qt::endl;
+    debug << "  RTS:" << sp.isRequestToSend() << Qt::endl;
+    debug << "  error status:" << sp.error() << Qt::endl;
+    GPS_Diag("%s", qPrintable(debugstr));
+  }
 
   return 1;
 }
