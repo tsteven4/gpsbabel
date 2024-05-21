@@ -49,7 +49,9 @@ int32_t GPS_Device_On(const char* port, GpsDevice** fd)
 
 int32_t GPS_Device_Off(GpsDevice* fd)
 {
-  return fd->Off();
+  int32_t status = fd->Off();
+  delete fd;
+  return status;
 }
 
 int32_t GPS_Device_Wait(GpsDevice* fd)
