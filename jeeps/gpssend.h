@@ -6,9 +6,6 @@
 
 #define GPS_ARB_LEN 1024
 
-int32_t GPS_Serial_Write_Packet(GpsDevice* fd, const GPS_Packet& packet);
-bool  GPS_Serial_Send_Ack(GpsDevice* fd, GPS_Packet* tra, GPS_Packet* rec);
-
 void   GPS_Make_Packet(GPS_Packet* packet, US type, UC* data, uint32_t n);
 
 
