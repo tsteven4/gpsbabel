@@ -19,11 +19,15 @@
 
  */
 
-#include "jeeps/gps.h"
 #include "jeeps/gpsdevice.h"
+
+#include "jeeps/gps.h"
 #include "jeeps/gpsserial.h"
-#include "jeeps/gpsdevice_usb.h"
-#include "jeeps/gpslibusb.h"
+#if __WIN32__
+  #include "jeeps/gpsusbwin.h"
+#elif HAVE_LIBUSB_1_0
+  #include "jeeps/gpslibusb.h"
+#endif
 
 
 int32_t GPS_Device_On(const char* port, GpsDevice** fd)

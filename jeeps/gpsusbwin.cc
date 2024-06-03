@@ -19,16 +19,25 @@
 
  */
 
-#include <cctype>
-#include <cstdio>
-#include <windows.h> // Boost this out of alpha order.
-#include <initguid.h>
-#include <malloc.h>
-#include <setupapi.h>
-#include <winioctl.h>
+#include "jeeps/gpsusbwin.h"
 
-#include "jeeps/gps.h"
-#include "jeeps/gpsapp.h"
+#include <cstdarg>           // for va_end, va_start
+#include <cstdio>            // for NULL, size_t, vsnprintf, va_list
+#include <cstdlib>           // for exit
+#include <cstring>           // for strcmp, strlen
+
+#include <windows.h>         // Boost this out of alpha order.
+#include <errhandlingapi.h>  // for GetLastError
+#include <fileapi.h>         // for ReadFile, WriteFile, CreateFile, OPEN_EXISTING
+#include <ioapiset.h>        // for DeviceIoControl
+#include <setupapi.h>        // for SetupDiEnumDeviceInterfaces, ...
+#include <initguid.h>
+#include <winerror.h>        // for ERROR_ACCESS_DENIED, ERROR_NO_MORE_ITEMS
+#include <winioctl.h>        // for CTL_CODE, FILE_ANY_ACCESS, FILE_DEVICE_UNKNOWN, METHOD_BUFFERED
+
+#include "defs.h"            // for fatal, warning, xcalloc, xmalloc, xstrtoi
+#include "jeeps/gpsutil.h"   // for GPS_Diag, GPS_Error
+
 
 /* Constants from Garmin doc. */
 
@@ -46,14 +55,8 @@ DEFINE_GUID(GARMIN_GUID, 0x2c9c45c2L, 0x8e7d, 0x4c08, 0xa1, 0x2d, 0x81, 0x6b, 0x
 #define IOCTL_GARMIN_USB_BULK_OUT_PACKET_SIZE CTL_CODE \
 	(FILE_DEVICE_UNKNOWN, 0x851, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-typedef struct {
-  int booger;
-} winusb_unit_data;
 
-static HANDLE usb_handle = INVALID_HANDLE_VALUE;
-static int usb_tx_packet_size ;
-
-[[gnu::format(printf, 1, 2)]] static void GPS_Serial_Error(const char* fmt, ...)
+void GpsWinusb::GPS_Serial_Error(const char* fmt, ...)
 {
   va_list ap;
   char msg[200];
@@ -74,8 +77,8 @@ static int usb_tx_packet_size ;
   va_end(ap);
 }
 
-static int
-gusb_win_close(gpsusbdevh* /* handle */, bool /* exit_lib */)
+int
+GpsWinusb::gusb_win_close(gpsusbdevh* /* handle */, bool /* exit_lib */)
 {
   if (usb_handle != INVALID_HANDLE_VALUE) {
     CloseHandle(usb_handle);
@@ -85,8 +88,8 @@ gusb_win_close(gpsusbdevh* /* handle */, bool /* exit_lib */)
   return 0;
 }
 
-static int
-gusb_win_get(garmin_usb_packet* ibuf, size_t sz)
+int
+GpsWinusb::gusb_win_get(garmin_usb_packet* ibuf, size_t sz)
 {
   DWORD rxed = GARMIN_USB_INTERRUPT_DATA_SIZE;
   unsigned char* buf = (unsigned char*) &ibuf->dbuf;
@@ -111,8 +114,8 @@ gusb_win_get(garmin_usb_packet* ibuf, size_t sz)
   return tsz;
 }
 
-static int
-gusb_win_get_bulk(garmin_usb_packet* ibuf, size_t sz)
+int
+GpsWinusb::gusb_win_get_bulk(garmin_usb_packet* ibuf, size_t sz)
 {
   int n;
   DWORD rsz;
@@ -123,8 +126,8 @@ gusb_win_get_bulk(garmin_usb_packet* ibuf, size_t sz)
   return rsz;
 }
 
-static int
-gusb_win_send(const garmin_usb_packet* opkt, size_t sz)
+int
+GpsWinusb::gusb_win_send(const garmin_usb_packet* opkt, size_t sz)
 {
   DWORD rsz;
   const auto* obuf = opkt->dbuf;
@@ -142,15 +145,7 @@ gusb_win_send(const garmin_usb_packet* opkt, size_t sz)
   return rsz;
 }
 
-static gusb_llops_t win_llops = {
-  gusb_win_get,
-  gusb_win_get_bulk,
-  gusb_win_send,
-  gusb_win_close
-};
-
-static
-HANDLE garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* infodata)
+HANDLE GpsWinusb::garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* infodata)
 {
   DWORD size;
   PSP_INTERFACE_DEVICE_DETAIL_DATA pdd = NULL;
@@ -195,7 +190,7 @@ HANDLE garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* infodata)
                        &size, NULL)) {
     fatal("Couldn't get USB packet size.\n");
   }
-  win_llops.max_tx_size = usb_tx_packet_size;
+  max_tx_size = usb_tx_packet_size;
 
   gusb_syncup();
 
@@ -207,7 +202,7 @@ HANDLE garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* infodata)
  * device, and light it up.
  */
 int
-gusb_init(const char* pname, gpsusbdevh** dh)
+GpsWinusb::gusb_init(const char* pname, gpsusbdevh** dh)
 {
   int req_unit_number = 0;
   int un = 0;
@@ -218,8 +213,6 @@ gusb_init(const char* pname, gpsusbdevh** dh)
 
   winusb_unit_data* wud = (winusb_unit_data*) xcalloc(sizeof(winusb_unit_data), 1);
   *dh = (gpsusbdevh*) wud;
-
-  gusb_register_ll(&win_llops);
 
   if (strlen(pname) > 4) {
     if (0 == strcmp(pname+4, "list")) {

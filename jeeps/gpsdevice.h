@@ -24,7 +24,10 @@
 
 class GpsDevice;
 
+#include <cstdint>   // for int32_t
+
 #include "jeeps/gps.h"
+
 
 int32_t GPS_Device_Chars_Ready(GpsDevice* fd);
 int32_t GPS_Device_On(const char* port, GpsDevice** fd);
