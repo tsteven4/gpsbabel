@@ -22,6 +22,7 @@
 #ifndef JEEPS_GPSUSBCOMMON_H_INCLUDED_
 #define JEEPS_GPSUSBCOMMON_H_INCLUDED_
 
+#if 0
 /*
  * The 'low level ops' are registered by the OS layer (win32, libusb, etc.)
  * to provide gruntwork features for the common USB layer.
@@ -37,11 +38,12 @@ typedef struct gusb_llops {
   gusb_llop_close llop_close;
   int max_tx_size;
 } gusb_llops_t;
+#endif
 
 /* Provided by the common code. */
-void gusb_syncup();
-void gusb_register_ll(gusb_llops* p);
-void gusb_list_units();
+//void gusb_syncup();
+//void gusb_register_ll(gusb_llops* p);
+//void gusb_list_units();
 
 /* Provided by the OS layers */
 // int gusb_init(const char *portname, gpsusbdev **dh);

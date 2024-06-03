@@ -20,8 +20,7 @@
  */
 
 #include "jeeps/gps.h"
-#include "jeeps/garminusb.h"
-#include "jeeps/gpsusbcommon.h"
+#include "jeeps/gpsdevice_usb.h"
 
 /*
  * This receive logic is a little convoluted as we go to some efforts here
@@ -34,21 +33,23 @@ static enum {
   rs_frombulk
 } receive_state;
 
-static gusb_llops_t* gusb_llops;
-static garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
+//static gusb_llops_t* gusb_llops;
+//static garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 
 /* Decide when to truncate packets for debug output */
 #define DEBUG_THRESH  ((global_opts.debug_level < 5) && (i > 10))
 
+#if 0
 /* Called from OS layer to register its low-level entry points. */
 void
 gusb_register_ll(gusb_llops_t* p)
 {
   gusb_llops = p;
 }
+#endif
 
 int
-gusb_close(gpsusbdevh* dh, bool exit_lib)
+GpsUsbDevice::gusb_close(gpsusbdevh* dh, bool exit_lib)
 {
   garmin_usb_packet scratch;
 
@@ -62,7 +63,7 @@ gusb_close(gpsusbdevh* dh, bool exit_lib)
     break;
   }
 
-  gusb_llops->llop_close(dh, exit_lib);
+  llop_close(dh, exit_lib);
   return 1;
 
 #if BOOGER
@@ -80,7 +81,7 @@ gusb_close(gpsusbdevh* dh, bool exit_lib)
 
 
 int
-gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz)
+GpsUsbDevice::gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz)
 {
   int rv;
   auto* buf = (unsigned char*) &ibuf->dbuf;
@@ -88,10 +89,10 @@ gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz)
 top:
   switch (receive_state) {
   case rs_fromintr:
-    rv = gusb_llops->llop_get_intr(ibuf, sz);
+    rv = llop_get_intr(ibuf, sz);
     break;
   case rs_frombulk:
-    rv = gusb_llops->llop_get_bulk(ibuf, sz);
+    rv = llop_get_bulk(ibuf, sz);
     break;
   default:
     fatal("Unknown receiver state %d\n", receive_state);
@@ -152,12 +153,12 @@ top:
 }
 
 int
-gusb_cmd_send(const garmin_usb_packet* opkt, size_t sz)
+GpsUsbDevice::gusb_cmd_send(const garmin_usb_packet* opkt, size_t sz)
 {
   const auto* obuf = opkt->dbuf;
   const char* m2;
 
-  unsigned int rv = gusb_llops->llop_send(opkt, sz);
+  unsigned int rv = llop_send(opkt, sz);
 
   if (gps_show_bytes) {
     const unsigned short pkttype = le_read16(&opkt->gusb_pkt.databuf[0]);
@@ -185,7 +186,7 @@ gusb_cmd_send(const garmin_usb_packet* opkt, size_t sz)
    * packet.  Do that here so we can see it in debugging traces.
    */
 
-  if (sz && !(sz % gusb_llops->max_tx_size)) {
+  if (sz && !(sz % max_tx_size)) {
     gusb_cmd_send(opkt, 0);
   }
 
@@ -193,7 +194,7 @@ gusb_cmd_send(const garmin_usb_packet* opkt, size_t sz)
 }
 
 void
-gusb_list_units()
+GpsUsbDevice::gusb_list_units()
 {
   int i;
 
@@ -209,7 +210,7 @@ gusb_list_units()
 }
 
 void
-gusb_id_unit(garmin_unit_info_t* gu)
+GpsUsbDevice::gusb_id_unit(garmin_unit_info_t* gu)
 {
   static const unsigned char  oid[12] =
   {20, 0, 0, 0, 0xfe, 0, 0, 0, 0, 0, 0, 0};
@@ -241,7 +242,7 @@ gusb_id_unit(garmin_unit_info_t* gu)
 }
 
 void
-gusb_syncup()
+GpsUsbDevice::gusb_syncup()
 {
   static int unit_number;
   static const char  oinit[12] =

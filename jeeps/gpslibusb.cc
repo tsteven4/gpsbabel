@@ -19,6 +19,7 @@
 
  */
 
+#include "gpslibusb.h"
 
 #include <cassert>
 #include <cstdio>
@@ -34,55 +35,10 @@
 #  include LIBUSB_H_INCLUDE
 #endif
 #include "defs.h"
-#include "jeeps/garminusb.h"
-#include "jeeps/gpsdevice.h"
-#include "jeeps/gpsusbcommon.h"
 
-#define GARMIN_VID 0x91e
 
-/* This is very sensitive to timing; libusb and/or the unit is kind of
- * sloppy about not obeying packet boundaries.  If this is too high, the
- * multiple packets responding to the device inquiry will be glommed into
- * one packet and we'll misparse them.  If it's too low, we'll get partially
- * satisfied reads.  It turns out this isn't terrible because we still end
- * up with DLE boundings and the upper layers (which are used to doing frame
- * coalescion into packets anyway because of their serial background) will
- * compensate.
- */
-#define TMOUT_I 5000 /*  Milliseconds to timeout intr pipe access. */
-#define TMOUT_B 5000 /*  Milliseconds to timeout bulk pipe access. */
-
-typedef struct {
-  unsigned product_id;
-} libusb_unit_data;
-
-/*
- * TODO: this should all be moved into libusbdata in gpslibusb.h,
- * allocated once here in gusb_start, and deallocated at the end.
- */
-static unsigned char gusb_intr_in_ep;
-static unsigned char gusb_bulk_out_ep;
-static unsigned char gusb_bulk_in_ep;
-
-static bool libusb_successfully_initialized{false};
-static libusb_device_handle* udev{nullptr};
-static int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number);
-
-static int gusb_libusb_get(garmin_usb_packet* ibuf, size_t sz);
-static int gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz);
-static int gusb_teardown(gpsusbdevh* dh, bool exit_lib);
-static int gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz);
-
-static gusb_llops_t libusb_llops = {
-  gusb_libusb_get,
-  gusb_libusb_get_bulk,
-  gusb_libusb_send,
-  gusb_teardown,
-  0
-};
-
-static int
-gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz)
+int
+GpsLibusb::gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz)
 {
   auto* buf = const_cast<unsigned char*>(&opkt->dbuf[0]);
   int transferred;
@@ -100,8 +56,8 @@ gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz)
   return transferred;
 }
 
-static int
-gusb_libusb_get(garmin_usb_packet* ibuf, size_t sz)
+int
+GpsLibusb::gusb_libusb_get(garmin_usb_packet* ibuf, size_t sz)
 {
   unsigned char* buf = &ibuf->dbuf[0];
   int transferred;
@@ -117,8 +73,8 @@ gusb_libusb_get(garmin_usb_packet* ibuf, size_t sz)
   return transferred;
 }
 
-static int
-gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz)
+int
+GpsLibusb::gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz)
 {
   unsigned char* buf = &ibuf->dbuf[0];
   int transferred;
@@ -135,8 +91,8 @@ gusb_libusb_get_bulk(garmin_usb_packet* ibuf, size_t sz)
 }
 
 
-static int
-gusb_teardown(gpsusbdevh* dh, bool exit_lib)
+int
+GpsLibusb::gusb_teardown(gpsusbdevh* dh, bool exit_lib)
 {
   if (udev != nullptr) {
     int ret = libusb_release_interface(udev, 0);
@@ -164,7 +120,7 @@ gusb_teardown(gpsusbdevh* dh, bool exit_lib)
 static void
 gusb_atexit_teardown()
 {
-  gusb_teardown(nullptr, true);
+  //gusb_teardown(nullptr, true);
 }
 
 
@@ -203,7 +159,7 @@ gusb_atexit_teardown()
  * Grrrr!
  */
 unsigned
-gusb_reset_toggles()
+GpsLibusb::gusb_reset_toggles()
 {
   static const unsigned char  oinit[12] =
   {0, 0, 0, 0, GUSB_SESSION_START, 0, 0, 0, 0, 0, 0, 0};
@@ -273,7 +229,7 @@ gusb_reset_toggles()
 }
 
 void
-garmin_usb_start(struct libusb_device* dev,
+GpsLibusb::garmin_usb_start(struct libusb_device* dev,
                  struct libusb_device_descriptor* desc, libusb_unit_data* lud)
 {
   int ret;
@@ -331,7 +287,7 @@ garmin_usb_start(struct libusb_device* dev,
    * endpoint descriptor for the bulk out endpoint?
    *
    */
-  libusb_llops.max_tx_size = desc->bMaxPacketSize0;
+  max_tx_size = desc->bMaxPacketSize0;
 
   /*
    * About 5% of the time on OS/X (Observed on 10.5.4 on Intel Imac
@@ -426,8 +382,7 @@ garmin_usb_start(struct libusb_device* dev,
         gusb_intr_in_ep, gusb_bulk_out_ep, gusb_bulk_in_ep);
 }
 
-static
-int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number)
+int GpsLibusb::garmin_usb_scan(libusb_unit_data* lud, int req_unit_number)
 {
   int found_devices = 0;
 
@@ -489,7 +444,7 @@ int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number)
 
 
 int
-gusb_init(const char* portname, gpsusbdevh** dh)
+GpsLibusb::gusb_init(const char* portname, gpsusbdevh** dh)
 {
   int req_unit_number = 0;
   auto* lud = (libusb_unit_data*) xcalloc(sizeof(libusb_unit_data), 1);
@@ -512,7 +467,7 @@ gusb_init(const char* portname, gpsusbdevh** dh)
     atexit(gusb_atexit_teardown);
     exit_handler_registered = true;
   }
-  gusb_register_ll(&libusb_llops);
+  //gusb_register_ll(&libusb_llops);
 
   /* if "usb:N", read "N" to be the unit number. */
   if (strlen(portname) > 4) {

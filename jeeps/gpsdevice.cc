@@ -23,6 +23,7 @@
 #include "jeeps/gpsdevice.h"
 #include "jeeps/gpsserial.h"
 #include "jeeps/gpsdevice_usb.h"
+#include "jeeps/gpslibusb.h"
 
 
 int32_t GPS_Device_On(const char* port, GpsDevice** fd)
@@ -31,7 +32,14 @@ int32_t GPS_Device_On(const char* port, GpsDevice** fd)
 
   GpsDevice* device;
   if (gps_is_usb) {
-    device = new GpsUsbDevice;
+    #if __WIN32__
+      device = new GpsWinusb;
+    #elif HAVE_LIBUSB_1_0
+      //device = new GpsUsbDevice;
+      device = new GpsLibusb;
+    #else
+      fatal("USB support is not available in this build.\n");
+    #endif
   } else {
     device = new GpsSerialDevice;
   }

@@ -241,7 +241,6 @@ set(HEADERS
   vecs.h
   xcsv.h
   xmlgeneric.h
-  jeeps/garminusb.h
   jeeps/gps.h
   jeeps/gpsapp.h
   jeeps/gpscom.h
@@ -256,7 +255,6 @@ set(HEADERS
   jeeps/gpsrqst.h
   jeeps/gpssend.h
   jeeps/gpsserial.h
-  jeeps/gpsusbcommon.h
   jeeps/gpsutil.h
   src/core/codecdevice.h
   src/core/datetime.h

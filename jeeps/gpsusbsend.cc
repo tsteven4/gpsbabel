@@ -20,7 +20,6 @@
  */
 
 #include "jeeps/gps.h"
-#include "jeeps/garminusb.h"
 #include "jeeps/gpsdevice_usb.h"
 #include <cerrno>
 #include <cstdio>

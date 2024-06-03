@@ -26,6 +26,7 @@
 
 class gpsusbdevh; // Opaque
 
+#if 0
 /* This structure is a bit funny looking to avoid variable length
  * arrays which aren't present in C89.   This contains the visible
  * fields in the USB packets of the Garmin USB receivers (60C, 76C, etc.)
@@ -46,11 +47,13 @@ union {
   } gusb_pkt;
   unsigned char dbuf[1024];
 } garmin_usb_packet;
+#endif
 
 /*
  * Internal interfaces that are common regardless of underlying
  * OS implementation.
  */
+#if 0
 #define GUSB_MAX_UNITS 20
 struct garmin_unit_info_t {
   unsigned long serial_number;
@@ -59,17 +62,20 @@ struct garmin_unit_info_t {
   char* os_identifier; /* In case the OS has another name for it. */
   char* product_identifier; /* From the hardware itself. */
 };
+#endif
 
-int gusb_cmd_send(const garmin_usb_packet* obuf, size_t sz);
-int gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz);
-int gusb_init(const char* portname, gpsusbdevh** dh);
-int gusb_close(gpsusbdevh* dh, bool exit_lib = true);
+//int gusb_cmd_send(const garmin_usb_packet* obuf, size_t sz);
+//int gusb_cmd_get(garmin_usb_packet* ibuf, size_t sz);
+//int gusb_init(const char* portname, gpsusbdevh** dh);
+//int gusb_close(gpsusbdevh* dh, bool exit_lib = true);
 
+#if 0
 /*
  * New packet types in USB.
  */
 #define GUSB_SESSION_START 5	/* We request units attention */
 #define GUSB_SESSION_ACK   6	/* Unit responds that we have its attention */
 #define GUSB_REQUEST_BULK  2	/* Unit requests we read from bulk pipe */
+#endif
 
 #endif // JEEPS_GARMINUSB_H_INCLUDED_

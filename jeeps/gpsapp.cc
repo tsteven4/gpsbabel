@@ -36,7 +36,6 @@
  * This violates the layering design, but is needed for device discovery.
  * See the use of gps_is_usb and GpsUsbDevice::Packet_Read_bulk below.
  */
-#include "jeeps/garminusb.h"
 #include "jeeps/gpsserial.h"
 #include "jeeps/gpsdevice_usb.h"
 
@@ -7504,13 +7503,13 @@ Get_Pkt_Type(US p, US d0, const char** xinfo)
     return "TRKHD2";
   }
 
-  if (p == GUSB_REQUEST_BULK) {
+  if (p == GpsUsbDevice::GUSB_REQUEST_BULK) {
     return "REQBLK";
   }
-  if (p == GUSB_SESSION_START) {
+  if (p == GpsUsbDevice::GUSB_SESSION_START) {
     return "SESREQ";
   }
-  if (p == GUSB_SESSION_ACK) {
+  if (p == GpsUsbDevice::GUSB_SESSION_ACK) {
     return "SESACK";
   }
 
