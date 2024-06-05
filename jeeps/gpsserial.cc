@@ -72,7 +72,7 @@ int32_t GpsSerialDevice::On(const char* port)
   sp.setPortName(port);
   bool ok = sp.open(QIODeviceBase::ReadWrite);
   if (!ok) {
-   Error("Cannot open serial port '%s'", port);
+    Error("Cannot open serial port '%s'", port);
     gps_errno = SERIAL_ERROR;
     return 0;
   }

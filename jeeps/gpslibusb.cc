@@ -25,6 +25,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include <list>
+
 #if HAVE_LIBUSB_1_0
 #ifdef LIBUSB_H_INCLUDE
 // Warning: LIBUSB_H_INCLUDE necessarily includes bracket or double quote
@@ -36,6 +39,9 @@
 #endif
 #include "defs.h"
 
+static std::list<libusb_device_handle*> libusb_udev_registrations;
+static std::list<gpsusbdevh*> libusb_dh_registrations;
+static int libusb_init_count{0};
 
 int
 GpsLibusb::gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz)
@@ -101,18 +107,21 @@ GpsLibusb::gusb_teardown(gpsusbdevh* dh, bool exit_lib)
               libusb_strerror(static_cast<enum libusb_error>(ret)));
     }
     libusb_close(udev);
+    libusb_udev_registrations.remove(udev);
     /* In the worst case, we leak a little bit of memory
      * when called via the atexit handler.  That's not too
      * terrible.
      */
     if (nullptr != dh) {
       xfree(dh);
+      libusb_dh_registrations.remove(dh);
     }
     udev = nullptr;
   }
   if (exit_lib && libusb_successfully_initialized) {
     libusb_exit(nullptr);
     libusb_successfully_initialized = false;
+    libusb_init_count--;
   }
   return 0;
 }
@@ -120,7 +129,28 @@ GpsLibusb::gusb_teardown(gpsusbdevh* dh, bool exit_lib)
 static void
 gusb_atexit_teardown()
 {
-  //gusb_teardown(nullptr, true);
+  for (auto* udev : libusb_udev_registrations) {
+    if (udev != nullptr) {
+      int ret = libusb_release_interface(udev, 0);
+      if (ret != LIBUSB_SUCCESS) {
+        warning("libusb_release_interface failed: %s\n",
+                libusb_strerror(static_cast<enum libusb_error>(ret)));
+      }
+      libusb_close(udev);
+    }
+  }
+  libusb_udev_registrations.clear();
+
+  for (auto* dh : libusb_dh_registrations) {
+    if (nullptr != dh) {
+      xfree(dh);
+    }
+  }
+  libusb_dh_registrations.clear();
+
+  while (libusb_init_count-- > 0) {
+    libusb_exit(nullptr);
+  }
 }
 
 
@@ -229,8 +259,8 @@ GpsLibusb::gusb_reset_toggles()
 }
 
 void
-GpsLibusb::garmin_usb_start(struct libusb_device* dev,
-                 struct libusb_device_descriptor* desc, libusb_unit_data* lud)
+GpsLibusb::garmin_usb_start(libusb_device* dev,
+                            libusb_device_descriptor* desc, libusb_unit_data* lud)
 {
   int ret;
 
@@ -243,6 +273,7 @@ GpsLibusb::garmin_usb_start(struct libusb_device* dev,
           libusb_strerror(static_cast<enum libusb_error>(ret)));
   }
   assert(udev != nullptr);
+  libusb_udev_registrations.push_front(udev);
   /*
    * Hrmph.  No iManufacturer or iProduct headers....
    */
@@ -300,7 +331,7 @@ GpsLibusb::garmin_usb_start(struct libusb_device* dev,
    * a nastygram.  Experiments with retrying various USB ops brought
    * no joy, so just call fatal and move on.
    */
-  struct libusb_config_descriptor* config;
+  libusb_config_descriptor* config;
   ret = libusb_get_active_config_descriptor(dev, &config);
   if (ret != LIBUSB_SUCCESS) {
     fatal("libusb_get_active_config_descriptor failed: %s\n",
@@ -312,9 +343,9 @@ GpsLibusb::garmin_usb_start(struct libusb_device* dev,
   }
 
   for (int i = 0; i < config->bNumInterfaces; ++i) {
-    const struct libusb_interface* interface = &config->interface[i];
+    const libusb_interface* interface = &config->interface[i];
     for (int j = 0; j < interface->num_altsetting; ++j) {
-      const struct libusb_interface_descriptor* altsetting = &interface->altsetting[j];
+      const libusb_interface_descriptor* altsetting = &interface->altsetting[j];
       /*
        * FIXME: Since we never use libusb_set_interface_alt_setting()
        * shouldn't we only look at the default interface descriptor, i.e.
@@ -324,7 +355,7 @@ GpsLibusb::garmin_usb_start(struct libusb_device* dev,
        * "The default setting for an interface is always alternate setting zero."
        */
       for (int k = 0; k < altsetting->bNumEndpoints; ++k) {
-        const struct libusb_endpoint_descriptor* ep = &altsetting->endpoint[k];
+        const libusb_endpoint_descriptor* ep = &altsetting->endpoint[k];
 
         switch (ep->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) {
 #define EA(x) x & LIBUSB_ENDPOINT_ADDRESS_MASK
@@ -398,7 +429,7 @@ int GpsLibusb::garmin_usb_scan(libusb_unit_data* lud, int req_unit_number)
      * the storage driver has already bound to it?) so
      * we fondle only the proprietary class devices.
      */
-    struct libusb_device_descriptor desc;
+    libusb_device_descriptor desc;
     int ret = libusb_get_device_descriptor(devs[i], &desc);
     if (ret != LIBUSB_SUCCESS) {
       fatal("libusb_get_device_descriptor failed: %s\n",
@@ -450,6 +481,7 @@ GpsLibusb::gusb_init(const char* portname, gpsusbdevh** dh)
   auto* lud = (libusb_unit_data*) xcalloc(sizeof(libusb_unit_data), 1);
 
   *dh = (gpsusbdevh*) lud;
+  libusb_dh_registrations.push_front(*dh);
 
 //  To enable debug logging
 //  set the LIBUSB_DEBUG environment variable to the log level, or
@@ -460,6 +492,7 @@ GpsLibusb::gusb_init(const char* portname, gpsusbdevh** dh)
           libusb_strerror(static_cast<enum libusb_error>(ret)));
   }
   libusb_successfully_initialized = true;
+  libusb_init_count++;
   /* you can't unregister an exit handler, and */
   /* they are called once for ever time they are registered. */
   static bool exit_handler_registered{false};
@@ -467,7 +500,6 @@ GpsLibusb::gusb_init(const char* portname, gpsusbdevh** dh)
     atexit(gusb_atexit_teardown);
     exit_handler_registered = true;
   }
-  //gusb_register_ll(&libusb_llops);
 
   /* if "usb:N", read "N" to be the unit number. */
   if (strlen(portname) > 4) {

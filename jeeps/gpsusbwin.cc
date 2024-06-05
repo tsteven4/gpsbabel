@@ -70,7 +70,7 @@ void GpsWinusb::GPS_Serial_Error(const char* fmt, ...)
   *s++ = ' ';
 
   FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, nullptr,
-                GetLastError(), 0, s, sizeof(msg) - b - 2, nullptr);
+                 GetLastError(), 0, s, sizeof(msg) - b - 2, nullptr);
 
   GPS_Error("%s", msg); // valid clang -Wformat-security warning
 

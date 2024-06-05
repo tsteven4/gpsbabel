@@ -133,8 +133,8 @@ protected:
   /* Data Members */
 
   int max_tx_size{0};
-private:
 
+private:
   /* Member Functions */
 
   int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, bool eat_bulk);

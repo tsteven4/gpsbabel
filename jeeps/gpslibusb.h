@@ -88,16 +88,16 @@ private:
   int gusb_libusb_send(const garmin_usb_packet* opkt, size_t sz);
   int gusb_init(const char* portname, gpsusbdevh** dh) override;
   int garmin_usb_scan(libusb_unit_data* lud, int req_unit_number);
-  void garmin_usb_start(struct libusb_device* dev,
-                        struct libusb_device_descriptor* desc,
+  void garmin_usb_start(libusb_device* dev,
+                        libusb_device_descriptor* desc,
                         libusb_unit_data* lud);
   unsigned gusb_reset_toggles();
 
   /* Data Members */
 
-  unsigned char gusb_intr_in_ep;
-  unsigned char gusb_bulk_out_ep;
-  unsigned char gusb_bulk_in_ep;
+  unsigned char gusb_intr_in_ep{0};
+  unsigned char gusb_bulk_out_ep{0};
+  unsigned char gusb_bulk_in_ep{0};
 
   bool libusb_successfully_initialized{false};
   libusb_device_handle* udev{nullptr};
