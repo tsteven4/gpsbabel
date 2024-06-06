@@ -135,6 +135,19 @@ protected:
   int max_tx_size{0};
 
 private:
+  /* Types */
+
+  /*
+   * This receive logic is a little convoluted as we go to some efforts here
+   * to hide most of the differences between the bulk only and bulk-interrupt
+   * protocols as exhibited in the handhelds and dashtops.
+   */
+
+  enum receive_state_t {
+    rs_fromintr,
+    rs_frombulk
+  };
+
   /* Member Functions */
 
   int32_t GPS_Packet_Read_usb(gpsusbdevh* fd, GPS_Packet* packet, bool eat_bulk);
@@ -142,6 +155,7 @@ private:
 
   /* Data Members */
 
+  receive_state_t receive_state{rs_fromintr};
   gpsusbdevh* fd{nullptr};
   garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 };

@@ -22,19 +22,6 @@
 #include "jeeps/gps.h"
 #include "jeeps/gpsdevice_usb.h"
 
-/*
- * This receive logic is a little convoluted as we go to some efforts here
- * to hide most of the differences between the bulk only and bulk-interrupt
- * protocols as exhibited in the handhelds and dashtops.
- */
-
-static enum {
-  rs_fromintr,
-  rs_frombulk
-} receive_state;
-
-//static gusb_llops_t* gusb_llops;
-//static garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
 
 /* Decide when to truncate packets for debug output */
 #define DEBUG_THRESH  ((global_opts.debug_level < 5) && (i > 10))
