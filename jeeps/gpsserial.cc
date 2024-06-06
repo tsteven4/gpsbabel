@@ -44,7 +44,7 @@ int gps_baud_rate = GpsSerialDevice::DEFAULT_BAUD;
 /*
  * Display an error from the serial subsystem.
  */
-[[gnu::format(printf, 2, 3)]] void GpsSerialDevice::Error(const char* fmt, ...)
+[[gnu::format(printf, 2, 3)]] void GpsSerialDevice::Error(const char* fmt, ...) const
 {
   va_list ap;
   va_start(ap, fmt);

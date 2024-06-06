@@ -44,7 +44,7 @@ public:
 private:
   static constexpr int msecDELAY = 180;	/* Milliseconds before GPS sends A001 */
 
-  [[gnu::format(printf, 2, 3)]] void Error(const char* fmt, ...);
+  [[gnu::format(printf, 2, 3)]] void Error(const char* fmt, ...) const;
   int32_t Chars_Ready_After(int msec_timeout);
   int32_t Read(void* ibuf, int size);
   int32_t Write(const void* obuf, int size);
