@@ -71,6 +71,6 @@ private:
   /* Data Members */
 
   HANDLE usb_handle = INVALID_HANDLE_VALUE;
-  int usb_tx_packet_size ;
+  int usb_tx_packet_size{0};
 };
 #endif // JEEPS_GPSUSBWIN_H_INCLUDED_

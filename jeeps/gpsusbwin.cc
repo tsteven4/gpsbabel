@@ -202,7 +202,7 @@ HANDLE GpsWinusb::garmin_usb_start(HDEVINFO hdevinfo, SP_DEVICE_INTERFACE_DATA* 
  * device, and light it up.
  */
 int
-GpsWinusb::gusb_init(const char* pname, gpsusbdevh** dh)
+GpsWinusb::gusb_init(const char* portname, gpsusbdevh** dh)
 {
   int req_unit_number = 0;
   int un = 0;
@@ -214,11 +214,11 @@ GpsWinusb::gusb_init(const char* pname, gpsusbdevh** dh)
   winusb_unit_data* wud = (winusb_unit_data*) xcalloc(sizeof(winusb_unit_data), 1);
   *dh = (gpsusbdevh*) wud;
 
-  if (strlen(pname) > 4) {
-    if (0 == strcmp(pname+4, "list")) {
+  if (strlen(portname) > 4) {
+    if (0 == strcmp(portname+4, "list")) {
       req_unit_number = -1;
     } else {
-      req_unit_number = xstrtoi(pname+4, nullptr, 10);
+      req_unit_number = xstrtoi(portname+4, nullptr, 10);
     }
   }
 
@@ -247,7 +247,7 @@ GpsWinusb::gusb_init(const char* pname, gpsusbdevh** dh)
   }
 
   /*
-   * Out unit nunber  is less than zero, so loop over all units
+   * Our unit number is less than zero, so loop over all units
    * and display them.
    */
   for (match = 0;; match++) {
