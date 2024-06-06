@@ -48,7 +48,7 @@ public:
   // an object of derived class type is deleted through a pointer to
   // its base class type.
   // https://wiki.sei.cmu.edu/confluence/display/cplusplus/OOP52-CPP.+Do+not+delete+a+polymorphic+object+without+a+virtual+destructor
-  virtual ~GpsUsbDevice() = default;
+  ~GpsUsbDevice() override = default;
   // And that requires us to explicitly default or delete the move and copy operations.
   // To prevent slicing we delete them.
   // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#c21-if-you-define-or-delete-any-default-operation-define-or-delete-them-all.
