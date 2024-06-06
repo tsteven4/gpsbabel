@@ -39,15 +39,6 @@ static enum {
 /* Decide when to truncate packets for debug output */
 #define DEBUG_THRESH  ((global_opts.debug_level < 5) && (i > 10))
 
-#if 0
-/* Called from OS layer to register its low-level entry points. */
-void
-gusb_register_ll(gusb_llops_t* p)
-{
-  gusb_llops = p;
-}
-#endif
-
 int
 GpsUsbDevice::gusb_close(gpsusbdevh* dh, bool exit_lib)
 {
