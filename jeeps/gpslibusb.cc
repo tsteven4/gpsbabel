@@ -19,7 +19,7 @@
 
  */
 
-#include "gpslibusb.h"
+#include "jeeps/gpslibusb.h"
 
 #include <cassert>
 #include <cstdio>
