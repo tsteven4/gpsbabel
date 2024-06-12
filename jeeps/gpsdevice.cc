@@ -55,7 +55,7 @@ int32_t GPS_Device_On(const char* port, GpsDevice** fd)
   } else {
     *fd = device;
   }
-  
+
   return status;
 }
 
