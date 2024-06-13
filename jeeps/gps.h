@@ -251,7 +251,6 @@ extern double gps_save_lon;
 extern int32_t gps_save_id;
 extern double gps_save_version;
 extern char   gps_save_string[GPS_ARB_LEN];
-extern int gps_is_usb;
 extern int gps_baud_rate;
 
 extern COMMANDDATA COMMAND_ID[2];

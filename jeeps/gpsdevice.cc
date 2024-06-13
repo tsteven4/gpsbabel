@@ -32,10 +32,10 @@
 
 int32_t GPS_Device_On(const char* port, GpsDevice** fd)
 {
-  gps_is_usb = (0 == case_ignore_strncmp(port, "usb:", 4));
+  bool is_usb = (0 == case_ignore_strncmp(port, "usb:", 4));
 
   GpsDevice* device;
-  if (gps_is_usb) {
+  if (is_usb) {
     #if __WIN32__
       device = new GpsWinusb;
     #elif HAVE_LIBUSB_1_0

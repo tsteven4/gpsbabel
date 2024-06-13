@@ -81,6 +81,7 @@ public:
   }
   virtual int32_t Packet_Read(GPS_Packet* packet) = 0;
   virtual int32_t Write_Packet(const GPS_Packet& packet) = 0;
+  virtual bool isUsb() = 0;
 };
 
 #endif /* JEEPS_GPSDEVICE_H_INCLUDED_ */

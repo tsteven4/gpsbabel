@@ -114,7 +114,6 @@ static UC Is_Trackpoint_Invalid(GPS_PTrack trk);
 
 
 int32_t gps_save_id;
-int	gps_is_usb;
 double	gps_save_version;
 char	gps_save_string[GPS_ARB_LEN];
 
@@ -319,7 +318,7 @@ static int32_t GPS_A000(const char* port)
     for (i = 0; i < 25; i++) {
       rec.type = 0;
 
-      if (gps_is_usb) {
+      if (fd->isUsb()) {
         auto* ud = dynamic_cast<GpsUsbDevice*>(fd);
         ud->Packet_Read_bulk(&rec);
       } else {
@@ -7591,7 +7590,7 @@ int32_t GPS_Set_Baud_Rate(const char* port, int br)
     return gps_errno;
   }
 
-  if (!gps_is_usb) {
+  if (!fd->isUsb()) {
     auto* sd = dynamic_cast<GpsSerialDevice*>(fd);
     (void) sd->Set_Baud_Rate(br);
   }

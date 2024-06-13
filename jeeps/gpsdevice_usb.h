@@ -80,6 +80,10 @@ public:
   {
     return GPS_Packet_Read_usb(fd, packet, false);
   }
+  bool isUsb() override
+  {
+    return true;
+  }
 
 protected:
   /* Types */

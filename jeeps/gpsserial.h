@@ -39,7 +39,11 @@ public:
   int32_t Write_Packet(const GPS_Packet& packet) override;
   bool Send_Ack(GPS_Packet* tra, GPS_Packet* rec) override;
   int32_t Packet_Read(GPS_Packet* packet) override;
-  bool Get_Ack(GPS_Packet *tra, GPS_Packet *rec) override;
+  bool Get_Ack(GPS_Packet* tra, GPS_Packet* rec) override;
+  bool isUsb() override
+  {
+    return false;
+  }
 
 private:
   static constexpr int msecDELAY = 180;	/* Milliseconds before GPS sends A001 */
