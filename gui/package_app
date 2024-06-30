@@ -85,7 +85,7 @@ GPSBABEL=../gpsbabel
 QT_BINARY_DIR=
 QT_TRANSLATIONS_DIR=
 SOURCEDIR=.
-while getopts a:g:q:s: name
+while getopts a:g:b:t:s: name
 do
   case $name in
     a) APPDIR="$OPTARG";;
