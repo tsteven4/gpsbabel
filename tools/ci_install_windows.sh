@@ -30,6 +30,9 @@ elif [ "${COMPILER}" = "msvc2019_64" ]; then
   PACKAGE_SUFFIX=win64_msvc2019_64
 elif [ "${COMPILER}" = "msvc2019" ]; then
   PACKAGE_SUFFIX=win32_msvc2019
+elif [ "${COMPILER}" = "msvc2019_arm64" ]; then
+  PACKAGE_SUFFIX=win64_msvc2019_arm64
+  ADDITIONAL_PACKAGE_SUFFIX=win64_msvc2019_64
 else
   echo "ERROR: unrecognized Qt compiler ${COMPILER}." >&2
   exit 1
@@ -47,6 +50,9 @@ else
   if [ "${METHOD}" = "aqt" ]; then
     pip3 install aqtinstall>=2.0.0
     "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
+    if [ -n "${ADDITIONAL_PACKAGE_SUFFIX}" ]; then
+      "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${ADDITIONAL_PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
+    fi
     echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
     QT_VERSION_SHORT=${QT_VERSION//./}

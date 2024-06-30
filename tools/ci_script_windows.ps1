@@ -11,15 +11,21 @@ Param(
     $build_dir_name = "bld",
     $generator = "Ninja",
     $toolset = "",
-    [ValidateSet("x86", "amd64", "amd64_x86", "x86_amd64")] $arch = "amd64"
+    [ValidateSet("x86", "amd64", "amd64_x86", "x86_amd64", "x86_arm", "x86_arm64", "amd64_arm", "amd64_arm64")] $arch = "amd64"
 )
 # the arch parameter values correspond to:
 # vcvarsall arch parameter x86 => host x86, target x86.
 # vcvarsall arch paramter amd64 => host amd64, target amd64.
 # vcvarsall arch parameter amd64_x86 => host amd64, target x86
 # vcvarsall arch parameter x86_amd64 => host x86, target amd64
+# vcvarsall arch parameter x86_arm => host x86, target arm
+# vcvarsall arch parameter x86_arm64 => host x86, target arm64
+# vcvarsall arch parameter amd64_arm => host amd64, target arm
+# vcvarsall arch parameter amd64_arm64 => host amd64, target arm64
 # vsdevcmd arch parameter x86 => target x86.
 # vsdevcmd arch parameter amd64 => target amd64.
+# vsdevcmd arch parameter arm => target arm.
+# vsdevcmd arch parameter arm64 => target arm64.
 
 $ErrorActionPreference = "Stop"
 # verify we are in the top of the gpsbabel clone
@@ -33,6 +39,10 @@ switch ($arch) {
     "amd64" { $platform = "x64" }
     "amd64_x86" { $platform = "Win32" }
     "x86_amd64" { $platform = "x64" }
+    "x86_arm" { $platform = "ARM" }
+    "x86_arm64" { $platform = "ARM64" }
+    "amd64_arm" { $platform = "ARM" }
+    "amd64_arm64" { $platform = "ARM64" }
 }
 # make sure we are staring with a clean build directory
 Remove-Item $build_dir -Recurse -ErrorAction Ignore

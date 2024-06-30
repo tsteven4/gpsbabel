@@ -8,7 +8,7 @@
 
 Param(
     [string] $qtdir = "C:\Qt\6.5.3\msvc2019_64",
-    [ValidateSet("x86", "amd64")][string] $arch = "amd64",
+    [ValidateSet("x86", "amd64", "arm", "arm64")][string] $arch = "amd64",
     [ValidateSet("x86", "amd64")][string] $host_arch = "amd64",
     [string] $vcversion
 )
