@@ -218,15 +218,12 @@ else()
       message(WARNING "Inno compiler iscc not found, application cannot be packaged.")
     endif()
 
-    # in 5.12.12 cmake doesn't know about windeployqt, look in directory that has qmake.
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-    find_program(WINDEPLOYQT NAMES windeployqt PATHS "${_qt_bin_dir}" NO_DEFAULT_PATH)
-    if (WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND")
+    get_target_property(_windeployqt_executable Qt6::windeployqt IMPORTED_LOCATION)
+    if (_windeployqt_executable STREQUAL "_windeployqt_executable-NOTFOUND")
       message(WARNING "windeployqt not found, application cannot be packaged.")
     endif()
 
-    if((NOT WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND") AND (NOT INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND"))
+    if((NOT _windeploytqt_executable STREQUAL "_windeploytqt_executable-NOTFOUND") AND (NOT INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND"))
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _win_binary_path)
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" _win_source_path)
       add_custom_target(package_app
@@ -236,7 +233,7 @@ else()
                         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gpsbabelfe> package
                         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gpsbabel> package
                         # use --plugindir option to locate the plugins.
-                        COMMAND ${WINDEPLOYQT} --verbose 1 --plugindir package\\plugins package\\GPSBabelFE.exe package\\GPSBabel.exe
+                        COMMAND ${_windeploytqt_executable} --verbose 1 --plugindir package\\plugins package\\GPSBabelFE.exe package\\GPSBabel.exe
                         # set location to location of generated setup.iss file.
                         COMMAND ${INNO_COMPILER} /Doutput_dir=${_win_binary_path} /Dsource_dir=${_win_source_path} setup.iss
                         DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
