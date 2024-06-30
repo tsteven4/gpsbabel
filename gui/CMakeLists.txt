@@ -214,7 +214,7 @@ else()
   elseif(WIN32)
     find_program(INNO_COMPILER NAMES iscc ISCC
                  PATHS "C:/Program Files (x86)/Inno Setup 6" "C:/Program Files/Inno Setup 6")
-    if (INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND")
+    if (NOT INNO_COMPILER)
       message(WARNING "Inno compiler iscc not found, application cannot be packaged.")
     endif()
 
@@ -222,11 +222,11 @@ else()
     get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qtpaths_executable}" DIRECTORY)
     find_program(WINDEPLOYQT NAMES windeployqt PATHS "${_qt_bin_dir}" NO_DEFAULT_PATH)
-    if (WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND")
+    if (NOT WINDEPLOYQT)
       message(WARNING "windeployqt not found, application cannot be packaged.")
     endif()
 
-    if((NOT WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND") AND (NOT INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND"))
+    if(WINDEPLOYQT AND INNO_COMPILER)
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _win_binary_path)
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" _win_source_path)
       add_custom_target(package_app
