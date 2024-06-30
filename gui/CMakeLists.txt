@@ -197,17 +197,17 @@ else()
                     USES_TERMINAL)
 
   if(APPLE)
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     add_custom_target(package_app
-                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -q ${_qmake_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -q ${_qtpaths_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_BUNDLE_DIR:gpsbabelfe>/../GPSBabelFE.dmg ${CMAKE_CURRENT_BINARY_DIR}
                       DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
                       VERBATIM
                       USES_TERMINAL)
   elseif(UNIX)
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     add_custom_target(package_app
-                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_FILE_DIR:gpsbabelfe> -q ${_qmake_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_FILE_DIR:gpsbabelfe> -q ${_qtpaths_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
                       DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
                       VERBATIM
                       USES_TERMINAL)
@@ -218,9 +218,9 @@ else()
       message(WARNING "Inno compiler iscc not found, application cannot be packaged.")
     endif()
 
-    # in 5.12.12 cmake doesn't know about windeployqt, look in directory that has qmake.
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    # in 5.12.12 cmake doesn't know about windeployqt, look in directory that has qtpaths.
+    get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qtpaths_executable}" DIRECTORY)
     find_program(WINDEPLOYQT NAMES windeployqt PATHS "${_qt_bin_dir}" NO_DEFAULT_PATH)
     if (WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND")
       message(WARNING "windeployqt not found, application cannot be packaged.")
