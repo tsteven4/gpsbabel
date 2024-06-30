@@ -43,7 +43,7 @@ function convert_qt_translations()
     echo '</plist>' >> "$resourceskel"
   fi
 
-  pushd "${QT_INSTALL_TRANSLATIONS}" > /dev/null
+  pushd "${QT_TRANSLATIONS_DIR}" > /dev/null
   languages=($(echo qtbase_??.qm | sed 's/qtbase_\(..\).qm/\1/g'))
   for language in "${languages[@]}"
   do
@@ -82,25 +82,34 @@ else
 fi
 SKIP_UPDATE_RELEASE=
 GPSBABEL=../gpsbabel
-QMAKE=qmake
+QT_BINARY_DIR=
+QT_TRANSLATIONS_DIR=
 SOURCEDIR=.
 while getopts a:g:q:s: name
 do
   case $name in
     a) APPDIR="$OPTARG";;
     g) GPSBABEL="$OPTARG";;
-    q) QMAKE="$OPTARG";;
+    b) QT_BINARY_DIR="$OPTARG";;
+    t) QT_TRANSLATIONS_DIR="$OPTARG";;
     s) SOURCEDIR="$OPTARG";;
-    ?) printf "Usage: %s: [-a package_directory] [-g gpsbabel] [-q qmake] [-s source_directory]\n" "$0"
+    ?) printf "Usage: %s: [-a package_directory] [-g gpsbabel] -b qt_binary_dir -t qt_translations_dir [-s source_directory]\n" "$0"
        exit 2;;
   esac
 done
+if [ -z "${QT_BINARY_DIR}" ]; then
+  printf "option -b is required to specify the Qt binary directory for %s\n", "$0"
+  exit 2
+fi
+if [ -z "${QT_TRANSLATIONS_DIR}" ]; then
+  printf "option -t is required to specify the Qt translations directory for %s\n", "$0"
+  exit 2
+fi
 # need absolute paths for convert_qt_translations()
 APPDIR="$( cd "${APPDIR}" && pwd )"
 
-LCONVERT="$(${QMAKE} -query QT_INSTALL_BINS)/lconvert"
-MACDEPLOYQT="$(${QMAKE} -query QT_INSTALL_BINS)/macdeployqt"
-QT_INSTALL_TRANSLATIONS="$(${QMAKE} -query QT_INSTALL_TRANSLATIONS)"
+LCONVERT="${QT_BINARY_DIR}/lconvert"
+MACDEPLOYQT="${QT_BINARY_DIR}/macdeployqt"
 
 if [ "${machine}" = "Linux" ]; then
   LANGDIR="${APPDIR}/translations"
