@@ -210,7 +210,7 @@ else()
   if(APPLE)
     get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     add_custom_target(package_app
-                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -b ${_qt_binary_dir}  -t ${qt_translations_dir} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -b ${_qt_binary_dir}  -t ${_qt_translations_dir} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_BUNDLE_DIR:gpsbabelfe>/../GPSBabelFE.dmg ${CMAKE_CURRENT_BINARY_DIR}
                       DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
                       VERBATIM
