@@ -67,18 +67,18 @@ else
         archive=qt-${QT_VERSION}-release-macos.tar.xz
         curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}" "${ARTIFACTORY_BASE_URL}/${archive}" -o "/tmp/${archive}"
         tar -x -J -f "/tmp/${archive}"
-        echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
         rm -f "/tmp/${archive}"
       fi
      )
   elif [ "$METHOD" = "aqt" ]; then
     pip3 install aqtinstall>=2.0.0
     "${CI_BUILD_DIR}/tools/ci_install_qt.sh" mac "${QT_VERSION}" clang_64 "${CACHEDIR}/Qt"
-    echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2
     exit 1
   fi
+  echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt-${QT_VERSION}.env"
+  echo "export CMAKE_PREFIX_PATH=${QTDIR}" >> "${CACHEDIR}/qt-${QT_VERSION}.env"
   popd
   validate
 fi

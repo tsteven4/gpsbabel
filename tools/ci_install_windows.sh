@@ -47,10 +47,11 @@ else
   if [ "${METHOD}" = "aqt" ]; then
     pip3 install aqtinstall>=2.0.0
     "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
-    echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2
     exit 1
   fi
+  echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
+  echo "export CMAKE_PREFIX_PATH=${QTDIR}" >> "${CACHEDIR}/qt.env"
 fi
 validate
