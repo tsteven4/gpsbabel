@@ -73,8 +73,7 @@ jobs:
     - name: Build
       shell: powershell
       run: |
-        $env:CMAKE_PREFIX_PATH = "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}"
-        .\tools\ci_setup_windows.ps1 -qtdir "$env:CMAKE_PREFIX_PATH" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
+        .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
         .\tools\ci_script_windows.ps1 -generator "${{ matrix.GENERATOR }}" -arch "${{ matrix.ARCH }}" -toolset "${{ matrix.TOOLSET }}"
 
     - name: Rename
