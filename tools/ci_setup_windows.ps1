@@ -20,10 +20,14 @@ Param(
 # TODO: check for an error when the bat file is run.
 function Invoke-QtEnvironment($installationPath) {
     $Command = Join-Path $installationPath "bin\qtenv2.bat"
-    & "${env:COMSPEC}" /s /c "`"$Command`" && set" | ForEach-Object {
-        if ($_ -match '^([^=]+)=(.*)') {
-            [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+    If (Test-Path -Path "$Command" ) {
+        & "${env:COMSPEC}" /s /c "`"$Command`" && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)') {
+                [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+            }
         }
+    } else {
+        Write-Output "Qt environment setup script $Command does not exist."
     }
 }
 
@@ -46,13 +50,9 @@ function Invoke-VSDevEnvironment($arch, $host_arch, $vcversion) {
 
 $ErrorActionPreference = "Stop"
 
-If (Test-Path -Path "$qtdir" ) {
-  Invoke-QtEnvironment $qtdir
-  # verify qmake can be found.
-  Get-Command qmake.exe | Format-Table -AutoSize -Wrap
-} else {
-  Write-Output "Qt environment setup script qtenv2.bat does not exist in $qtdir"  
-}
+Invoke-QtEnvironment $qtdir
+# verify qmake can be found.
+Get-Command qmake.exe | Format-Table -AutoSize -Wrap
 
 Invoke-VSDevEnvironment -arch $arch -host_arch $host_arch -vcversion $vcversion
 # verify the c compiler can be found.
