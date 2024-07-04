@@ -32,7 +32,6 @@ $ErrorActionPreference = "Stop"
 Get-Item tools/ci_script_windows.ps1 -ErrorAction Stop | Out-Null
 $src_dir = $Pwd
 $build_dir = Join-Path $src_dir $build_dir_name
-$CMAKE_PREFIX_PATH = Split-Path $((Get-Command qmake) | Split-Path) -Parent
 # translate target architecture to Platform property value.
 switch ($arch) {
     "x86" { $platform = "Win32" }
@@ -57,7 +56,6 @@ if ( $generator -like "Visual Studio*") {
 } else {
   $hashargs += "-DCMAKE_BUILD_TYPE:STRING=Release"
 }
-$hashargs += "-DCMAKE_PREFIX_PATH:PATH=$CMAKE_PREFIX_PATH"
 Write-Output cmake $hashargs $src_dir
 cmake $hashargs $src_dir
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }

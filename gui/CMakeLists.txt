@@ -196,37 +196,56 @@ else()
                     VERBATIM
                     USES_TERMINAL)
 
-  if(APPLE)
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+  if(QT6_INSTALL_BINS)
+    if(IS_ABSOLUTE ${QT6_INSTALL_BINS})
+      set(_qt_binary_dir ${QT6_INSTALL_BINS})
+    elseif(QT6_INSTALL_PREFIX)
+      get_filename_component(_qt_binary_dir ${QT6_INSTALL_BINS} ABSOLUTE BASE_DIR ${QT6_INSTALL_PREFIX})
+    endif()
+  endif()
+  if(QT6_INSTALL_TRANSLATIONS)
+    if(IS_ABSOLUTE ${QT6_INSTALL_TRANSLATIONS})
+      set(_qt_translations_dir ${QT6_INSTALL_TRANSLATIONS})
+    elseif(QT6_INSTALL_PREFIX)
+      get_filename_component(_qt_translations_dir ${QT6_INSTALL_TRANSLATIONS} ABSOLUTE BASE_DIR ${QT6_INSTALL_PREFIX})
+    endif()
+  endif()
+  if(NOT IS_DIRECTORY ${_qt_binary_dir})
+    message(STATUS "QT6_INSTALL_PREFIX is ${QT6_INSTALL_PREFIX}")
+    message(STATUS "QT6_INSTALL_BINS is ${QT6_INSTALL_BINS}")
+    message(WARNING "Can't find Qt binary directory.  Application cannot be packaged.")
+  elseif(NOT IS_DIRECTORY ${_qt_translations_dir})
+    message(STATUS "QT6_INSTALL_PREFIX is ${QT6_INSTALL_PREFIX}")
+    message(STATUS "QT6_INSTALL_TRANSLATIONS is ${QT6_INSTALL_TRANSLATIONS}")
+    message(WARNING "Can't find Qt translations directory.  Application cannot be packaged.")
+  elseif(APPLE)
+    get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     add_custom_target(package_app
-                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -q ${_qmake_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_BUNDLE_DIR:gpsbabelfe> -b ${_qt_binary_dir}  -t ${_qt_translations_dir} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_BUNDLE_DIR:gpsbabelfe>/../GPSBabelFE.dmg ${CMAKE_CURRENT_BINARY_DIR}
                       DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
                       VERBATIM
                       USES_TERMINAL)
   elseif(UNIX)
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_target_property(_qtpaths_executable Qt6::qtpaths IMPORTED_LOCATION)
     add_custom_target(package_app
-                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_FILE_DIR:gpsbabelfe> -q ${_qmake_executable} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/package_app -a $<TARGET_FILE_DIR:gpsbabelfe> -b ${_qt_binary_dir} -t ${_qt_translations_dir} -g $<TARGET_FILE:gpsbabel> -s ${CMAKE_CURRENT_SOURCE_DIR}
                       DEPENDS gpsbabelfe gpsbabel gpsbabelfe_lrelease coretool_lrelease
                       VERBATIM
                       USES_TERMINAL)
   elseif(WIN32)
     find_program(INNO_COMPILER NAMES iscc ISCC
                  PATHS "C:/Program Files (x86)/Inno Setup 6" "C:/Program Files/Inno Setup 6")
-    if (INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND")
+    if (NOT INNO_COMPILER)
       message(WARNING "Inno compiler iscc not found, application cannot be packaged.")
     endif()
 
-    # in 5.12.12 cmake doesn't know about windeployqt, look in directory that has qmake.
-    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-    find_program(WINDEPLOYQT NAMES windeployqt PATHS "${_qt_bin_dir}" NO_DEFAULT_PATH)
-    if (WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND")
+    find_program(WINDEPLOYQT NAMES windeployqt PATHS "${_qt_binary_dir}" NO_DEFAULT_PATH)
+    if (NOT WINDEPLOYQT)
       message(WARNING "windeployqt not found, application cannot be packaged.")
     endif()
 
-    if((NOT WINDEPLOYQT STREQUAL "WINDEPLOYQT-NOTFOUND") AND (NOT INNO_COMPILER STREQUAL "INNO_COMPILER-NOTFOUND"))
+    if(WINDEPLOYQT AND INNO_COMPILER)
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _win_binary_path)
       file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" _win_source_path)
       add_custom_target(package_app

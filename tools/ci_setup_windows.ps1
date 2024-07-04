@@ -53,3 +53,5 @@ Get-Command qmake.exe | Format-Table -AutoSize -Wrap
 Invoke-VSDevEnvironment -arch $arch -host_arch $host_arch -vcversion $vcversion
 # verify the c compiler can be found.
 Get-Command cl.exe | Format-Table -AutoSize -Wrap
+
+[System.Environment]::SetEnvironmentVariable("CMAKE_PREFIX_PATH", $qtdir)
