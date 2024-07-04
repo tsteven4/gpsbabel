@@ -46,9 +46,13 @@ function Invoke-VSDevEnvironment($arch, $host_arch, $vcversion) {
 
 $ErrorActionPreference = "Stop"
 
-Invoke-QtEnvironment $qtdir
-# verify qmake can be found.
-Get-Command qmake.exe | Format-Table -AutoSize -Wrap
+If (Test-Path -Path "$qtdir" ) {
+  Invoke-QtEnvironment $qtdir
+  # verify qmake can be found.
+  Get-Command qmake.exe | Format-Table -AutoSize -Wrap
+} else {
+  Write-Output "Qt environment setup script qtenv2.bat does not exist in $qtdir"  
+}
 
 Invoke-VSDevEnvironment -arch $arch -host_arch $host_arch -vcversion $vcversion
 # verify the c compiler can be found.
