@@ -61,3 +61,6 @@ Invoke-VSDevEnvironment -arch $arch -host_arch $host_arch -vcversion $vcversion
 Get-Command cl.exe | Format-Table -AutoSize -Wrap
 
 [System.Environment]::SetEnvironmentVariable("CMAKE_PREFIX_PATH", $qtdir)
+If ( "$arch" -eq "arm64" ) {
+    [System.Environment]::SetEnvironmentVariable("QT_HOST_PATH", $qtdir -replace "msvc2019_arm64", "msvc2019_64")
+}
