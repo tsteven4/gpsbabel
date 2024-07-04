@@ -52,7 +52,9 @@ $ErrorActionPreference = "Stop"
 
 Invoke-QtEnvironment $qtdir
 # verify qmake can be found.
-Get-Command qmake.exe | Format-Table -AutoSize -Wrap
+If ( "$arch" -ne "arm64" ) {
+    Get-Command qmake.exe | Format-Table -AutoSize -Wrap
+}
 
 Invoke-VSDevEnvironment -arch $arch -host_arch $host_arch -vcversion $vcversion
 # verify the c compiler can be found.
