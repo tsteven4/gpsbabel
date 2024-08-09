@@ -34,6 +34,16 @@ jobs:
             RELEASE: true
             os: macos-12
           - QT_VERSION: '6.5.3'
+            XCODE_VERSION: '14.0.1'
+            GENERATOR: 'Ninja'
+            RELEASE: false
+            os: macos-12
+          - QT_VERSION: '6.5.3'
+            XCODE_VERSION: '14.1'
+            GENERATOR: 'Ninja'
+            RELEASE: false
+            os: macos-12
+          - QT_VERSION: '6.5.3'
             XCODE_VERSION: '14.2'
             GENERATOR: 'Ninja'
             RELEASE: false
