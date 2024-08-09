@@ -2,6 +2,10 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   message(FATAL_ERROR "Please use CMakeLists.txt in the project root directory to generate a build system.")
 endif()
 
+if((CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang") AND (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "14.0.0"))
+  message(FATAL_ERROR "AppleClang 14.0.0 cannot be used.  Use and older or newer version of Apple Clang.")
+endif()
+
 add_subdirectory(coretool)
 
 configure_file(${CMAKE_SOURCE_DIR}/gbversion.h.in gbversion.h @ONLY NEWLINE_STYLE LF)
