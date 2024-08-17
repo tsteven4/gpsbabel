@@ -25,7 +25,7 @@
 #include <Qt>                   // for CaseInsensitive
 #include <QtGlobal>             // for qRound
 
-#include <cmath>                // for atan, tan, log, sinh
+#include <cmath>                // for atan, tan, atanh, sin, sinh, asinh, log
 #include <cstdio>               // for snprintf, SEEK_SET
 #include <cstring>              // for strncpy, memcpy, memset
 #include <numbers>              // for inv_pi, pi
@@ -62,7 +62,7 @@ Still, they're useful in the code as a plain signature.
 #define WPT_MAGIC2		0x02030024L // New for 2013.  No visible diff?!
 #define RTE_MAGIC		0x03030088L
 
-#define EAST_SCALE		20038297.0 /* this is i1924_equ_axis*pi */
+#define EAST_SCALE             20038297.0 /* this is i1924_equ_axis*pi */
 #define i1924_equ_axis		6378388.0
 #define i1924_polar_axis	6356911.946
 
@@ -210,6 +210,57 @@ HumminbirdBase::inverse_gudermannian_i1924(const double x)
   return guder * i1924_equ_axis;
 }
 
+/*
+ * The equation numbers in the mercator projections refer to:
+ * "The Mercator Projections", Peter Osborne, 2013
+ * https://zenodo.org/records/35392
+ */
+
+// gudermannian
+inline double HumminbirdBase::gd(double x)
+{
+  return atan(sinh(x)); // eq. 2.35
+}
+
+inline double HumminbirdBase::inv_gd(double x)
+{
+  return asinh(tan(x)); // eq. 2.35
+}
+
+// Transform (latitude(deg), longitude(deg)) -> (east, north)
+std::pair<double, double>
+HumminbirdBase::mercator_ellipsoid(PositionRad(pos))
+{
+  const double phi = pos.latR;
+  const double lambda = pos.lonR;
+
+  const double psi = inv_gd(phi) - ellipse_e * atanh(ellipse_e * sin(phi)); // eq. 6.9
+  const double north = ellipse_a * psi; // eq. 6.1
+
+  const double east = ellipse_a * lambda; // eq. 6.1
+  return {east , north};
+}
+
+// Transform (east, north) -> (latitude(deg), longitude(deg))
+PositionDeg
+HumminbirdBase::inverse_mercator_ellipsoid(const double east, const double north)
+{
+  double psi = north / ellipse_a; // eq. 6.1
+  // initial approximation is from the sphere
+  double phi = gd(psi); // eq. 2.34
+  double delta;
+  do {
+    double phi_next = gd(psi + ellipse_e * atanh(ellipse_e * sin(phi))); // eq. 6.10
+//qDebug() << qSetRealNumberPrecision(12) << phi << phi_next;
+    delta = phi_next - phi;
+    phi = phi_next;
+  }
+  while (std::abs(delta) > 1.0e-12);
+
+  double lambda = east / ellipse_a; // eq. 6.1
+
+  return PositionRad(phi , lambda);
+}
 /*******************************************************************************
 * %%%        global callbacks called by gpsbabel main process              %%% *
 *******************************************************************************/
@@ -253,6 +304,10 @@ HumminbirdBase::humminbird_read_wpt(gbfile* fin)
   double guder = gudermannian_i1924(w.north);
   wpt->latitude = geocentric_to_geodetic_hwr(guder);
   wpt->longitude = static_cast<double>(w.east) / EAST_SCALE * 180.0;
+  PositionDeg pos = inverse_mercator_ellipsoid(w.east, w.north);
+  qDebug() << "lat" << wpt->latitude << pos.latD << (wpt->latitude - pos.latD)/wpt->latitude;
+  qDebug() << "lon" << wpt->longitude << pos.lonD << (wpt->longitude - pos.lonD)/wpt->longitude;
+  
 
   wpt->altitude  = 0.0; /* It's from a fishfinder... */
 
@@ -655,6 +710,9 @@ HumminbirdFormat::humminbird_write_waypoint(const Waypoint* wpt)
 
   double lat = geodetic_to_geocentric_hwr(wpt->latitude);
   double north = inverse_gudermannian_i1924(lat);
+  auto [east2, north2] = mercator_ellipsoid(wpt->position());
+qDebug() << "N:" << north << north2 << ((north-north2)/north);
+qDebug() << "E:" << east << east2 << ((east-east2)/east);
   be_write32(&hum.north, qRound(north));
 
   QString name = (global_opts.synthesize_shortnames)

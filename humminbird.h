@@ -21,6 +21,9 @@
 #ifndef HUMMINBIRD_H_INCLUDED_
 #define HUMMINBIRD_H_INCLUDED_
 
+#include <cmath>     // for sqrt
+#include <utility>   // for pair
+
 #include <QMap>      // for QMap
 #include <QString>   // for QString
 #include <QVector>   // for QVector
@@ -48,6 +51,12 @@ protected:
   struct group_body_t;
 
   /* Constants */
+
+  // International 1924 EPSG:7022 
+  static constexpr double ellipse_a = 6378388.0;
+  static constexpr double ellipse_inv_f = 297.0;
+  static constexpr double ellipse_f  = 1.0 / ellipse_inv_f;
+  static inline const double ellipse_e = sqrt(ellipse_f * (2.0 - ellipse_f));
 
   static constexpr const char* humminbird_icons[] = {
     "Normal",       /*  0 */
@@ -88,6 +97,10 @@ protected:
   static double geocentric_to_geodetic_hwr(double gc_lat);
   static double gudermannian_i1924(double x);
   static double inverse_gudermannian_i1924(double x);
+  static inline double gd(double x);
+  static inline double inv_gd(double x);
+  static std::pair<double, double> mercator_ellipsoid(PositionRad pos);
+  static PositionDeg inverse_mercator_ellipsoid(double east, double north);
   void humminbird_rd_init(const QString& fname);
   void humminbird_rd_deinit() const;
   void humminbird_read_wpt(gbfile* fin);
