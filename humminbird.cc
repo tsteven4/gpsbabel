@@ -235,10 +235,10 @@ double HumminbirdBase::NewtonRaphson(double x00, double x0, double tol, double x
 
   x = x0;
 
-  for (int idx = 0; idx < 10; ++idx) {
+  for (int idx = 0; idx < 100; ++idx) {
     double error = errorf(x);
     qDebug() << idx << qSetRealNumberPrecision(15) << error << error_prev << x << x_prev;
-    if (abs(x - x_prev) < tol) {
+    if (std::abs(x - x_prev) < tol) {
       break;
     }
     double slope = (error - error_prev)/(x - x_prev);
@@ -643,8 +643,8 @@ HumminbirdBase::humminbird_read()
   }
 
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
-  double east_scale = NewtonRaphson(EAST_SCALE * 0.999, EAST_SCALE, 1e-15, std::numeric_limits<double>::min(), std::numeric_limits<double>::max(), east_scale_error);
-  double cae = NewtonRaphson(cos_ae*0.999, cos_ae, 1e-15, -1.0, 1.0, cae_error);
+  double east_scale = NewtonRaphson(EAST_SCALE * 0.999, EAST_SCALE, EAST_SCALE * 1e-15, std::numeric_limits<double>::min(), std::numeric_limits<double>::max(), east_scale_error);
+  double cae = NewtonRaphson(cos_ae * 0.999, cos_ae, cos_ae * 1e-15, -1.0, 1.0, cae_error);
   qDebug() << "east_scale init  value: " << qSetRealNumberPrecision(15) << EAST_SCALE;
   qDebug() << "east_scale final value: " << qSetRealNumberPrecision(15) << east_scale;
   qDebug() << "cos_ae init  value: " << qSetRealNumberPrecision(15) << cos_ae;
