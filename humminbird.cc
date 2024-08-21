@@ -211,6 +211,7 @@ double HumminbirdBase::east_scale_error(double east_scale)
 double HumminbirdBase::cae_error(double cae)
 {
   extern WaypointList* global_waypoint_list;
+  double cae2 = cae * cae;
 
   double error = 0.0;
   for (const Waypoint* wpt : std::as_const(*global_waypoint_list)) {
@@ -219,7 +220,7 @@ double HumminbirdBase::cae_error(double cae)
       double guder = gudermannian_i1924(north);
       //double lat_next = geocentric_to_geodetic_hwr(guder);
       const double gcr = guder * std::numbers::pi / 180.0;
-      double lat_next = atan(tan(gcr)/(cae*cae)) * 180.0 * std::numbers::inv_pi;
+      double lat_next = atan(tan(gcr)/(cae2)) * 180.0 * std::numbers::inv_pi;
       error += std::abs(lat_next) - std::abs(lat);
     }
   }
@@ -645,10 +646,10 @@ HumminbirdBase::humminbird_read()
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
   double east_scale = NewtonRaphson(EAST_SCALE * 0.999, EAST_SCALE, EAST_SCALE * 1e-15, std::numeric_limits<double>::min(), std::numeric_limits<double>::max(), east_scale_error);
   double cae = NewtonRaphson(cos_ae * 0.999, cos_ae, cos_ae * 1e-15, -1.0, 1.0, cae_error);
-  qDebug() << "east_scale init  value: " << qSetRealNumberPrecision(15) << EAST_SCALE;
-  qDebug() << "east_scale final value: " << qSetRealNumberPrecision(15) << east_scale;
-  qDebug() << "cos_ae init  value: " << qSetRealNumberPrecision(15) << cos_ae;
-  qDebug() << "cos_ae final value: " << qSetRealNumberPrecision(15) << cae;
+  qDebug() << "east_scale init  value: " << qSetRealNumberPrecision(17) << EAST_SCALE;
+  qDebug() << "east_scale final value: " << qSetRealNumberPrecision(17) << east_scale;
+  qDebug() << "cos_ae init  value: " << qSetRealNumberPrecision(17) << cos_ae;
+  qDebug() << "cos_ae final value: " << qSetRealNumberPrecision(17) << cae;
 #endif
 }
 
