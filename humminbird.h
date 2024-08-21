@@ -26,6 +26,9 @@
 #include <QVector>   // for QVector
 
 #include <cstdint>   // for int32_t, uint32_t
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+#include <tuple>     // for tuple
+#endif
 
 #include "defs.h"    // for ff_cap, arglist_t, ff_cap_read, Waypoint, route_head, ff_cap_write, short_handle, ff_type, ff_type_file
 #include "format.h"  // for Format
@@ -46,6 +49,10 @@ protected:
   struct humminbird_trk_point_old_t;
   struct group_header_t;
   struct group_body_t;
+
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+  using NewtonRaphsonError = double(double);
+#endif
 
   /* Constants */
 
@@ -106,6 +113,11 @@ protected:
   void humminbird_read();
   void humminbird_wr_init(const QString& fname);
   void humminbird_wr_deinit();
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+  static double east_scale_error(double east_scale);
+  static double cae_error(double cae);
+  static double NewtonRaphson(double x00, double x0, double tol, double xmin, double xmax, NewtonRaphsonError* errorf);
+#endif
 
   /* Data Members */
 
@@ -125,6 +137,10 @@ protected:
   int32_t last_east{};
   int32_t last_north{};
   uint32_t last_time{};
+
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+  static const QHash<QString, std::tuple<double, double, int, int>> rosetta;
+#endif
 };
 
 class HumminbirdFormat : public Format, private HumminbirdBase

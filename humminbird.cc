@@ -25,10 +25,19 @@
 #include <Qt>                   // for CaseInsensitive
 #include <QtGlobal>             // for qRound
 
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+#include <algorithm>            // for clamp
+#endif
 #include <cmath>                // for atan, tan, log, sinh
 #include <cstdio>               // for SEEK_SET
 #include <cstring>              // for strncpy
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+#include <limits>               // for numeric_limits
+#endif
 #include <numbers>              // for inv_pi, pi
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+#include <utility>              // for as_const
+#endif
 
 #include "defs.h"               // for Waypoint, be_read32, be_read16, be_write32, fatal, be_write16, route_head, track_add_wpt
 #include "mkshort.h"            // for MakeShort
@@ -162,6 +171,85 @@ struct HumminbirdBase::group_body_t {
   uint16_t item[MAX_ITEMS_PER_GROUP];
 };
 
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+// shortname -> {lat, lon, north, east}
+// These are from reference/humminbird.hwr, where we assume the latitudes and longitudes
+// had zero fractional part and were based on the shortnames (except for one sign inconsistency).
+const QHash<QString, std::tuple<double, double, int, int>> HumminbirdBase::rosetta = {
+  {"030-030", {30, 30, 3482242, 3339716}},
+  {"040-040", {40, 40, 4838549, 4452955}},
+  {"050-050", {50, 50, 6413636, 5566194}},
+  {"000-000", {0, 0, 0, 0}},
+  {"010-010", {10, 10, 1111491, 1113239}},
+  {"020-020", {20, 20, 2258457, 2226477}},
+  {"020-020-", {-20, -20, -2258457, -2226477}},
+  {"010-010-", {-10, -10, -1111491, -1113239}},
+  {"030-030-", {-30, -30, -3482242, -3339716}},
+  {"060-060", {60, 60, 8362861, 6679432}},
+  {"070-070", {70, 70, 11028760, 7792671}},
+  {"040-040-", {-40, 40, -4838549, 4452955}},
+  {"050-050-", {-50, -50, -6413636, -5566194}},
+  {"060-060-", {-60, -60, -8362861, -6679432}},
+  {"070-070-", {-70, -70, -11028760, -7792671}}
+};
+
+double HumminbirdBase::east_scale_error(double east_scale)
+{
+  extern WaypointList* global_waypoint_list;
+
+  double error = 0.0;
+  for (const Waypoint* wpt : std::as_const(*global_waypoint_list)) {
+    auto [lat, lon, north, east] = rosetta.value(wpt->shortname);
+    if (rosetta.contains(wpt->shortname)) {
+      double lon_new = east / east_scale * 180.0;
+      error += std::abs(lon_new) - std::abs(lon);
+    }
+  }
+  return error;
+}
+
+double HumminbirdBase::cae_error(double cae)
+{
+  extern WaypointList* global_waypoint_list;
+
+  double error = 0.0;
+  for (const Waypoint* wpt : std::as_const(*global_waypoint_list)) {
+    auto [lat, lon, north, east] = rosetta.value(wpt->shortname);
+    if (rosetta.contains(wpt->shortname)) {
+      double guder = gudermannian_i1924(north);
+      //double lat_next = geocentric_to_geodetic_hwr(guder);
+      const double gcr = guder * std::numbers::pi / 180.0;
+      double lat_next = atan(tan(gcr)/(cae*cae)) * 180.0 * std::numbers::inv_pi;
+      error += std::abs(lat_next) - std::abs(lat);
+    }
+  }
+  return error;
+}
+
+double HumminbirdBase::NewtonRaphson(double x00, double x0, double tol, double xmin, double xmax, NewtonRaphsonError* errorf)
+{
+  double x = x00;
+  double error = errorf(x);
+  double error_prev = error;
+  double x_prev = x;
+
+  x = x0;
+
+  for (int idx = 0; idx < 10; ++idx) {
+    double error = errorf(x);
+    qDebug() << idx << qSetRealNumberPrecision(15) << error << error_prev << x << x_prev;
+    if (abs(x - x_prev) < tol) {
+      break;
+    }
+    double slope = (error - error_prev)/(x - x_prev);
+    double x_new = std::clamp(xmin, x - error/slope, xmax);
+    x_prev = x;
+    error_prev = error;
+    x = x_new;
+  }
+  return x;
+}
+#endif
 
 /* Takes a latitude in degrees,
  * returns a latitude in degrees. */
@@ -247,6 +335,9 @@ HumminbirdBase::humminbird_read_wpt(gbfile* fin)
   double guder = gudermannian_i1924(w.north);
   wpt->latitude = geocentric_to_geodetic_hwr(guder);
   wpt->longitude = static_cast<double>(w.east) / EAST_SCALE * 180.0;
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+  qDebug().nospace() << qSetRealNumberPrecision(20) << wpt->shortname << ", " << qRound(wpt->latitude) << ", " << qRound(wpt->longitude) << ", " << w.north << ", " << w.east;
+#endif
 
   wpt->altitude  = 0.0; /* It's from a fishfinder... */
 
@@ -550,6 +641,15 @@ HumminbirdBase::humminbird_read()
       fatal(MYNAME ": Invalid record header \"0x%08X\" (no or unknown humminbird file)!\n", signature);
     }
   }
+
+#ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
+  double east_scale = NewtonRaphson(EAST_SCALE * 0.999, EAST_SCALE, 1e-15, std::numeric_limits<double>::min(), std::numeric_limits<double>::max(), east_scale_error);
+  double cae = NewtonRaphson(cos_ae*0.999, cos_ae, 1e-15, -1.0, 1.0, cae_error);
+  qDebug() << "east_scale init  value: " << qSetRealNumberPrecision(15) << EAST_SCALE;
+  qDebug() << "east_scale final value: " << qSetRealNumberPrecision(15) << east_scale;
+  qDebug() << "cos_ae init  value: " << qSetRealNumberPrecision(15) << cos_ae;
+  qDebug() << "cos_ae final value: " << qSetRealNumberPrecision(15) << cae;
+#endif
 }
 
 
