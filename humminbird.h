@@ -51,7 +51,7 @@ protected:
   struct group_body_t;
 
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
-  using NewtonRaphsonError = double(double);
+  using NewtonRaphsonError = std::pair<double, double>(double);
 #endif
 
   /* Constants */
@@ -114,8 +114,8 @@ protected:
   void humminbird_wr_init(const QString& fname);
   void humminbird_wr_deinit();
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
-  static double east_scale_error(double east_scale);
-  static double cae_error(double cae);
+  static std::pair<double, double> east_scale_error(double east_scale);
+  static std::pair<double, double> cae_error(double cae);
   static double NewtonRaphson(double x00, double x0, double tol, double xmin, double xmax, NewtonRaphsonError* errorf);
 #endif
 

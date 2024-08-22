@@ -193,27 +193,36 @@ const QHash<QString, std::tuple<double, double, int, int>> HumminbirdBase::roset
   {"070-070-", {-70, -70, -11028760, -7792671}}
 };
 
-double HumminbirdBase::east_scale_error(double east_scale)
+std::pair<double, double> HumminbirdBase::east_scale_error(double east_scale)
 {
   extern WaypointList* global_waypoint_list;
 
   double error = 0.0;
+  double mse = 0.0;
+  int count = 0;
   for (const Waypoint* wpt : std::as_const(*global_waypoint_list)) {
     auto [lat, lon, north, east] = rosetta.value(wpt->shortname);
     if (rosetta.contains(wpt->shortname)) {
-      double lon_new = east / east_scale * 180.0;
-      error += std::abs(lon_new) - std::abs(lon);
+      double lon_next = east / east_scale * 180.0;
+      error += std::abs(lon_next) - std::abs(lon);
+      if (global_opts.debug_level > 3) {
+        qDebug() << wpt->shortname << std::abs(lon_next) - std::abs(lon);
+      }
+      mse += (lon_next - lon) * (lon_next - lon);
+      count += 1;
     }
   }
-  return error;
+  return {error, sqrt(mse)/count};
 }
 
-double HumminbirdBase::cae_error(double cae)
+std::pair<double, double> HumminbirdBase::cae_error(double cae)
 {
   extern WaypointList* global_waypoint_list;
   double cae2 = cae * cae;
 
   double error = 0.0;
+  double mse = 0.0;
+  int count = 0;
   for (const Waypoint* wpt : std::as_const(*global_waypoint_list)) {
     auto [lat, lon, north, east] = rosetta.value(wpt->shortname);
     if (rosetta.contains(wpt->shortname)) {
@@ -222,23 +231,30 @@ double HumminbirdBase::cae_error(double cae)
       const double gcr = guder * std::numbers::pi / 180.0;
       double lat_next = atan(tan(gcr)/(cae2)) * 180.0 * std::numbers::inv_pi;
       error += std::abs(lat_next) - std::abs(lat);
+      if (global_opts.debug_level > 3) {
+        qDebug() << wpt->shortname << std::abs(lat_next) - std::abs(lat);
+      }
+      mse += (lat_next - lat) *  (lat_next - lat);
+      count += 1;
     }
   }
-  return error;
+  return {error, sqrt(mse)/count};
 }
 
 double HumminbirdBase::NewtonRaphson(double x00, double x0, double tol, double xmin, double xmax, NewtonRaphsonError* errorf)
 {
   double x = x00;
-  double error = errorf(x);
+  auto [error, mse] = errorf(x);
   double error_prev = error;
   double x_prev = x;
 
   x = x0;
 
   for (int idx = 0; idx < 100; ++idx) {
-    double error = errorf(x);
-    qDebug() << idx << qSetRealNumberPrecision(15) << error << error_prev << x << x_prev;
+    std::tie(error, mse) = errorf(x);
+    if (global_opts.debug_level > 2) {
+      qDebug() << idx << qSetRealNumberPrecision(15) << mse << error << error_prev << x << x_prev;
+    }
     if (std::abs(x - x_prev) < tol) {
       break;
     }
@@ -337,7 +353,9 @@ HumminbirdBase::humminbird_read_wpt(gbfile* fin)
   wpt->latitude = geocentric_to_geodetic_hwr(guder);
   wpt->longitude = static_cast<double>(w.east) / EAST_SCALE * 180.0;
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
-  qDebug().nospace() << qSetRealNumberPrecision(20) << wpt->shortname << ", " << qRound(wpt->latitude) << ", " << qRound(wpt->longitude) << ", " << w.north << ", " << w.east;
+  if (global_opts.debug_level > 4) {
+    qDebug().nospace() << qSetRealNumberPrecision(20) << wpt->shortname << ", " << qRound(wpt->latitude) << ", " << qRound(wpt->longitude) << ", " << w.north << ", " << w.east;
+  }
 #endif
 
   wpt->altitude  = 0.0; /* It's from a fishfinder... */
@@ -645,9 +663,9 @@ HumminbirdBase::humminbird_read()
 
 #ifdef GPSBABEL_CALIBRATE_HUMMINBIRD
   double east_scale = NewtonRaphson(EAST_SCALE * 0.999, EAST_SCALE, EAST_SCALE * 1e-15, std::numeric_limits<double>::min(), std::numeric_limits<double>::max(), east_scale_error);
-  double cae = NewtonRaphson(cos_ae * 0.999, cos_ae, cos_ae * 1e-15, -1.0, 1.0, cae_error);
   qDebug() << "east_scale init  value: " << qSetRealNumberPrecision(17) << EAST_SCALE;
   qDebug() << "east_scale final value: " << qSetRealNumberPrecision(17) << east_scale;
+  double cae = NewtonRaphson(cos_ae * 0.999, cos_ae, cos_ae * 1e-15, -1.0, 1.0, cae_error);
   qDebug() << "cos_ae init  value: " << qSetRealNumberPrecision(17) << cos_ae;
   qDebug() << "cos_ae final value: " << qSetRealNumberPrecision(17) << cae;
 #endif
