@@ -459,7 +459,7 @@ void KmlFormat::wr_position_deinit()
 }
 
 
-void KmlFormat::kml_output_linestyle(char* /*color*/, int width) const
+void KmlFormat::kml_output_linestyle(int width) const
 {
   // Style settings for line strings
   writer->writeStartElement(QStringLiteral("LineStyle"));
@@ -503,8 +503,7 @@ void KmlFormat::kml_write_bitmap_style_(const QString& style, const QString& bit
   }
 
   if (is_multitrack) {
-    kml_output_linestyle(opt_line_color,
-                         highlighted ? line_width + 2 :
+    kml_output_linestyle(highlighted ? line_width + 2 :
                          line_width);
   }
 
@@ -1889,7 +1888,7 @@ void KmlFormat::write()
   if (track_waypt_count() || route_waypt_count()) {
     writer->writeStartElement(QStringLiteral("Style"));
     writer->writeAttribute(QStringLiteral("id"), QStringLiteral("lineStyle"));
-    kml_output_linestyle(opt_line_color, line_width);
+    kml_output_linestyle(line_width);
     writer->writeEndElement(); // Close Style tag
   }
 

@@ -733,21 +733,21 @@ int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, data_item* itm)
 
 
 /********************** MTK Logger -- CSV output *************************/
-void MtkLoggerBase::mtk_csv_init(char* csv_fname, unsigned long bitmask)
+void MtkLoggerBase::mtk_csv_init(const QString& csv_fname, unsigned long bitmask)
 {
   FILE* cf;
 
-  dbg(1, "Opening csv output file %s...\n", csv_fname);
+  dbg(1, "Opening csv output file %s...\n", qPrintable(csv_fname));
 
   // can't use gbfopen here - it will fatal() if file doesn't exist
-  if ((cf = ufopen(QString::fromUtf8(csv_fname), "r")) != nullptr) {
+  if ((cf = ufopen(csv_fname, "r")) != nullptr) {
     fclose(cf);
-    warning(MYNAME ": CSV file %s already exist ! Cowardly refusing to overwrite.\n", csv_fname);
+    warning(MYNAME ": CSV file %s already exist ! Cowardly refusing to overwrite.\n", qPrintable(csv_fname));
     return;
   }
 
   if ((cd = gbfopen(csv_fname, "w", MYNAME)) == nullptr) {
-    fatal(MYNAME ": Can't open csv file '%s'\n", csv_fname);
+    fatal(MYNAME ": Can't open csv file '%s'\n", qPrintable(csv_fname));
   }
 
   /* Add the header line */

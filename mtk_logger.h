@@ -279,7 +279,7 @@ protected:
   int mtk_erase();
   void mtk_read();
   int add_trackpoint(int idx, long unsigned int bmask, data_item* itm);
-  void mtk_csv_init(char* csv_fname, long unsigned int bitmask);
+  void mtk_csv_init(const QString& csv_fname, long unsigned int bitmask);
   void mtk_csv_deinit();
   static int csv_line(gbfile* csvFile, int idx, long unsigned int bmask, data_item* itm);
   int mtk_parse(unsigned char* data, int dataLen, unsigned int bmask);
