@@ -429,18 +429,18 @@ gt_find_desc_from_icon_number(const int icon, garmin_formats_e garmin_format)
     return QStringLiteral("Custom %1").arg(icon - 7680);
   }
 
-  for (const icon_mapping_t* i = garmin_icon_table; i->icon; i++) {
+  for (const auto& i : garmin_icon_table) {
     switch (garmin_format) {
     case MAPSOURCE:
     case GDB:
-      if (icon == i->mpssymnum) {
-        return i->icon;
+      if (icon == i.mpssymnum) {
+        return i.icon;
       }
       break;
     case PCX:
     case GARMIN_SERIAL:
-      if (icon == i->pcxsymnum) {
-        return i->icon;
+      if (icon == i.pcxsymnum) {
+        return i.icon;
       }
       break;
     default:
@@ -453,7 +453,6 @@ gt_find_desc_from_icon_number(const int icon, garmin_formats_e garmin_format)
 int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_format)
 {
   static int find_flag = 0;
-  const icon_mapping_t* i;
   int def_icon = DEFAULT_ICON_VALUE;
 
   if (desc.isNull()) {
@@ -483,29 +482,29 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
     }
   }
 
-  for (i = garmin_smart_icon_table; global_opts.smart_icons && i->icon; i++) {
-    if (desc.compare(i->icon, Qt::CaseInsensitive) == 0) {
+  for (const auto& i : garmin_smart_icon_table) {
+    if (desc.compare(i.icon, Qt::CaseInsensitive) == 0) {
       switch (garmin_format) {
       case MAPSOURCE:
       case GDB:
-        return i->mpssymnum;
+        return i.mpssymnum;
       case PCX:
       case GARMIN_SERIAL:
-        return i->pcxsymnum;
+        return i.pcxsymnum;
       default:
         fatal(MYNAME ": unknown garmin format.\n");
       }
     }
   }
-  for (i = garmin_icon_table; i->icon; i++) {
-    if (desc.compare(i->icon, Qt::CaseInsensitive) == 0) {
+  for (const auto& i : garmin_icon_table) {
+    if (desc.compare(i.icon, Qt::CaseInsensitive) == 0) {
       switch (garmin_format) {
       case MAPSOURCE:
       case GDB:
-        return i->mpssymnum;
+        return i.mpssymnum;
       case PCX:
       case GARMIN_SERIAL:
-        return i->pcxsymnum;
+        return i.pcxsymnum;
       default:
         fatal(MYNAME ": unknown garmin format.\n");
       }

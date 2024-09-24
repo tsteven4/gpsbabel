@@ -28,11 +28,11 @@
 struct icon_mapping_t {
   int mpssymnum;
   int pcxsymnum;
-  const char* icon;
+  QString icon;
 };
 
 /* MapSource 4.13 */
-const icon_mapping_t garmin_icon_table[] = {
+const QVector<icon_mapping_t> garmin_icon_table = {
   /*	  mps    pcx    desc */
   {   107, 16384, "Airport" },
   {    73,  8204, "Amusement Park" },
@@ -338,13 +338,10 @@ const icon_mapping_t garmin_icon_table[] = {
   { 245, -1, "Truck" },
   { 246, -1, "Upland Game" },
   { 247, -1, "Waterfowl" },
-  { 248, -1, "Water Source" },
-
-
-  {    -1,    -1, nullptr },
+  { 248, -1, "Water Source" }
 };
 
-const icon_mapping_t garmin_smart_icon_table[] = {
+const QVector<icon_mapping_t> garmin_smart_icon_table = {
   /* Additional (optional, activated with -Si) icons */
   {    92,  8227, "Micro-Cache" },   	/* icon for "Toll Booth" */
   {    48,   161, "Virtual cache" }, 	/* icon for "Scenic Area" */
@@ -353,7 +350,6 @@ const icon_mapping_t garmin_smart_icon_table[] = {
   {    64,   178, "Locationless (Reverse) Cache" }, /* Icon for "Flag" */
   {    83,  8214, "Post Office" },  	/* Icon for "Post Office" */
   {    47,   160, "Event Cache" }, 	/* Icon for "Event" */
-  {    90,  8221, "Webcam Cache" }, 	/* Icon for "Live Theatre" */
-  {    -1,    -1, nullptr }
+  {    90,  8221, "Webcam Cache" } 	/* Icon for "Live Theatre" */
 };
 #endif // GARMIN_ICON_TABLES_H
