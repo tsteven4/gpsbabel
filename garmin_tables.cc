@@ -39,7 +39,12 @@
 
 /* source: https://en.wikipedia.org/wiki/ICAO_airport_code */
 
-const gt_country_code_t gt_country_codes[] = {
+struct gt_country_code_t {
+  const char* cc;
+  const char* country;
+};
+
+const QVector<gt_country_code_t> gt_country_codes = {
   { "ZM,", "Mongolia" },
   { "ZK,", "North Korea" },
   { "Z*,", "China" },
@@ -262,12 +267,11 @@ const gt_country_code_t gt_country_codes[] = {
   { "BG,", "Greenland" },
   { "AY,", "Papua New Guinea" },
   { "AN,", "Nauru" },
-  { "AG,", "Solomon Islands" },
-  { nullptr, nullptr }
+  { "AG,", "Solomon Islands" }
 };
 
 /* gt_waypt_classes: gdb internal order */
-const char* const gt_waypt_class_names[] = {
+const QVector<QString> gt_waypt_class_names = {
   "User Waypoint",
   "Airport",
   "Intersection",
@@ -280,12 +284,11 @@ const char* const gt_waypt_class_names[] = {
   "Map Area",
   "Map Intersection",
   "Map Address",
-  "Map Line",
-  nullptr
+  "Map Line"
 };
 
 /* gt_display_mode_names: this order is used by most devices */
-const char* const gt_display_mode_names[] = {
+const QVector<QString> gt_display_mode_names = {
   "Symbol & Name",
   "Symbol",
   "Symbol & Description"
@@ -299,14 +302,13 @@ struct grid_mapping_t {
 
 /* gt_mps_grid_names: !!! degree sign substituted with '*' !!! */
 
-static const grid_mapping_t gt_mps_grid_names[] = {
+static const QVector<grid_mapping_t> gt_mps_grid_names = {
   { "ddd",	"Lat/Lon hddd.ddddd*",		grid_lat_lon_ddd },
   { "dmm",	"Lat/Lon hddd*mm.mmm'",		grid_lat_lon_dmm },
   { "dms",	"Lat/Lon hddd*mm'ss.s\"",	grid_lat_lon_dms },
   { "bng",	"British National Grid",	grid_bng },
   { "utm",	"UTM",				grid_utm },
-  { "swiss",	"Swiss grid",			grid_swiss },
-  { nullptr,	nullptr,	(grid_type) 0 }
+  { "swiss",	"Swiss grid",			grid_swiss }
 };
 
 /* gt_mps_datum_names: */
@@ -317,7 +319,7 @@ struct datum_mapping_t {
 };
 
 /* will be continued (when requested) */
-static const datum_mapping_t gt_mps_datum_names[] = {
+static const QVector<datum_mapping_t> gt_mps_datum_names = {
   { "Alaska-NAD27",	"NAD27 Alaska" },
   { "Bahamas NAD27",	"NAD27 Bahamas" },
   { "Canada_Mean(NAD27)",	"NAD27 Canada" },
@@ -329,16 +331,15 @@ static const datum_mapping_t gt_mps_datum_names[] = {
   { "Greenland NAD27",	"NAD27 Greenland" },
   { "Mexico NAD27",	"NAD27 Mexico" },
   { "North America 83",	"NAD83" },
-  { "OSGB36",		"Ord Srvy Grt Britn" },
-  { nullptr,	nullptr }
+  { "OSGB36",		"Ord Srvy Grt Britn" }
 };
 
 struct garmin_color_t {
-  const char* name;
+  QString name;
   int32_t rgb;
 };
 
-static const garmin_color_t gt_colors[] = {
+static const QVector<garmin_color_t> gt_colors = {
   { "Unknown",		unknown_color },
   { "Black", 		0x000000 },
   { "DarkRed",		0x00008B },
@@ -356,11 +357,8 @@ static const garmin_color_t gt_colors[] = {
   { "Magenta",		0xFF00FF },
   { "Cyan",		0xFFFF00 },
   { "White",		0xFFFFFF },
-  { "Transparent",	unknown_color }, /* Currently not handled */
-  { nullptr, 0 }
+  { "Transparent",	unknown_color } /* Currently not handled */
 };
-
-#define GT_COLORS_CT ((sizeof(gt_colors) / sizeof(gt_colors[0])) - 1)
 
 unsigned char
 gt_switch_display_mode_value(const unsigned char display_mode, const int protoid, const char device)
@@ -546,21 +544,19 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
 const char*
 gt_get_icao_country(const QString& cc)
 {
-  const gt_country_code_t* x = &gt_country_codes[0];
-
   if (cc.isEmpty()) {
     return nullptr;
   }
 
-  do {
-    const char* ccx = x->cc;
-    const QString qccx = x->cc;
+  for (const auto& x : gt_country_codes) {
+    const char* ccx = x.cc;
+    const QString qccx = x.cc;
     while (ccx != nullptr) {
       if (qccx.left(2) == cc) {
-        return x->country;
+        return x.country;
       }
       if ((ccx[0] == cc[0]) && (ccx[1] == '*')) {
-        return x->country;
+        return x.country;
       }
       ccx = strchr(ccx, ',');
       if (ccx == nullptr) {
@@ -568,8 +564,7 @@ gt_get_icao_country(const QString& cc)
       }
       ccx++;
     }
-    x++;
-  } while (x->cc != nullptr);
+  }
   return nullptr;
 }
 
@@ -577,7 +572,6 @@ const char*
 gt_get_icao_cc(const QString& country, const QString& shortname)
 {
   static char res[3];
-  const gt_country_code_t* x = &gt_country_codes[0];
 
   if (country.isEmpty()) {
     if (shortname == nullptr) {
@@ -601,14 +595,13 @@ gt_get_icao_cc(const QString& country, const QString& shortname)
     }
   }
 
-  do {
-    if (country.compare(x->country, Qt::CaseInsensitive) != 0) {
-      x++;
+  for (const auto& x : gt_country_codes) {
+    if (country.compare(x.country, Qt::CaseInsensitive) != 0) {
       continue;
     }
 
-    if (strlen(x->cc) <= 3) {
-      strncpy(res, x->cc, 3);
+    if (strlen(x.cc) <= 3) {
+      strncpy(res, x.cc, 3);
       if (res[1] == '*') {
         res[1] = '\0';
       } else {
@@ -617,7 +610,7 @@ gt_get_icao_cc(const QString& country, const QString& shortname)
       return res;
     }
     if (shortname.length() == 4) {
-      const char* ccx = x->cc;
+      const char* ccx = x.cc;
 
       strncpy(res, CSTR(shortname), 2);
       res[2] = '\0';
@@ -636,19 +629,19 @@ gt_get_icao_cc(const QString& country, const QString& shortname)
       }
     }
     return nullptr;
-  } while (x->country != nullptr);
+  }
   return nullptr;
 }
 
 grid_type
 gt_lookup_grid_type(const char* grid_name, const QString& module)
 {
-  for (const grid_mapping_t* g = gt_mps_grid_names; (g->shortname); g++) {
-    if (QString::compare(grid_name, g->shortname, Qt::CaseInsensitive) == 0 ||
-        QString::compare(grid_name, g->longname,Qt::CaseInsensitive) == 0) {
-      return g->grid;
+  for (const auto& g : gt_mps_grid_names) {
+    if ((QString::compare(grid_name, g.shortname, Qt::CaseInsensitive) == 0) ||
+        (QString::compare(grid_name, g.longname, Qt::CaseInsensitive) == 0)) {
+      return g.grid;
     }
-  }
+ }
 
   fatal(FatalMsg() << module << ": Unsupported grid (" << grid_name <<
                        ". See GPSBabel help for supported grids.\n");
@@ -671,10 +664,11 @@ gt_get_mps_datum_name(const int datum_index)
 {
   const char* result = GPS_Math_Get_Datum_Name(datum_index);
 
-  for (const datum_mapping_t* d = gt_mps_datum_names; (d->jeeps_name); d++)
-    if (QString::compare(result, d->jeeps_name, Qt::CaseInsensitive) == 0) {
-      return d->mps_name;
+  for (const auto& d : gt_mps_datum_names) {
+    if (QString::compare(result, d.jeeps_name, Qt::CaseInsensitive) == 0) {
+      return d.mps_name;
     }
+  }
 
   return result;
 }
@@ -684,13 +678,13 @@ gt_lookup_datum_index(const char* datum_str, const QString& module)
 {
   const char* name = datum_str;
 
-  for (const datum_mapping_t* d = gt_mps_datum_names; (d->jeeps_name); d++) {
-    if (QString::compare(name, d->mps_name, Qt::CaseInsensitive) == 0) {
-      name = d->jeeps_name;
+  for (const auto& d : gt_mps_datum_names) {
+    if (QString::compare(name, d.mps_name, Qt::CaseInsensitive) == 0) {
+      name = d.jeeps_name;
       break;
     }
   }
-
+    
   int result = GPS_Lookup_Datum_Index(name);
 
   // Didn't get a hit?  Try again after modifying the lookup.
@@ -709,8 +703,8 @@ gt_lookup_datum_index(const char* datum_str, const QString& module)
 uint32_t
 gt_color_value(const unsigned int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
-    return gt_colors[garmin_index].rgb;
+  if (garmin_index < gt_colors.size()) {
+    return gt_colors.at(garmin_index).rgb;
   } else {
     return unknown_color;  /* -1 */
   }
@@ -719,21 +713,23 @@ gt_color_value(const unsigned int garmin_index)
 uint32_t
 gt_color_value_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
-      return gt_colors[i].rgb;
+  for (const auto& color : gt_colors) {
+    if (QString::compare(color.name, name, Qt::CaseInsensitive) == 0) {
+      return color.rgb;
     }
+ }
 
-  return gt_colors[0].rgb;
+  return gt_colors.first().rgb;
 }
 
 int
 gt_color_index_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
+  for (auto i = 0; i < gt_colors.size(); ++i) {
+    if (QString::compare(gt_colors.at(i).name, name, Qt::CaseInsensitive) == 0) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
@@ -741,20 +737,21 @@ gt_color_index_by_name(const QString& name)
 int
 gt_color_index_by_rgb(const int rgb)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
-    if (rgb == gt_colors[i].rgb) {
+  for (auto i = 0; i < gt_colors.size(); ++i) {
+    if (rgb == gt_colors.at(i).rgb) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
 
-const char*
+QString
 gt_color_name(const unsigned int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
-    return gt_colors[garmin_index].name;
+  if (garmin_index < gt_colors.size()) {
+    return gt_colors.at(garmin_index).name;
   } else {
-    return gt_colors[0].name;
+    return gt_colors.first().name;
   }
 }

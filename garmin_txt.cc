@@ -53,7 +53,7 @@
 #include "csv_util.h"              // for csv_linesplit
 #include "formspec.h"              // for FormatSpecificDataList
 #include "garmin_fs.h"             // for garmin_fs_t
-#include "garmin_tables.h"         // for gt_display_modes_e, gt_find_desc_from_icon_number, gt_find_icon_number_from_desc, gt_get_mps_grid_longname, gt_lookup_datum_index, gt_lookup_grid_type, GDB, gt_get_icao_cc, gt_get_icao_country, gt_get_mps_datum_name, gt_waypt_class_names, GT_DISPLAY_MODE...
+#include "garmin_tables.h"         // for gt_display_modes_e, gt_find_desc_from_icon_number, gt_find_icon_number_from_desc, gt_get_mps_grid_longname, gt_lookup_datum_index, gt_lookup_grid_type, GDB, gt_display_mode_names, gt_get_icao_cc, gt_get_icao_country, gt_get_mps_datum_name, gt_waypt_class...
 #include "jeeps/gpsmath.h"         // for GPS_Math_Known_Datum_To_UTM_EN, GPS_Math_WGS84_To_Known_Datum_M, GPS_Math_WGS84_To_Swiss_EN, GPS_Math_WGS84_To_UKOSMap_H
 #include "src/core/datetime.h"     // for DateTime
 #include "src/core/logging.h"      // for FatalMsg
@@ -419,21 +419,21 @@ GarminTxtFormat::print_string(const char* fmt, const QString& string)
 void
 GarminTxtFormat::write_waypt(const Waypoint* wpt)
 {
-  const char* wpt_type;
+  QString wpt_type;
 
   const garmin_fs_t* gmsd = garmin_fs_t::find(wpt);
 
   int i = garmin_fs_t::get_display(gmsd, 0);
-  if (i > GT_DISPLAY_MODE_MAX) {
+  if (i >= gt_display_mode_names.size()) {
     i = 0;
   }
-  const char* dspl_mode = gt_display_mode_names[i];
+  QString dspl_mode = gt_display_mode_names.at(i);
 
   int wpt_class = garmin_fs_t::get_wpt_class(gmsd, 0);
   if (wpt_class <= gt_waypt_class_map_line) {
-    wpt_type = gt_waypt_class_names[wpt_class];
+    wpt_type = gt_waypt_class_names.at(wpt_class);
   } else {
-    wpt_type = gt_waypt_class_names[0];
+    wpt_type = gt_waypt_class_names.first();
   }
 
   *fout << "Waypoint\t" << wpt->shortname << "\t";
@@ -450,7 +450,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   } else {
     *fout << "\t";
   }
-  *fout << QString::asprintf("%s\t", wpt_type);
+  *fout << wpt_type << "\t";
 
   print_position(wpt);
 
@@ -475,7 +475,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (x != -999) {
     print_temperature(x);
   }
-  *fout << QString::asprintf("\t%s\t", dspl_mode);
+  *fout << "\t" << dspl_mode << "\t";
 
   *fout << "Unknown\t"; 				/* Color is fixed: Unknown */
 
@@ -961,8 +961,8 @@ GarminTxtFormat::parse_display(const QString& str, int* val) const
     return false;
   }
 
-  for (gt_display_modes_e i = GT_DISPLAY_MODE_MIN; i <= GT_DISPLAY_MODE_MAX; ++i) {
-    if (case_ignore_strcmp(str, gt_display_mode_names[i]) == 0) {
+  for (int i = 0; i < gt_display_mode_names.size(); ++i) {
+    if (case_ignore_strcmp(str, gt_display_mode_names.at(i)) == 0) {
       *val = i;
       return true;
     }
@@ -1068,7 +1068,7 @@ GarminTxtFormat::parse_waypoint(const QStringList& lineparts)
       break;
     case  3:
       for (i = 0; i <= gt_waypt_class_map_line; i++) {
-        if (case_ignore_strcmp(str, gt_waypt_class_names[i]) == 0) {
+        if (case_ignore_strcmp(str, gt_waypt_class_names.at(i)) == 0) {
           garmin_fs_t::set_wpt_class(gmsd, i);
           break;
         }
