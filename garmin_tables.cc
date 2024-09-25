@@ -540,7 +540,7 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
   return def_icon;
 }
 
-const char*
+QString
 gt_get_icao_country(const QString& cc)
 {
   if (cc.isEmpty()) {
@@ -567,7 +567,7 @@ gt_get_icao_country(const QString& cc)
   return nullptr;
 }
 
-const char*
+QString
 gt_get_icao_cc(const QString& country, const QString& shortname)
 {
   static char res[3];
@@ -586,8 +586,8 @@ gt_get_icao_cc(const QString& country, const QString& shortname)
     default:
       return nullptr;
     }
-    const char* test = gt_get_icao_country(res);
-    if (test != nullptr) {
+    QString test = gt_get_icao_country(res);
+    if (!test.isEmpty()) {
       return res;
     } else {
       return nullptr;

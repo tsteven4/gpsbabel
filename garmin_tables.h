@@ -54,8 +54,8 @@ enum gt_waypt_classes_e {
 
 extern const QVector<QString> gt_waypt_class_names;
 
-const char* gt_get_icao_country(const QString& cc);
-const char* gt_get_icao_cc(const QString& country, const QString& shortname);
+QString gt_get_icao_country(const QString& cc);
+QString gt_get_icao_cc(const QString& country, const QString& shortname);
 
 /* this order is used by most devices */
 enum gt_display_modes_e {
