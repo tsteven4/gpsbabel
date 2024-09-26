@@ -999,7 +999,7 @@ void KmlFormat::kml_gc_all_tabs_text(QString& cdataStr)
 
 }
 
-const QString KmlFormat::map_templates[] = {
+const QVector<QString> KmlFormat::map_templates = {
   R"(<a href="https://www.google.com/maps?q=$[gc_lat],$[gc_lon]" target="_blank">Google Maps</a>)",
   R"(<a href="http://www.geocaching.com/map/default.aspx?lat=$[gc_lat]&lng=$[gc_lon]" target="_blank">Geocaching.com Google Map</a>)",
   R"(<a href="http://www.mytopo.com/maps.cfm?lat=$[gc_lat]&lon=$[gc_lon]&pid=groundspeak" target="_blank">MyTopo Maps</a>)",
@@ -1007,8 +1007,7 @@ const QString KmlFormat::map_templates[] = {
   R"(<a href="http://www.bing.com/maps/default.aspx?v=2&sp=point.$[gc_lat]$[gc_lon]" target="_blank">Bing Maps</a>)",
   R"(<a href="http://maps.randmcnally.com/#s=screen&lat=$[gc_lat]&lon=$[gc_lon]&zoom=13&loc1=$[gc_lat],$[gc_lon]" target="_blank">Rand McNally</a>)",
   R"(<a href="http://www.opencyclemap.org/?zoom=12&lat=$[gc_lat]&lon=$[gc_lon]" target="_blank">Open Cycle Maps</a>)",
-  R"(<a href="http://www.openstreetmap.org/?mlat=$[gc_lat]&mlon=$[gc_lon]&zoom=12" target="_blank">Open Street Maps</a>)",
-  nullptr
+  R"(<a href="http://www.openstreetmap.org/?mlat=$[gc_lat]&mlon=$[gc_lon]&zoom=12" target="_blank">Open Street Maps</a>)"
 };
 
 void KmlFormat::kml_gc_make_balloonstyletext() const
@@ -1063,10 +1062,10 @@ void KmlFormat::kml_gc_make_balloonstyletext() const
   cdataStr.append("  <ul>\n");
   // Fortunately, all the mappy map URLs take lat/longs in the URLs, so
   // the substitution is easy.
-  for (int tp = 0; !map_templates[tp].isEmpty(); ++tp) {
+  for (const auto& tp : map_templates) {
     cdataStr.append("    <li>\n");
     cdataStr.append("    ");
-    cdataStr.append(map_templates[tp]);
+    cdataStr.append(tp);
     cdataStr.append("</li>\n");
   }
   cdataStr.append("  <ul>\n");

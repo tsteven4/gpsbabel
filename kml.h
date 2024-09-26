@@ -359,7 +359,7 @@ private:
   // The TimeSpan/begin and TimeSpan/end DateTimes:
   gpsbabel::DateTime wpt_timespan_begin, wpt_timespan_end;
 
-  static const QString map_templates[];
+  static const QVector<QString> map_templates;
 
   route_head* posn_trk_head{nullptr};
 };
