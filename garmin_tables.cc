@@ -20,6 +20,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <algorithm>             // for find_if
 #include <cstdint>               // for int32_t
 #include <cstring>               // for strncpy, strchr, strlen, strncmp
 #include <QChar>                 // for operator==, QChar
@@ -724,25 +725,19 @@ gt_color_value_by_name(const QString& name)
 int
 gt_color_index_by_name(const QString& name)
 {
-  for (auto i = 0; i < gt_colors.size(); ++i) {
-    if (QString::compare(gt_colors.at(i).name, name, Qt::CaseInsensitive) == 0) {
-      return i;
-    }
-  }
-
-  return 0; /* unknown */
+  const auto it = std::find_if(gt_colors.cbegin(), gt_colors.cend(), [&name](const garmin_color_t& color)->bool {
+      return QString::compare(color.name, name, Qt::CaseInsensitive) == 0;
+  });
+  return (it == gt_colors.cend())? 0 /* unknown */ : it - gt_colors.cbegin();
 }
 
 int
 gt_color_index_by_rgb(const int rgb)
 {
-  for (auto i = 0; i < gt_colors.size(); ++i) {
-    if (rgb == gt_colors.at(i).rgb) {
-      return i;
-    }
-  }
-
-  return 0; /* unknown */
+  const auto it = std::find_if(gt_colors.cbegin(), gt_colors.cend(), [&rgb](const garmin_color_t& color)->bool {
+      return rgb == color.rgb;
+  });
+  return (it == gt_colors.cend())? 0 /* unknown */ : it - gt_colors.cbegin();
 }
 
 QString
