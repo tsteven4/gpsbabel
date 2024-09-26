@@ -517,16 +517,16 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
    */
 
   if (find_flag == 0) {
-    const char* prefixes[] = {
-      "White ", "Red ", "Green ", "Blue ", "Black ", nullptr
+    static const QVector<QString> prefixes = {
+      "White ", "Red ", "Green ", "Blue ", "Black "
     };
     // Rewrite "Green Square" to "Square, Green".
-    for (const char** prefix = prefixes; *prefix != nullptr; prefix++) {
-      if (desc.startsWith(*prefix, Qt::CaseInsensitive)) {
+    for (const auto& prefix : prefixes) {
+      if (desc.startsWith(prefix, Qt::CaseInsensitive)) {
         QString buff = desc;
-        buff.replace(*prefix, "");
+        buff.replace(prefix, "");
         buff.append(", ");
-        buff.append(*prefix);
+        buff.append(prefix);
         buff = buff.trimmed();
 
         find_flag = 1;
