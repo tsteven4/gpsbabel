@@ -72,8 +72,6 @@ enum gt_gdb_display_modes_e {
   gt_gdb_display_mode_symbol_and_comment
 };
 
-unsigned char gt_convert_category(const char* name, int* category);
-
 unsigned char gt_switch_display_mode_value(unsigned char display_mode, int protoid, char device);
 
 grid_type gt_lookup_grid_type(const char* grid_name, const QString& module);
