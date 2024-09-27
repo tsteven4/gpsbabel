@@ -684,7 +684,7 @@ gt_lookup_datum_index(const char* datum_str, const QString& module)
       break;
     }
   }
-    
+
   int result = GPS_Lookup_Datum_Index(name);
 
   // Didn't get a hit?  Try again after modifying the lookup.
