@@ -452,7 +452,7 @@ OsmFormat::osm_node(const QString& /*unused*/, const QXmlStreamAttributes* attrv
 
   if (attrv->hasAttribute("timestamp")) {
     QString ts = attrv->value("timestamp").toString();
-    wpt->creation_time = xml_parse_time(ts);
+    wpt->GetCreationTime() = xml_parse_time(ts);
   }
 }
 
@@ -722,9 +722,9 @@ OsmFormat::osm_waypt_disp(const Waypoint* waypoint)
   fout->writeAttribute(QStringLiteral("visible"), QStringLiteral("true"));
   fout->writeAttribute(QStringLiteral("lat"), QString::number(waypoint->latitude, 'f', 7));
   fout->writeAttribute(QStringLiteral("lon"), QString::number(waypoint->longitude, 'f', 7));
-  if (waypoint->creation_time.isValid()) {
+  if (waypoint->GetCreationTime().isValid()) {
     // osm readers don't uniformally support fractional seconds, and may only accept time zone designation Z.
-    fout->writeAttribute(QStringLiteral("timestamp"), waypoint->creation_time.toUTC().toString(Qt::ISODate));
+    fout->writeAttribute(QStringLiteral("timestamp"), waypoint->GetCreationTime().toUTC().toString(Qt::ISODate));
   }
 
   if (waypoint->hdop) {

@@ -644,7 +644,7 @@ int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, data_item* itm)
   }
   trk->SetCreationTime(itm->timestamp); // in UTC..
   if (bmask & (1U<<MILLISECOND)) {
-    trk->creation_time = trk->creation_time.addMSecs(itm->timestamp_ms);
+    trk->GetCreationTime() = trk->GetCreationTime().addMSecs(itm->timestamp_ms);
   }
 
   if (bmask & (1U<<PDOP)) {

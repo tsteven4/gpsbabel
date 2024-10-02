@@ -1153,9 +1153,9 @@ UnicsvFormat::unicsv_waypt_enum_cb(const Waypoint* wpt)
   if (wpt->HasUrlLink()) {
     unicsv_outp_flags[fld_url] = true;
   }
-  if (wpt->creation_time.isValid()) {
+  if (wpt->GetCreationTime().isValid()) {
     unicsv_outp_flags[fld_time] = true;
-    if (wpt->creation_time.toTime_t() >= 2 * SECONDS_PER_DAY) {
+    if (wpt->GetCreationTime().toTime_t() >= 2 * SECONDS_PER_DAY) {
       unicsv_outp_flags[fld_date] = true;
     }
   }
@@ -1507,7 +1507,7 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     }
   }
   if (unicsv_outp_flags[fld_date]) {
-    if (wpt->creation_time.toTime_t() >= 2 * SECONDS_PER_DAY) {
+    if (wpt->GetCreationTime().toTime_t() >= 2 * SECONDS_PER_DAY) {
       QDateTime dt;
       if (opt_utc != nullptr) {
         dt = wpt->GetCreationTime().toOffsetFromUtc(utc_offset);
@@ -1521,7 +1521,7 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     }
   }
   if (unicsv_outp_flags[fld_time]) {
-    if (wpt->creation_time.isValid()) {
+    if (wpt->GetCreationTime().isValid()) {
       QDateTime dt;
       if (opt_utc != nullptr) {
         dt = wpt->GetCreationTime().toOffsetFromUtc(utc_offset);

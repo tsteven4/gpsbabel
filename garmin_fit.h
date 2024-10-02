@@ -102,7 +102,7 @@ private:
         altitude(wpt.altitude),
         speed(wpt.speed_value_or(-1)),
         odometer_distance(wpt.odometer_distance),
-        creation_time(wpt.creation_time),
+        creation_time(wpt.GetCreationTime()),
         shortname(wpt.shortname),
         is_course_point(is_course_point),
         course_point_type(course_point_type) {}

@@ -332,8 +332,8 @@ GtmFormat::read()
     }
     fread_discard(file_in, 1);
     wpt->SetCreationTime(fread_long(file_in));
-    if (wpt->creation_time.isValid()) {
-      wpt->creation_time = wpt->creation_time.addSecs(EPOCH89DIFF);
+    if (wpt->GetCreationTime().isValid()) {
+      wpt->GetCreationTime() = wpt->GetCreationTime().addSecs(EPOCH89DIFF);
     }
     fread_discard(file_in, 2);
     wpt->altitude = fread_single(file_in);
@@ -360,8 +360,8 @@ GtmFormat::read()
     wpt->longitude = fread_double(file_in);
     convert_datum(&wpt->latitude, &wpt->longitude);
     wpt->SetCreationTime(fread_long(file_in));
-    if (wpt->creation_time.isValid()) {
-      wpt->creation_time = wpt->creation_time.addSecs(EPOCH89DIFF);
+    if (wpt->GetCreationTime().isValid()) {
+      wpt->GetCreationTime() = wpt->GetCreationTime().addSecs(EPOCH89DIFF);
     }
     start_new = fread_byte(file_in);
     wpt->altitude = fread_single(file_in);
@@ -448,7 +448,7 @@ void GtmFormat::write_waypt(const Waypoint* wpt)
   fwrite_string(file_out, wpt->description);
   fwrite_integer(file_out, icon_from_descr(wpt->icon_descr));
   fwrite_byte(file_out, 3);
-  if (wpt->creation_time.isValid()) {
+  if (wpt->GetCreationTime().isValid()) {
     fwrite_long(file_out, wpt->GetCreationTime().toTime_t()-EPOCH89DIFF);
   } else {
     fwrite_long(file_out, 0);

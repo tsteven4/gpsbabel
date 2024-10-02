@@ -214,7 +214,7 @@ public:
   void waypt_disp(const Waypoint* wpt)
   {
     if (wpt->GetCreationTime().isValid()) {
-      printf("%s ", qPrintable(wpt->creation_time.toString()));
+      printf("%s ", qPrintable(wpt->GetCreationTime().toString()));
     }
     printposn(wpt->latitude, true);
     printposn(wpt->longitude, false);

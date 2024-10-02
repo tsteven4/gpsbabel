@@ -1338,7 +1338,7 @@ LowranceusrFormat::lowranceusr_waypt_disp(const Waypoint* wpt) const
 
   /* Waypoint creation time stored as seconds since UNIX Epoch (Jan 1, 1970) */
   int64_t waypt_time;
-  if ((waypt_time = wpt->creation_time.toSecsSinceEpoch()) > base_time_secs) {
+  if ((waypt_time = wpt->GetCreationTime().toSecsSinceEpoch()) > base_time_secs) {
     /* This should always be true */
     /* Lowrance needs it as seconds since Jan 1, 2000 */
     waypt_time -= base_time_secs;

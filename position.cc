@@ -54,7 +54,7 @@ void PositionFilter::position_runqueue(const WaypointList& waypt_list, int qtype
 
             if (dist <= pos_dist) {
               if (check_time) {
-                qint64 diff_time = std::abs(qlist.at(j).wpt->creation_time.msecsTo(qlist.at(i).wpt->creation_time));
+                qint64 diff_time = std::abs(qlist.at(j).wpt->GetCreationTime().msecsTo(qlist.at(i).wpt->GetCreationTime()));
                 if (diff_time >= max_diff_time) {
                   continue;
                 }

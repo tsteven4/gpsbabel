@@ -74,8 +74,8 @@ void InterpolateFilter::process_rte(route_head* rte)
       first = false;
     } else {
       std::optional<qint64> timespan;
-      if (wpt->creation_time.isValid() && time1.isValid()) {
-        timespan = time1.msecsTo(wpt->creation_time);
+      if (wpt->GetCreationTime().isValid() && time1.isValid()) {
+        timespan = time1.msecsTo(wpt->GetCreationTime());
       }
       std::optional<double> altspan;
       if (altitude1 != unknown_alt && wpt->altitude != unknown_alt) {
@@ -113,7 +113,7 @@ void InterpolateFilter::process_rte(route_head* rte)
         if (timespan.has_value()) {
           wpt_new->SetCreationTime(time1.addMSecs(qRound64(frac * *timespan)));
         } else {
-          wpt_new->creation_time = gpsbabel::DateTime();
+          wpt_new->GetCreationTime() = gpsbabel::DateTime();
         }
         wpt_new->SetPosition(linepart(pos1, wpt->position(), frac));
         if (altspan.has_value()) {
@@ -136,7 +136,7 @@ void InterpolateFilter::process_rte(route_head* rte)
 
     pos1 = wpt->position();
     altitude1 = wpt->altitude;
-    time1 = wpt->creation_time.toUTC();  // use utc to avoid tz conversions.
+    time1 = wpt->GetCreationTime().toUTC();  // use utc to avoid tz conversions.
   }
 }
 

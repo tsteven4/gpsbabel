@@ -332,9 +332,9 @@ NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, QDateTime* prev, const QDate& 
     *prev = wpt->GetCreationTime();
   } else if (prev->date().isValid()) {
     wpt->SetCreationTime(QDateTime(prev->date(), time, Qt::UTC));
-    if (*prev > wpt->creation_time) {
+    if (*prev > wpt->GetCreationTime()) {
       /* go over midnight ? */
-      wpt->creation_time = wpt->creation_time.addDays(1);
+      wpt->GetCreationTime() = wpt->GetCreationTime().addDays(1);
     }
     if (wpt->wpt_flags.fmt_use != 0) {
       wpt->wpt_flags.fmt_use = 0;
@@ -843,10 +843,10 @@ NmeaFormat::nmea_fix_timestamps(route_head* track)
 
     foreach (Waypoint* wpt, track->waypoint_list) {
 
-      wpt->creation_time.setDate(prev.date());
-      if (prev > wpt->creation_time) {
+      wpt->GetCreationTime().setDate(prev.date());
+      if (prev > wpt->GetCreationTime()) {
         /* go over midnight ? */
-        wpt->creation_time = wpt->creation_time.addDays(1);
+        wpt->GetCreationTime() = wpt->GetCreationTime().addDays(1);
       }
       prev = wpt->GetCreationTime();
     }
@@ -861,9 +861,9 @@ NmeaFormat::nmea_fix_timestamps(route_head* track)
       if (wpt->wpt_flags.fmt_use != 0) {
         wpt->wpt_flags.fmt_use = 0; /* reset flag */
 
-        wpt->creation_time.setDate(prev.date());
-        if (wpt->creation_time > prev) {
-          wpt->creation_time = wpt->creation_time.addDays(-1);
+        wpt->GetCreationTime().setDate(prev.date());
+        if (wpt->GetCreationTime() > prev) {
+          wpt->GetCreationTime() = wpt->GetCreationTime().addDays(-1);
         }
       }
       prev = wpt->GetCreationTime();

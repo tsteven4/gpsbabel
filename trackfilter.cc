@@ -203,7 +203,7 @@ void TrackFilter::trackfilter_fill_track_list_cb(const route_head* track) 	/* ca
   const Waypoint* prev = nullptr;
 
   foreach (const Waypoint* wpt, track->waypoint_list) {
-    if (!(opt_merge && opt_discard) && need_time && (!wpt->creation_time.isValid())) {
+    if (!(opt_merge && opt_discard) && need_time && (!wpt->GetCreationTime().isValid())) {
       fatal(MYNAME "-init: Found track point at %f,%f without time!\n",
             wpt->latitude, wpt->longitude);
     }
@@ -368,7 +368,7 @@ void TrackFilter::trackfilter_merge()
       track_swap_wpts(track, wpts);
       // add them to the buff or delete them
       foreach (Waypoint* wpt, wpts) {
-        if (wpt->creation_time.isValid()) {
+        if (wpt->GetCreationTime().isValid()) {
           // we will put the merged points in one track segment,
           // as it isn't clear how track segments in the original tracks
           // should relate to the merged track.
@@ -579,8 +579,8 @@ void TrackFilter::trackfilter_move()
 
   for (auto* track : std::as_const(track_list)) {
     foreach (Waypoint* wpt, track->waypoint_list) {
-      if (wpt->creation_time.isValid()) {
-        wpt->creation_time = wpt->creation_time.addMSecs(delta);
+      if (wpt->GetCreationTime().isValid()) {
+        wpt->GetCreationTime() = wpt->GetCreationTime().addMSecs(delta);
       } else {
         ++timeless_points;
       }
@@ -712,7 +712,7 @@ void TrackFilter::trackfilter_range()
 
     foreach (Waypoint* wpt, track->waypoint_list) {
       bool inside;
-      if (wpt->creation_time.isValid()) {
+      if (wpt->GetCreationTime().isValid()) {
         bool after_start = !start.isValid() || (wpt->GetCreationTime() >= start);
         bool before_stop = !stop.isValid() || (wpt->GetCreationTime() <= stop);
         inside = after_start && before_stop;
@@ -867,8 +867,8 @@ void TrackFilter::trackfilter_faketime()
   for (auto* track : std::as_const(track_list)) {
     foreach (Waypoint* wpt, track->waypoint_list) {
 
-      if (!wpt->creation_time.isValid() || faketime.force) {
-        wpt->creation_time = faketime.start;
+      if (!wpt->GetCreationTime().isValid() || faketime.force) {
+        wpt->GetCreationTime() = faketime.start;
         faketime.start = faketime.start.addMSecs(faketime.step);
       }
     }

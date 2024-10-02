@@ -215,10 +215,10 @@ gcgeodist(const double lat1, const double lon1,
 double
 waypt_time(const Waypoint* wpt)
 {
-  if (!wpt->creation_time.isValid()) {
+  if (!wpt->GetCreationTime().isValid()) {
     return 0.0;
   } else {
-    return ((double)wpt->creation_time.toMSecsSinceEpoch()) / 1000.0;
+    return ((double)wpt->GetCreationTime().toMSecsSinceEpoch()) / 1000.0;
   }
 }
 
@@ -277,7 +277,7 @@ waypt_speed_ex(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs((double)A->GetCreationTime().msecsTo(B->GetCreationTime())) / 1000.0;
   if (time > 0) {
     return (dist / time);
   } else {
@@ -298,7 +298,7 @@ waypt_speed(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs((double)A->GetCreationTime().msecsTo(B->GetCreationTime())) / 1000.0;
   if (time > 0) {
     return (dist / time);
   } else {
@@ -319,7 +319,7 @@ waypt_vertical_speed(const Waypoint* A, const Waypoint* B)
     return 0;
   }
 
-  double time = fabs((double)A->creation_time.msecsTo(B->creation_time)) / 1000.0;
+  double time = fabs((double)A->GetCreationTime().msecsTo(B->GetCreationTime())) / 1000.0;
   if (time > 0) {
     return (altitude / time);
   } else {

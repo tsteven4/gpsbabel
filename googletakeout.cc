@@ -78,7 +78,7 @@ bool GoogleTakeoutFormat::track_maybe_add_wpt(route_head* route, Waypoint* waypo
   if (waypoint->latitude == 0 && waypoint->longitude == 0) {
     if (global_opts.debug_level >= 2) {
       Debug(2) << "Track " << route->rte_name << "@" <<
-        waypoint->creation_time.toPrettyString() <<
+        waypoint->GetCreationTime().toPrettyString() <<
         ": Dropping point with no lat/long";
     }
     delete waypoint; // as we're dropping it, gpsbabel won't clean it up later

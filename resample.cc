@@ -141,9 +141,9 @@ void ResampleFilter::interpolate_rte(route_head* rte)
       first = false;
     } else {
       std::optional<qint64> timespan;
-      if (prevwpt->creation_time.isValid() && wpt->creation_time.isValid()) {
-        timespan = wpt->creation_time.toMSecsSinceEpoch() -
-                   prevwpt->creation_time.toMSecsSinceEpoch();
+      if (prevwpt->GetCreationTime().isValid() && wpt->GetCreationTime().isValid()) {
+        timespan = wpt->GetCreationTime().toMSecsSinceEpoch() -
+                   prevwpt->GetCreationTime().toMSecsSinceEpoch();
       }
 
       // Insert the required points
@@ -158,10 +158,10 @@ void ResampleFilter::interpolate_rte(route_head* rte)
         wpt_new->shortname = QString();
         wpt_new->description = QString();
         if (timespan.has_value()) {
-          wpt_new->SetCreationTime(0, prevwpt->creation_time.toMSecsSinceEpoch() +
+          wpt_new->SetCreationTime(0, prevwpt->GetCreationTime().toMSecsSinceEpoch() +
                                    round(frac * *timespan));
         } else {
-          wpt_new->creation_time = gpsbabel::DateTime();
+          wpt_new->GetCreationTime() = gpsbabel::DateTime();
         }
         // zero stuff
         wpt_new->latitude = 0.0;

@@ -146,18 +146,18 @@ GtrnctrFormat::gtc_new_study_lap(const route_head* rte)
 void
 GtrnctrFormat::gtc_study_lap(const Waypoint* wpt)
 {
-  if (wpt->creation_time.isValid() && (!gtc_least_time.isValid())) {
+  if (wpt->GetCreationTime().isValid() && (!gtc_least_time.isValid())) {
     gtc_least_time = wpt->GetCreationTime();
     gtc_start_lat = wpt->latitude;
     gtc_start_long = wpt->longitude;
   }
 
-  if (wpt->creation_time.isValid() && (gtc_least_time > wpt->GetCreationTime())) {
+  if (wpt->GetCreationTime().isValid() && (gtc_least_time > wpt->GetCreationTime())) {
     gtc_least_time = wpt->GetCreationTime();
     gtc_start_lat = wpt->latitude;
     gtc_start_long = wpt->longitude;
   }
-  if (wpt->creation_time > gtc_most_time)  {
+  if (wpt->GetCreationTime() > gtc_most_time)  {
     gtc_most_time = wpt->GetCreationTime();
     gtc_end_lat = wpt->latitude;
     gtc_end_long = wpt->longitude;
@@ -173,7 +173,7 @@ GtrnctrFormat::gtc_waypt_pr(const Waypoint* wpt)
     gtc_write_xml(1, "<Trackpoint>\n");
   }
 
-  if (wpt->creation_time.isValid()) {
+  if (wpt->GetCreationTime().isValid()) {
     QString time_string = wpt->CreationTimeXML();
     if (!time_string.isEmpty()) {
       gtc_write_xml(0, "<Time>%s</Time>\n",
@@ -427,7 +427,7 @@ GtrnctrFormat::gtc_trk_pnt_e(const QString& /*unused*/, const QXmlStreamAttribut
 void
 GtrnctrFormat::gtc_trk_utc(const QString& args, const QXmlStreamAttributes* /*unused*/)
 {
-  wpt_tmp->creation_time = xml_parse_time(args);
+  wpt_tmp->GetCreationTime() = xml_parse_time(args);
 }
 
 void

@@ -1155,13 +1155,13 @@ ExifFormat::exif_remove_tag(const int ifd_nr, const int tag_id) const
 void
 ExifFormat::exif_find_wpt_by_time(const Waypoint* wpt)
 {
-  if (!wpt->creation_time.isValid()) {
+  if (!wpt->GetCreationTime().isValid()) {
     return;
   }
 
   if (exif_wpt_ref == nullptr) {
     exif_wpt_ref = wpt;
-  } else if (std::abs(exif_time_ref.msecsTo(wpt->creation_time)) < std::abs(exif_time_ref.msecsTo(exif_wpt_ref->creation_time))) {
+  } else if (std::abs(exif_time_ref.msecsTo(wpt->GetCreationTime())) < std::abs(exif_time_ref.msecsTo(exif_wpt_ref->GetCreationTime()))) {
     exif_wpt_ref = wpt;
   }
 }
@@ -1537,13 +1537,13 @@ ExifFormat::write()
 
     if (exif_wpt_ref == nullptr) {
       warning(MYNAME ": No point with a valid timestamp found.\n");
-    } else if (std::abs(exif_time_ref.secsTo(exif_wpt_ref->creation_time)) > frame) {
+    } else if (std::abs(exif_time_ref.secsTo(exif_wpt_ref->GetCreationTime())) > frame) {
       QString time_str = exif_time_str(exif_time_ref);
       warning(MYNAME ": No matching point found for image date %s!\n", qPrintable(time_str));
       if (exif_wpt_ref != nullptr) {
-        QString str = exif_time_str(exif_wpt_ref->creation_time);
+        QString str = exif_time_str(exif_wpt_ref->GetCreationTime());
         warning(MYNAME ": Best is from %s, %lld second(s) away.\n",
-                qPrintable(str), std::abs(exif_time_ref.secsTo(exif_wpt_ref->creation_time)));
+                qPrintable(str), std::abs(exif_time_ref.secsTo(exif_wpt_ref->GetCreationTime())));
       }
       exif_wpt_ref = nullptr;
     }
@@ -1570,7 +1570,7 @@ ExifFormat::write()
       exif_put_double(GPS_IFD, GPS_IFD_TAG_ALT, 0, fabs(wpt->altitude));
     }
 
-    if (wpt->creation_time.isValid()) {
+    if (wpt->GetCreationTime().isValid()) {
       const QDateTime dt = wpt->GetCreationTime().toUTC();
 
       exif_put_double(GPS_IFD, GPS_IFD_TAG_TIMESTAMP, 0, dt.time().hour());

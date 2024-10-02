@@ -105,7 +105,7 @@ OziFormat::ozi_alloc_fsdata()
 QString
 OziFormat::ozi_get_time_str(const Waypoint* waypointp)
 {
-  if (waypointp->creation_time.isValid()) {
+  if (waypointp->GetCreationTime().isValid()) {
     double time = (waypt_time(waypointp) / SECONDS_PER_DAY) + DAYS_SINCE_1990;
     return QStringLiteral("%1").arg(time, 0, 'f', 7);
   }
