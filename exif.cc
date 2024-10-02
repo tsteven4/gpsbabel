@@ -1571,7 +1571,7 @@ ExifFormat::write()
     }
 
     if (wpt->creation_time.isValid()) {
-      const QDateTime dt = wpt->GetCreationTime().toUTC();
+      const QDateTime dt = wpt->creation_time.toUTC();
 
       exif_put_double(GPS_IFD, GPS_IFD_TAG_TIMESTAMP, 0, dt.time().hour());
       exif_put_double(GPS_IFD, GPS_IFD_TAG_TIMESTAMP, 1, dt.time().minute());

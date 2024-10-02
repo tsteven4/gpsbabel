@@ -147,18 +147,18 @@ void
 GtrnctrFormat::gtc_study_lap(const Waypoint* wpt)
 {
   if (wpt->creation_time.isValid() && (!gtc_least_time.isValid())) {
-    gtc_least_time = wpt->GetCreationTime();
+    gtc_least_time = wpt->creation_time;
     gtc_start_lat = wpt->latitude;
     gtc_start_long = wpt->longitude;
   }
 
-  if (wpt->creation_time.isValid() && (gtc_least_time > wpt->GetCreationTime())) {
-    gtc_least_time = wpt->GetCreationTime();
+  if (wpt->creation_time.isValid() && (gtc_least_time > wpt->creation_time)) {
+    gtc_least_time = wpt->creation_time;
     gtc_start_lat = wpt->latitude;
     gtc_start_long = wpt->longitude;
   }
   if (wpt->creation_time > gtc_most_time)  {
-    gtc_most_time = wpt->GetCreationTime();
+    gtc_most_time = wpt->creation_time;
     gtc_end_lat = wpt->latitude;
     gtc_end_long = wpt->longitude;
   }

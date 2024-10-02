@@ -173,11 +173,11 @@ GarminTxtFormat::prework_wpt_cb(const Waypoint* wpt)
   const Waypoint* prev = cur_info->prev_wpt;
 
   if (prev != nullptr) {
-    cur_info->time += (wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t());
+    cur_info->time += (wpt->creation_time.toTime_t() - prev->creation_time.toTime_t());
     cur_info->length += waypt_distance_ex(prev, wpt);
   } else {
     cur_info->first_wpt = wpt;
-    cur_info->start = wpt->GetCreationTime().toTime_t();
+    cur_info->start = wpt->creation_time.toTime_t();
   }
   cur_info->prev_wpt = wpt;
   cur_info->count++;
@@ -490,7 +490,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   print_string("%s\t", garmin_fs_t::get_state(gmsd, ""));
   const char* country = gt_get_icao_country(garmin_fs_t::get_cc(gmsd, ""));
   print_string("%s\t", (country != nullptr) ? country : "");
-  print_date_and_time(wpt->GetCreationTime().toTime_t(), false);
+  print_date_and_time(wpt->creation_time.toTime_t(), false);
   if (wpt->HasUrlLink()) {
     const UrlLink& l = wpt->GetUrlLink();
     print_string("%s\t", l.url_);
@@ -599,7 +599,7 @@ GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt)
   *fout << "Trackpoint\t";
 
   print_position(wpt);
-  print_date_and_time(wpt->GetCreationTime().toTime_t(), false);
+  print_date_and_time(wpt->creation_time.toTime_t(), false);
   if (is_valid_alt(wpt->altitude)) {
     print_distance(wpt->altitude, true, false, 0);
   }
@@ -612,7 +612,7 @@ GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt)
 
   if (prev != nullptr) {
     *fout << "\t";
-    delta = wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t();
+    delta = wpt->creation_time.toTime_t() - prev->creation_time.toTime_t();
     float temp = wpt->temperature_value_or(-999);
     if (temp != -999) {
       print_temperature(temp);

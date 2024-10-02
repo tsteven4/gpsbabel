@@ -110,12 +110,12 @@ double SimplifyRouteFilter::compute_track_error(const neighborhood& nb) const
   case metric_t::relative:
   default: // eliminate false positive warning with g++ 11.3.0: ‘error’ may be used uninitialized in this function [-Wmaybe-uninitialized]
     // if timestamps exist, distance to interpolated point
-    if (wpt1->GetCreationTime().isValid() &&
-        wpt2->GetCreationTime().isValid() &&
-        wpt3->GetCreationTime().isValid() &&
-        (wpt1->GetCreationTime() != wpt2->GetCreationTime())) {
-      double frac = static_cast<double>(wpt1->GetCreationTime().msecsTo(wpt3->GetCreationTime())) /
-                    static_cast<double>(wpt1->GetCreationTime().msecsTo(wpt2->GetCreationTime()));
+    if (wpt1->creation_time.isValid() &&
+        wpt2->creation_time.isValid() &&
+        wpt3->creation_time.isValid() &&
+        (wpt1->creation_time != wpt2->creation_time)) {
+      double frac = static_cast<double>(wpt1->creation_time.msecsTo(wpt3->creation_time)) /
+                    static_cast<double>(wpt1->creation_time.msecsTo(wpt2->creation_time));
       auto respos = linepart(wpt1->position(),
                              wpt2->position(),
                              frac);

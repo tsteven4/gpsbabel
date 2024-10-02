@@ -50,7 +50,7 @@ bool SortFilter::sort_comp_wpt_by_shortname(const Waypoint* a, const Waypoint* b
 
 bool SortFilter::sort_comp_wpt_by_time(const Waypoint* a, const Waypoint* b)
 {
-  return a->GetCreationTime() < b->GetCreationTime();
+  return a->creation_time < b->creation_time;
 }
 
 bool SortFilter::sort_comp_rh_by_description(const route_head* a, const route_head* b)

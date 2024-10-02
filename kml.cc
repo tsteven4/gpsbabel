@@ -820,7 +820,7 @@ void KmlFormat::kml_output_description(const Waypoint* pt) const
   /* This really shouldn't be here, but as of this writing,
    * Earth can't edit/display the TimeStamp.
    */
-  if (pt->GetCreationTime().isValid()) {
+  if (pt->creation_time.isValid()) {
     QString time_string = pt->CreationTimeXML();
     if (!time_string.isEmpty()) {
       kml_td(hwriter, QStringLiteral("Time: %1").arg(time_string));
@@ -836,14 +836,14 @@ void KmlFormat::kml_output_description(const Waypoint* pt) const
 
 void KmlFormat::kml_recompute_time_bounds(const Waypoint* waypointp)
 {
-  if (waypointp->GetCreationTime().isValid()) {
+  if (waypointp->creation_time.isValid()) {
     if (!(kml_time_min.isValid()) ||
-        (waypointp->GetCreationTime() < kml_time_min)) {
-      kml_time_min = waypointp->GetCreationTime();
+        (waypointp->creation_time < kml_time_min)) {
+      kml_time_min = waypointp->creation_time;
     }
     if (!(kml_time_max.isValid()) ||
-        (waypointp->GetCreationTime() > kml_time_max)) {
-      kml_time_max = waypointp->GetCreationTime();
+        (waypointp->creation_time > kml_time_max)) {
+      kml_time_max = waypointp->creation_time;
     }
   }
 }
@@ -1340,8 +1340,8 @@ void KmlFormat::kml_geocache_pr(const Waypoint* waypointp) const
   // Timestamp
   kml_output_timestamp(waypointp);
   QString date_placed;
-  if (waypointp->GetCreationTime().isValid()) {
-    date_placed = waypointp->GetCreationTime().toString(u"dd-MMM-yyyy");
+  if (waypointp->creation_time.isValid()) {
+    date_placed = waypointp->creation_time.toString(u"dd-MMM-yyyy");
   }
 
   writer->writeTextElement(QStringLiteral("styleUrl"), QStringLiteral("#geocache"));
@@ -1580,7 +1580,7 @@ bool KmlFormat::track_has_time(const route_head* header)
 {
   int points_with_time = 0;
   foreach (const Waypoint* tpt, header->waypoint_list) {
-    if (tpt->GetCreationTime().isValid()) {
+    if (tpt->creation_time.isValid()) {
       points_with_time++;
       if (points_with_time >= 2) {
         return true;
@@ -1695,7 +1695,7 @@ void KmlFormat::kml_mt_hdr(const route_head* header)
 
   foreach (const Waypoint* tpt, header->waypoint_list) {
 
-    if (tpt->GetCreationTime().isValid()) {
+    if (tpt->creation_time.isValid()) {
       QString time_string = tpt->CreationTimeXML();
       writer->writeOptionalTextElement(QStringLiteral("when"), time_string);
     } else {
@@ -2069,10 +2069,10 @@ void KmlFormat::wr_position(Waypoint* wpt)
   case fix_unknown:
     break;
   default:
-    last_valid_fix = wpt->GetCreationTime();
+    last_valid_fix = wpt->creation_time;
   }
 
-  wpt->icon_descr = kml_get_posn_icon(last_valid_fix.secsTo(wpt->GetCreationTime()));
+  wpt->icon_descr = kml_get_posn_icon(last_valid_fix.secsTo(wpt->creation_time));
 
 
   /* In order to avoid clutter while we're sitting still, don't add

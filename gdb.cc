@@ -1264,7 +1264,7 @@ GdbFormat::write_waypoint(
 
   FWRITE_i16(garmin_fs_t::get_category(gmsd, gdb_category));
   FWRITE_DBL(wpt->temperature_value_or(0), 0);
-  FWRITE_TIME(wpt->GetCreationTime().toTime_t());
+  FWRITE_TIME(wpt->creation_time.toTime_t());
 
   /* VERSION DEPENDENT CODE */
   if (gdb_ver >= kGDBVer3) {
@@ -1448,7 +1448,7 @@ GdbFormat::write_track(const route_head* trk, const QString& trk_name)
     FWRITE_LATLON(wpt->latitude);
     FWRITE_LATLON(wpt->longitude);
     FWRITE_DBL(wpt->altitude, unknown_alt);
-    FWRITE_TIME(wpt->GetCreationTime().toTime_t());
+    FWRITE_TIME(wpt->creation_time.toTime_t());
     double d = wpt->depth_value_or(unknown_alt);
     FWRITE_DBL(d, unknown_alt);
     d = wpt->temperature_value_or(-99999);

@@ -415,7 +415,7 @@ unsigned int GarminFormat::checkWayPointIsAtSplit(Waypoint* wpt, GPS_PLap* laps,
   if ((laps != nullptr) && (nlaps > 0)) {
     for (int i = (nlaps-1); i >= 0; i--) {
       GPS_PLap lap = laps[i];
-      time_t delta = lap->start_time - wpt->GetCreationTime().toTime_t();
+      time_t delta = lap->start_time - wpt->creation_time.toTime_t();
       if ((delta >= -1) && (delta <= 1)) {
         result = 1;
         break;
@@ -871,7 +871,7 @@ GarminFormat::waypoint_prepare()
     } else {
       tx_waylist[i]->alt = wpt->altitude;
     }
-    gpsbabel::DateTime t = wpt->GetCreationTime();
+    gpsbabel::DateTime t = wpt->creation_time;
     if (t.isValid()) {
       tx_waylist[i]->time = t.toTime_t();
       tx_waylist[i]->time_populated = 1;
@@ -1034,7 +1034,7 @@ GarminFormat::track_waypt_pr(const Waypoint* wpt)
   (*cur_tx_tracklist_entry)->lat = wpt->latitude;
   (*cur_tx_tracklist_entry)->lon = wpt->longitude;
   (*cur_tx_tracklist_entry)->alt = (wpt->altitude != unknown_alt) ? wpt->altitude : 1e25;
-  (*cur_tx_tracklist_entry)->Time = wpt->GetCreationTime().toTime_t();
+  (*cur_tx_tracklist_entry)->Time = wpt->creation_time.toTime_t();
   if (!wpt->shortname.isEmpty()) {
     write_char_string((*cur_tx_tracklist_entry)->trk_ident,
                       str_from_unicode(wpt->shortname).constData(),

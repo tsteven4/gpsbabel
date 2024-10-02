@@ -293,11 +293,11 @@ computed_trkdata track_recompute(const route_head* trk)
       if (!thisw->speed_has_value() && (dist > 1)) {
         // Only recompute speed if the waypoint
         // didn't already have a speed
-        if (thisw->GetCreationTime().isValid() &&
-            prev->GetCreationTime().isValid() &&
-            thisw->GetCreationTime() > prev->GetCreationTime()) {
+        if (thisw->creation_time.isValid() &&
+            prev->creation_time.isValid() &&
+            thisw->creation_time > prev->creation_time) {
           double timed =
-            prev->GetCreationTime().msecsTo(thisw->GetCreationTime()) / 1000.0;
+            prev->creation_time.msecsTo(thisw->creation_time) / 1000.0;
           thisw->set_speed(dist / timed);
         }
       }
@@ -353,13 +353,13 @@ computed_trkdata track_recompute(const route_head* trk)
       tdata.max_pwr = thisw->power;
     }
 
-    if (thisw->GetCreationTime().isValid()) {
-      if (!tdata.start.isValid() || (thisw->GetCreationTime() < tdata.start)) {
-        tdata.start = thisw->GetCreationTime();
+    if (thisw->creation_time.isValid()) {
+      if (!tdata.start.isValid() || (thisw->creation_time < tdata.start)) {
+        tdata.start = thisw->creation_time;
       }
 
-      if (!tdata.end.isValid() || (thisw->GetCreationTime() > tdata.end)) {
-        tdata.end = thisw->GetCreationTime();
+      if (!tdata.end.isValid() || (thisw->creation_time > tdata.end)) {
+        tdata.end = thisw->creation_time;
       }
     }
 

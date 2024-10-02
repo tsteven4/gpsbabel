@@ -174,19 +174,19 @@ void ArcDistanceFilter::process()
           }
         }
         if (trkopt &&
-            (ed->arcpt2->GetCreationTime().isValid()) &&
-            (ptsopt || (ed->arcpt1->GetCreationTime().isValid()))) {
+            (ed->arcpt2->creation_time.isValid()) &&
+            (ptsopt || (ed->arcpt1->creation_time.isValid()))) {
           /* Interpolate time */
           if (ptsopt) {
-            wp->SetCreationTime(ed->arcpt2->GetCreationTime());
+            wp->SetCreationTime(ed->arcpt2->creation_time);
           } else {
             // Apply the multiplier to the difference between the times
             // of the two points.  Add that to the first for the
             // interpolated time.
             qint64 span =
-              ed->arcpt1->GetCreationTime().msecsTo(ed->arcpt2->GetCreationTime());
+              ed->arcpt1->creation_time.msecsTo(ed->arcpt2->creation_time);
             qint64 offset = std::round(ed->frac * span);
-            wp->SetCreationTime(ed->arcpt1->GetCreationTime().addMSecs(offset));
+            wp->SetCreationTime(ed->arcpt1->creation_time.addMSecs(offset));
           }
         }
         if (global_opts.debug_level >= 1) {

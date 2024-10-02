@@ -329,7 +329,7 @@ NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, QDateTime* prev, const QDate& 
       wpt->wpt_flags.fmt_use = 0;
       without_date--;
     }
-    *prev = wpt->GetCreationTime();
+    *prev = wpt->creation_time;
   } else if (prev->date().isValid()) {
     wpt->SetCreationTime(QDateTime(prev->date(), time, Qt::UTC));
     if (*prev > wpt->creation_time) {
@@ -340,7 +340,7 @@ NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, QDateTime* prev, const QDate& 
       wpt->wpt_flags.fmt_use = 0;
       without_date--;
     }
-    *prev = wpt->GetCreationTime();
+    *prev = wpt->creation_time;
   } else {
     wpt->SetCreationTime(QDateTime(QDate(), time, Qt::UTC));
     if (wpt->wpt_flags.fmt_use == 0) {
@@ -848,7 +848,7 @@ NmeaFormat::nmea_fix_timestamps(route_head* track)
         /* go over midnight ? */
         wpt->creation_time = wpt->creation_time.addDays(1);
       }
-      prev = wpt->GetCreationTime();
+      prev = wpt->creation_time;
     }
   } else {
     QDateTime prev = prev_datetime;
@@ -866,7 +866,7 @@ NmeaFormat::nmea_fix_timestamps(route_head* track)
           wpt->creation_time = wpt->creation_time.addDays(-1);
         }
       }
-      prev = wpt->GetCreationTime();
+      prev = wpt->creation_time;
     }
   }
 }
@@ -1221,13 +1221,13 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
         QThread::msleep(sleepms);
       } else {
         // wait_time will be 0 if either creation time is invalid.
-        long wait_time = last_write_time.msecsTo(wpt->GetCreationTime());
+        long wait_time = last_write_time.msecsTo(wpt->creation_time);
         if (wait_time > 0) {
           QThread::msleep(wait_time);
         }
       }
     }
-    last_write_time = wpt->GetCreationTime();
+    last_write_time = wpt->creation_time;
     first_trkpt = false;
   }
 
@@ -1236,9 +1236,9 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
 
   QByteArray dmy("");
   QByteArray hms("");
-  if (wpt->GetCreationTime().isValid()) {
-    dmy = wpt->GetCreationTime().toUTC().toString(u"ddMMyy").toUtf8();
-    hms = wpt->GetCreationTime().toUTC().toString(u"hhmmss.zzz").toUtf8();
+  if (wpt->creation_time.isValid()) {
+    dmy = wpt->creation_time.toUTC().toString(u"ddMMyy").toUtf8();
+    hms = wpt->creation_time.toUTC().toString(u"hhmmss.zzz").toUtf8();
   }
 
   switch (wpt->fix) {

@@ -1510,9 +1510,9 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     if (wpt->creation_time.toTime_t() >= 2 * SECONDS_PER_DAY) {
       QDateTime dt;
       if (opt_utc != nullptr) {
-        dt = wpt->GetCreationTime().toOffsetFromUtc(utc_offset);
+        dt = wpt->creation_time.toOffsetFromUtc(utc_offset);
       } else {
-        dt = wpt->GetCreationTime().toLocalTime();
+        dt = wpt->creation_time.toLocalTime();
       }
       QString date = dt.toString(u"yyyy/MM/dd");
       *fout << unicsv_fieldsep << date;
@@ -1524,9 +1524,9 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
     if (wpt->creation_time.isValid()) {
       QDateTime dt;
       if (opt_utc != nullptr) {
-        dt = wpt->GetCreationTime().toOffsetFromUtc(utc_offset);
+        dt = wpt->creation_time.toOffsetFromUtc(utc_offset);
       } else {
-        dt = wpt->GetCreationTime().toLocalTime();
+        dt = wpt->creation_time.toLocalTime();
       }
       QString out;
       if (dt.time().msec() > 0) {

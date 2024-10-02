@@ -55,7 +55,7 @@ SubripFormat::subrip_prevwp_pr(const Waypoint* waypointp)
   /* If this condition is not true, the waypoint is before the beginning of
    * the video and will be ignored
    */
-  if (prevwpp->GetCreationTime() < video_datetime) {
+  if (prevwpp->creation_time < video_datetime) {
     return;
   }
 
@@ -67,12 +67,12 @@ SubripFormat::subrip_prevwp_pr(const Waypoint* waypointp)
     // prevwpp is the last waypoint, so we don't have a datetime for the
     // next waypoint.  Instead, estimate it from length of the previous
     // video frame.
-    end_datetime = prevwpp->GetCreationTime().addMSecs(deltaoffset);
+    end_datetime = prevwpp->creation_time.addMSecs(deltaoffset);
   } else {
-    end_datetime = waypointp->GetCreationTime();
-    deltaoffset = prevwpp->GetCreationTime().msecsTo(waypointp->GetCreationTime());
+    end_datetime = waypointp->creation_time;
+    deltaoffset = prevwpp->creation_time.msecsTo(waypointp->creation_time);
   }
-  QTime starttime = video_time(prevwpp->GetCreationTime());
+  QTime starttime = video_time(prevwpp->creation_time);
   QTime endtime = video_time(end_datetime);
   gbfprintf(fout, "%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\n",
             starttime.hour(), starttime.minute(), starttime.second(), starttime.msec(),
@@ -110,7 +110,7 @@ SubripFormat::subrip_prevwp_pr(const Waypoint* waypointp)
         gbfprintf(fout, "%2.1f%%", gradient);
         break;
       case 't': {
-        QTime t = prevwpp->GetCreationTime().toUTC().time();
+        QTime t = prevwpp->creation_time.toUTC().time();
         gbfprintf(fout, "%02d:%02d:%02d", t.hour(), t.minute(), t.second());
         break;
       }
@@ -173,12 +173,12 @@ SubripFormat::subrip_trkpt_pr(const Waypoint* waypointp)
     if (!gps_datetime.isValid()) {
       // If gps_date and gps_time options weren't used, then we use the
       // datetime of the first waypoint to sync to the video.
-      gps_datetime = waypointp->GetCreationTime().toUTC();
+      gps_datetime = waypointp->creation_time.toUTC();
     }
     video_datetime = gps_datetime.addMSecs(-video_offset_ms).toUTC();
     if (global_opts.debug_level >= 2) {
       qDebug().noquote() << "GPS track start is           "
-                         << waypointp->GetCreationTime().toUTC().toString(Qt::ISODateWithMs);
+                         << waypointp->creation_time.toUTC().toString(Qt::ISODateWithMs);
       qDebug().noquote() << "Synchronizing"
                          << video_time(gps_datetime).toString(u"HH:mm:ss,zzz")
                          << "to" << gps_datetime.toString(Qt::ISODateWithMs);

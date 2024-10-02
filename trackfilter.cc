@@ -130,7 +130,7 @@ bool TrackFilter::trackfilter_init_sort_cb(const route_head* ha, const route_hea
 
 bool TrackFilter::trackfilter_merge_sort_cb(const Waypoint* wa, const Waypoint* wb)
 {
-  return wa->GetCreationTime() < wb->GetCreationTime();
+  return wa->creation_time < wb->creation_time;
 }
 
 fix_type TrackFilter::trackfilter_parse_fix(int* nsats)
@@ -167,7 +167,7 @@ QDateTime TrackFilter::trackfilter_get_first_time(const route_head* track)
   if (track->waypoint_list.empty()) {
     return {};
   } else {
-    return track->waypoint_list.front()->GetCreationTime();
+    return track->waypoint_list.front()->creation_time;
   }
 }
 
@@ -176,7 +176,7 @@ QDateTime TrackFilter::trackfilter_get_last_time(const route_head* track)
   if (track->waypoint_list.empty()) {
     return {};
   } else {
-    return track->waypoint_list.back()->GetCreationTime();
+    return track->waypoint_list.back()->creation_time;
   }
 }
 
@@ -208,7 +208,7 @@ void TrackFilter::trackfilter_fill_track_list_cb(const route_head* track) 	/* ca
             wpt->latitude, wpt->longitude);
     }
 
-    if (need_time && (prev != nullptr) && (prev->GetCreationTime() > wpt->GetCreationTime())) {
+    if (need_time && (prev != nullptr) && (prev->creation_time > wpt->creation_time)) {
       if (opt_merge == nullptr) {
         QString t1 = prev->CreationTimeXML();
         QString t2 = wpt->CreationTimeXML();
@@ -272,7 +272,7 @@ void TrackFilter::trackfilter_pack_init_rte_name(route_head* track, const gpsbab
       dt = default_time;
     } else {
       const auto* wpt = track->waypoint_list.front();
-      dt = wpt->GetCreationTime();
+      dt = wpt->creation_time;
     }
     time_t t = dt.toTime_t();
     std::tm tm = *gmtime(&t);
@@ -391,7 +391,7 @@ void TrackFilter::trackfilter_merge()
     const Waypoint* prev = nullptr;
 
     for (auto* wpt : buff) {
-      if ((prev == nullptr) || (prev->GetCreationTime() != wpt->GetCreationTime())) {
+      if ((prev == nullptr) || (prev->creation_time != wpt->creation_time)) {
         track_add_wpt(master, wpt);
         prev = wpt;
       } else {
@@ -504,7 +504,7 @@ void TrackFilter::trackfilter_split()
     track_swap_wpts(master, buff);
     assert(!buff.empty()); // enforced above
 
-    trackfilter_split_init_rte_name(master, buff.front()->GetCreationTime());
+    trackfilter_split_init_rte_name(master, buff.front()->creation_time);
 
     route_head* curr = master;	/* will be reset by first new track */
 
@@ -519,11 +519,11 @@ void TrackFilter::trackfilter_split()
 
       if ((opt_interval == 0) && (opt_distance == 0)) {
 //      FIXME: This whole function needs to be reconsidered for arbitrary time.
-        new_track_flag = prev_wpt->GetCreationTime().toLocalTime().date() !=
-                         wpt->GetCreationTime().toLocalTime().date();
+        new_track_flag = prev_wpt->creation_time.toLocalTime().date() !=
+                         wpt->creation_time.toLocalTime().date();
         if constexpr(TRACKF_DBG) {
           if (new_track_flag) {
-            printf(MYNAME ": new day %s\n", qPrintable(wpt->GetCreationTime().toLocalTime().date().toString(Qt::ISODate)));
+            printf(MYNAME ": new day %s\n", qPrintable(wpt->creation_time.toLocalTime().date().toString(Qt::ISODate)));
           }
         }
       } else {
@@ -540,7 +540,7 @@ void TrackFilter::trackfilter_split()
         }
 
         if (interval > 0) {
-          double tr_interval = 0.001 * prev_wpt->GetCreationTime().msecsTo(wpt->GetCreationTime());
+          double tr_interval = 0.001 * prev_wpt->creation_time.msecsTo(wpt->creation_time);
           if (tr_interval <= interval) {
             new_track_flag = false;
           } else if constexpr(TRACKF_DBG) {
@@ -554,7 +554,7 @@ void TrackFilter::trackfilter_split()
           printf(MYNAME ": splitting new track\n");
         }
         curr = new route_head;
-        trackfilter_split_init_rte_name(curr, wpt->GetCreationTime());
+        trackfilter_split_init_rte_name(curr, wpt->creation_time);
         track_add_head(curr);
         track_list.append(curr);
       }
@@ -625,7 +625,7 @@ void TrackFilter::trackfilter_synth()
         first = false;
         last_course_pos = wpt->position();
         last_speed_pos = wpt->position();
-        last_speed_time = wpt->GetCreationTime();
+        last_speed_time = wpt->creation_time;
       } else {
         if (opt_course) {
           wpt->set_course(heading_true_degrees(last_course_pos,
@@ -633,7 +633,7 @@ void TrackFilter::trackfilter_synth()
           last_course_pos = wpt->position();
         }
         if (opt_speed) {
-          if (last_speed_time.msecsTo(wpt->GetCreationTime()) != 0) {
+          if (last_speed_time.msecsTo(wpt->creation_time) != 0) {
             // If we have multiple points with the same time and
             // we use the pair of points about which the time ticks then we will
             // underestimate the distance and compute low speeds on average.
@@ -644,10 +644,10 @@ void TrackFilter::trackfilter_synth()
             // toTime_t().
             wpt->set_speed(radtometers(gcdist(last_speed_pos, wpt->position()))
                                           /
-                           (0.001 * std::abs(last_speed_time.msecsTo(wpt->GetCreationTime())))
+                           (0.001 * std::abs(last_speed_time.msecsTo(wpt->creation_time)))
                           );
             last_speed_pos = wpt->position();
-            last_speed_time = wpt->GetCreationTime();
+            last_speed_time = wpt->creation_time;
           } else {
             wpt->reset_speed();
           }
@@ -713,8 +713,8 @@ void TrackFilter::trackfilter_range()
     foreach (Waypoint* wpt, track->waypoint_list) {
       bool inside;
       if (wpt->creation_time.isValid()) {
-        bool after_start = !start.isValid() || (wpt->GetCreationTime() >= start);
-        bool before_stop = !stop.isValid() || (wpt->GetCreationTime() <= stop);
+        bool after_start = !start.isValid() || (wpt->creation_time >= start);
+        bool before_stop = !stop.isValid() || (wpt->creation_time <= stop);
         inside = after_start && before_stop;
       } else {
         // If the time is mangled so horribly that it's

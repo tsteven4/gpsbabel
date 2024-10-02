@@ -449,7 +449,7 @@ void GtmFormat::write_waypt(const Waypoint* wpt)
   fwrite_integer(file_out, icon_from_descr(wpt->icon_descr));
   fwrite_byte(file_out, 3);
   if (wpt->creation_time.isValid()) {
-    fwrite_long(file_out, wpt->GetCreationTime().toTime_t()-EPOCH89DIFF);
+    fwrite_long(file_out, wpt->creation_time.toTime_t()-EPOCH89DIFF);
   } else {
     fwrite_long(file_out, 0);
   }
@@ -472,7 +472,7 @@ void GtmFormat::write_trk_waypt(const Waypoint* wpt)
 {
   fwrite_double(file_out, wpt->latitude);
   fwrite_double(file_out, wpt->longitude);
-  fwrite_long(file_out, wpt->GetCreationTime().toTime_t()-EPOCH89DIFF);
+  fwrite_long(file_out, wpt->creation_time.toTime_t()-EPOCH89DIFF);
   fwrite_byte(file_out, start_new);
   if (wpt->altitude == unknown_alt) {
     fwrite_single(file_out, unknown_alt_gtm);

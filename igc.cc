@@ -678,7 +678,7 @@ void IgcFormat::wr_header()
   gpsbabel::DateTime date;
   if (track != nullptr) {
     // Date in header record is that of the first fix record
-    date = track->waypoint_list.front()->GetCreationTime();
+    date = track->waypoint_list.front()->creation_time;
     if (!date.isValid()) {
       fatal(MYNAME ": Bad track timestamp\n");
     }
@@ -752,7 +752,7 @@ void IgcFormat::wr_task_hdr(const route_head* rte, unsigned int task_num)
     fatal(MYNAME ": Too much waypoints (more than 99) in task route.\n");
   }
   // Gather data to write to the task identification (first) record
-  gpsbabel::DateTime rte_time = wpt->GetCreationTime().isValid() ? wpt->GetCreationTime() : current_time();
+  gpsbabel::DateTime rte_time = wpt->creation_time.isValid() ? wpt->creation_time : current_time();
   // Either rte_time is valid, or during test, it is 0 seconds since epoch
   // which gpsbabel::DateTime considers invalid but QDateTime considers valid.
   assert(rte_time.isValid() || gpsbabel_testmode());
@@ -807,7 +807,7 @@ void IgcFormat::wr_tasks()
  */
 void IgcFormat::wr_fix_record(const Waypoint* wpt, int pres_alt, int gnss_alt)
 {
-  gpsbabel::DateTime tt = wpt->GetCreationTime();
+  gpsbabel::DateTime tt = wpt->creation_time;
   if (!tt.isValid()) {
     fatal(MYNAME ": Bad track timestamp\n");
   }
@@ -851,7 +851,7 @@ int IgcFormat::correlate_tracks(const route_head* pres_track, const route_head* 
       return 0;
     }
   } while (alt_diff > -10.0);
-  gpsbabel::DateTime pres_time = (*std::prev(wpt_rit))->GetCreationTime();
+  gpsbabel::DateTime pres_time = (*std::prev(wpt_rit))->creation_time;
   if (global_opts.debug_level >= 1) {
     printf(MYNAME ": pressure landing time %s\n", CSTR(pres_time.toPrettyString()));
   }
@@ -867,7 +867,7 @@ int IgcFormat::correlate_tracks(const route_head* pres_track, const route_head* 
       return 0;
     }
     // Get a crude indication of groundspeed from the change in lat/lon
-    int deltat_msec = (*wpt_rit)->GetCreationTime().msecsTo(wpt->GetCreationTime());
+    int deltat_msec = (*wpt_rit)->creation_time.msecsTo(wpt->creation_time);
     speed = (deltat_msec == 0) ? 0:
             radtometers(gcdist(wpt->position(), (*wpt_rit)->position())) /
             (0.001 * deltat_msec);
@@ -875,7 +875,7 @@ int IgcFormat::correlate_tracks(const route_head* pres_track, const route_head* 
       printf(MYNAME ": speed=%.2fm/s\n", speed);
     }
   } while (speed < 2.5);
-  gpsbabel::DateTime gnss_time = (*std::prev(wpt_rit))->GetCreationTime();
+  gpsbabel::DateTime gnss_time = (*std::prev(wpt_rit))->creation_time;
   if (global_opts.debug_level >= 1) {
     printf(MYNAME ": gnss landing time %s\n", CSTR(gnss_time.toPrettyString()));
   }
@@ -904,7 +904,7 @@ double IgcFormat::Interpolater::interpolate_alt(const route_head* track, const g
   }
   // Find the track points either side of the requested time
   while ((track->waypoint_list.cend() != *curr_wpt) &&
-         ((**curr_wpt)->GetCreationTime() < time)) {
+         ((**curr_wpt)->creation_time < time)) {
     prev_wpt = *curr_wpt;
     curr_wpt = std::next(*prev_wpt);
   }
@@ -914,7 +914,7 @@ double IgcFormat::Interpolater::interpolate_alt(const route_head* track, const g
   }
 
   if (track->waypoint_list.cbegin() == *curr_wpt) {
-    if ((**curr_wpt)->GetCreationTime() == time) {
+    if ((**curr_wpt)->creation_time == time) {
       // First point's creation time is an exact match so use it's altitude
       return (**curr_wpt)->altitude;
     } else {
@@ -923,12 +923,12 @@ double IgcFormat::Interpolater::interpolate_alt(const route_head* track, const g
     }
   }
   // Interpolate
-  if (0 == (time_diff = (**prev_wpt)->GetCreationTime().secsTo((**curr_wpt)->GetCreationTime()))) {
+  if (0 == (time_diff = (**prev_wpt)->creation_time.secsTo((**curr_wpt)->creation_time))) {
     // Avoid divide by zero
     return (**curr_wpt)->altitude;
   }
   double alt_diff = (**curr_wpt)->altitude - (**prev_wpt)->altitude;
-  return (**prev_wpt)->altitude + (alt_diff / time_diff) * ((**prev_wpt)->GetCreationTime().secsTo(time));
+  return (**prev_wpt)->altitude + (alt_diff / time_diff) * ((**prev_wpt)->creation_time.secsTo(time));
 }
 
 /*
@@ -961,7 +961,7 @@ void IgcFormat::wr_track()
     // Iterate through waypoints in both tracks simultaneously
     Interpolater interpolater;
     foreach (const Waypoint* wpt, gnss_track->waypoint_list) {
-      double pres_alt = interpolater.interpolate_alt(pres_track, wpt->GetCreationTime().addSecs(time_adj));
+      double pres_alt = interpolater.interpolate_alt(pres_track, wpt->creation_time.addSecs(time_adj));
       wr_fix_record(wpt, pres_alt, wpt->altitude);
     }
   } else {

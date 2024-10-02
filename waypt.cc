@@ -517,19 +517,13 @@ Waypoint::CreationTimeXML() const
     return nullptr;
   }
 
-  QDateTime dt = GetCreationTime().toUTC();
+  QDateTime dt = creation_time.toUTC();
 
   if (dt.time().msec()) {
     return dt.toString(u"yyyy-MM-ddTHH:mm:ss.zzzZ");
   } else {
     return dt.toString(u"yyyy-MM-ddTHH:mm:ssZ");
   }
-}
-
-gpsbabel::DateTime
-Waypoint::GetCreationTime() const
-{
-  return creation_time;
 }
 
 void
