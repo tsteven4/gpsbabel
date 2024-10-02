@@ -197,7 +197,7 @@ void KmlFormat::wpt_time(const QString& args, const QXmlStreamAttributes* /*attr
   if (!wpt_tmp) {
     fatal(MYNAME ": wpt_time: invalid kml file\n");
   }
-  wpt_tmp->SetCreationTime(xml_parse_time(args));
+  wpt_tmp->creation_time = xml_parse_time(args);
 }
 
 void KmlFormat::wpt_ts_begin(const QString& args, const QXmlStreamAttributes* /*attrs*/)
@@ -282,7 +282,7 @@ void KmlFormat::trk_coord(const QString& args, const QXmlStreamAttributes* /*att
       }
       qint64 ms_per_waypoint = timespan_ms / (trk_head->rte_waypt_ct() - 1);
       foreach (Waypoint* trackpoint, trk_head->waypoint_list) {
-        trackpoint->SetCreationTime(wpt_timespan_begin);
+        trackpoint->creation_time = wpt_timespan_begin;
         wpt_timespan_begin = wpt_timespan_begin.addMSecs(ms_per_waypoint);
       }
     }
@@ -318,7 +318,7 @@ void KmlFormat::gx_trk_e(const QString& /*args*/, const QXmlStreamAttributes* /*
   // For both we allow any order.  Many writers using gx:Track elements don't adhere to the schema.
   while (!gx_trk_times->isEmpty()) {
     auto* trkpt = new Waypoint;
-    trkpt->SetCreationTime(gx_trk_times->takeFirst());
+    trkpt->creation_time = gx_trk_times->takeFirst();
     auto [n, lat, lon, alt] = gx_trk_coords->takeFirst();
     // An empty kml:coord element is permitted to indicate missing position data;
     // the estimated position may be determined using some interpolation method.

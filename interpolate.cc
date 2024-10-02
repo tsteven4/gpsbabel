@@ -111,7 +111,7 @@ void InterpolateFilter::process_rte(route_head* rte)
         wpt_new->shortname = QString();
         wpt_new->description = QString();
         if (timespan.has_value()) {
-          wpt_new->SetCreationTime(time1.addMSecs(qRound64(frac * *timespan)));
+          wpt_new->creation_time = time1.addMSecs(qRound64(frac * *timespan));
         } else {
           wpt_new->creation_time = gpsbabel::DateTime();
         }

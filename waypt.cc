@@ -527,12 +527,6 @@ Waypoint::CreationTimeXML() const
 }
 
 void
-Waypoint::SetCreationTime(const gpsbabel::DateTime& t)
-{
-  creation_time = t;
-}
-
-void
 Waypoint::SetCreationTime(qint64 t, qint64 ms)
 {
   creation_time.setMSecsSinceEpoch((t * 1000) + ms);

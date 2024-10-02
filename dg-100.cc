@@ -223,7 +223,7 @@ Dg100Format::process_gpsfile(uint8_t data[], route_head** track) const
     if (style >= 1) {
       int bintime = be_read32(data + i +  8) & 0x7FFFFFFF;
       int bindate = be_read32(data + i + 12);
-      wpt->SetCreationTime(bintime2utc(bindate, bintime));
+      wpt->creation_time = bintime2utc(bindate, bintime);
       /* The device presents the speed as a fixed-point number
        * with a scaling factor of 100, in km/h.
        * The waypoint struct wants the speed as a

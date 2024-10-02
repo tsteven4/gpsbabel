@@ -818,7 +818,7 @@ GpxFormat::gpx_end(QStringView /*unused*/)
     wpt_tmp->icon_descr = cdatastr;
     break;
   case tag_type::wpttype_time:
-    wpt_tmp->SetCreationTime(xml_parse_time(cdatastr));
+    wpt_tmp->creation_time = xml_parse_time(cdatastr);
     break;
   case tag_type::wpttype_magvar:
     if (wpt_fsdata == nullptr) {

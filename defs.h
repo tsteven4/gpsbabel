@@ -352,7 +352,6 @@ public:
   const UrlLink& GetUrlLink() const;
   void AddUrlLink(const UrlLink& l);
   QString CreationTimeXML() const;
-  void SetCreationTime(const gpsbabel::DateTime& t);
   void SetCreationTime(qint64 t, qint64 ms = 0);
   Geocache* AllocGCData();
   int EmptyGCData() const;

@@ -324,14 +324,14 @@ void
 NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, QDateTime* prev, const QDate& date, const QTime& time)
 {
   if (date.isValid()) {
-    wpt->SetCreationTime(QDateTime(date, time, Qt::UTC));
+    wpt->creation_time = QDateTime(date, time, Qt::UTC);
     if (wpt->wpt_flags.fmt_use != 0) {
       wpt->wpt_flags.fmt_use = 0;
       without_date--;
     }
     *prev = wpt->creation_time;
   } else if (prev->date().isValid()) {
-    wpt->SetCreationTime(QDateTime(prev->date(), time, Qt::UTC));
+    wpt->creation_time = QDateTime(prev->date(), time, Qt::UTC);
     if (*prev > wpt->creation_time) {
       /* go over midnight ? */
       wpt->creation_time = wpt->creation_time.addDays(1);
@@ -342,7 +342,7 @@ NmeaFormat::nmea_set_waypoint_time(Waypoint* wpt, QDateTime* prev, const QDate& 
     }
     *prev = wpt->creation_time;
   } else {
-    wpt->SetCreationTime(QDateTime(QDate(), time, Qt::UTC));
+    wpt->creation_time = QDateTime(QDate(), time, Qt::UTC);
     if (wpt->wpt_flags.fmt_use == 0) {
       wpt->wpt_flags.fmt_use = 1;
       without_date++;

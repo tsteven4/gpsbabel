@@ -261,7 +261,7 @@ V900Format::read()
     {
       int date = xstrtoi(line.bas.common.date, nullptr, 10);
       int time = xstrtoi(line.bas.common.time, nullptr, 10);
-      wpt->SetCreationTime(bintime2utc(date, time));
+      wpt->creation_time = bintime2utc(date, time);
     }
 
     wpt->set_speed(KPH_TO_MPS(xstrtoi(line.bas.common.speed, nullptr, 10)));

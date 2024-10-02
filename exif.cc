@@ -917,9 +917,9 @@ ExifFormat::exif_waypt_from_exif_app(ExifApp* app) const
     if (global_opts.debug_level >= 3) {
       printf(MYNAME "-GPSTimeStamp =   %s\n", qPrintable(gps_datetime.toString(Qt::ISODateWithMs)));
     }
-    wpt->SetCreationTime(gps_datetime);
+    wpt->creation_time = gps_datetime;
   } else {
-    wpt->SetCreationTime(exif_get_exif_time(app));
+    wpt->creation_time = exif_get_exif_time(app);
   }
 
   tag = exif_find_tag(app, EXIF_IFD, EXIF_IFD_TAG_USER_CMT); /* UserComment */

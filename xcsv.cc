@@ -629,14 +629,14 @@ XcsvFormat::xcsv_parse_val(const QString& value, Waypoint* wpt, const XcsvStyle:
     break;
   case XcsvStyle::XT_ISO_TIME:
   case XcsvStyle::XT_ISO_TIME_MS:
-    wpt->SetCreationTime(QDateTime::fromString(value, Qt::ISODateWithMs));
+    wpt->creation_time = QDateTime::fromString(value, Qt::ISODateWithMs);
     parse_data->need_datetime = false;
     break;
   case XcsvStyle::XT_NET_TIME: {
     bool ok;
     long long dnt = value.toLongLong(&ok);
     if (ok) {
-      wpt->SetCreationTime(dotnet_time_to_qdatetime(dnt));
+      wpt->creation_time = dotnet_time_to_qdatetime(dnt);
       parse_data->need_datetime = false;
     } else if (!value.isEmpty()) {
       warning("parse of string '%s' on line number %d as NET_TIME failed.\n", s, line_no);
@@ -882,17 +882,17 @@ XcsvFormat::read()
 
       if (parse_data.need_datetime) {
         if (parse_data.utc_date.isValid() && parse_data.utc_time.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false);
         } else if (parse_data.local_date.isValid() && parse_data.local_time.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true);
         } else if (parse_data.utc_date.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false);
         } else if (parse_data.local_date.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true);
         } else if (parse_data.utc_time.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.utc_date, parse_data.utc_time, false);
         } else if (parse_data.local_time.isValid()) {
-          wpt_tmp->SetCreationTime(xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true));
+          wpt_tmp->creation_time = xcsv_adjust_time(parse_data.local_date, parse_data.local_time, true);
         }
       }
 

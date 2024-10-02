@@ -615,7 +615,7 @@ SkytraqBase::make_trackpoint(read_state* st, double lat, double lon, double alt)
   wpt->latitude       = lat;
   wpt->longitude      = lon;
   wpt->altitude       = alt;
-  wpt->SetCreationTime(gpstime_to_qdatetime(st->gps_week, st->gps_sec));
+  wpt->creation_time = gpstime_to_qdatetime(st->gps_week, st->gps_sec);
 
   return wpt;
 }

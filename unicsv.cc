@@ -774,7 +774,7 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
 
     case fld_iso_time:
       need_datetime = false;	/* fix result */
-      wpt->SetCreationTime(QDateTime::fromString(value, Qt::ISODateWithMs));
+      wpt->creation_time = QDateTime::fromString(value, Qt::ISODateWithMs);
       break;
 
     case fld_time:
@@ -959,17 +959,17 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
 
   if (need_datetime) {	/* not fixed */
     if (utc_date.isValid() && utc_time.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+      wpt->creation_time = unicsv_adjust_time(utc_date, utc_time, false);
     } else if (local_date.isValid() && local_time.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
+      wpt->creation_time = unicsv_adjust_time(local_date, local_time, true);
     } else if (utc_date.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+      wpt->creation_time = unicsv_adjust_time(utc_date, utc_time, false);
     } else if (local_date.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
+      wpt->creation_time = unicsv_adjust_time(local_date, local_time, true);
     } else if (utc_time.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(utc_date, utc_time, false));
+      wpt->creation_time = unicsv_adjust_time(utc_date, utc_time, false);
     } else if (local_time.isValid()) {
-      wpt->SetCreationTime(unicsv_adjust_time(local_date, local_time, true));
+      wpt->creation_time = unicsv_adjust_time(local_date, local_time, true);
     } else if (ymd.tm_year || ymd.tm_mon || ymd.tm_mday) {
       if (ymd.tm_year < 100) {
         if (ymd.tm_year <= 70) {
@@ -986,15 +986,15 @@ UnicsvFormat::unicsv_parse_one_line(const QString& ibuf)
         ymd.tm_mday = 1;
       }
 
-      wpt->SetCreationTime(unicsv_adjust_time(
-                             QDate(ymd.tm_year, ymd.tm_mon, ymd.tm_mday),
-                             QTime(ymd.tm_hour, ymd.tm_min, ymd.tm_sec),
-                             true));
+      wpt->creation_time = unicsv_adjust_time(
+        QDate(ymd.tm_year, ymd.tm_mon, ymd.tm_mday),
+        QTime(ymd.tm_hour, ymd.tm_min, ymd.tm_sec),
+        true);
     } else if (ymd.tm_hour || ymd.tm_min || ymd.tm_sec) {
-      wpt->SetCreationTime(unicsv_adjust_time(
-                             QDate(),
-                             QTime(ymd.tm_hour, ymd.tm_min, ymd.tm_sec),
-                             true));
+      wpt->creation_time = unicsv_adjust_time(
+        QDate(),
+        QTime(ymd.tm_hour, ymd.tm_min, ymd.tm_sec),
+        true);
     }
 
   }

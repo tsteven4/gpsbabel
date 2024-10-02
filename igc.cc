@@ -190,7 +190,7 @@ void IgcFormat::TaskRecordReader::igc_task_rec(const char* rec)
   wpt->longitude = ('E' == lon_hemi[0] ? 1 : -1) *
                    (lon_deg + (lon_min * 1000 + lon_frac) / 1000.0 / 60);
 
-  wpt->SetCreationTime(creation);
+  wpt->creation_time = creation;
   wpt->description = tmp_str;
 
   // Name the waypoint according to the order of the task record
@@ -398,7 +398,7 @@ void IgcFormat::read()
         pres_wpt->fs.FsChainAdd(fsdata);
       }
 
-      pres_wpt->SetCreationTime(QDateTime(date, tod, Qt::UTC));
+      pres_wpt->creation_time = QDateTime(date, tod, Qt::UTC);
 
       // Add the waypoint to the pressure altitude track
       if (pres_alt) {

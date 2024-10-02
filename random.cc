@@ -138,7 +138,7 @@ RandomFormat::random_generate_wpt(int i, const QDateTime& time, const Waypoint* 
     wpt->icon_descr = rand_str(3, "Icon_%s");
   }
 
-  wpt->SetCreationTime(time);
+  wpt->creation_time = time;
 
   if (doing_trks || doing_posn) {
     if (i > 0) {

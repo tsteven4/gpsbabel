@@ -48,7 +48,7 @@ void TransformFilter::transform_waypoints()
 
     wpt = new Waypoint(*wpt);
     if (timeless) {
-      wpt->SetCreationTime(gpsbabel::DateTime());
+      wpt->creation_time = gpsbabel::DateTime();
     }
     switch (current_target) {
     case 'R':
@@ -98,7 +98,7 @@ void TransformFilter::transform_any_disp_wpt_cb(const Waypoint* wpt)
 {
   auto* temp = new Waypoint(*wpt);
   if (timeless) {
-    temp->SetCreationTime(gpsbabel::DateTime());
+    temp->creation_time = gpsbabel::DateTime();
   }
   if (current_target == 'R') {
     route_add_wpt(current_rte, temp, current_namepart, name_digits);

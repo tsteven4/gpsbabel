@@ -640,7 +640,7 @@ GlobalsatSportFormat::track_read()
               }
 
               auto* wpt = new Waypoint(); // waypt_new();
-              wpt->SetCreationTime(gpsDateTime);
+              wpt->creation_time = gpsDateTime;
               wpt->longitude = ((int32_t) point.Longitude) / 1000000.0;
               wpt->latitude = ((int32_t) point.Latitude) / 1000000.0;
               wpt->altitude = point.Altitude;

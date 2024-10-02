@@ -590,7 +590,7 @@ LowranceusrFormat::lowranceusr4_parse_waypt(Waypoint* wpt_tmp) const
   // with, as a practical matter, we have no date, so don't even compute
   // or set it.
   if (create_date > 2440587) {
-    wpt_tmp->SetCreationTime(lowranceusr4_get_timestamp(create_date, create_time));
+    wpt_tmp->creation_time = lowranceusr4_get_timestamp(create_date, create_time);
   }
 
   /* Unused byte */

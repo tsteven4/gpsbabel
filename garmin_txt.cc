@@ -1126,7 +1126,7 @@ GarminTxtFormat::parse_waypoint(const QStringList& lineparts)
     case 16:
       if (QDateTime dt = parse_date_and_time(str); dt.isValid()) {
         garmin_txt_adjust_time(dt);
-        wpt->SetCreationTime(dt);
+        wpt->creation_time = dt;
       }
     break;
     case 17: {
@@ -1262,7 +1262,7 @@ GarminTxtFormat::parse_track_waypoint(const QStringList& lineparts)
     case 2:
       if (QDateTime dt = parse_date_and_time(str); dt.isValid()) {
         garmin_txt_adjust_time(dt);
-        wpt->SetCreationTime(dt);
+        wpt->creation_time = dt;
       }
     break;
     case 3:

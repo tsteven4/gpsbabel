@@ -69,7 +69,7 @@ Waypoint* GoogleTakeoutFormat::takeout_waypoint(
   }
   if (start_str && start_str->length() > 0) {
     gpsbabel::DateTime start = QDateTime::fromString(*start_str, Qt::ISODate);
-    waypoint->SetCreationTime(start);
+    waypoint->creation_time = start;
   }
   return waypoint;
 }
