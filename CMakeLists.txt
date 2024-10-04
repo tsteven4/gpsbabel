@@ -356,6 +356,9 @@ message(STATUS "Include Directores are: \"${IncDirs}\"")
 add_executable(mkicondoc EXCLUDE_FROM_ALL mkicondoc.cc)
 target_link_libraries(mkicondoc PRIVATE ${QT_LIBRARIES})
 
+add_executable(generate_leap_tables EXCLUDE_FROM_ALL generate_leap_tables.cc)
+target_link_libraries(generate_leap_tables PRIVATE ${QT_LIBRARIES})
+
 set(TESTS
   arc-project
   arc
