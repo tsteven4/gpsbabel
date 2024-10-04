@@ -102,22 +102,24 @@ int main()
   constexpr qint64 gpsLeapOffset = 19;
   qDebug() << gpsEpoch << gpsOffset;
 
-  QFile unixFile = QFile("leap_tables.h");
-  if (!unixFile.open(QFile::WriteOnly)) {
+  QFile file = QFile("leap_tables.h");
+  if (!file.open(QFile::WriteOnly)) {
     return 1;
   }
-  QDebug unixStream(&unixFile);
+  QDebug stream(&file);
 
-  unixStream.nospace().noquote() << license;
-  unixStream.nospace() << "struct leap_t {" << Qt::endl;
-  unixStream.nospace() << "  qint64 secsSinceEpoch;" << Qt::endl;
-  unixStream.nospace() << "  int secsOffset;" << Qt::endl;
-  unixStream.nospace() << "};" << Qt::endl << Qt::endl;
+  stream.nospace().noquote() << license;
+  stream.nospace() << "#ifndef LEAP_TABLE_H_INCLUDED_" << Qt::endl;
+  stream.nospace() << "#define LEAP_TABLE_H_INCLUDED_" << Qt::endl << Qt::endl;
+  stream.nospace() << "struct leap_t {" << Qt::endl;
+  stream.nospace() << "  qint64 secsSinceEpoch;" << Qt::endl;
+  stream.nospace() << "  int secsOffset;" << Qt::endl;
+  stream.nospace() << "};" << Qt::endl << Qt::endl;
 
-  unixStream.nospace() << "const QVector<leap_t> unix_leap_table = {" << Qt::endl;
+  stream.nospace() << "const QVector<leap_t> unix_leap_table = {" << Qt::endl;
   for (const auto entry : leap_info) {
-    qint64 secsFromUnixEpoch = entry.ntpTime + ntpOffset;
-    unixStream.nospace().noquote() << "  {" <<
+    const auto secsFromUnixEpoch = entry.ntpTime + ntpOffset;
+    stream.nospace().noquote() << "  {" <<
                                    secsFromUnixEpoch <<
                                    ", " <<
                                    entry.dtai - unixLeapOffset <<
@@ -125,14 +127,14 @@ int main()
                                    QDateTime::fromSecsSinceEpoch(secsFromUnixEpoch).toUTC().toString(Qt::ISODate) <<
                                    Qt::endl;
   }
-  unixStream.nospace() << "};" << Qt::endl << Qt::endl;
+  stream.nospace() << "};" << Qt::endl << Qt::endl;
 
-  unixStream.nospace() << "const QVector<leap_t> gps_leap_table = {" << Qt::endl;
+  stream.nospace() << "const QVector<leap_t> gps_leap_table = {" << Qt::endl;
   for (const auto entry : leap_info) {
-    qint64 secsFromUnixEpoch = entry.ntpTime + ntpOffset;
-    qint64 secsFromGpsEpoch = entry.ntpTime + ntpOffset - gpsOffset;
+    const auto secsFromUnixEpoch = entry.ntpTime + ntpOffset;
+    const auto secsFromGpsEpoch = entry.ntpTime + ntpOffset - gpsOffset;
     if (secsFromGpsEpoch > 0) {
-      unixStream.nospace().noquote() << "  {" <<
+      stream.nospace().noquote() << "  {" <<
                                      secsFromGpsEpoch <<
                                      ", " <<
                                      entry.dtai - gpsLeapOffset <<
@@ -142,8 +144,9 @@ int main()
     }
   }
 
-  unixStream.nospace() << "};" << Qt::endl;
+  stream.nospace() << "};" << Qt::endl;
+  stream.nospace() << "#endif  // LEAP_TABLE_H_INCLUDED_" << Qt::endl;
 
-  unixFile.close();
+  file.close();
 }
 
