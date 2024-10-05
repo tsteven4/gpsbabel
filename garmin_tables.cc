@@ -45,7 +45,7 @@ struct gt_country_code_t {
   const char* country;
 };
 
-const QVector<gt_country_code_t> gt_country_codes = {
+static const QVector<gt_country_code_t> gt_country_codes = {
   { "ZM,", "Mongolia" },
   { "ZK,", "North Korea" },
   { "Z*,", "China" },
