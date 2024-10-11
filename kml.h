@@ -138,7 +138,7 @@ private:
   void gx_trk_e(const QString& args, const QXmlStreamAttributes* attrs);
   void gx_trk_when(const QString& args, const QXmlStreamAttributes* attrs);
   void gx_trk_coord(const QString& args, const QXmlStreamAttributes* attrs);
-  void kml_output_linestyle(char* color, int width) const;
+  void kml_output_linestyle(int width) const;
   void kml_write_bitmap_style_(const QString& style, const QString& bitmap, bool highlighted, bool force_heading) const;
   void kml_write_bitmap_style(kml_point_type pt_type, const QString& bitmap, const QString& customstyle) const;
   void kml_output_timestamp(const Waypoint* waypointp) const;
@@ -193,21 +193,21 @@ private:
   QHash<const route_head*, track_trait_t> kml_track_traits_hash;
 
   // options
-  char* opt_deficon{nullptr};
-  char* opt_export_lines{nullptr};
-  char* opt_export_points{nullptr};
-  char* opt_export_track{nullptr};
-  char* opt_line_width{nullptr};
-  char* opt_line_color{nullptr};
-  char* opt_floating{nullptr};
-  char* opt_extrude{nullptr};
-  char* opt_trackdata{nullptr};
-  char* opt_trackdirection{nullptr};
-  char* opt_units{nullptr};
-  char* opt_labels{nullptr};
-  char* opt_max_position_points{nullptr};
-  char* opt_rotate_colors{nullptr};
-  char* opt_precision{nullptr};
+  argString opt_deficon;
+  argString opt_export_lines;
+  argString opt_export_points;
+  argString opt_export_track;
+  argString opt_line_width;
+  argString opt_line_color;
+  argString opt_floating;
+  argString opt_extrude;
+  argString opt_trackdata;
+  argString opt_trackdirection;
+  argString opt_units;
+  argString opt_labels;
+  argString opt_max_position_points;
+  argString opt_rotate_colors;
+  argString opt_precision;
 
   bool export_lines{};
   bool export_points{};
@@ -240,76 +240,80 @@ private:
   gpsbabel::DateTime kml_time_min;
 
   QVector<arglist_t> kml_args = {
-    {"deficon", &opt_deficon, "Default icon name", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
     {
-      "lines", &opt_export_lines,
+      "deficon", nullptr,
+      "Default icon name",
+       nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_deficon
+    },
+    {
+      "lines", nullptr,
       "Export linestrings for tracks and routes",
-      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr,
+      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_export_lines
     },
     {
-      "points", &opt_export_points,
+      "points", nullptr,
       "Export placemarks for tracks and routes",
-      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_export_points
     },
     {
-      "line_width", &opt_line_width,
+      "line_width", nullptr,
       "Width of lines, in pixels",
-      "6", ARGTYPE_INT, ARG_NOMINMAX, nullptr
+      "6", ARGTYPE_INT, ARG_NOMINMAX, nullptr, &opt_line_width
     },
     {
-      "line_color", &opt_line_color,
+      "line_color", nullptr,
       "Line color, specified in hex AABBGGRR",
-      "99ffac59", ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "99ffac59", ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_line_color
     },
     {
-      "floating", &opt_floating,
+      "floating", nullptr,
       "Altitudes are absolute and not clamped to ground",
-      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_floating
     },
     {
-      "extrude", &opt_extrude,
+      "extrude", nullptr,
       "Draw extrusion line from trackpoint to ground",
-      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_extrude
     },
     {
-      "track", &opt_export_track,
+      "track", nullptr,
       "Write KML track (default = 0)",
-      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_export_track
     },
     {
-      "trackdata", &opt_trackdata,
+      "trackdata", nullptr,
       "Include extended data for trackpoints (default = 1)",
-      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_trackdata
     },
     {
-      "trackdirection", &opt_trackdirection,
+      "trackdirection", nullptr,
       "Indicate direction of travel in track icons (default = 0)",
-      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "0", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_trackdirection
     },
     {
-      "units", &opt_units,
+      "units", nullptr,
       "Units used when writing comments ('s'tatute, 'm'etric,' 'n'autical, 'a'viation)",
-      "s", ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "s", ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_units
     },
     {
-      "labels", &opt_labels,
+      "labels", nullptr,
       "Display labels on track and routepoints  (default = 1)",
-      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "1", ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_labels
     },
     {
-      "max_position_points", &opt_max_position_points,
+      "max_position_points", nullptr,
       "Retain at most this number of position points  (0 = unlimited)",
-      "0", ARGTYPE_INT, ARG_NOMINMAX, nullptr
+      "0", ARGTYPE_INT, ARG_NOMINMAX, nullptr, &opt_max_position_points
     },
     {
-      "rotate_colors", &opt_rotate_colors,
+      "rotate_colors", nullptr,
       "Rotate colors for tracks and routes (default automatic)",
-      nullptr, ARGTYPE_FLOAT, "0", "360", nullptr
+      nullptr, ARGTYPE_FLOAT, "0", "360", nullptr, &opt_rotate_colors
     },
     {
-      "prec", &opt_precision,
+      "prec", nullptr,
       "Precision of coordinates, number of decimals",
-      default_precision, ARGTYPE_INT, ARG_NOMINMAX, nullptr
+      default_precision, ARGTYPE_INT, ARG_NOMINMAX, nullptr, &opt_precision
     },
   };
 

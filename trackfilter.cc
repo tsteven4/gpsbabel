@@ -27,7 +27,6 @@ static constexpr bool TRACKF_DBG = false;
 #include <cmath>                           // for nan
 #include <cstdio>                          // for printf
 #include <cstdlib>                         // for abs
-#include <cstring>                         // for strlen, strchr, strcmp
 #include <ctime>                           // for gmtime, strftime, time_t, tm
 #include <iterator>                        // for next
 #include <utility>                         // for as_const
@@ -67,14 +66,14 @@ int TrackFilter::trackfilter_opt_count()
   int res = 0;
 
   for (const auto& arg : std::as_const(args)) {
-    if (*arg.argval != nullptr) {
+    if (*arg.qargval) {
       res++;
     }
   }
   return res;
 }
 
-qint64 TrackFilter::trackfilter_parse_time_opt(const char* arg)
+qint64 TrackFilter::trackfilter_parse_time_opt(const QString& arg)
 {
   qint64 result = 0;
 
@@ -120,7 +119,7 @@ qint64 TrackFilter::trackfilter_parse_time_opt(const char* arg)
       qDebug() << MYNAME "-time option: shift =" << result / 1000.0 << "seconds";
     }
   } else {
-    fatal(MYNAME "-time: invalid value in move option \"%s\"!\n", arg);
+    fatal(MYNAME "-time: invalid value in move option \"%s\"!\n", qPrintable(arg));
   }
 
   return result;
@@ -191,7 +190,7 @@ void TrackFilter::trackfilter_fill_track_list_cb(const route_head* track) 	/* ca
     return;
   }
 
-  if (opt_name != nullptr) {
+  if (opt_name) {
     QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(opt_name),
                              QRegularExpression::CaseInsensitiveOption);
     if (!regex.isValid()) {
@@ -212,7 +211,7 @@ void TrackFilter::trackfilter_fill_track_list_cb(const route_head* track) 	/* ca
     }
 
     if (need_time && (prev != nullptr) && (prev->GetCreationTime() > wpt->GetCreationTime())) {
-      if (opt_merge == nullptr) {
+      if (!opt_merge) {
         QString t1 = prev->CreationTimeXML();
         QString t2 = wpt->CreationTimeXML();
         fatal(MYNAME "-init: Track points badly ordered (timestamp %s > %s)!\n", qPrintable(t1), qPrintable(t2));
@@ -240,20 +239,20 @@ void TrackFilter::trackfilter_split_init_rte_name(route_head* track, const gpsba
 {
   QString datetimestring;
 
-  if (opt_interval != 0) {
+  if (opt_interval) {
     datetimestring = dt.toUTC().toString(u"yyyyMMddhhmmss");
   } else {
     datetimestring = dt.toUTC().toString(u"yyyyMMdd");
   }
 
-  if ((opt_title != nullptr) && (strlen(opt_title) > 0)) {
-    if (strchr(opt_title, '%') != nullptr) {
+  if (!opt_title.isEmpty()) {
+    if (opt_title.contains('%')) {
       // Uggh.  strftime format exposed to user.
 
       time_t time = dt.toTime_t();
       std::tm tm = *gmtime(&time);
       char buff[128];
-      strftime(buff, sizeof(buff), opt_title, &tm);
+      strftime(buff, sizeof(buff), CSTR(opt_title), &tm);
       track->rte_name = buff;
     } else {
       track->rte_name = QStringLiteral("%1-%2").arg(opt_title, datetimestring);
@@ -267,7 +266,7 @@ void TrackFilter::trackfilter_split_init_rte_name(route_head* track, const gpsba
 
 void TrackFilter::trackfilter_pack_init_rte_name(route_head* track, const gpsbabel::DateTime& default_time)
 {
-  if (strchr(opt_title, '%') != nullptr) {
+  if (opt_title.contains('%')) {
     // Uggh.  strftime format exposed to user.
 
     gpsbabel::DateTime dt;
@@ -280,7 +279,7 @@ void TrackFilter::trackfilter_pack_init_rte_name(route_head* track, const gpsbab
     time_t t = dt.toTime_t();
     std::tm tm = *gmtime(&t);
     char buff[128];
-    strftime(buff, sizeof(buff), opt_title, &tm);
+    strftime(buff, sizeof(buff), CSTR(opt_title), &tm);
     track->rte_name = buff;
   } else {
     track->rte_name = opt_title;
@@ -293,11 +292,11 @@ void TrackFilter::trackfilter_pack_init_rte_name(route_head* track, const gpsbab
 
 void TrackFilter::trackfilter_title()
 {
-  if (opt_title == nullptr) {
+  if (!opt_title) {
     return;
   }
 
-  if (strlen(opt_title) == 0) {
+  if (opt_title.isEmpty()) {
     fatal(MYNAME "-title: Missing your title!\n");
   }
   for (auto* track : std::as_const(track_list)) {
@@ -435,8 +434,8 @@ void TrackFilter::trackfilter_split()
 
     /* check additional options */
 
-    opt_interval = (opt_split && (strlen(opt_split) > 0) && (0 != strcmp(opt_split, TRACKFILTER_SPLIT_OPTION)));
-    if (opt_interval != 0) {
+    opt_interval = (!opt_split.isEmpty() && (opt_split != TRACKFILTER_SPLIT_OPTION));
+    if (opt_interval) {
       static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([dhms])$)", QRegularExpression::CaseInsensitiveOption);
       assert(re.isValid());
       QRegularExpressionMatch match = re.match(opt_split);
@@ -467,12 +466,12 @@ void TrackFilter::trackfilter_split()
           printf(MYNAME ": interval %f seconds\n", interval);
         }
       } else {
-        fatal(MYNAME ": invalid timer interval specified \"%s\", must be a positive number, followed by 'd' for days, 'h' for hours, 'm' for minutes or 's' for seconds.\n", opt_split);
+        fatal(MYNAME ": invalid timer interval specified \"%s\", must be a positive number, followed by 'd' for days, 'h' for hours, 'm' for minutes or 's' for seconds.\n", qPrintable(opt_split));
       }
     }
 
-    opt_distance = (opt_sdistance && (strlen(opt_sdistance) > 0) && (0 != strcmp(opt_sdistance, TRACKFILTER_SDIST_OPTION)));
-    if (opt_distance != 0) {
+    opt_distance = (!opt_sdistance.isEmpty() && (opt_sdistance != TRACKFILTER_SDIST_OPTION));
+    if (opt_distance) {
       static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([km])$)", QRegularExpression::CaseInsensitiveOption);
       assert(re.isValid());
       QRegularExpressionMatch match = re.match(opt_sdistance);
@@ -498,7 +497,7 @@ void TrackFilter::trackfilter_split()
           printf(MYNAME ": distance %f meters\n", distance);
         }
       } else {
-        fatal(MYNAME ": invalid distance specified \"%s\", must be a positive number followed by 'k' for kilometers or 'm' for miles.\n", opt_sdistance);
+        fatal(MYNAME ": invalid distance specified \"%s\", must be a positive number followed by 'k' for kilometers or 'm' for miles.\n", qPrintable(opt_sdistance));
       }
     }
 
@@ -520,7 +519,7 @@ void TrackFilter::trackfilter_split()
 
       bool new_track_flag;
 
-      if ((opt_interval == 0) && (opt_distance == 0)) {
+      if (!opt_interval && !opt_distance) {
 //      FIXME: This whole function needs to be reconsidered for arbitrary time.
         new_track_flag = prev_wpt->GetCreationTime().toLocalTime().date() !=
                          wpt->GetCreationTime().toLocalTime().date();
@@ -665,13 +664,12 @@ void TrackFilter::trackfilter_synth()
 * option: "start" / "stop"
 *******************************************************************************/
 
-QDateTime TrackFilter::trackfilter_range_check(const char* timestr)
+QDateTime TrackFilter::trackfilter_range_check(const QString& timestr)
 {
   QDateTime result;
 
-  QString start(timestr);
   QString fmtstart("00000101000000.000");
-  fmtstart.replace(0, start.size(), start);
+  fmtstart.replace(0, timestr.size(), timestr);
 
   static const QRegularExpression re(R"(^\d{14}\.\d{3}$)");
   assert(re.isValid());
@@ -685,14 +683,14 @@ QDateTime TrackFilter::trackfilter_range_check(const char* timestr)
     result.setTimeSpec(Qt::UTC);
 #endif
     if (!result.isValid()) {
-      fatal(MYNAME "-range-check: Invalid timestamp \"%s\"!\n", timestr);
+      fatal(MYNAME "-range-check: Invalid timestamp \"%s\"!\n", qPrintable(timestr));
     }
 
     if constexpr(TRACKF_DBG) {
       qDebug() << MYNAME "-range-check: " << result;
     }
   } else {
-    fatal(MYNAME "-range-check: Invalid value for option \"%s\"!\n", timestr);
+    fatal(MYNAME "-range-check: Invalid value for option \"%s\"!\n", qPrintable(timestr));
   }
 
   return result;
@@ -703,11 +701,11 @@ void TrackFilter::trackfilter_range()
   QDateTime start; // constructed such that isValid() is false, unlike gpsbabel::DateTime!
   QDateTime stop;  // constructed such that isValid() is false, unlike gpsbabel::DateTime!
 
-  if (opt_start != nullptr) {
+  if (opt_start) {
     start = trackfilter_range_check(opt_start);
   }
 
-  if (opt_stop != nullptr) {
+  if (opt_stop) {
     stop = trackfilter_range_check(opt_stop);
   }
 
@@ -827,7 +825,7 @@ void TrackFilter::trackfilter_trk2seg()
 * option: "faketime"
 *******************************************************************************/
 
-TrackFilter::faketime_t TrackFilter::trackfilter_faketime_check(const char* timestr)
+TrackFilter::faketime_t TrackFilter::trackfilter_faketime_check(const QString& timestr)
 {
   faketime_t result;
 
@@ -864,7 +862,7 @@ TrackFilter::faketime_t TrackFilter::trackfilter_faketime_check(const char* time
       qDebug() << MYNAME "-faketime option: force =" << result.force << ", timestamp =" << result.start << ", step =" << result.step << "milliseconds";
     }
   } else {
-    fatal(MYNAME "-faketime-check: Invalid value for faketime option \"%s\"!\n", timestr);
+    fatal(MYNAME "-faketime-check: Invalid value for faketime option \"%s\"!\n", qPrintable(timestr));
   }
 
   return result;
@@ -872,7 +870,7 @@ TrackFilter::faketime_t TrackFilter::trackfilter_faketime_check(const char* time
 
 void TrackFilter::trackfilter_faketime()
 {
-  assert(opt_faketime != nullptr);
+  assert(opt_faketime);
   faketime_t faketime = trackfilter_faketime_check(opt_faketime);
 
   for (auto* track : std::as_const(track_list)) {
@@ -961,7 +959,7 @@ void TrackFilter::init()
                 (trackfilter_opt_count() == 0)	/* do pack by default */
               );
   /* in case of a formatted title we also need valid timestamps */
-  if ((opt_title != nullptr) && (strchr(opt_title, '%') != nullptr)) {
+  if (opt_title.contains('%')) {
     need_time = true;
   }
 
@@ -1003,13 +1001,13 @@ void TrackFilter::process()
     opts = -1;  /* flag for do "pack" by default */
   }
 
-  if (opt_name != nullptr) {
+  if (opt_name) {
     if (--opts == 0) {
       return;
     }
   }
 
-  if (opt_move != nullptr) {		/* Correct timestamps before any other op */
+  if (opt_move) {		/* Correct timestamps before any other op */
     trackfilter_move();
     if (--opts == 0) {
       return;
@@ -1032,7 +1030,7 @@ void TrackFilter::process()
     }
   }
 
-  if ((opt_faketime != nullptr)) {
+  if (opt_faketime) {
     opts--;
 
     trackfilter_faketime();
@@ -1050,11 +1048,11 @@ void TrackFilter::process()
     }
   }
 
-  if ((opt_stop != nullptr) || (opt_start != nullptr)) {
-    if (opt_start != nullptr) {
+  if (opt_stop || opt_start) {
+    if (opt_start) {
       opts--;
     }
-    if (opt_stop != nullptr) {
+    if (opt_stop) {
       opts--;
     }
 
@@ -1074,7 +1072,7 @@ void TrackFilter::process()
     }
   }
 
-  if (opt_seg2trk != nullptr) {
+  if (opt_seg2trk) {
     trackfilter_seg2trk();
     // track_list may? now be invalid!
     if (--opts == 0) {
@@ -1086,14 +1084,14 @@ void TrackFilter::process()
     init();
   }
 
-  if (opt_trk2seg != nullptr) {
+  if (opt_trk2seg) {
     trackfilter_trk2seg();
     if (--opts == 0) {
       return;
     }
   }
 
-  if (opt_title != nullptr) {
+  if (opt_title) {
     if (--opts == 0) {
       trackfilter_title();
       return;
@@ -1102,28 +1100,28 @@ void TrackFilter::process()
 
   bool something_done = false;
 
-  if ((opt_pack != nullptr) || (opts == -1)) {	/* call our default option */
+  if (opt_pack || (opts == -1)) {	/* call our default option */
     trackfilter_pack();
     something_done = true;
-  } else if (opt_merge != nullptr) {
+  } else if (opt_merge) {
     trackfilter_merge();
     something_done = true;
   }
 
   if (something_done && (--opts <= 0)) {
-    if (opt_title != nullptr) {
+    if (opt_title) {
       trackfilter_title();
     }
     return;
   }
 
-  if ((opt_split != nullptr) || (opt_sdistance != nullptr)) {
+  if (opt_split || opt_sdistance) {
     trackfilter_split();
     // track_list may? now be invalid!
   }
 
   // Performed last as previous options may have created "small" tracks.
-  if (opt_minpoints != nullptr) {
+  if (opt_minpoints) {
     bool ok;
     minimum_points = QString(opt_minpoints).toInt(&ok);
     if (!ok || minimum_points <= 0) {

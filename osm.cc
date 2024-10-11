@@ -754,7 +754,8 @@ OsmFormat::osm_waypt_disp(const Waypoint* waypoint)
     break;
   }
 
-  if (QString creator = created_by; !creator.isEmpty()) {
+  if (!created_by.isEmpty()) {
+    QString creator = created_by;
     if (!gpsbabel_testmode()) {
       if (creator == "GPSBabel") {
         creator += '-';
@@ -813,7 +814,8 @@ OsmFormat::osm_rte_disp_trail(const route_head* route)
     return;
   }
 
-  if (QString creator = created_by; !creator.isEmpty()) {
+  if (!created_by.isEmpty()) {
+    QString creator = created_by;
     if (!gpsbabel_testmode()) {
       if (creator == "GPSBabel") {
         creator += '-';

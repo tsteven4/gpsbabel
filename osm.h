@@ -110,14 +110,14 @@ private:
 
   /* Data Members */
 
-  char* opt_tag{};
-  char* opt_tagnd{};
-  char* created_by{};
+  argString opt_tag;
+  argString opt_tagnd;
+  argString created_by;
 
   QVector<arglist_t> osm_args = {
-    { "tag", &opt_tag, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr},
-    { "tagnd", &opt_tagnd,	"Write additional node tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
-    { "created_by", &created_by, "Use this value as custom created_by value","GPSBabel", ARGTYPE_STRING, ARG_NOMINMAX, nullptr },
+    { "tag", nullptr, 	"Write additional way tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_tag},
+    { "tagnd", nullptr,	"Write additional node tag key/value pairs", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_tagnd},
+    { "created_by", nullptr, "Use this value as custom created_by value","GPSBabel", ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &created_by},
   };
 
   QHash<QString, const Waypoint*> waypoints;

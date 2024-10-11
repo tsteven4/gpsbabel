@@ -80,7 +80,7 @@ private:
   /* Member Functions */
 
   int trackfilter_opt_count();
-  static qint64 trackfilter_parse_time_opt(const char* arg);
+  static qint64 trackfilter_parse_time_opt(const QString& arg);
   static bool trackfilter_init_sort_cb(const route_head* ha, const route_head* hb);
   static bool trackfilter_merge_sort_cb(const Waypoint* wa, const Waypoint* wb);
   fix_type trackfilter_parse_fix(int* nsats);
@@ -96,129 +96,133 @@ private:
   void trackfilter_split();
   void trackfilter_move();
   void trackfilter_synth();
-  static QDateTime trackfilter_range_check(const char* timestr);
+  static QDateTime trackfilter_range_check(const QString& timestr);
   void trackfilter_range();
   void trackfilter_seg2trk();
   void trackfilter_trk2seg();
-  static faketime_t trackfilter_faketime_check(const char* timestr);
+  static faketime_t trackfilter_faketime_check(const QString& timestr);
   void trackfilter_faketime();
   static bool trackfilter_points_are_same(const Waypoint* wpta, const Waypoint* wptb);
   static void trackfilter_segment_head(const route_head* rte);
 
   /* Data Members */
 
-  char* opt_merge = nullptr;
-  char* opt_pack = nullptr;
-  char* opt_split = nullptr;
-  char* opt_sdistance = nullptr;
-  char* opt_move = nullptr;
-  char* opt_title = nullptr;
-  char* opt_start = nullptr;
-  char* opt_stop = nullptr;
-  char* opt_fix = nullptr;
-  char* opt_course = nullptr;
-  char* opt_speed = nullptr;
-  char* opt_name = nullptr;
-  char* opt_seg2trk = nullptr;
-  char* opt_trk2seg = nullptr;
-  char* opt_segment = nullptr;
-  char* opt_faketime = nullptr;
-  char* opt_discard = nullptr;
-  char* opt_minpoints = nullptr;
+  argString opt_merge;
+  argString opt_pack;
+  argString opt_split;
+  argString opt_sdistance;
+  argString opt_move;
+  argString opt_title;
+  argString opt_start;
+  argString opt_stop;
+  argString opt_fix;
+  argString opt_course;
+  argString opt_speed;
+  argString opt_name;
+  argString opt_seg2trk;
+  argString opt_trk2seg;
+  argString opt_segment;
+  argString opt_faketime;
+  argString opt_discard;
+  argString opt_minpoints;
   int minimum_points{0};
 
   QVector<arglist_t> args = {
     {
-      TRACKFILTER_MOVE_OPTION, &opt_move,
-      "Correct trackpoint timestamps by a delta", nullptr, ARGTYPE_STRING,
-      ARG_NOMINMAX, nullptr
+      TRACKFILTER_MOVE_OPTION, nullptr,
+      "Correct trackpoint timestamps by a delta", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_move
     },
     {
-      TRACKFILTER_PACK_OPTION, &opt_pack,
-      "Pack all tracks into one", nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      TRACKFILTER_PACK_OPTION, nullptr,
+      "Pack all tracks into one", nullptr,
+      ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_pack
     },
     {
-      TRACKFILTER_SPLIT_OPTION, &opt_split,
+      TRACKFILTER_SPLIT_OPTION, nullptr,
       "Split by date or time interval", nullptr,
-      ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_split
     },
     {
-      TRACKFILTER_SDIST_OPTION, &opt_sdistance,
+      TRACKFILTER_SDIST_OPTION, nullptr,
       "Split by distance", nullptr,
-      ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_sdistance
     },
     {
-      TRACKFILTER_MERGE_OPTION, &opt_merge,
-      "Merge multiple tracks for the same way", nullptr, ARGTYPE_STRING,
-      ARG_NOMINMAX, nullptr
+      TRACKFILTER_MERGE_OPTION, nullptr,
+      "Merge multiple tracks for the same way", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_merge
     },
     {
-      TRACKFILTER_NAME_OPTION, &opt_name,
-      "Use only track(s) where title matches given name", nullptr, ARGTYPE_STRING,
-      ARG_NOMINMAX, nullptr
+      TRACKFILTER_NAME_OPTION, nullptr,
+      "Use only track(s) where title matches given name", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_name
     },
     {
-      TRACKFILTER_START_OPTION, &opt_start,
-      "Use only track points after or at this timestamp", nullptr, ARGTYPE_STRING,
-      ARG_NOMINMAX, nullptr
+      TRACKFILTER_START_OPTION, nullptr,
+      "Use only track points after or at this timestamp", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_start
     },
     {
-      TRACKFILTER_STOP_OPTION, &opt_stop,
-      "Use only track points before or at this timestamp", nullptr, ARGTYPE_STRING,
-      ARG_NOMINMAX, nullptr
+      TRACKFILTER_STOP_OPTION, nullptr,
+      "Use only track points before or at this timestamp", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_stop
     },
     {
-      TRACKFILTER_TITLE_OPTION, &opt_title,
-      "Basic title for new track(s)", nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      TRACKFILTER_TITLE_OPTION, nullptr,
+      "Basic title for new track(s)", nullptr,
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_title
     },
     {
-      TRACKFILTER_FIX_OPTION, &opt_fix,
+      TRACKFILTER_FIX_OPTION, nullptr,
       "Synthesize GPS fixes (PPS, DGPS, 3D, 2D, NONE)", nullptr,
-      ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_fix
     },
     {
-      TRACKFILTER_COURSE_OPTION, &opt_course, "Synthesize course",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      TRACKFILTER_COURSE_OPTION, nullptr,
+      "Synthesize course", nullptr,
+      ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_course
     },
     {
-      TRACKFILTER_SPEED_OPTION, &opt_speed, "Synthesize speed",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      TRACKFILTER_SPEED_OPTION, nullptr,
+      "Synthesize speed", nullptr,
+      ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_speed
     },
     {
-      TRACKFILTER_SEG2TRK_OPTION, &opt_seg2trk,
+      TRACKFILTER_SEG2TRK_OPTION, nullptr,
       "Split track at segment boundaries into multiple tracks",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_seg2trk
     },
     {
-      TRACKFILTER_TRK2SEG_OPTION, &opt_trk2seg,
+      TRACKFILTER_TRK2SEG_OPTION, nullptr,
       "Merge tracks inserting segment separators at boundaries",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_trk2seg
     },
     {
-      TRACKFILTER_SEGMENT_OPTION, &opt_segment,
+      TRACKFILTER_SEGMENT_OPTION, nullptr,
       "segment tracks with abnormally long gaps",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_segment
     },
     {
-      TRACKFILTER_FAKETIME_OPTION, &opt_faketime,
+      TRACKFILTER_FAKETIME_OPTION, nullptr,
       "Add specified timestamp to each trackpoint",
-      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_faketime
     },
     {
-      TRACKFILTER_DISCARD_OPTION, &opt_discard,
+      TRACKFILTER_DISCARD_OPTION, nullptr,
       "Discard track points without timestamps during merge",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_discard
     },
     {
-      TRACKFILTER_MINPOINTS_OPTION, &opt_minpoints,
+      TRACKFILTER_MINPOINTS_OPTION, nullptr,
       "Discard tracks with fewer than these points",
-      nullptr, ARGTYPE_INT, "0", "50", nullptr
+      nullptr, ARGTYPE_INT, "0", "50", nullptr, &opt_minpoints
     },
   };
 
   QList<route_head*> track_list;
-  int opt_interval = 0;
-  int opt_distance = 0;
+  bool opt_interval{false};
+  bool opt_distance{false};
   bool need_time{};		/* initialized within trackfilter_init */
 
 };

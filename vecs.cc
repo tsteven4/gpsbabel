@@ -508,8 +508,11 @@ void Vecs::init_vec(Format* fmt)
     assert(args->isDetached());
     for (auto& arg : *args) {
       arg.argvalptr = nullptr;
-      if (arg.argval) {
+      if (arg.argval != nullptr) {
         *arg.argval = nullptr;
+      }
+      if (arg.qargval != nullptr) {
+        *arg.qargval= argString();
       }
     }
   }
@@ -590,9 +593,12 @@ void Vecs::free_options(QVector<arglist_t>* args)
   if (args && !args->isEmpty()) {
     assert(args->isDetached());
     for (auto& arg : *args) {
-      if (arg.argvalptr) {
+      if (arg.argvalptr != nullptr) {
         xfree(arg.argvalptr);
         *arg.argval = arg.argvalptr = nullptr;
+      }
+      if (arg.qargval != nullptr) {
+        *arg.qargval = argString();
       }
     }
   }
@@ -617,7 +623,7 @@ void Vecs::exit_vecs()
 
 void Vecs::assign_option(const QString& module, arglist_t* arg, const QString& val)
 {
-  if (arg->argval == nullptr) {
+  if ((arg->argval == nullptr) && (arg->qargval == nullptr)) {
     fatal("%s: No local variable defined for option \"%s\"!\n", qPrintable(module), qPrintable(arg->argstring));
   }
 
@@ -625,8 +631,11 @@ void Vecs::assign_option(const QString& module, arglist_t* arg, const QString& v
     xfree(arg->argvalptr);
     arg->argvalptr = nullptr;
   }
-  if (arg->argval) {
+  if (arg->argval != nullptr) {
     *arg->argval = nullptr;
+  }
+  if (arg->qargval != nullptr) {
+    *arg->qargval = argString();
   }
 
   if (val.isNull()) {
@@ -685,14 +694,26 @@ void Vecs::assign_option(const QString& module, arglist_t* arg, const QString& v
       rval.startsWith('0') && (arg->defaultvalue == nullptr)) {
     return;
   }
-  *arg->argval = arg->argvalptr = xstrdup(CSTR(rval));
+  if (arg->argval != nullptr) {
+    *arg->argval = arg->argvalptr = xstrdup(CSTR(rval));
+  }
+  if (arg->qargval != nullptr) {
+    *arg->qargval = rval;
+  }
 }
 
 void Vecs::disp_vec_options(const QString& vecname, const QVector<arglist_t>* args)
 {
   if (args) {
     for (const auto& arg : *args) {
-      if (arg.argval && *arg.argval) {
+      if ((arg.qargval != nullptr) && !arg.qargval->isNull()) {
+        printf("options: module/option=value: %s/%s=\"%s\"",
+               qPrintable(vecname), qPrintable(arg.argstring), qPrintable(*arg.qargval));
+        if (case_ignore_strcmp(arg.defaultvalue, *arg.qargval) == 0) {
+          printf(" (=default)");
+        }
+        printf("\n");
+      } else if ((arg.argval != nullptr) && *arg.argval) {
         printf("options: module/option=value: %s/%s=\"%s\"",
                qPrintable(vecname), qPrintable(arg.argstring), *arg.argval);
         if (case_ignore_strcmp(arg.defaultvalue, *arg.argval) == 0) {
@@ -843,7 +864,7 @@ QVector<Vecs::style_vec_t> Vecs::create_style_vec()
   dir.setNameFilters(QStringList("*.style"));
   dir.setFilter(QDir::Files);
   dir.setSorting(QDir::Name);
-  QFileInfoList fileinfolist = dir.entryInfoList();
+  const QFileInfoList fileinfolist = dir.entryInfoList();
   QVector<style_vec_t> slist;
   for (const auto& fileinfo : fileinfolist) {
     if (!fileinfo.isReadable()) {

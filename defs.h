@@ -871,6 +871,70 @@ extern posn_status tracking_status;
 
 #define ARG_NOMINMAX nullptr, nullptr
 
+struct argString : public QString
+{
+  using QString::QString;
+
+  explicit(false) argString(const QString& qstr) : QString(qstr) {} /* converting ctor */
+
+  // This mostly mimics our traditional implicit bool conversion of a char*
+  // used to evaluate if an option other than ARGTYPE_BOOL
+  // was supplied, or if an ARGTYPE_BOOL option without a default
+  // evaluates to false or true.
+  // We make the operator explicit to avoid the safe bool problem.
+  // WARNING: QString(nullptr).isNull() is false, so
+  // checking for an unset option by "opt_xyz == nullptr" won't work
+  // without the operator overloads between argString and nullptr_t.
+  explicit operator bool() const { return !this->isNull(); }
+
+  // This is intended to be used with ARGTYPE_BOOL to convert the argument
+  // string to bool.
+  // Note that traditionally we cannot detect the difference between the
+  // option not being supplied, including by a default value, and the option
+  // being supplied with a value that evaluates to false.
+  bool toBool(bool *ok = nullptr)
+  {
+    // The only values for ARGTYPE_BOOL assigned by Vecs::assign_option should be:
+    // QString() and QString('1') if there is no default, or
+    // QString('0') and QString('1') if there is a default.
+    if (this->isNull() || (*this == "0")) {
+      if (ok != nullptr) {
+        *ok = true;
+      }
+      return false;
+    } else if (*this == "1") {
+      if (ok != nullptr) {
+        *ok = true;
+      }
+      return true;
+    } else {
+      if (ok != nullptr) {
+        *ok = false;
+      }
+      return false;
+    }
+  }
+};
+
+#if 1
+inline bool operator==(const argString& lhs, std::nullptr_t rhs)
+{
+  return lhs.isNull();
+}
+inline bool operator==(std::nullptr_t lhs, const argString& rhs)
+{
+  return rhs.isNull();
+}
+inline bool operator!=(const argString& lhs, std::nullptr_t rhs)
+{
+  return !lhs.isNull();
+}
+inline bool operator!=(std::nullptr_t lhs, const argString& rhs)
+{
+  return !rhs.isNull();
+}
+#endif
+
 struct arglist_t {
   const QString argstring;
   char** const argval{nullptr};
@@ -880,6 +944,7 @@ struct arglist_t {
   const QString minvalue;    /* minimum value for numeric options */
   const QString maxvalue;    /* maximum value for numeric options */
   char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
+  argString* const qargval{nullptr};
 };
 
 enum ff_type {

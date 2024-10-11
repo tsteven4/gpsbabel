@@ -254,10 +254,10 @@ private:
   QXmlStreamReader* reader{};
   XmlTag* cur_tag{};
   QString cdatastr;
-  char* opt_logpoint = nullptr;
-  char* opt_humminbirdext = nullptr;
-  char* opt_garminext = nullptr;
-  char* opt_elevation_precision = nullptr;
+  argString opt_logpoint ;
+  argString opt_humminbirdext ;
+  argString opt_garminext ;
+  argString opt_elevation_precision ;
   int logpoint_ct = 0;
   int elevation_precision{};
 
@@ -265,7 +265,7 @@ private:
   const QVersionNumber gpx_1_0 = QVersionNumber(1,0).normalized();
   const QVersionNumber gpx_1_1 = QVersionNumber(1,1).normalized();
   QVersionNumber gpx_highest_version_read;
-  char* opt_gpxver = nullptr;
+  argString opt_gpxver;
   QVersionNumber gpx_write_version;
   QXmlStreamAttributes gpx_namespace_attribute;
 
@@ -284,9 +284,9 @@ private:
   QString link_type;
 
 
-  char* snlen = nullptr;
-  char* suppresswhite = nullptr;
-  char* urlbase = nullptr;
+  argString snlen;
+  argString suppresswhite;
+  argString urlbase;
   route_head* trk_head{};
   route_head* rte_head{};
   const route_head* current_trk_head{};		// Output.
@@ -462,41 +462,41 @@ private:
 
   QVector<arglist_t> gpx_args = {
     {
-      "snlen", &snlen, "Length of generated shortnames",
-      "32", ARGTYPE_INT, "1", nullptr, nullptr
+      "snlen", nullptr, "Length of generated shortnames",
+      "32", ARGTYPE_INT, "1", nullptr, nullptr, &snlen
     },
     {
-      "suppresswhite", &suppresswhite,
+      "suppresswhite", nullptr,
       "No whitespace in generated shortnames",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &suppresswhite
     },
     {
-      "logpoint", &opt_logpoint,
+      "logpoint", nullptr,
       "Create waypoints from geocache log entries",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_logpoint
     },
     {
-      "urlbase", &urlbase, "Base URL for link tag in output",
-      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "urlbase", nullptr, "Base URL for link tag in output",
+      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &urlbase
     },
     {
-      "gpxver", &opt_gpxver, "Target GPX version for output",
-      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "gpxver", nullptr, "Target GPX version for output",
+      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_gpxver
     },
     {
-      "humminbirdextensions", &opt_humminbirdext,
+      "humminbirdextensions", nullptr,
       "Add info (depth) as Humminbird extension",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_humminbirdext
     },
     {
-      "garminextensions", &opt_garminext,
+      "garminextensions", nullptr,
       "Add info (depth) as Garmin extension",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &opt_garminext
     },
     {
-      "elevprec", &opt_elevation_precision,
+      "elevprec", nullptr,
       "Precision of elevations, number of decimals",
-      "3", ARGTYPE_INT, ARG_NOMINMAX, nullptr
+      "3", ARGTYPE_INT, ARG_NOMINMAX, nullptr, &opt_elevation_precision
     },
   };
 

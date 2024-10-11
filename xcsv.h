@@ -370,56 +370,56 @@ private:
   const route_head* csv_track = nullptr;
   const route_head* csv_route = nullptr;
 
-  char* styleopt = nullptr;
-  char* snlenopt = nullptr;
-  char* snwhiteopt = nullptr;
-  char* snupperopt = nullptr;
-  char* snuniqueopt = nullptr;
-  char* prefer_shortnames = nullptr;
-  char* xcsv_urlbase = nullptr;
-  char* opt_datum = nullptr;
-  char* opt_utc = nullptr;
+  argString styleopt;
+  argString snlenopt;
+  argString snwhiteopt;
+  argString snupperopt;
+  argString snuniqueopt;
+  argString prefer_shortnames;
+  argString xcsv_urlbase;
+  argString opt_datum;
+  argString opt_utc;
   int utc_offset{};
 
   QString intstylefile;
 
   QVector<arglist_t> xcsv_args = {
     {
-      "style", &styleopt, "Full path to XCSV style file", nullptr,
-      ARGTYPE_FILE | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr
+      "style", nullptr, "Full path to XCSV style file", nullptr,
+      ARGTYPE_FILE | ARGTYPE_REQUIRED, ARG_NOMINMAX, nullptr, &styleopt
     },
     {
-      "snlen", &snlenopt, "Max synthesized shortname length", nullptr,
-      ARGTYPE_INT, "1", nullptr, nullptr
+      "snlen", nullptr, "Max synthesized shortname length", nullptr,
+      ARGTYPE_INT, "1", nullptr, nullptr, &snlenopt,
     },
     {
-      "snwhite", &snwhiteopt, "Allow whitespace synth. shortnames",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "snwhite", nullptr, "Allow whitespace synth. shortnames",
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &snwhiteopt
     },
     {
-      "snupper", &snupperopt, "UPPERCASE synth. shortnames",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "snupper", nullptr, "UPPERCASE synth. shortnames",
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &snupperopt
     },
     {
-      "snunique", &snuniqueopt, "Make synth. shortnames unique",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      "snunique", nullptr, "Make synth. shortnames unique",
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &snuniqueopt
     },
     {
-      "urlbase", &xcsv_urlbase, "Basename prepended to URL on output",
-      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "urlbase", nullptr, "Basename prepended to URL on output",
+      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &xcsv_urlbase
     },
     {
-      "prefer_shortnames", &prefer_shortnames,
+      "prefer_shortnames", nullptr,
       "Use shortname instead of description",
-      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr
+      nullptr, ARGTYPE_BOOL, ARG_NOMINMAX, nullptr, &prefer_shortnames
     },
     {
-      "datum", &opt_datum, "GPS datum (def. WGS 84)",
-      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr
+      "datum", nullptr, "GPS datum (def. WGS 84)",
+      nullptr, ARGTYPE_STRING, ARG_NOMINMAX, nullptr, &opt_datum
     },
     {
-      "utc",   &opt_utc,   "Write timestamps with offset x to UTC time",
-      nullptr, ARGTYPE_INT, "-14", "+14", nullptr
+      "utc", nullptr, "Write timestamps with offset x to UTC time",
+      nullptr, ARGTYPE_INT, "-14", "+14", nullptr, &opt_utc
     },
   };
 

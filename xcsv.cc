@@ -253,7 +253,7 @@ XcsvFormat::yyyymmdd_to_time(const QString& s)
 QDateTime
 XcsvFormat::xcsv_adjust_time(const QDate date, const QTime time, bool is_localtime) const
 {
-  return make_datetime(date, time, is_localtime, opt_utc != nullptr, utc_offset);
+  return make_datetime(date, time, is_localtime, !opt_utc.isNull(), utc_offset);
 }
 
 /*
@@ -1900,7 +1900,7 @@ XcsvFormat::rd_init(const QString& fname)
   xcsv_file->fname = fname;
 
   QString datum_name;
-  if (opt_datum != nullptr) {
+  if (opt_datum) {
     datum_name = opt_datum;
   } else if (!xcsv_style->gps_datum_name.isEmpty()) {
     datum_name = xcsv_style->gps_datum_name;
@@ -1912,7 +1912,7 @@ XcsvFormat::rd_init(const QString& fname)
     fatal(MYNAME ": datum \"%s\" is not supported.", qPrintable(datum_name));
   }
 
-  utc_offset = (opt_utc == nullptr)? 0 : xstrtoi(opt_utc, nullptr, 10) * SECONDS_PER_HOUR;
+  utc_offset = opt_utc.toInt(nullptr, 10) * SECONDS_PER_HOUR;
 }
 
 void
@@ -1962,19 +1962,19 @@ XcsvFormat::wr_init(const QString& fname)
   if (global_opts.synthesize_shortnames) {
 
     if (snlenopt) {
-      xcsv_file->mkshort_handle.set_length(xstrtoi(snlenopt, nullptr, 10));
+      xcsv_file->mkshort_handle.set_length(snlenopt.toInt(nullptr, 10));
     }
 
     if (snwhiteopt) {
-      xcsv_file->mkshort_handle.set_whitespace_ok(xstrtoi(snwhiteopt, nullptr, 10));
+      xcsv_file->mkshort_handle.set_whitespace_ok(snwhiteopt.toInt(nullptr, 10));
     }
 
     if (snupperopt) {
-      xcsv_file->mkshort_handle.set_mustupper(xstrtoi(snupperopt, nullptr, 10));
+      xcsv_file->mkshort_handle.set_mustupper(snupperopt.toInt(nullptr, 10));
     }
 
     if (snuniqueopt) {
-      xcsv_file->mkshort_handle.set_mustuniq(xstrtoi(snuniqueopt, nullptr, 10));
+      xcsv_file->mkshort_handle.set_mustuniq(snuniqueopt.toInt(nullptr, 10));
     }
 
     xcsv_file->mkshort_handle.set_badchars(CSTR(xcsv_style->badchars));
@@ -1982,7 +1982,7 @@ XcsvFormat::wr_init(const QString& fname)
   }
 
   QString datum_name;
-  if (opt_datum != nullptr) {
+  if (opt_datum) {
     datum_name = opt_datum;
   } else if (!xcsv_style->gps_datum_name.isEmpty()) {
     datum_name = xcsv_style->gps_datum_name;
