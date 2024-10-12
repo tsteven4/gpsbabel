@@ -882,8 +882,9 @@ struct argString : public QString
   // was supplied, or if an ARGTYPE_BOOL option without a default
   // evaluates to false or true.
   // We make the operator explicit to avoid the safe bool problem.
-  // WARNING: QString(nullptr).isNull() is false, so
-  // checking for an unset option by "opt_xyz == nullptr" won't work
+  // WARNING: QString().isEmpty() is true, so
+  // checking for an unset option by "opt_xyz == nullptr" won't
+  // distinguish between a null and empty value.
   // without the operator overloads between argString and nullptr_t.
   explicit operator bool() const { return !this->isNull(); }
 
