@@ -38,6 +38,10 @@
 // these tables are in an include file so they can be shared with mkicondoc.
 #include "garmin_icon_tables.h"  // for garmin_icon_table, garmin_smart_icon_table
 
+
+#define DEFAULT_ICON_DESCR "Waypoint"
+#define DEFAULT_ICON_VALUE 18
+
 /* ICAO country code table */
 
 /* source: https://en.wikipedia.org/wiki/ICAO_airport_code */
@@ -363,7 +367,6 @@ static const QVector<garmin_color_t> gt_colors = {
   { "White",		0xFFFFFF },
   { "Transparent",	unknown_color }, /* Currently not handled */
 };
-
 
 unsigned char
 gt_switch_display_mode_value(const unsigned char display_mode, const int protoid, const char device)

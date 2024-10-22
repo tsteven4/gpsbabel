@@ -27,9 +27,6 @@
 #include <QString>              // for QString
 #include "defs.h"               // for grid_type
 
-#define DEFAULT_ICON_DESCR "Waypoint"
-#define DEFAULT_ICON_VALUE 18
-
 
 enum garmin_formats_e {MAPSOURCE, PCX, GARMIN_SERIAL, GDB};
 

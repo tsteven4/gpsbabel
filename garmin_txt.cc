@@ -273,7 +273,7 @@ GarminTxtFormat::print_position(const Waypoint* wpt)
     fatal(MYNAME ": %s (%s) is outside of convertible area \"%s\"!\n",
           wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
           qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, false)),
-          gt_get_mps_grid_longname(grid_index, MYNAME));
+          qPrintable(gt_get_mps_grid_longname(grid_index, MYNAME)));
   }
 }
 
@@ -419,7 +419,7 @@ GarminTxtFormat::print_string(const char* fmt, const QString& string)
 void
 GarminTxtFormat::write_waypt(const Waypoint* wpt)
 {
-  const char* wpt_type;
+  QString wpt_type;
 
   const garmin_fs_t* gmsd = garmin_fs_t::find(wpt);
 
@@ -427,7 +427,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (i > GT_DISPLAY_MODE_MAX) {
     i = 0;
   }
-  const char* dspl_mode = gt_display_mode_names[i];
+  QString dspl_mode = gt_display_mode_names[i];
 
   int wpt_class = garmin_fs_t::get_wpt_class(gmsd, 0);
   if (wpt_class <= gt_waypt_class_map_line) {
@@ -450,7 +450,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   } else {
     *fout << "\t";
   }
-  *fout << QString::asprintf("%s\t", wpt_type);
+  *fout << wpt_type << "\t";
 
   print_position(wpt);
 
@@ -475,7 +475,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (x != -999) {
     print_temperature(x);
   }
-  *fout << QString::asprintf("\t%s\t", dspl_mode);
+  *fout << "\t" << dspl_mode << "\t";
 
   *fout << "Unknown\t"; 				/* Color is fixed: Unknown */
 
@@ -673,14 +673,14 @@ GarminTxtFormat::wr_init(const QString& fname)
     }
   }
 
-  datum_str = get_option_val(opt_datum, nullptr);
-  const char* grid_str = get_option_val(opt_grid, nullptr);
+  QString datum_str = get_option_val(opt_datum, nullptr);
+  QString grid_str = get_option_val(opt_grid, nullptr);
 
   grid_index = grid_lat_lon_dmm;
-  if (grid_str != nullptr) {
-    int i;
+  if (!grid_str.isEmpty()) {
+    bool ok;
 
-    if (sscanf(grid_str, "%d", &i)) {
+    if (int i = grid_str.toInt(&ok); ok) {
       grid_index = (grid_type) i;
       if ((grid_index < GRID_INDEX_MIN) || (grid_index > GRID_INDEX_MAX))
         fatal(MYNAME ": Grid index out of range (%d..%d)!",
@@ -752,8 +752,8 @@ GarminTxtFormat::write()
   grid_str = grid_str.replace('*', u'°');
   *fout << "Grid\t" << grid_str << "\r\n";
 
-  datum_str = gt_get_mps_datum_name(datum_index);
-  *fout << QString::asprintf("Datum\t%s\r\n\r\n", datum_str);
+  QString datum_str = gt_get_mps_datum_name(datum_index);
+  *fout << "Datum\t" << datum_str << "\r\n\r\n";
 
   waypoints = 0;
   gtxt_flags.enum_waypoints = 1;			/* enum all waypoints */
@@ -1032,7 +1032,7 @@ GarminTxtFormat::parse_datum(const QStringList& lineparts)
   }
 
   const auto& str = lineparts.at(0);
-  datum_index = gt_lookup_datum_index(CSTR(str), MYNAME);
+  datum_index = gt_lookup_datum_index(str, MYNAME);
 }
 
 void
