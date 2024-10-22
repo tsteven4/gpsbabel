@@ -654,19 +654,21 @@ gt_lookup_grid_type(const QString& grid_name, const QString& module)
     }
   }
 
-  fatal(FatalMsg() << module << ": Unsupported grid" << grid_name <<
-                       ". See GPSBabel help for supported grids.");
+  fatal(FatalMsg().nospace().noquote() << module <<
+        ": Unsupported grid (" << grid_name <<
+        "). See GPSBabel help for supported grids.");
 
   return grid_unknown;	/* (warnings) */
 }
 
 QString
-gt_get_mps_grid_longname(const grid_type grid, const char* module)
+gt_get_mps_grid_longname(const grid_type grid, const QString& module)
 {
-  if ((grid < GRID_INDEX_MIN) || (grid > GRID_INDEX_MAX))
-    fatal("%s: Grid index out of range %d (%d..%d)!",
-          module, (int) grid,
-          (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
+  if ((grid < GRID_INDEX_MIN) || (grid > GRID_INDEX_MAX)) {
+    fatal(FatalMsg().nospace().noquote() << module <<
+          ": Grid index out of range " << grid <<
+          " (" << GRID_INDEX_MIN << ".." << GRID_INDEX_MAX << ")!");
+  }
   return gt_mps_grid_names[grid].longname;
 }
 
@@ -705,8 +707,9 @@ gt_lookup_datum_index(const QString& datum_str, const QString& module)
   }
 
   if (result < 0) {
-    fatal(FatalMsg() << module << ": Unsupported datum" << datum_str <<
-                         "). See GPSBabel help for supported datums.");
+    fatal(FatalMsg().nospace().noquote() << module <<
+          ": Unsupported datum (" << datum_str <<
+          "). See GPSBabel help for supported datums.");
   }
   return result;
 }

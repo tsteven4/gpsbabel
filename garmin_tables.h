@@ -78,7 +78,7 @@ enum gt_gdb_display_modes_e {
 unsigned char gt_switch_display_mode_value(unsigned char display_mode, int protoid, char device);
 
 grid_type gt_lookup_grid_type(const QString& grid_name, const QString& module);
-QString gt_get_mps_grid_longname(grid_type grid, const char* module);
+QString gt_get_mps_grid_longname(grid_type grid, const QString& module);
 int gt_lookup_datum_index(const QString& datum_str, const QString& module);
 QString gt_get_mps_datum_name(int datum_index);
 uint32_t gt_color_value(unsigned int garmin_index);
