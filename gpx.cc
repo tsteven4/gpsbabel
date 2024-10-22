@@ -517,7 +517,7 @@ xml_parse_time(const QString& dateTimeString)
   if (res > 0) {
     QDate date(year, mon, mday);
     QTime time(hour, min, sec);
-    dt = QDateTime(date, time, Qt::UTC);
+    dt = QDateTime(date, time, QtUTC);
 
     // Fractional part of time.
     if (fsec) {
@@ -986,7 +986,7 @@ GpxFormat::wr_init(const QString& fname)
   */
 
   if (opt_gpxver != nullptr) {
-    gpx_write_version = QVersionNumber::fromString(opt_gpxver).normalized();
+    gpx_write_version = QVersionNumber::fromString(opt_gpxver.get()).normalized();
   } else if (!gpx_highest_version_read.isNull()) {
     gpx_write_version = gpx_highest_version_read;
   } else {

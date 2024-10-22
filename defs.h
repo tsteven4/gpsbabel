@@ -37,12 +37,16 @@
 #include <QString>                   // for QString
 #include <QStringView>               // for QStringView
 #include <QTextCodec>                // for QTextCodec
+#ifdef LIGHTWEIGHT_TIMEZONES_SUPPORTED
+#include <QTimeZone>                 // for QTimeZone
+#endif
 #include <Qt>                        // for CaseInsensitive
 #include <QtGlobal>                  // for QForeachContainer, qMakeForeachContainer, foreach, qint64
 
 #include "geocache.h"                // for Geocache
 #include "formspec.h"                // for FormatSpecificData
 #include "inifile.h"                 // for inifile_t
+#include "option.h"
 #include "session.h"                 // for session_t
 #include "src/core/datetime.h"       // for DateTime
 
@@ -870,13 +874,13 @@ extern posn_status tracking_status;
 
 struct arglist_t {
   const QString argstring;
-  char** const argval{nullptr};
+  Option* const argval{nullptr};
   const QString helpstring;
   const QString defaultvalue;
   const uint32_t argtype{ARGTYPE_UNKNOWN};
   const QString minvalue;    /* minimum value for numeric options */
   const QString maxvalue;    /* maximum value for numeric options */
-  char* argvalptr{nullptr};         /* !!! internal helper. Not used in definitions !!! */
+  char* unused{nullptr};     /* TODO: delete from initialization lists */
 };
 
 enum ff_type {
@@ -1033,7 +1037,7 @@ int parse_speed(const QString& str, double* val, double scale, const char* modul
 /*
  * Color helpers.
  */
-int color_to_bbggrr(const char* cname);
+int color_to_bbggrr(const QString& cname);
 
 /*
  * A constant for unknown altitude.   It's tempting to just use zero
@@ -1041,5 +1045,13 @@ int color_to_bbggrr(const char* cname);
  */
 constexpr double unknown_alt = -99999999.0;
 constexpr int unknown_color = -1;
+
+#ifdef LIGHTWEIGHT_TIMEZONES_SUPPORTED
+constexpr QTimeZone::Initialization QtLocalTime = QTimeZone::LocalTime;
+constexpr QTimeZone::Initialization QtUTC = QTimeZone::UTC;
+#else
+constexpr Qt::TimeSpec QtLocalTime = Qt::LocalTime;
+constexpr Qt::TimeSpec QtUTC = Qt::UTC;
+#endif
 
 #endif // DEFS_H_INCLUDED_

@@ -28,9 +28,11 @@
 #include <QtGlobal>             // for qRound64, qint64
 
 #include "defs.h"
+#include "grtcirc.h"            // for gcdist, radtometers
 #include "src/core/datetime.h"  // for DateTime
 
 #if FILTERS_ENABLED
+#define MYNAME "Position filter"
 
 /* tear through a waypoint queue, processing points by distance */
 void PositionFilter::position_runqueue(const WaypointList& waypt_list, int qtype)
@@ -74,7 +76,7 @@ void PositionFilter::position_runqueue(const WaypointList& waypt_list, int qtype
           }
         }
 
-        if (something_deleted && (purge_duplicates != nullptr)) {
+        if (something_deleted && purge_duplicates) {
           qlist.at(i).wpt->wpt_flags.marked_for_deletion = 1;
         }
       }
@@ -111,12 +113,8 @@ void PositionFilter::init()
   check_time = false;
 
   if (distopt != nullptr) {
-    char* fm;
-    pos_dist = strtod(distopt, &fm);
-
-    if (!((*fm == 'm') || (*fm == 'M'))) {
-      /* distance is feet */
-      pos_dist = FEET_TO_METERS(pos_dist);
+    if (parse_distance(distopt, &pos_dist, kMetersPerFoot, MYNAME) == 0) {
+      fatal(MYNAME ": No distance specified with distance option.\n");
     }
   }
 

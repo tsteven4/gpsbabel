@@ -109,7 +109,7 @@ Dg100Format::bintime2utc(int date, int time)
   date /= 100;
   int day  = date;
 
-  return QDateTime(QDate(year, mon, day), QTime(hour, min, sec), Qt::UTC);
+  return QDateTime(QDate(year, mon, day), QTime(hour, min, sec), QtUTC);
 }
 
 void
@@ -692,12 +692,12 @@ Dg100Format::rd_deinit()
 void
 Dg100Format::read()
 {
-  if (*erase_only == '1') {
+  if (erase_only) {
     dg100_erase();
     return;
   }
   dg100_getfiles();
-  if (*erase == '1') {
+  if (erase) {
     dg100_erase();
   }
 }

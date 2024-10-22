@@ -23,7 +23,7 @@
 
 #include <cmath>                  // for round
 #include <cstdio>                 // for printf, sscanf
-#include <cstdlib>                // for strtod
+#include <tuple>                  // for tie, tuple
 
 #include <QByteArray>             // for QByteArray
 #include <QString>                // for QString
@@ -77,8 +77,8 @@ void ArcDistanceFilter::arcdist_arc_disp_wpt_cb(const Waypoint* arcpt2)
                                                      waypointp->position());
         }
 
-        /* convert radians to float point statute miles */
-        dist = radtomiles(dist);
+        /* convert radians to meters */
+        dist = radtometers(dist);
 
         if (ed->distance > dist) {
           ed->distance = dist;
@@ -112,7 +112,7 @@ void ArcDistanceFilter::process()
     QString line;
 
     gpsbabel::TextStream stream;
-    stream.open(arcfileopt, QIODevice::ReadOnly, MYNAME);
+    stream.open(arcfileopt.get(), QIODevice::ReadOnly, MYNAME);
 
     auto* arcpt1 = new Waypoint;
     auto* arcpt2 = new Waypoint;
@@ -157,7 +157,7 @@ void ArcDistanceFilter::process()
     if (wp->extra_data) {
       auto* ed = (extra_data*) wp->extra_data;
       wp->extra_data = nullptr;
-      if ((ed->distance >= pos_dist) == (exclopt == nullptr)) {
+      if ((ed->distance >= pos_dist) == !exclopt) {
         wp->wpt_flags.marked_for_deletion = 1;
         removed++;
       } else if (projectopt) {
@@ -205,22 +205,17 @@ void ArcDistanceFilter::process()
 
 void ArcDistanceFilter::init()
 {
-  char* fm;
-
   if ((!arcfileopt && !rteopt && !trkopt) ||
       (arcfileopt && (rteopt || trkopt)) ||
       (rteopt && trkopt)) {
     fatal(MYNAME ": Incompatible or incomplete option values!\n");
   }
 
-  pos_dist = 0;
+  pos_dist = 0.0;
 
   if (distopt) {
-    pos_dist = strtod(distopt, &fm);
-
-    if ((*fm == 'k') || (*fm == 'K')) {
-      /* distance is kilometers, convert to mile */
-      pos_dist *= kMilesPerKilometer;
+    if (parse_distance(distopt, &pos_dist, kMetersPerMile, MYNAME) == 0) {
+      fatal(MYNAME ": No distance specified with distance option.\n");
     }
   }
 }
