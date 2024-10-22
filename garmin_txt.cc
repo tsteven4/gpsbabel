@@ -90,15 +90,24 @@ bool GarminTxtFormat::is_valid_alt(double alt)
 
 /* helpers */
 
+const char*
+GarminTxtFormat::get_option_val(const char* option, const char* def)
+{
+  const char* c = (option != nullptr) ? option : def;
+  return c;
+}
+
 void
 GarminTxtFormat::init_date_and_time_format()
 {
   // This is old, and weird, code.. date_time_format is a global that's
   // explicitly malloced and freed elsewhere. This isn't very C++ at all,
   // but this format is on its deathbead for deprecation.
-  QString d1 = convert_human_date_format(static_cast<const char*>(opt_date_format));
+  const char* d = get_option_val(opt_date_format, kDefaultDateFormat);
+  QString d1 = convert_human_date_format(d);
 
-  QString t1 = convert_human_time_format(static_cast<const char*>(opt_time_format));
+  const char* t = get_option_val(opt_time_format, kDefaultTimeFormat);
+  QString t1 = convert_human_time_format(t);
 
   date_time_format = QStringLiteral("%1 %2").arg(d1, t1);
 }
@@ -264,7 +273,7 @@ GarminTxtFormat::print_position(const Waypoint* wpt)
     fatal(MYNAME ": %s (%s) is outside of convertible area \"%s\"!\n",
           wpt->shortname.isEmpty() ? "Waypoint" : qPrintable(wpt->shortname),
           qPrintable(pretty_deg_format(wpt->latitude, wpt->longitude, 'd', nullptr, false)),
-          qPrintable(gt_get_mps_grid_longname(grid_index, MYNAME)));
+          gt_get_mps_grid_longname(grid_index, MYNAME));
   }
 }
 
@@ -410,7 +419,7 @@ GarminTxtFormat::print_string(const char* fmt, const QString& string)
 void
 GarminTxtFormat::write_waypt(const Waypoint* wpt)
 {
-  QString wpt_type;
+  const char* wpt_type;
 
   const garmin_fs_t* gmsd = garmin_fs_t::find(wpt);
 
@@ -418,7 +427,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (i > GT_DISPLAY_MODE_MAX) {
     i = 0;
   }
-  const QString dspl_mode = gt_display_mode_names[i];
+  const char* dspl_mode = gt_display_mode_names[i];
 
   int wpt_class = garmin_fs_t::get_wpt_class(gmsd, 0);
   if (wpt_class <= gt_waypt_class_map_line) {
@@ -441,7 +450,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   } else {
     *fout << "\t";
   }
-  *fout << wpt_type << "\t";
+  *fout << QString::asprintf("%s\t", wpt_type);
 
   print_position(wpt);
 
@@ -466,7 +475,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (x != -999) {
     print_temperature(x);
   }
-  *fout << "\t" << dspl_mode << "\t";
+  *fout << QString::asprintf("\t%s\t", dspl_mode);
 
   *fout << "Unknown\t"; 				/* Color is fixed: Unknown */
 
@@ -654,8 +663,8 @@ GarminTxtFormat::wr_init(const QString& fname)
   fout = new gpsbabel::TextStream;
   fout->open(fname, QIODevice::WriteOnly, MYNAME, "windows-1252");
 
-  gtxt_flags.metric = (toupper(*opt_dist) == 'M');
-  gtxt_flags.celsius = (toupper(*opt_temp) == 'C');
+  gtxt_flags.metric = (toupper(*get_option_val(opt_dist, "m")) == 'M');
+  gtxt_flags.celsius = (toupper(*get_option_val(opt_temp, "c")) == 'C');
   init_date_and_time_format();
   if (opt_precision) {
     precision = xstrtoi(opt_precision, nullptr, 10);
@@ -664,14 +673,14 @@ GarminTxtFormat::wr_init(const QString& fname)
     }
   }
 
-  QString datum_str = static_cast<const char*>(opt_datum);
-  QString grid_str = static_cast<const char*>(opt_grid);
+  datum_str = get_option_val(opt_datum, nullptr);
+  const char* grid_str = get_option_val(opt_grid, nullptr);
 
   grid_index = grid_lat_lon_dmm;
-  if (!grid_str.isEmpty()) {
-    bool ok;
+  if (grid_str != nullptr) {
+    int i;
 
-    if (int i = grid_str.toInt(&ok); ok) {
+    if (sscanf(grid_str, "%d", &i)) {
       grid_index = (grid_type) i;
       if ((grid_index < GRID_INDEX_MIN) || (grid_index > GRID_INDEX_MAX))
         fatal(MYNAME ": Grid index out of range (%d..%d)!",
@@ -743,8 +752,8 @@ GarminTxtFormat::write()
   grid_str = grid_str.replace('*', u'°');
   *fout << "Grid\t" << grid_str << "\r\n";
 
-  QString datum_str = gt_get_mps_datum_name(datum_index);
-  *fout << "Datum\t" << datum_str << "\r\n\r\n";
+  datum_str = gt_get_mps_datum_name(datum_index);
+  *fout << QString::asprintf("Datum\t%s\r\n\r\n", datum_str);
 
   waypoints = 0;
   gtxt_flags.enum_waypoints = 1;			/* enum all waypoints */
