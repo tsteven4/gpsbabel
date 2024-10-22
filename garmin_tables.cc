@@ -39,6 +39,11 @@
 
 /* source: https://en.wikipedia.org/wiki/ICAO_airport_code */
 
+struct gt_country_code_t {
+  const char* cc;
+  const char* country;
+};
+
 const gt_country_code_t gt_country_codes[] = {
   { "ZM,", "Mongolia" },
   { "ZK,", "North Korea" },
@@ -292,32 +297,31 @@ const char* const gt_display_mode_names[] = {
 };
 
 struct grid_mapping_t {
-  const char* shortname;
-  const char* longname;
+  QString shortname;
+  QString longname;
   grid_type grid;
 };
 
 /* gt_mps_grid_names: !!! degree sign substituted with '*' !!! */
 
-static const grid_mapping_t gt_mps_grid_names[] = {
+static const QVector<grid_mapping_t> gt_mps_grid_names = {
   { "ddd",	"Lat/Lon hddd.ddddd*",		grid_lat_lon_ddd },
   { "dmm",	"Lat/Lon hddd*mm.mmm'",		grid_lat_lon_dmm },
   { "dms",	"Lat/Lon hddd*mm'ss.s\"",	grid_lat_lon_dms },
   { "bng",	"British National Grid",	grid_bng },
   { "utm",	"UTM",				grid_utm },
   { "swiss",	"Swiss grid",			grid_swiss },
-  { nullptr,	nullptr,	(grid_type) 0 }
 };
 
 /* gt_mps_datum_names: */
 
 struct datum_mapping_t {
-  const char* jeeps_name;
-  const char* mps_name;
+  QString jeeps_name;
+  QString mps_name;
 };
 
 /* will be continued (when requested) */
-static const datum_mapping_t gt_mps_datum_names[] = {
+static const QVector<datum_mapping_t> gt_mps_datum_names = {
   { "Alaska-NAD27",	"NAD27 Alaska" },
   { "Bahamas NAD27",	"NAD27 Bahamas" },
   { "Canada_Mean(NAD27)",	"NAD27 Canada" },
@@ -330,7 +334,6 @@ static const datum_mapping_t gt_mps_datum_names[] = {
   { "Mexico NAD27",	"NAD27 Mexico" },
   { "North America 83",	"NAD83" },
   { "OSGB36",		"Ord Srvy Grt Britn" },
-  { nullptr,	nullptr }
 };
 
 struct garmin_color_t {
@@ -641,52 +644,53 @@ gt_get_icao_cc(const QString& country, const QString& shortname)
 }
 
 grid_type
-gt_lookup_grid_type(const char* grid_name, const QString& module)
+gt_lookup_grid_type(const QString& grid_name, const QString& module)
 {
-  for (const grid_mapping_t* g = gt_mps_grid_names; (g->shortname); g++) {
-    if (QString::compare(grid_name, g->shortname, Qt::CaseInsensitive) == 0 ||
-        QString::compare(grid_name, g->longname,Qt::CaseInsensitive) == 0) {
-      return g->grid;
+  for (const auto& grid_mapping : gt_mps_grid_names) {
+    if (QString::compare(grid_name, grid_mapping.shortname, Qt::CaseInsensitive) == 0 ||
+        QString::compare(grid_name, grid_mapping.longname,Qt::CaseInsensitive) == 0) {
+      return grid_mapping.grid;
     }
   }
 
-  fatal(FatalMsg() << module << ": Unsupported grid (" << grid_name <<
-                       ". See GPSBabel help for supported grids.\n");
+  fatal(FatalMsg() << module << ": Unsupported grid" << grid_name <<
+                       ". See GPSBabel help for supported grids.");
 
   return grid_unknown;	/* (warnings) */
 }
 
-const char*
+QString
 gt_get_mps_grid_longname(const grid_type grid, const char* module)
 {
   if ((grid < GRID_INDEX_MIN) || (grid > GRID_INDEX_MAX))
     fatal("%s: Grid index out of range %d (%d..%d)!",
           module, (int) grid,
           (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
-  return gt_mps_grid_names[grid].longname;
+  return gt_mps_grid_names.at(grid).longname;
 }
 
-const char*
+QString
 gt_get_mps_datum_name(const int datum_index)
 {
-  const char* result = GPS_Math_Get_Datum_Name(datum_index);
+  QString result = GPS_Math_Get_Datum_Name(datum_index);
 
-  for (const datum_mapping_t* d = gt_mps_datum_names; (d->jeeps_name); d++)
-    if (QString::compare(result, d->jeeps_name, Qt::CaseInsensitive) == 0) {
-      return d->mps_name;
+  for (const auto& datum_mapping : gt_mps_datum_names) {
+    if (QString::compare(result, datum_mapping.jeeps_name, Qt::CaseInsensitive) == 0) {
+      return datum_mapping.mps_name;
     }
+  }
 
   return result;
 }
 
 int
-gt_lookup_datum_index(const char* datum_str, const QString& module)
+gt_lookup_datum_index(const QString& datum_str, const QString& module)
 {
-  const char* name = datum_str;
+  QString name = datum_str;
 
-  for (const datum_mapping_t* d = gt_mps_datum_names; (d->jeeps_name); d++) {
-    if (QString::compare(name, d->mps_name, Qt::CaseInsensitive) == 0) {
-      name = d->jeeps_name;
+  for (const auto& datum_mapping : gt_mps_datum_names) {
+    if (QString::compare(name, datum_mapping.mps_name, Qt::CaseInsensitive) == 0) {
+      name = datum_mapping.jeeps_name;
       break;
     }
   }
@@ -695,12 +699,12 @@ gt_lookup_datum_index(const char* datum_str, const QString& module)
 
   // Didn't get a hit?  Try again after modifying the lookup.
   if (result < 0) {
-    QString tmp = QString(datum_str) + " mean";
+    QString tmp = datum_str + " mean";
     result = GPS_Lookup_Datum_Index(tmp);
   }
 
   if (result < 0) {
-    fatal(FatalMsg() << module << ": Unsupported datum (" << datum_str <<
+    fatal(FatalMsg() << module << ": Unsupported datum" << datum_str <<
                          "). See GPSBabel help for supported datums.");
   }
   return result;

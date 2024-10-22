@@ -25,6 +25,12 @@
 
 #include "garmin_tables.h"
 
+struct icon_mapping_t {
+  int mpssymnum;
+  int pcxsymnum;
+  const char* icon;
+};
+
 /* MapSource 4.13 */
 const icon_mapping_t garmin_icon_table[] = {
   /*	  mps    pcx    desc */
