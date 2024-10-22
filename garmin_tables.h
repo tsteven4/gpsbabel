@@ -52,7 +52,7 @@ enum gt_waypt_classes_e {
   gt_waypt_class_map_line
 };
 
-extern const char* const gt_waypt_class_names[];
+extern const QStringList gt_waypt_class_names;
 
 const char* gt_get_icao_country(const QString& cc);
 const char* gt_get_icao_cc(const QString& country, const QString& shortname);
@@ -64,7 +64,7 @@ enum gt_display_modes_e {
   gt_display_mode_symbol_and_comment
 };
 
-extern const char* const gt_display_mode_names[];
+extern const QStringList gt_display_mode_names;
 
 #define GT_DISPLAY_MODE_MIN gt_display_mode_symbol_and_name
 #define GT_DISPLAY_MODE_MAX gt_display_mode_symbol_and_comment
@@ -85,6 +85,6 @@ uint32_t gt_color_value(unsigned int garmin_index);
 uint32_t gt_color_value_by_name(const QString& name);
 int gt_color_index_by_name(const QString& name);
 int gt_color_index_by_rgb(int rgb);
-const char* gt_color_name(unsigned int garmin_index);
+QString gt_color_name(unsigned int garmin_index);
 
 #endif

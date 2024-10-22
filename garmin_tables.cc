@@ -275,7 +275,7 @@ const gt_country_code_t gt_country_codes[] = {
 };
 
 /* gt_waypt_classes: gdb internal order */
-const char* const gt_waypt_class_names[] = {
+const QStringList gt_waypt_class_names = {
   "User Waypoint",
   "Airport",
   "Intersection",
@@ -289,11 +289,10 @@ const char* const gt_waypt_class_names[] = {
   "Map Intersection",
   "Map Address",
   "Map Line",
-  nullptr
 };
 
 /* gt_display_mode_names: this order is used by most devices */
-const char* const gt_display_mode_names[] = {
+const QStringList gt_display_mode_names = {
   "Symbol & Name",
   "Symbol",
   "Symbol & Description"
@@ -340,11 +339,11 @@ static const QVector<datum_mapping_t> gt_mps_datum_names = {
 };
 
 struct garmin_color_t {
-  const char* name;
+  QString name;
   int32_t rgb;
 };
 
-static const garmin_color_t gt_colors[] = {
+static const QVector<garmin_color_t> gt_colors = {
   { "Unknown",		unknown_color },
   { "Black", 		0x000000 },
   { "DarkRed",		0x00008B },
@@ -363,10 +362,8 @@ static const garmin_color_t gt_colors[] = {
   { "Cyan",		0xFFFF00 },
   { "White",		0xFFFFFF },
   { "Transparent",	unknown_color }, /* Currently not handled */
-  { nullptr, 0 }
 };
 
-#define GT_COLORS_CT ((sizeof(gt_colors) / sizeof(gt_colors[0])) - 1)
 
 unsigned char
 gt_switch_display_mode_value(const unsigned char display_mode, const int protoid, const char device)
@@ -527,16 +524,16 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
    */
 
   if (find_flag == 0) {
-    const char* prefixes[] = {
-      "White ", "Red ", "Green ", "Blue ", "Black ", nullptr
+    static const QStringList prefixes = {
+      "White ", "Red ", "Green ", "Blue ", "Black ",
     };
     // Rewrite "Green Square" to "Square, Green".
-    for (const char** prefix = prefixes; *prefix != nullptr; prefix++) {
-      if (desc.startsWith(*prefix, Qt::CaseInsensitive)) {
+    for (const auto& prefix : prefixes) {
+      if (desc.startsWith(prefix, Qt::CaseInsensitive)) {
         QString buff = desc;
-        buff.replace(*prefix, "");
+        buff.replace(prefix, "");
         buff.append(", ");
-        buff.append(*prefix);
+        buff.append(prefix);
         buff = buff.trimmed();
 
         find_flag = 1;
@@ -670,7 +667,7 @@ gt_get_mps_grid_longname(const grid_type grid, const char* module)
     fatal("%s: Grid index out of range %d (%d..%d)!",
           module, (int) grid,
           (int)GRID_INDEX_MIN, (int)GRID_INDEX_MAX);
-  return gt_mps_grid_names.at(grid).longname;
+  return gt_mps_grid_names[grid].longname;
 }
 
 QString
@@ -717,7 +714,7 @@ gt_lookup_datum_index(const QString& datum_str, const QString& module)
 uint32_t
 gt_color_value(const unsigned int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
+  if ((garmin_index < gt_colors.size())) {
     return gt_colors[garmin_index].rgb;
   } else {
     return unknown_color;  /* -1 */
@@ -727,10 +724,11 @@ gt_color_value(const unsigned int garmin_index)
 uint32_t
 gt_color_value_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
+  for (int i = 0; i < gt_colors.size(); ++i) {
     if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
       return gt_colors[i].rgb;
     }
+  }
 
   return gt_colors[0].rgb;
 }
@@ -738,10 +736,11 @@ gt_color_value_by_name(const QString& name)
 int
 gt_color_index_by_name(const QString& name)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
+  for (int i = 0; i < gt_colors.size(); ++i) {
     if (QString::compare(gt_colors[i].name, name, Qt::CaseInsensitive) == 0) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
@@ -749,18 +748,19 @@ gt_color_index_by_name(const QString& name)
 int
 gt_color_index_by_rgb(const int rgb)
 {
-  for (unsigned int i = 0; i < GT_COLORS_CT; i++)
+  for (int i = 0; i < gt_colors.size(); ++i) {
     if (rgb == gt_colors[i].rgb) {
       return i;
     }
+  }
 
   return 0; /* unknown */
 }
 
-const char*
+QString
 gt_color_name(const unsigned int garmin_index)
 {
-  if ((garmin_index < GT_COLORS_CT)) {
+  if ((garmin_index < gt_colors.size())) {
     return gt_colors[garmin_index].name;
   } else {
     return gt_colors[0].name;

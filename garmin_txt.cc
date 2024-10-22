@@ -410,7 +410,7 @@ GarminTxtFormat::print_string(const char* fmt, const QString& string)
 void
 GarminTxtFormat::write_waypt(const Waypoint* wpt)
 {
-  const char* wpt_type;
+  QString wpt_type;
 
   const garmin_fs_t* gmsd = garmin_fs_t::find(wpt);
 
@@ -418,7 +418,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (i > GT_DISPLAY_MODE_MAX) {
     i = 0;
   }
-  const char* dspl_mode = gt_display_mode_names[i];
+  const QString dspl_mode = gt_display_mode_names[i];
 
   int wpt_class = garmin_fs_t::get_wpt_class(gmsd, 0);
   if (wpt_class <= gt_waypt_class_map_line) {
@@ -441,7 +441,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   } else {
     *fout << "\t";
   }
-  *fout << QString::asprintf("%s\t", wpt_type);
+  *fout << wpt_type << "\t";
 
   print_position(wpt);
 
@@ -466,7 +466,7 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   if (x != -999) {
     print_temperature(x);
   }
-  *fout << QString::asprintf("\t%s\t", dspl_mode);
+  *fout << "\t" << dspl_mode << "\t";
 
   *fout << "Unknown\t"; 				/* Color is fixed: Unknown */
 
