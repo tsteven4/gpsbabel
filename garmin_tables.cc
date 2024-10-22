@@ -47,7 +47,7 @@ struct gt_country_code_t {
   const char* country;
 };
 
-const gt_country_code_t gt_country_codes[] = {
+static const gt_country_code_t gt_country_codes[] = {
   { "ZM,", "Mongolia" },
   { "ZK,", "North Korea" },
   { "Z*,", "China" },

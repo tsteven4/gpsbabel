@@ -35,7 +35,7 @@ struct icon_mapping_t {
 };
 
 /* MapSource 4.13 */
-const QVector<icon_mapping_t> garmin_icon_table = {
+static const QVector<icon_mapping_t> garmin_icon_table = {
   /*	  mps    pcx    desc */
   {   107, 16384, "Airport" },
   {    73,  8204, "Amusement Park" },
@@ -344,7 +344,7 @@ const QVector<icon_mapping_t> garmin_icon_table = {
   { 248, -1, "Water Source" },
 };
 
-const QVector<icon_mapping_t> garmin_smart_icon_table = {
+static const QVector<icon_mapping_t> garmin_smart_icon_table = {
   /* Additional (optional, activated with -Si) icons */
   {    92,  8227, "Micro-Cache" },   	/* icon for "Toll Booth" */
   {    48,   161, "Virtual cache" }, 	/* icon for "Scenic Area" */
