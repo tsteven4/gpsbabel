@@ -22,9 +22,12 @@
 
 #include <cstdint>               // for int32_t
 #include <cstring>               // for strncpy, strchr, strlen, strncmp
+
 #include <QChar>                 // for operator==, QChar
 #include <QDebug>                // for QDebug
+#include <QVector>               // for QVector
 #include <Qt>                    // for CaseInsensitive
+
 #include "defs.h"
 #include "garmin_tables.h"
 #include "jeeps/gpsmath.h"       // for GPS_Lookup_Datum_Index, GPS_Math_Get_Datum_Name
@@ -434,18 +437,18 @@ gt_find_desc_from_icon_number(const int icon, garmin_formats_e garmin_format)
     return QStringLiteral("Custom %1").arg(icon - 7680);
   }
 
-  for (const icon_mapping_t* i = garmin_icon_table; i->icon; i++) {
+  for (const auto& icon_mapping : garmin_icon_table) {
     switch (garmin_format) {
     case MAPSOURCE:
     case GDB:
-      if (icon == i->mpssymnum) {
-        return i->icon;
+      if (icon == icon_mapping.mpssymnum) {
+        return icon_mapping.icon;
       }
       break;
     case PCX:
     case GARMIN_SERIAL:
-      if (icon == i->pcxsymnum) {
-        return i->icon;
+      if (icon == icon_mapping.pcxsymnum) {
+        return icon_mapping.icon;
       }
       break;
     default:
@@ -458,7 +461,6 @@ gt_find_desc_from_icon_number(const int icon, garmin_formats_e garmin_format)
 int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_format)
 {
   static int find_flag = 0;
-  const icon_mapping_t* i;
   int def_icon = DEFAULT_ICON_VALUE;
 
   if (desc.isNull()) {
@@ -488,29 +490,31 @@ int gt_find_icon_number_from_desc(const QString& desc, garmin_formats_e garmin_f
     }
   }
 
-  for (i = garmin_smart_icon_table; global_opts.smart_icons && i->icon; i++) {
-    if (desc.compare(i->icon, Qt::CaseInsensitive) == 0) {
-      switch (garmin_format) {
-      case MAPSOURCE:
-      case GDB:
-        return i->mpssymnum;
-      case PCX:
-      case GARMIN_SERIAL:
-        return i->pcxsymnum;
-      default:
-        fatal(MYNAME ": unknown garmin format.\n");
+  if (global_opts.smart_icons) {
+    for (const auto& icon_mapping : garmin_smart_icon_table) {
+      if (desc.compare(icon_mapping.icon, Qt::CaseInsensitive) == 0) {
+        switch (garmin_format) {
+        case MAPSOURCE:
+        case GDB:
+          return icon_mapping.mpssymnum;
+        case PCX:
+        case GARMIN_SERIAL:
+          return icon_mapping.pcxsymnum;
+        default:
+          fatal(MYNAME ": unknown garmin format.\n");
+        }
       }
     }
   }
-  for (i = garmin_icon_table; i->icon; i++) {
-    if (desc.compare(i->icon, Qt::CaseInsensitive) == 0) {
+  for (const auto& icon_mapping : garmin_icon_table) {
+    if (desc.compare(icon_mapping.icon, Qt::CaseInsensitive) == 0) {
       switch (garmin_format) {
       case MAPSOURCE:
       case GDB:
-        return i->mpssymnum;
+        return icon_mapping.mpssymnum;
       case PCX:
       case GARMIN_SERIAL:
-        return i->pcxsymnum;
+        return icon_mapping.pcxsymnum;
       default:
         fatal(MYNAME ": unknown garmin format.\n");
       }
