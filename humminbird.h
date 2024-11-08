@@ -134,11 +134,6 @@ protected:
 class HumminbirdFormat : public Format, private HumminbirdBase
 {
 public:
-  QVector<arglist_t>* get_args() override
-  {
-    return &humminbird_args;
-  }
-
   ff_type get_type() const override
   {
     return ff_type_file;
@@ -172,17 +167,11 @@ private:
 
   /* Data Members */
 
-  QVector<arglist_t> humminbird_args;
 };
 
 class HumminbirdHTFormat : public Format, private HumminbirdBase
 {
 public:
-  QVector<arglist_t>* get_args() override
-  {
-    return &humminbirdht_args;
-  }
-
   ff_type get_type() const override
   {
     return ff_type_file;
@@ -213,7 +202,6 @@ private:
 
   /* Data Members */
 
-  QVector<arglist_t> humminbirdht_args;
 };
 
 #endif // HUMMINBIRD_H_INCLUDED_

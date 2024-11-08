@@ -44,11 +44,6 @@ public:
   using Format::Format;
 
   /* Member functions */
-  QVector<arglist_t>* get_args() override
-  {
-    return &googletakeout_args;
-  }
-
   ff_type get_type() const override
   {
     return ff_type_file;
@@ -130,7 +125,6 @@ private:
 
   /* Data Members */
 
-  QVector<arglist_t> googletakeout_args;
 };
 
 #endif /* GOOGLETAKEOUT_H_INCLUDED_ */

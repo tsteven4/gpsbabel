@@ -39,11 +39,6 @@ class V900Format : public Format
 public:
   using Format::Format;
 
-  QVector<arglist_t>* get_args() override
-  {
-    return nullptr;
-  }
-
   ff_type get_type() const override
   {
     return ff_type_file;

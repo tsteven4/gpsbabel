@@ -33,7 +33,7 @@
 #include <Qt>                  // for CaseInsensitive
 #include <QtGlobal>            // for qPrintable
 
-#include <algorithm>           // for sort
+#include <algorithm>           // for any_of, sort
 #include <cassert>             // for assert
 #include <cstdio>              // for printf, putchar, sscanf
 #include <type_traits>         // for is_base_of
@@ -618,7 +618,7 @@ void Vecs::disp_vec_options(const QString& vecname, const QVector<arglist_t>* ar
     for (const auto& arg : *args) {
       if ((arg.argval != nullptr) && !arg.argval->isEmpty()) {
         gbDebug("options: module/option=value: %s/%s=\"%s\"",
-               gbLogCStr(vecname), gbLogCStr(arg.argstring), gbLogCStr(arg.argval->get()));
+                gbLogCStr(vecname), gbLogCStr(arg.argstring), gbLogCStr(arg.argval->get()));
         if (case_ignore_strcmp(arg.defaultvalue, arg.argval->get()) == 0) {
           gbDebug(" (=default)");
         }
@@ -634,12 +634,10 @@ void Vecs::validate_options(const QStringList& options, const QVector<arglist_t>
     const QString option_name = option.left(option.indexOf('='));
     bool valid = false;
     if (args) {
-      for (const auto& arg : *args) {
-        if (option_name.compare(arg.argstring, Qt::CaseInsensitive) == 0) {
-          valid = true;
-          break;
-        }
-      }
+      valid = std::any_of(args->cbegin(), args->cend(),
+      [&option_name](const auto& arg)->bool {
+        return option_name.compare(arg.argstring, Qt::CaseInsensitive) == 0;
+      });
     }
     if (!valid) {
       gbWarning("'%s' is an unknown option to %s.\n", gbLogCStr(option_name), gbLogCStr(name));

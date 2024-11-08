@@ -21,8 +21,6 @@
 #ifndef REVERSE_ROUTE_H_INCLUDED_
 #define REVERSE_ROUTE_H_INCLUDED_
 
-#include <QVector>         // for QVector
-
 #include "defs.h"    // for Waypoint (ptr only), arglist_t, route_head (ptr ...
 #include "filter.h"  // for Filter
 
@@ -31,16 +29,11 @@
 class ReverseRouteFilter:public Filter
 {
 public:
-  QVector<arglist_t>* get_args() override
-  {
-    return &args;
-  }
   void init() override;
   void process() override;
 
 private:
   int prev_new_trkseg{};
-  QVector<arglist_t> args;
 
   void reverse_route_wpt(const Waypoint* waypointp);
   void reverse_route_head(const route_head* rte);

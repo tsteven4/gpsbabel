@@ -23,8 +23,6 @@
 #ifndef SWAPDATA_H_INCLUDED_
 #define SWAPDATA_H_INCLUDED_
 
-#include <QVector>         // for QVector
-
 #include "defs.h"    // for arglist_t, Waypoint
 #include "filter.h"  // for Filter
 
@@ -33,15 +31,9 @@
 class SwapDataFilter:public Filter
 {
 public:
-  QVector<arglist_t>* get_args() override
-  {
-    return &args;
-  }
   void process() override;
 
 private:
-  QVector<arglist_t> args;
-
   static void swapdata_cb(const Waypoint* ref);
 
 };
