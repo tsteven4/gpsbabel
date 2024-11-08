@@ -111,7 +111,7 @@ Dg100Format::bintime2utc(int date, int time)
 }
 
 void
-Dg100Format::dg100_debug(const char* hdr, int include_nl, size_t sz, unsigned char* buf)
+Dg100Format::dg100_debug(const char* hdr, int include_nl, size_t sz, const unsigned char* buf)
 {
   /* Only give byte dumps for higher debug levels */
   if (global_opts.debug_level < 5) {
