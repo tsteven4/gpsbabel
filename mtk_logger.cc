@@ -604,7 +604,7 @@ mtk_retry:
 }
 
 
-int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, data_item* itm)
+int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, const data_item* itm)
 {
   auto* trk = new Waypoint;
 
@@ -695,7 +695,7 @@ int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, data_item* itm)
     trk->sat = itm->sat_used;
   }
 
-  // RCR is a bitmask of possibly several log reasons..
+  // RCR is a bitmask of possibly several log reasons.
   // Holux devices use a Event prefix for each waypt.
   if (global_opts.masked_objective & WPTDATAMASK
       && ((bmask & (1U<<RCR) && itm->rcr & 0x0008)
@@ -710,7 +710,7 @@ int MtkLoggerBase::add_trackpoint(int idx, unsigned long bmask, data_item* itm)
   }
   // In theory we would not add the waypoint to the list of
   // trackpoints. But as the MTK logger restart the
-  // log session from the button press we would loose a
+  // log session from the button press we would lose a
   // trackpoint unless we include/duplicate it.
 
   if (global_opts.masked_objective & TRKDATAMASK) {
@@ -785,7 +785,7 @@ void MtkLoggerBase::mtk_csv_deinit()
 }
 
 /* Output a single data line in MTK application compatible format - i.e ignore any locale settings... */
-int MtkLoggerBase::csv_line(gbfile* csvFile, int idx, unsigned long bmask, data_item* itm)
+int MtkLoggerBase::csv_line(gbfile* csvFile, int idx, unsigned long bmask, const data_item* itm)
 {
   const char* fix_str = "";
   if (bmask & (1U<<VALID)) {
@@ -912,7 +912,7 @@ int MtkLoggerBase::csv_line(gbfile* csvFile, int idx, unsigned long bmask, data_
 
 
 /********************* MTK Logger -- Parse functions *********************/
-int MtkLoggerBase::mtk_parse(unsigned char* data, int dataLen, unsigned int bmask)
+int MtkLoggerBase::mtk_parse(const unsigned char* data, int dataLen, unsigned int bmask)
 {
   static int count = 0;
   int sat_id;

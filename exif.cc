@@ -205,7 +205,7 @@ ExifFormat::exif_time_str(const QDateTime& time)
 }
 
 QByteArray
-ExifFormat::exif_read_str(ExifTag* tag)
+ExifFormat::exif_read_str(const ExifTag* tag)
 {
   // Panasonic DMC-TZ10 stores datum with trailing spaces.
   // Kodak stores zero count ASCII tags.
@@ -1195,7 +1195,7 @@ ExifFormat::exif_sort_ifds_cb(const ExifIfd& A, const ExifIfd& B)
 }
 
 void
-ExifFormat::exif_write_value(ExifTag* tag, gbfile* fout)
+ExifFormat::exif_write_value(const ExifTag* tag, gbfile* fout)
 {
   if (tag->size > 4) {
     gbfputuint32(tag->offset, fout);  /* offset to data */
