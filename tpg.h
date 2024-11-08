@@ -65,7 +65,7 @@ public:
 private:
   /* Member Functions */
 
-  static int valid_tpg_header(char* header, int len);
+  static int valid_tpg_header(const char* header, int len);
   void tpg_common_init();
   void tpg_waypt_pr(const Waypoint* wpt);
 

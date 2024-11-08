@@ -143,7 +143,7 @@ GlobalsatSportFormat::write_byte(uint8_t byte)
 
 
 void
-GlobalsatSportFormat::globalsat_write_package(uint8_t* payload, uint32_t size)
+GlobalsatSportFormat::globalsat_write_package(const uint8_t* payload, uint32_t size)
 {
   //All globalsat devices but gh561
   //2 <len_h> <len_l> <payload...> <crc>

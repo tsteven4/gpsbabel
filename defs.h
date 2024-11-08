@@ -525,13 +525,13 @@ void waypt_status_disp(int total_ct, int myct);
 //void waypt_disp_all(waypt_cb); /* template */
 //void waypt_disp_session(const session_t* se, waypt_cb cb); /* template */
 void waypt_init_bounds(bounds* bounds);
-bool waypt_bounds_valid(bounds* bounds);
+bool waypt_bounds_valid(const const bounds* bounds);
 void waypt_add_to_bounds(bounds* bounds, const Waypoint* waypointp);
 void waypt_compute_bounds(bounds* bounds);
 Waypoint* find_waypt_by_name(const QString& name);
 void waypt_flush_all();
 void waypt_deinit();
-void waypt_append(WaypointList* src);
+void waypt_append(const WaypointList* src);
 void waypt_backup(WaypointList** head_bak);
 void waypt_restore(WaypointList* head_bak);
 void waypt_swap(WaypointList& other);
@@ -993,8 +993,8 @@ float  endian_read_float(const void* ptr, int read_le);
 void   endian_write_double(void* ptr, double value, int write_le);
 void   endian_write_float(void* ptr, float value, int write_le);
 
-float  be_read_float(void* ptr);
-double be_read_double(void* ptr);
+float  be_read_float(const void* ptr);
+double be_read_double(const void* ptr);
 void   be_write_float(void* ptr, float value);
 void   be_write_double(void* ptr, double value);
 

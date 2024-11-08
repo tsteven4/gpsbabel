@@ -216,7 +216,7 @@ private:
   void serial_write_byte(uint8_t byte);
   int recv_byte();
   void write_byte(uint8_t byte);
-  void globalsat_write_package(uint8_t* payload, uint32_t size);
+  void globalsat_write_package(const uint8_t* payload, uint32_t size);
   uint8_t* globalsat_read_package(int* out_length, uint8_t* out_DeviceCommand);
   void globalsat_send_simple(uint8_t command);
   void globalsat_probe_device();

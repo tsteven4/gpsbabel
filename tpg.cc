@@ -40,7 +40,7 @@
 #define MAXTPGOUTPUTPINS	65535
 
 int
-TpgFormat::valid_tpg_header(char* header, int len)
+TpgFormat::valid_tpg_header(const char* header, int len)
 {
   unsigned char header_bytes[] = { 0xFF, 0xFF, 0x01, 0x00, 0x0D,
                                    0x00, 0x43, 0x54, 0x6F, 0x70,

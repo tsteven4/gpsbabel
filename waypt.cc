@@ -101,7 +101,7 @@ waypt_init_bounds(bounds* bounds)
 }
 
 bool
-waypt_bounds_valid(bounds* bounds)
+waypt_bounds_valid(const bounds* bounds)
 {
   /* Returns true if bb has any 'real' data in it */
   return bounds->max_lat > -9999;
@@ -167,7 +167,7 @@ waypt_deinit()
 }
 
 void
-waypt_append(WaypointList* src)
+waypt_append(const WaypointList* src)
 {
   src->copy(&global_waypoint_list);
 }

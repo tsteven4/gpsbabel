@@ -497,7 +497,7 @@ le_write_float(void* ptr, float value)
 }
 
 float
-be_read_float(void* ptr)
+be_read_float(const void* ptr)
 {
   return endian_read_float(ptr, 0);
 }
@@ -521,7 +521,7 @@ le_write_double(void* ptr, double value)
 }
 
 double
-be_read_double(void* ptr)
+be_read_double(const void* ptr)
 {
   return endian_read_double(ptr, 0);
 }
