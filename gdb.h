@@ -139,7 +139,7 @@ private:
   static void gdb_check_waypt(Waypoint* wpt);
   void write_waypoint(const Waypoint* wpt, const QString& shortname, const garmin_fs_t* gmsd, int icon, int display);
   static void route_compute_bounds(const route_head* rte, bounds* bounds);
-  void route_write_bounds(bounds* bounds) const;
+  void route_write_bounds(const bounds* bounds) const;
   void write_route(const route_head* rte, const QString& rte_name);
   void write_track(const route_head* trk, const QString& trk_name);
   void finalize_item(gbfile* origin, char identifier);

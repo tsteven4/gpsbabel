@@ -1280,7 +1280,7 @@ GdbFormat::route_compute_bounds(const route_head* rte, bounds* bounds)
 }
 
 void
-GdbFormat::route_write_bounds(bounds* bounds) const
+GdbFormat::route_write_bounds(const bounds* bounds) const
 {
   if (waypt_bounds_valid(bounds)) {
     FWRITE_C(0);
