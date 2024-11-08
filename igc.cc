@@ -938,13 +938,13 @@ void IgcFormat::wr_track()
 {
   const route_head* pres_track;
   const route_head* gnss_track;
-  int time_adj;
 
   // Find pressure altitude and GNSS altitude tracks
   get_tracks(&pres_track, &gnss_track);
 
   // If both found, attempt to merge them
   if (pres_track && gnss_track) {
+    int time_adj;
     if (timeadj) {
       if (timeadj.get() == "auto") {
         time_adj = correlate_tracks(pres_track, gnss_track);

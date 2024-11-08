@@ -44,12 +44,13 @@ void ArcDistanceFilter::arcdist_arc_disp_wpt_cb(const Waypoint* arcpt2)
 {
   static const Waypoint* arcpt1 = nullptr;
   PositionDeg prjpos;
-  double frac;
 
   if (arcpt2 && arcpt2->latitude != BADVAL && arcpt2->longitude != BADVAL &&
       (ptsopt || (arcpt1 &&
-                  (arcpt1->latitude != BADVAL && arcpt1->longitude != BADVAL)))) {
-    foreach (Waypoint* waypointp, *global_waypoint_list) {
+                  (arcpt1->latitude != BADVAL && arcpt1->longitude != BADVAL))))
+  {
+    double frac;
+    foreach(Waypoint* waypointp, *global_waypoint_list) {
       extra_data* ed;
       if (waypointp->extra_data) {
         ed = (extra_data*) waypointp->extra_data;

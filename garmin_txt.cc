@@ -570,8 +570,6 @@ void
 GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt)
 {
   const Waypoint* prev = cur_info->prev_wpt;
-  time_t delta;
-  double dist;
 
   *fout << "Trackpoint\t";
 
@@ -589,13 +587,13 @@ GarminTxtFormat::track_disp_wpt_cb(const Waypoint* wpt)
 
   if (prev != nullptr) {
     *fout << "\t";
-    delta = wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t();
+    time_t delta = wpt->GetCreationTime().toTime_t() - prev->GetCreationTime().toTime_t();
     float temp = wpt->temperature_value_or(-999);
     if (temp != -999) {
       print_temperature(temp);
     }
     *fout << "\t";
-    dist = waypt_distance_ex(prev, wpt);
+    double dist = waypt_distance_ex(prev, wpt);
     print_distance(dist, false, true, 0);
     print_date_and_time(delta, true);
     print_speed(dist, delta);
