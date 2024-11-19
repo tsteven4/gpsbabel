@@ -55,7 +55,6 @@
 #include <QUrl>                // for QUrl
 #include <QVariant>            // for QVariant, operator!=
 #include <Qt>                  // for TransformationMode, DateFormat, CursorShape, GlobalColor
-#include <QtGlobal>            // for QForeachContainer, qMakeForeachContainer, foreach
 #include <cstdlib>             // for exit
 #include "aboutdlg.h"          // for AboutDlg
 #include "advdlg.h"            // for AdvDlg
@@ -66,8 +65,8 @@
 #include "formatload.h"        // for FormatLoad
 #include "gbversion.h"         // for VERSION, kVersionDate, kVersionSHA
 #ifndef DISABLE_MAPPREVIEW
-#include "gpx.h"               // for Gpx
 #include "gmapdlg.h"           // for GMapDialog
+#include "gpx.h"               // for Gpx
 #endif
 #include "help.h"              // for ShowHelp
 #include "optionsdlg.h"        // for OptionsDlg
@@ -1053,21 +1052,19 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 
 void MainWindow::dropEvent(QDropEvent* event)
 {
-  foreach (QString format, event->mimeData()->formats()) {
-    if (format == "text/uri-list") {
-      QList<QUrl> urlList = event->mimeData()->urls();
-      babelData_.inputFileNames_.clear();
-      for (int i = 0; i < urlList.size(); ++i) {
-        QFileInfo file_info(urlList.at(i).toLocalFile());
-        QString name = file_info.filePath();
-        QString ext = file_info.suffix();
+  if (event->mimeData()->hasUrls()) {
+    babelData_.inputFileNames_.clear();
+    const QList<QUrl> urlList = event->mimeData()->urls();
+    for (const auto& url : urlList) {
+      QFileInfo file_info(url.toLocalFile());
+      QString name = file_info.filePath();
+      QString ext = file_info.suffix();
 
-        QString fmt = getFormatNameForExtension(ext);
-        setComboToFormat(ui_.inputFormatCombo, fmt, true);
-        ui_.inputFileNameText->setText(name);
-        babelData_.inputFileNames_ << ui_.inputFileNameText->text();
-        event->acceptProposedAction();
-      }
+      QString fmt = getFormatNameForExtension(ext);
+      setComboToFormat(ui_.inputFormatCombo, fmt, true);
+      ui_.inputFileNameText->setText(name);
+      babelData_.inputFileNames_ << ui_.inputFileNameText->text();
+      event->acceptProposedAction();
     }
   }
 }
