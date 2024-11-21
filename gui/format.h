@@ -28,7 +28,7 @@
 #include <QString>      // for QString
 #include <QStringList>  // for QStringList
 #include <QVariant>     // for QVariant
-#include <vector>       // for vector
+#include "staticlist.h"
 
 class FormatOption
 {
@@ -141,7 +141,6 @@ private:
 
 
 //------------------------------------------------------------------------
-class FormatList;
 class Format
 {
 public:
@@ -323,7 +322,7 @@ public:
 private:
 
   /* Data Members */
-  friend FormatList;
+  friend StaticList<Format>;
 
   int idx_{0};
   QString name_;
@@ -344,64 +343,5 @@ private:
   static QString htmlBase_;
   int readUseCount_{0};
   int writeUseCount_{0};
-};
-
-/*
- * A container
- * 1) with a fixed number of elements
- * 2) with elements that are modifiable
- * 3) that is movable
- * 4) that is not copyable
- * 5) where each member contains it's own index
- *    into then list
- * 6) with iterators that are never invalidated
- *    by use of operator[]
- */
-
-class FormatList : private std::vector<Format>
-{
-public:
-  FormatList() : std::vector<Format>() {};
-  FormatList(const FormatList&) = delete;
-  FormatList& operator=(const FormatList&) = delete;
-  FormatList(FormatList&&) = default;
-  FormatList& operator=(FormatList&&) = default;
-
-  FormatList(const std::vector<Format>&& qlist) : std::vector<Format>(qlist) // converting ctor
-  {
-    int idx = 0;
-    for (auto& element : *this) {
-      element.idx_ = idx++;
-    }
-  }
-
-  // Expose limited methods for portability.
-  // public types
-  using typename std::vector<Format>::value_type;
-  using typename std::vector<Format>::allocator_type;
-  using typename std::vector<Format>::size_type;
-  using typename std::vector<Format>::difference_type;
-  using typename std::vector<Format>::reference;
-  using typename std::vector<Format>::const_reference;
-  using typename std::vector<Format>::pointer;
-  using typename std::vector<Format>::const_pointer;
-  using typename std::vector<Format>::iterator;
-  using typename std::vector<Format>::const_iterator;
-  using typename std::vector<Format>::reverse_iterator;
-  using typename std::vector<Format>::const_reverse_iterator;
-  // public functions
-  using std::vector<Format>::back;
-  using std::vector<Format>::begin;
-  using std::vector<Format>::cbegin;
-  using std::vector<Format>::cend;
-  using std::vector<Format>::crbegin;
-  using std::vector<Format>::crend;
-  using std::vector<Format>::end;
-  using std::vector<Format>::empty;
-  using std::vector<Format>::front;
-  using std::vector<Format>::rbegin;
-  using std::vector<Format>::rend;
-  using std::vector<Format>::size;
-  using std::vector<Format>::operator[];
 };
 #endif

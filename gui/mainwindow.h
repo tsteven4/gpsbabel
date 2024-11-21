@@ -40,6 +40,7 @@
 #include "babeldata.h"      // for BabelData
 #include "filterdata.h"     // for AllFiltersData
 #include "format.h"         // for Format
+#include "staticlist.h"     // for StaticList
 #include "ui_mainwinui.h"   // for Ui_MainWindow
 #include "upgrade.h"        // for UpgradeCheck
 
@@ -55,7 +56,7 @@ public:
 
 private:
   Ui_MainWindow     ui_;
-  FormatList  formatList_;
+  StaticList<Format>  formatList_;
   QString        babelVersion_;
   bool		 isBeta_;
   QPixmap        lights_[4];
