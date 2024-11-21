@@ -28,14 +28,13 @@
 #include <QWidget>                // for QWidget
 #include "babeldata.h"            // for BabelData
 #include "format.h"               // for Format
-#include "staticlist.h"           // for StaticList
 
 
 class UpgradeCheck : public QObject
 {
   Q_OBJECT
 public:
-  UpgradeCheck(QWidget* parent, StaticList<Format>& formatList, BabelData& bd);
+  UpgradeCheck(QWidget* parent, FormatList& formatList, BabelData& bd);
 
   enum updateStatus {
     updateUnknown,
@@ -57,7 +56,7 @@ private:
   QUrl upgradeUrl_;
   QString latestVersion_;
   QDateTime upgradeWarningTime_;  // invalid time if this object never issued.
-  StaticList<Format>& formatList_;
+  FormatList& formatList_;
   updateStatus updateStatus_;
   BabelData& babelData_;
 

@@ -24,7 +24,6 @@
 #include <QWidget>           // for QWidget
 #include "babeldata.h"       // for BabelData
 #include "format.h"          // for Format
-#include "staticlist.h"      // for StaticList
 #include "ui_preferences.h"  // for Ui_Preferences
 
 class Preferences : public QDialog
@@ -32,10 +31,10 @@ class Preferences : public QDialog
   Q_OBJECT
 
 public:
-  Preferences(QWidget* parent, StaticList<Format>& formatList, BabelData& bd);
+  Preferences(QWidget* parent, FormatList& formatList, BabelData& bd);
 
 private:
-  StaticList<Format>& formatList_;
+  FormatList& formatList_;
   Ui_Preferences ui_;
   BabelData& babelData_;
 

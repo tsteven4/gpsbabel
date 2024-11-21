@@ -138,7 +138,7 @@ Format FormatLoad::processFormat()
 }
 
 //------------------------------------------------------------------------
-StaticList<Format> FormatLoad::getFormats()
+FormatList FormatLoad::getFormats()
 {
   std::vector<Format> formatList;
 

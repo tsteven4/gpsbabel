@@ -59,6 +59,7 @@
 #include <QtGlobal>            // for QForeachContainer, qMakeForeachContainer, foreach
 #include <cstdlib>             // for exit
 #include <ranges>              // for filter_view, _Filter, filter, views
+#include <vector>              // for vector
 #include "aboutdlg.h"          // for AboutDlg
 #include "advdlg.h"            // for AdvDlg
 #include "appname.h"           // for appName
@@ -75,7 +76,6 @@
 #include "optionsdlg.h"        // for OptionsDlg
 #include "preferences.h"       // for Preferences
 #include "runmachine.h"        // for RunMachine
-#include "staticlist.h"
 #include "upgrade.h"           // for UpgradeCheck
 #include "version_mismatch.h"  // for VersionMismatch
 
