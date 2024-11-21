@@ -35,10 +35,18 @@ public:
 
   // Expose limited methods for portability.
   // public types
-  using typename std::vector<T>::const_iterator;
-  using typename std::vector<T>::const_reverse_iterator;
+  using typename std::vector<T>::value_type;
+  using typename std::vector<T>::allocator_type;
+  using typename std::vector<T>::size_type;
+  using typename std::vector<T>::difference_type;
+  using typename std::vector<T>::reference;
+  using typename std::vector<T>::const_reference;
+  using typename std::vector<T>::pointer;
+  using typename std::vector<T>::const_pointer;
   using typename std::vector<T>::iterator;
+  using typename std::vector<T>::const_iterator;
   using typename std::vector<T>::reverse_iterator;
+  using typename std::vector<T>::const_reverse_iterator;
   // public functions
   using std::vector<T>::back;
   using std::vector<T>::begin;
