@@ -1,15 +1,17 @@
 #ifndef STATICLIST_H
 #define STATICLIST_H
 
-/* 
+/*
  * A container
  * 1) with a fixed number of elements
  * 2) with elements that are modifiable
  * 3) that is movable
  * 4) that is not copyable
  * 5) where each member contains it's own index
- *    into then list.
- */   
+ *    into then list
+ * 6) with iterators that are never invalidated
+ *    by use of operator[]
+ */
 
 #include <vector>  // for vector
 
@@ -31,20 +33,24 @@ public:
     }
   }
 
+  // Expose limited methods for portability.
   // public types
   using typename std::vector<T>::const_iterator;
   using typename std::vector<T>::const_reverse_iterator;
   using typename std::vector<T>::iterator;
   using typename std::vector<T>::reverse_iterator;
   // public functions
-  using std::vector<T>::at;
   using std::vector<T>::back;
   using std::vector<T>::begin;
   using std::vector<T>::cbegin;
   using std::vector<T>::cend;
+  using std::vector<T>::crbegin;
+  using std::vector<T>::crend;
   using std::vector<T>::end;
+  using std::vector<T>::empty;
   using std::vector<T>::front;
-  //using std::vector<T>::isEmpty;
+  using std::vector<T>::rbegin;
+  using std::vector<T>::rend;
   using std::vector<T>::size;
   using std::vector<T>::operator[];
 };

@@ -26,7 +26,12 @@ int main(int argc, char** argv)
   }
   generate_output_stream = new QTextStream(&generate_output_file);
 
-  bool fmtstatus = FormatLoad().getFormats(formatList);
+  bool fmtstatus = true;
+  try {
+    (void) FormatLoad().getFormats();
+  } catch (FormatLoadException& /* e */) {
+    fmtstatus = false;
+  }
 
   generate_output_stream->flush();
   generate_output_file.close();
