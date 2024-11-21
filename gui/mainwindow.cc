@@ -38,6 +38,7 @@
 #include <QGradientStop>       // for QBrush
 #include <QImage>              // for QImage
 #include <QLibraryInfo>        // for QLibraryInfo
+#include <QList>               // for QList
 #include <QLocale>             // for QLocale
 #include <QMessageBox>         // for QMessageBox, operator|
 #include <QMimeData>           // for QMimeData
@@ -57,13 +58,14 @@
 #include <Qt>                  // for TransformationMode, DateFormat, CursorShape, GlobalColor
 #include <QtGlobal>            // for QForeachContainer, qMakeForeachContainer, foreach
 #include <cstdlib>             // for exit
+#include <ranges>              // for filter_view, _Filter, filter, views
 #include "aboutdlg.h"          // for AboutDlg
 #include "advdlg.h"            // for AdvDlg
 #include "appname.h"           // for appName
 #include "babeldata.h"         // for BabelData
 #include "donate.h"            // for Donate
 #include "filterdlg.h"         // for FilterDialog
-#include "formatload.h"        // for FormatLoad
+#include "formatload.h"        // for FormatLoad, FormatLoadException
 #include "gbversion.h"         // for VERSION, kVersionDate, kVersionSHA
 #ifndef DISABLE_MAPPREVIEW
 #include "gpx.h"               // for Gpx
@@ -73,6 +75,7 @@
 #include "optionsdlg.h"        // for OptionsDlg
 #include "preferences.h"       // for Preferences
 #include "runmachine.h"        // for RunMachine
+#include "staticlist.h"
 #include "upgrade.h"           // for UpgradeCheck
 #include "version_mismatch.h"  // for VersionMismatch
 
@@ -348,13 +351,12 @@ void MainWindow::inputFileOptBtnClicked()
   fmtChgInterlock_ = true;
   QString fmt = babelData_.inputFileFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputFilePage);
-  QList<int>indices = inputFileFormatIndices();
   ui_.inputFormatCombo->clear();
-  for (int i=0; i<indices.size(); i++) {
-    int k = indices[i];
-    if (!formatList_[k].isHidden()) {
-      ui_.inputFormatCombo->addItem(formatList_[k].getDescription(), QVariant(k));
-    }
+  auto fmts = [](const Format& fmt)->bool {
+    return fmt.isReadSomething() && fmt.isFileFormat() && !fmt.isHidden();
+  };
+  for (const auto& fmt : std::views::filter(formatList_, fmts)) {
+    ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, true);
   fmtChgInterlock_ = false;
@@ -366,13 +368,12 @@ void MainWindow::inputDeviceOptBtnClicked()
   fmtChgInterlock_ = true;
   QString fmt = babelData_.inputDeviceFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputDevicePage);
-  QList<int>indices = inputDeviceFormatIndices();
   ui_.inputFormatCombo->clear();
-  for (int i=0; i<indices.size(); i++) {
-    int k = indices[i];
-    if (!formatList_[k].isHidden()) {
-      ui_.inputFormatCombo->addItem(formatList_[k].getDescription(), QVariant(k));
-    }
+  auto fmts = [](const Format& fmt)->bool {
+    return fmt.isReadSomething() && fmt.isDeviceFormat() && !fmt.isHidden();
+  };
+  for (const auto& fmt : std::views::filter(formatList_, fmts)) {
+    ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, false);
   fmtChgInterlock_ = false;
@@ -387,13 +388,12 @@ void MainWindow:: outputFileOptBtnClicked()
     ui_.outputDeviceOptBtn->setChecked(false);
     QString fmt = babelData_.outputFileFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputFilePage);
-    QList<int>indices = outputFileFormatIndices();
     ui_.outputFormatCombo->clear();
-    for (int i=0; i<indices.size(); i++) {
-      int k = indices[i];
-      if (!formatList_[k].isHidden()) {
-        ui_.outputFormatCombo->addItem(formatList_[k].getDescription(), QVariant(k));
-      }
+    auto fmts = [](const Format& fmt)->bool {
+      return fmt.isWriteSomething() && fmt.isFileFormat() && !fmt.isHidden();
+    };
+    for (const auto& fmt : std::views::filter(formatList_, fmts)) {
+      ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, true);
   } else {
@@ -412,13 +412,12 @@ void MainWindow:: outputDeviceOptBtnClicked()
     ui_.outputFileOptBtn->setChecked(false);
     QString fmt = babelData_.outputDeviceFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputDevicePage);
-    QList<int>indices = outputDeviceFormatIndices();
     ui_.outputFormatCombo->clear();
-    for (int i=0; i<indices.size(); i++) {
-      int k = indices[i];
-      if (!formatList_[k].isHidden()) {
-        ui_.outputFormatCombo->addItem(formatList_[k].getDescription(), QVariant(k));
-      }
+    auto fmts = [](const Format& fmt)->bool {
+      return fmt.isWriteSomething() && fmt.isDeviceFormat() && !fmt.isHidden();
+    };
+    for (const auto& fmt : std::views::filter(formatList_, fmts)) {
+      ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, false);
   } else {
@@ -548,57 +547,11 @@ void MainWindow::browseOutputFile()
 }
 
 //------------------------------------------------------------------------
-QList<int> MainWindow::inputFileFormatIndices()
-{
-  QList<int>indices;
-  for (int i=0; i<formatList_.size(); i++) {
-    if (formatList_[i].isReadSomething() && formatList_[i].isFileFormat()) {
-      indices<<i;
-    }
-  }
-  return indices;
-}
-
-//------------------------------------------------------------------------
-QList<int> MainWindow::inputDeviceFormatIndices()
-{
-  QList<int>indices;
-  for (int i=0; i<formatList_.size(); i++) {
-    if (formatList_[i].isReadSomething() && formatList_[i].isDeviceFormat()) {
-      indices<<i;
-    }
-  }
-  return indices;
-}
-
-//------------------------------------------------------------------------
-QList<int> MainWindow::outputFileFormatIndices()
-{
-  QList<int>indices;
-  for (int i=0; i<formatList_.size(); i++) {
-    if (formatList_[i].isWriteSomething() && formatList_[i].isFileFormat()) {
-      indices<<i;
-    }
-  }
-  return indices;
-}
-
-//------------------------------------------------------------------------
-QList<int> MainWindow::outputDeviceFormatIndices()
-{
-  QList<int>indices;
-  for (int i=0; i<formatList_.size(); i++) {
-    if (formatList_[i].isWriteSomething() && formatList_[i].isDeviceFormat()) {
-      indices<<i;
-    }
-  }
-  return indices;
-}
-
-//------------------------------------------------------------------------
 void MainWindow::loadFormats()
 {
-  if (!FormatLoad().getFormats(formatList_)) {
+  try {
+    formatList_ = FormatLoad().getFormats();
+  } catch (FormatLoadException& /* e */) {
     QMessageBox::information(nullptr, QString(appName),
                              tr("Error reading format configuration.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "
@@ -606,10 +559,23 @@ void MainWindow::loadFormats()
                                 "This program cannot continue."));
     exit(1);
   }
-  if (inputFileFormatIndices().empty() ||
-      inputDeviceFormatIndices().empty() ||
-      outputFileFormatIndices().empty() ||
-      outputDeviceFormatIndices().empty()) {
+
+  auto ifmts = [](const Format& fmt)->bool {
+    return fmt.isReadSomething() && fmt.isFileFormat();
+  };
+  auto idevs = [](const Format& fmt)->bool {
+    return fmt.isReadSomething() && fmt.isDeviceFormat();
+  };
+  auto ofmts = [](const Format& fmt)->bool {
+    return fmt.isWriteSomething() && fmt.isFileFormat();
+  };
+  auto odevs = [](const Format& fmt)->bool {
+    return fmt.isWriteSomething() && fmt.isDeviceFormat();
+  };
+  if (std::views::filter(formatList_, ifmts).empty() ||
+      std::views::filter(formatList_, idevs).empty() ||
+      std::views::filter(formatList_, ofmts).empty() ||
+      std::views::filter(formatList_, odevs).empty()) {
     QMessageBox::information(nullptr, QString(appName),
                              tr("Some file/device formats were not found during initialization.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "

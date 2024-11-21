@@ -21,6 +21,7 @@
 #include <QAbstractButton>   // for QAbstractButton
 #include <QCheckBox>         // for QCheckBox
 #include <QDialogButtonBox>  // for QDialogButtonBox
+#include <QList>             // for QList
 #include <QListWidget>       // for QListWidget
 #include <QListWidgetItem>   // for QListWidgetItem
 #include <QPushButton>       // for QPushButton
@@ -40,7 +41,7 @@ private:
   //Format& fmt_;
 };
 
-Preferences::Preferences(QWidget* parent, QList<Format>& formatList,
+Preferences::Preferences(QWidget* parent, StaticList<Format>& formatList,
                          BabelData& bd) : QDialog(parent),
   formatList_(formatList),
   babelData_(bd)

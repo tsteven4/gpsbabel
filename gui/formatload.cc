@@ -33,6 +33,7 @@
 #include <QString>             // for QString, operator+
 #include <QTextStream>         // for QTextStream
 #include <QVariant>            // for QVariant
+#include <utility>             // for move
 #include "appname.h"           // for appNam
 
 
@@ -60,11 +61,11 @@ bool FormatLoad::skipToValidLine()
 }
 
 //------------------------------------------------------------------------
-bool FormatLoad::processFormat(Format& format)
+Format FormatLoad::processFormat()
 {
   QStringList hfields = lines_[currentLine_++].split("\t");
   if (hfields.size() < 5) {
-    return false;
+    throw ProcessFormatException("malformed response from gpsbabel");
   }
   QString htmlPage = lines_[currentLine_++].trimmed();
 
@@ -72,7 +73,7 @@ bool FormatLoad::processFormat(Format& format)
   while ((currentLine_ < lines_.size()) && lines_[currentLine_].startsWith("option")) {
     QStringList ofields = lines_[currentLine_].split("\t");
     if (ofields.size() < 9) {
-      return false;
+      throw ProcessFormatException("malformed response from gpsbabel");
     }
     QString name        = ofields[2];
     QString description = ofields[3];
@@ -116,7 +117,7 @@ bool FormatLoad::processFormat(Format& format)
   }
   QList <FormatOption> optionList2 = optionList;
 
-  format = Format(hfields[2], xlt(hfields[4]),
+  Format format = Format(hfields[2], xlt(hfields[4]),
                   hfields[1][0] == QChar('r'),  hfields[1][2] == QChar('r'),  hfields[1][4] == QChar('r'),
                   hfields[1][1] == QChar('w'),  hfields[1][3] == QChar('w'),  hfields[1][5] == QChar('w'),
                   hfields[0] == "file",
@@ -132,25 +133,25 @@ bool FormatLoad::processFormat(Format& format)
     Format::setHtmlBase(base);
   }
 #endif
-  return true;
+  return format;
 }
 
 //------------------------------------------------------------------------
-bool FormatLoad::getFormats(QList<Format>& formatList)
+StaticList<Format> FormatLoad::getFormats()
 {
-  formatList.clear();
+  QList<Format> formatList;
 
   QProcess babel;
   babel.start(QApplication::applicationDirPath() + "/gpsbabel", QStringList() << "-^3");
   if (!babel.waitForStarted()) {
-    return false;
+    throw FormatLoadException("gpsbabel did not start");
   }
   babel.closeWriteChannel();
   if (!babel.waitForFinished()) {
-    return false;
+    throw FormatLoadException("gpsbabel did not finish");
   }
   if (babel.exitCode() != 0) {
-    return false;
+    throw FormatLoadException("gpsbabel returned an error");
   }
 
   QTextStream tstream(babel.readAll());
@@ -167,14 +168,14 @@ bool FormatLoad::getFormats(QList<Format>& formatList)
   currentLine_ = 0;
 
   for (bool dataPresent = skipToValidLine(); dataPresent; dataPresent=skipToValidLine()) {
-    Format format;
-    if (!processFormat(format)) {
+    try {
+      Format format = processFormat();
+      formatList << format;
+    } catch (ProcessFormatException& /* e */) {
       QMessageBox::information
       (nullptr, appName,
        QObject::tr("Error processing formats from running process \"gpsbabel -^3\" at line %1").arg(lineList[currentLine_]));
-    } else {
-      formatList << format;
     }
   }
-  return true;
+  return std::move(formatList);
 }

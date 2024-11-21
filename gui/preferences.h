@@ -20,11 +20,11 @@
 //  USA.
 
 #include <QDialog>           // for QDialog
-#include <QList>             // for QList
 #include <QObject>           // for Q_OBJECT, slots
 #include <QWidget>           // for QWidget
 #include "babeldata.h"       // for BabelData
 #include "format.h"          // for Format
+#include "staticlist.h"      // for StaticList
 #include "ui_preferences.h"  // for Ui_Preferences
 
 class Preferences : public QDialog
@@ -32,10 +32,10 @@ class Preferences : public QDialog
   Q_OBJECT
 
 public:
-  Preferences(QWidget* parent, QList<Format>& formatList, BabelData& bd);
+  Preferences(QWidget* parent, StaticList<Format>& formatList, BabelData& bd);
 
 private:
-  QList<Format>& formatList_;
+  StaticList<Format>& formatList_;
   Ui_Preferences ui_;
   BabelData& babelData_;
 

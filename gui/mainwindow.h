@@ -29,7 +29,6 @@
 #include <QEvent>           // for QEvent
 #include <QLabel>           // for QLabel
 #include <QLineEdit>        // for QLineEdit
-#include <QList>            // for QList
 #include <QMainWindow>      // for QMainWindow
 #include <QObject>          // for Q_OBJECT, slots
 #include <QPixmap>          // for QPixmap
@@ -41,6 +40,7 @@
 #include "babeldata.h"      // for BabelData
 #include "filterdata.h"     // for AllFiltersData
 #include "format.h"         // for Format
+#include "staticlist.h"     // for StaticList
 #include "ui_mainwinui.h"   // for Ui_MainWindow
 #include "upgrade.h"        // for UpgradeCheck
 
@@ -56,7 +56,7 @@ public:
 
 private:
   Ui_MainWindow     ui_;
-  QList<Format>  formatList_;
+  StaticList<Format>  formatList_;
   QString        babelVersion_;
   bool		 isBeta_;
   QPixmap        lights_[4];
@@ -77,10 +77,6 @@ private:
   QString findBabelVersion();
   bool    filterForFormatIncludes(int idx, const QString& s);
   int  formatIndexFromName(bool isFile, const QString&);
-  QList<int>inputFileFormatIndices();
-  QList<int>inputDeviceFormatIndices();
-  QList<int>outputFileFormatIndices();
-  QList<int>outputDeviceFormatIndices();
   int  currentComboFormatIndex(QComboBox* comboBox);
   bool isOkToGo();
   bool runGpsbabel(const QStringList& args, QString& errorString, QString& outputString);

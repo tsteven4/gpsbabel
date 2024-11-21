@@ -20,7 +20,6 @@
  */
 
 #include <QDateTime>              // for QDateTime
-#include <QList>                  // for QList
 #include <QNetworkAccessManager>  // for QNetworkAccessManager
 #include <QNetworkReply>          // for QNetworkReply
 #include <QObject>                // for QObject, Q_OBJECT, slots
@@ -29,13 +28,14 @@
 #include <QWidget>                // for QWidget
 #include "babeldata.h"            // for BabelData
 #include "format.h"               // for Format
+#include "staticlist.h"           // for StaticList
 
 
 class UpgradeCheck : public QObject
 {
   Q_OBJECT
 public:
-  UpgradeCheck(QWidget* parent, QList<Format>& formatList, BabelData& bd);
+  UpgradeCheck(QWidget* parent, StaticList<Format>& formatList, BabelData& bd);
 
   enum updateStatus {
     updateUnknown,
@@ -57,7 +57,7 @@ private:
   QUrl upgradeUrl_;
   QString latestVersion_;
   QDateTime upgradeWarningTime_;  // invalid time if this object never issued.
-  QList<Format>& formatList_;
+  StaticList<Format>& formatList_;
   updateStatus updateStatus_;
   BabelData& babelData_;
 

@@ -28,6 +28,7 @@
 #include <QDomElement>            // for QDomElement
 #include <QDomNode>               // for QDomNode
 #include <QDomNodeList>           // for QDomNodeList
+#include <QList>                  // for QList
 #include <QLocale>                // for QLocale
 #include <QMessageBox>            // for QMessageBox, operator|
 #include <QNetworkAccessManager>  // for QNetworkAccessManager
@@ -51,7 +52,7 @@ static const bool testing = true;
 static const bool testing = false;
 #endif
 
-UpgradeCheck::UpgradeCheck(QWidget* parent, QList<Format>& formatList,
+UpgradeCheck::UpgradeCheck(QWidget* parent, StaticList<Format>& formatList,
                            BabelData& bd) :
   QObject(parent),
   manager_(nullptr),
