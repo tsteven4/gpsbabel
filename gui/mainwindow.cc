@@ -59,7 +59,6 @@
 #include <QtGlobal>            // for QForeachContainer, qMakeForeachContainer, foreach
 #include <algorithm>           // for none_of
 #include <cstdlib>             // for exit
-#include <vector>              // for vector
 #include "aboutdlg.h"          // for AboutDlg
 #include "advdlg.h"            // for AdvDlg
 #include "appname.h"           // for appName
@@ -76,7 +75,6 @@
 #include "optionsdlg.h"        // for OptionsDlg
 #include "preferences.h"       // for Preferences
 #include "runmachine.h"        // for RunMachine
-#include "staticlist.h"        // for StaticList
 #include "upgrade.h"           // for UpgradeCheck
 #include "version_mismatch.h"  // for VersionMismatch
 
@@ -353,9 +351,10 @@ void MainWindow::inputFileOptBtnClicked()
   QString fmt = babelData_.inputFileFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputFilePage);
   ui_.inputFormatCombo->clear();
-  for (const auto& fmt : formatList_) {
+  for (int i = 0; i < formatList_.size(); ++i) {
+    const Format& fmt = formatList_.at(i);
     if (fmt.isReadSomething() && fmt.isFileFormat() && !fmt.isHidden()) {
-      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(i));
     }
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, true);
@@ -369,9 +368,10 @@ void MainWindow::inputDeviceOptBtnClicked()
   QString fmt = babelData_.inputDeviceFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputDevicePage);
   ui_.inputFormatCombo->clear();
-  for (const auto& fmt : formatList_) {
+  for (int i = 0; i < formatList_.size(); ++i) {
+    const Format& fmt = formatList_.at(i);
     if (fmt.isReadSomething() && fmt.isDeviceFormat() && !fmt.isHidden()) {
-      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(i));
     }
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, false);
@@ -388,9 +388,10 @@ void MainWindow:: outputFileOptBtnClicked()
     QString fmt = babelData_.outputFileFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputFilePage);
     ui_.outputFormatCombo->clear();
-    for (const auto& fmt : formatList_) {
+    for (int i = 0; i < formatList_.size(); ++i) {
+      const Format& fmt = formatList_.at(i);
       if (fmt.isWriteSomething() && fmt.isFileFormat() && !fmt.isHidden()) {
-        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(i));
       }
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, true);
@@ -411,9 +412,10 @@ void MainWindow:: outputDeviceOptBtnClicked()
     QString fmt = babelData_.outputDeviceFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputDevicePage);
     ui_.outputFormatCombo->clear();
-    for (const auto& fmt : formatList_) {
+    for (int i = 0; i < formatList_.size(); ++i) {
+      const Format& fmt = formatList_.at(i);
       if (fmt.isWriteSomething() && fmt.isDeviceFormat() && !fmt.isHidden()) {
-        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(i));
       }
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, false);

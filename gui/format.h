@@ -28,7 +28,6 @@
 #include <QString>      // for QString
 #include <QStringList>  // for QStringList
 #include <QVariant>     // for QVariant
-#include "staticlist.h"
 
 class FormatOption
 {
@@ -147,6 +146,7 @@ public:
 
   /* Special Member Functions */
 
+  Format() = default;
   Format(const QString& name,
          const QString& description,
          bool readWaypoints,
@@ -314,17 +314,11 @@ public:
     readUseCount_  = 0;
     writeUseCount_ = 0;
   }
-  int getIndex() const
-  {
-    return idx_;
-  }
 
 private:
 
   /* Data Members */
-  friend StaticList<Format>;
 
-  int idx_{0};
   QString name_;
   QString description_;
   bool readWaypoints_{false};
@@ -343,5 +337,7 @@ private:
   static QString htmlBase_;
   int readUseCount_{0};
   int writeUseCount_{0};
+
 };
+
 #endif

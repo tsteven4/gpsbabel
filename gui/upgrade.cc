@@ -40,8 +40,6 @@
 #include <Qt>                     // for DateFormat, TextFormat
 #include <QtGlobal>               // for qDebug, QT_VERSION, QT_VERSION_CHECK, qsizetype
 
-#include <vector>                 // for vector
-
 #include "babeldata.h"            // for BabelData
 #include "format.h"               // for Format
 #include "gbversion.h"            // for VERSION
@@ -53,7 +51,7 @@ static const bool testing = true;
 static const bool testing = false;
 #endif
 
-UpgradeCheck::UpgradeCheck(QWidget* parent, StaticList<Format>& formatList,
+UpgradeCheck::UpgradeCheck(QWidget* parent, QList<Format>& formatList,
                            BabelData& bd) :
   QObject(parent),
   manager_(nullptr),

@@ -31,7 +31,6 @@
 #include <stdexcept>     // for runtime_error
 
 #include "format.h"      // for Format
-#include "staticlist.h"  // for StaticList
 
 class FormatLoadException : public std::runtime_error
 {
@@ -43,7 +42,7 @@ class FormatLoad
 public:
   /* Member Functions */
 
-  StaticList<Format> getFormats();
+  QList<Format> getFormats();
 
 private:
   /* Types */

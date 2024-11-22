@@ -34,7 +34,6 @@
 #include <QTextStream>         // for QTextStream
 #include <QVariant>            // for QVariant
 #include <utility>             // for move
-#include <vector>              // for vector
 #include "appname.h"           // for appNam
 
 
@@ -138,9 +137,9 @@ Format FormatLoad::processFormat()
 }
 
 //------------------------------------------------------------------------
-StaticList<Format> FormatLoad::getFormats()
+QList<Format> FormatLoad::getFormats()
 {
-  std::vector<Format> formatList;
+  QList<Format> formatList;
 
   QProcess babel;
   babel.start(QApplication::applicationDirPath() + "/gpsbabel", QStringList() << "-^3");

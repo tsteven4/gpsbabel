@@ -25,7 +25,6 @@
 #include <QListWidgetItem>   // for QListWidgetItem
 #include <QPushButton>       // for QPushButton
 #include <Qt>                // for CheckState
-#include <vector>            // for vector
 
 class FormatListEntry : public QListWidgetItem
 {
@@ -41,7 +40,7 @@ private:
   //Format& fmt_;
 };
 
-Preferences::Preferences(QWidget* parent, StaticList<Format>& formatList,
+Preferences::Preferences(QWidget* parent, QList<Format>& formatList,
                          BabelData& bd) : QDialog(parent),
   formatList_(formatList),
   babelData_(bd)
