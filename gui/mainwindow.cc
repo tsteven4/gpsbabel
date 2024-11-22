@@ -76,7 +76,7 @@
 #include "optionsdlg.h"        // for OptionsDlg
 #include "preferences.h"       // for Preferences
 #include "runmachine.h"        // for RunMachine
-#include "staticlist.h"
+#include "staticlist.h"        // for StaticList
 #include "upgrade.h"           // for UpgradeCheck
 #include "version_mismatch.h"  // for VersionMismatch
 
