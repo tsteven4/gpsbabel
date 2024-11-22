@@ -57,8 +57,9 @@
 #include <QVariant>            // for QVariant, operator!=
 #include <Qt>                  // for TransformationMode, DateFormat, CursorShape, GlobalColor
 #include <QtGlobal>            // for QForeachContainer, qMakeForeachContainer, foreach
+#include <algorithm>           // for none_of
 #include <cstdlib>             // for exit
-#include <ranges>              // for filter_view, _Filter, filter, views
+#include <vector>              // for vector
 #include "aboutdlg.h"          // for AboutDlg
 #include "advdlg.h"            // for AdvDlg
 #include "appname.h"           // for appName
@@ -352,11 +353,10 @@ void MainWindow::inputFileOptBtnClicked()
   QString fmt = babelData_.inputFileFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputFilePage);
   ui_.inputFormatCombo->clear();
-  auto fmts = [](const Format& fmt)->bool {
-    return fmt.isReadSomething() && fmt.isFileFormat() && !fmt.isHidden();
-  };
-  for (const auto& fmt : std::views::filter(formatList_, fmts)) {
-    ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+  for (const auto& fmt : formatList_) {
+    if (fmt.isReadSomething() && fmt.isFileFormat() && !fmt.isHidden()) {
+      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+    }
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, true);
   fmtChgInterlock_ = false;
@@ -369,11 +369,10 @@ void MainWindow::inputDeviceOptBtnClicked()
   QString fmt = babelData_.inputDeviceFormat_;
   ui_.inputStackedWidget->setCurrentWidget(ui_.inputDevicePage);
   ui_.inputFormatCombo->clear();
-  auto fmts = [](const Format& fmt)->bool {
-    return fmt.isReadSomething() && fmt.isDeviceFormat() && !fmt.isHidden();
-  };
-  for (const auto& fmt : std::views::filter(formatList_, fmts)) {
-    ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+  for (const auto& fmt : formatList_) {
+    if (fmt.isReadSomething() && fmt.isDeviceFormat() && !fmt.isHidden()) {
+      ui_.inputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+    }
   }
   setComboToFormat(ui_.inputFormatCombo, fmt, false);
   fmtChgInterlock_ = false;
@@ -389,11 +388,10 @@ void MainWindow:: outputFileOptBtnClicked()
     QString fmt = babelData_.outputFileFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputFilePage);
     ui_.outputFormatCombo->clear();
-    auto fmts = [](const Format& fmt)->bool {
-      return fmt.isWriteSomething() && fmt.isFileFormat() && !fmt.isHidden();
-    };
-    for (const auto& fmt : std::views::filter(formatList_, fmts)) {
-      ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+    for (const auto& fmt : formatList_) {
+      if (fmt.isWriteSomething() && fmt.isFileFormat() && !fmt.isHidden()) {
+        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+      }
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, true);
   } else {
@@ -413,11 +411,10 @@ void MainWindow:: outputDeviceOptBtnClicked()
     QString fmt = babelData_.outputDeviceFormat_;
     ui_.outputStackedWidget->setCurrentWidget(ui_.outputDevicePage);
     ui_.outputFormatCombo->clear();
-    auto fmts = [](const Format& fmt)->bool {
-      return fmt.isWriteSomething() && fmt.isDeviceFormat() && !fmt.isHidden();
-    };
-    for (const auto& fmt : std::views::filter(formatList_, fmts)) {
-      ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+    for (const auto& fmt : formatList_) {
+      if (fmt.isWriteSomething() && fmt.isDeviceFormat() && !fmt.isHidden()) {
+        ui_.outputFormatCombo->addItem(fmt.getDescription(), QVariant(fmt.getIndex()));
+      }
     }
     setComboToFormat(ui_.outputFormatCombo, fmt, false);
   } else {
@@ -572,10 +569,10 @@ void MainWindow::loadFormats()
   auto odevs = [](const Format& fmt)->bool {
     return fmt.isWriteSomething() && fmt.isDeviceFormat();
   };
-  if (std::views::filter(formatList_, ifmts).empty() ||
-      std::views::filter(formatList_, idevs).empty() ||
-      std::views::filter(formatList_, ofmts).empty() ||
-      std::views::filter(formatList_, odevs).empty()) {
+  if (std::none_of(formatList_.cbegin(), formatList_.cend(), ifmts) ||
+      std::none_of(formatList_.cbegin(), formatList_.cend(), idevs) ||
+      std::none_of(formatList_.cbegin(), formatList_.cend(), ofmts) ||
+      std::none_of(formatList_.cbegin(), formatList_.cend(), odevs)) {
     QMessageBox::information(nullptr, QString(appName),
                              tr("Some file/device formats were not found during initialization.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "

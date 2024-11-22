@@ -21,11 +21,11 @@
 #include <QAbstractButton>   // for QAbstractButton
 #include <QCheckBox>         // for QCheckBox
 #include <QDialogButtonBox>  // for QDialogButtonBox
-#include <QList>             // for QList
 #include <QListWidget>       // for QListWidget
 #include <QListWidgetItem>   // for QListWidgetItem
 #include <QPushButton>       // for QPushButton
 #include <Qt>                // for CheckState
+#include <vector>            // for vector
 
 class FormatListEntry : public QListWidgetItem
 {

@@ -28,7 +28,6 @@
 #include <QDomElement>            // for QDomElement
 #include <QDomNode>               // for QDomNode
 #include <QDomNodeList>           // for QDomNodeList
-#include <QList>                  // for QList
 #include <QLocale>                // for QLocale
 #include <QMessageBox>            // for QMessageBox, operator|
 #include <QNetworkAccessManager>  // for QNetworkAccessManager
@@ -40,6 +39,8 @@
 #include <QVersionNumber>         // for QVersionNumber, operator<, operator==
 #include <Qt>                     // for DateFormat, TextFormat
 #include <QtGlobal>               // for qDebug, QT_VERSION, QT_VERSION_CHECK, qsizetype
+
+#include <vector>                 // for vector
 
 #include "babeldata.h"            // for BabelData
 #include "format.h"               // for Format
