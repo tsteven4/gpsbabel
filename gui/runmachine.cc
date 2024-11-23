@@ -19,13 +19,20 @@
 
 #include "runmachine.h"
 
+#include <QApplication>
 #include <QDebug>      // for QDebug, operator<<
 #include <QEventLoop>  // for QEventLoop
 #include <Qt>          // for ConnectionType
 #include <QtGlobal>    // for qDebug
 
-#include "appname.h"   // for appName
 
+RunMachine::result RunMachine::runGpsbabel(QWidget* parent, bool showProgress, const QStringList& args)
+{
+  QString name = "gpsbabel";
+  QString program = QApplication::applicationDirPath() + '/' + name;
+  RunMachine runMachine(parent, showProgress, program, args);
+  return runMachine.exec();
+}
 
 QString RunMachine::decodeProcessError(QProcess::ProcessError err)
 {
@@ -47,12 +54,15 @@ QString RunMachine::decodeProcessError(QProcess::ProcessError err)
 }
 
 RunMachine::RunMachine(QWidget* parent,
+                       bool showProgress,
                        const QString& program,
                        const QStringList& args) :
   QWidget(parent), program_(program), args_(args)
 {
   process_ = new QProcess(this);
-  progress_ = new ProcessWaitDialog(this, process_);
+  if (showProgress) {
+    progress_ = new ProcessWaitDialog(this, process_);
+  }
   // It is important that at least some of the fowarded signals are
   // QueuedConnections to avoid reentrant use of RunMachine::execute which it
   // is not designed for.
@@ -77,16 +87,18 @@ RunMachine::RunMachine(QWidget* parent,
             std::nullopt,
             std::nullopt);
   }, Qt::QueuedConnection);
-  connect(progress_, &ProcessWaitDialog::rejected,
-  this, [this]() {
-    execute(abortRequested,
-            std::nullopt,
-            std::nullopt,
-            std::nullopt);
-  }, Qt::QueuedConnection);
+  if (progress_ != nullptr) {
+    connect(progress_, &ProcessWaitDialog::rejected,
+    this, [this]() {
+      execute(abortRequested,
+              std::nullopt,
+              std::nullopt,
+              std::nullopt);
+    }, Qt::QueuedConnection);
+  }
 }
 
-int RunMachine::exec()
+RunMachine::result RunMachine::exec()
 {
   open();
 
@@ -95,7 +107,7 @@ int RunMachine::exec()
   connect(this, &RunMachine::finished, &loop, &QEventLoop::quit);
   loop.exec();
 
-  return getRetStatus();
+  return {getRetStatus(), getErrorString(), getOutputString()};
 }
 
 void RunMachine::open()
@@ -140,13 +152,15 @@ void RunMachine::execute(SignalId id,
   case starting:
     switch (id) {
     case processErrorOccurred:
-      errorString_ = QString(tr("Process \"%1\" did not start")).arg(appName);
+      errorString_ = QString(tr("Process \"%1\" did not start")).arg(process_->program());
       state_ = done;
       emit finished();
       break;
     case processStarted:
-      progress_->show();
-      progress_->open();
+      if (progress_ != nullptr) {
+        progress_->show();
+        progress_->open();
+      }
       state_ = running;
       break;
     default:
@@ -161,14 +175,18 @@ void RunMachine::execute(SignalId id,
     switch (id) {
     case processErrorOccurred:
       if constexpr(finishOnRunningError) {
-        progress_->accept();
+        if (progress_ != nullptr) {
+          progress_->accept();
+        }
         errorString_ = decodeProcessError(*error);
         state_ = done;
         emit finished();
       }
       break;
     case processFinished:
-      progress_->accept();
+      if (progress_ != nullptr) {
+        progress_->accept();
+      }
       if (*exitStatus == QProcess::NormalExit) {
         if (*exitCode != 0) {
           errorString_ =

@@ -34,7 +34,6 @@
 #include <QObject>          // for Q_OBJECT, slots
 #include <QPixmap>          // for QPixmap
 #include <QString>          // for QString
-#include <QStringList>      // for QStringList
 #include <QTranslator>      // for QTranslator
 #include <QWidget>          // for QWidget
 
@@ -52,7 +51,6 @@ class MainWindow: public QMainWindow
 
 public:
   MainWindow(QWidget* parent);
-
 
 private:
   Ui_MainWindow     ui_;
@@ -79,7 +77,6 @@ private:
   int  formatIndexFromName(bool isFile, const QString&);
   int  currentComboFormatIndex(QComboBox* comboBox);
   bool isOkToGo();
-  bool runGpsbabel(const QStringList& args, QString& errorString, QString& outputString);
   void crossCheckInOutFormats();
   void setIndicatorLights(QLabel* label, const QString& type, int code) ;
   void displayOptionsText(QLineEdit*, QComboBox*, bool);

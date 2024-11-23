@@ -23,7 +23,6 @@
 #include <QAbstractButton>     // for QAbstractButton
 #include <QAction>             // for QAction
 #include <QApplication>        // for QApplication, qApp
-#include <QByteArray>          // for QByteArray
 #include <QCheckBox>           // for QCheckBox
 #include <QCursor>             // for QCursor
 #include <QDate>               // for QDate
@@ -43,7 +42,6 @@
 #include <QMessageBox>         // for QMessageBox, operator|
 #include <QMimeData>           // for QMimeData
 #include <QPlainTextEdit>      // for QPlainTextEdit
-#include <QProcess>            // for QProcess
 #include <QPushButton>         // for QPushButton
 #include <QRadioButton>        // for QRadioButton
 #include <QSettings>           // for QSettings
@@ -87,22 +85,17 @@ const int BabelData::deviceType_ = 1;
 //------------------------------------------------------------------------
 QString MainWindow::findBabelVersion()
 {
-  QProcess babel;
-  babel.start(QApplication::applicationDirPath() + "/gpsbabel", QStringList() << "-V");
-  if (!babel.waitForStarted()) {
-    return QString();
-  }
-  babel.closeWriteChannel();
-  if (!babel.waitForFinished()) {
-    return QString();
+  auto result = RunMachine::runGpsbabel(this, false, QStringList{"-V"});
+  if (!result.ok) {
+    // result.errorString ignored
+    return {};
   }
 
-  QString str = babel.readAll();
-  isBeta_ = str.contains("-beta");
-  str.replace("Version",  "");
-  str.replace("GPSBabel",  "");
-  str = str.simplified();
-  return str;
+  isBeta_ = result.outputString.contains("-beta");
+  QString str(result.outputString);
+  str.remove("Version");
+  str.remove("GPSBabel");
+  return str.simplified();
 }
 
 //------------------------------------------------------------------------
@@ -548,16 +541,17 @@ void MainWindow::browseOutputFile()
 //------------------------------------------------------------------------
 void MainWindow::loadFormats()
 {
-  try {
-    formatList_ = FormatLoad().getFormats();
-  } catch (FormatLoadException& /* e */) {
-    QMessageBox::information(nullptr, QString(appName),
+  auto result = FormatLoad().getFormats();
+  if (!result.ok) {
+    QMessageBox::information(nullptr, appName,
+                             QString("%1.\n%2").arg(result.errorString,
                              tr("Error reading format configuration.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "
                                 "and is in the current PATH\n\n"
-                                "This program cannot continue."));
+                                "This program cannot continue.")));
     exit(1);
   }
+  formatList_ = result.formatList;
 
   auto ifmts = [](const Format& fmt)->bool {
     return fmt.isReadSomething() && fmt.isFileFormat();
@@ -803,20 +797,6 @@ bool MainWindow::isOkToGo()
 }
 
 //------------------------------------------------------------------------
-bool MainWindow::runGpsbabel(const QStringList& args, QString& errorString,
-                             QString& outputString)
-{
-  QString name = "gpsbabel";
-  QString program = QApplication::applicationDirPath() + '/' + name;
-  RunMachine runMachine(this, program, args);
-  int retStatus = runMachine.exec();
-
-  errorString = runMachine.getErrorString();
-  outputString = runMachine.getOutputString();
-  return retStatus;
-}
-
-//------------------------------------------------------------------------
 int MainWindow::formatIndexFromName(bool isFile, const QString& nm)
 {
   for (int i= 0; i<formatList_.size(); i++) {
@@ -923,14 +903,12 @@ void MainWindow::applyActionX()
   ui_.outputWindow->clear();
   ui_.outputWindow->appendPlainText("gpsbabel " + args.join(" "));
 
-  QString errorString;
-  QString outputString;
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  bool x = runGpsbabel(args, errorString, outputString);
+  auto result = RunMachine::runGpsbabel(this, true, args);
   QApplication::restoreOverrideCursor();
 
-  ui_.outputWindow->appendPlainText(outputString);
-  if (x) {
+  ui_.outputWindow->appendPlainText(result.outputString);
+  if (result.ok) {
     ui_.outputWindow->appendPlainText(tr("Translation successful"));
 #ifndef DISABLE_MAPPREVIEW
     if (babelData_.previewGmap_) {
@@ -962,7 +940,7 @@ void MainWindow::applyActionX()
     errorFormat.setFontItalic(true);
 
     ui_.outputWindow->setCurrentCharFormat(errorFormat);
-    ui_.outputWindow->appendPlainText(tr("Error running gpsbabel: %1\n").arg(errorString));
+    ui_.outputWindow->appendPlainText(tr("Error running gpsbabel: %1\n").arg(result.errorString));
     ui_.outputWindow->setCurrentCharFormat(defaultFormat);
   }
 }

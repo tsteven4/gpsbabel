@@ -25,37 +25,40 @@
 #ifndef FORMATLOAD_H
 #define FORMATLOAD_H
 
-#include <QList>         // for QList
-#include <QStringList>   // for QStringList
+#include <QList>        // for QList
+#include <QString>      // for QString
+#include <QStringList>  // for QStringList
 
-#include <stdexcept>     // for runtime_error
-
-#include "format.h"      // for Format
-
-class FormatLoadException : public std::runtime_error
-{
-  using std::runtime_error::runtime_error;
-};
+#include "format.h"     // for Format
 
 class FormatLoad
 {
 public:
+  /* Types */
+
+  struct getFormatsResult {
+    bool ok;
+    QString errorString;
+    QList<Format> formatList;
+  };
+
   /* Member Functions */
 
-  QList<Format> getFormats();
+  getFormatsResult getFormats();
 
 private:
   /* Types */
 
-  class ProcessFormatException : public std::runtime_error
-  {
-    using std::runtime_error::runtime_error;
+  struct processFormatResult {
+    bool ok;
+    QString errorString;
+    Format format;
   };
 
   /* Member Functions */
 
   bool skipToValidLine();
-  Format processFormat();
+  processFormatResult processFormat();
 
   /* Data Members */
 

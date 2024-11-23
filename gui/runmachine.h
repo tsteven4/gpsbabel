@@ -20,6 +20,7 @@
 #ifndef RUNMACHINE_H
 #define RUNMACHINE_H
 
+#include <QByteArray>     // for QByteArray
 #include <QList>          // for QList
 #include <QObject>        // for Q_ENUM, Q_OBJECT, Q_SIGNALS
 #include <QProcess>       // for QProcess
@@ -40,6 +41,12 @@ public:
 
   /* Types */
 
+  struct result {
+    bool ok;
+    QString errorString;
+    QString outputString;
+  };
+
   enum SignalId {
     start,
     processErrorOccurred,
@@ -59,16 +66,21 @@ public:
 
   /* Special Member Functions */
 
-  RunMachine(QWidget* parent, const QString& program, const QStringList& args);
+  RunMachine(QWidget* parent, bool showProgress, const QString& program, const QStringList& args);
 
   /* Member Functions */
 
+  static result runGpsbabel(QWidget* parent, bool showProgress, const QStringList& args);
   static QString decodeProcessError(QProcess::ProcessError err);
-  int exec();
+  result exec();
   void open();
   QString getOutputString() const
   {
-    return progress_->getOutputString();
+    if (progress_ != nullptr) {
+      return progress_->getOutputString();
+    } else {
+      return QString::fromLocal8Bit(process_->readAll());
+    }
   }
   QString getErrorString() const
   {

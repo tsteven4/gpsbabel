@@ -2,16 +2,23 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   message(FATAL_ERROR "Please use CMakeLists.txt in the project root directory to generate a build system.")
 endif()
 
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+
 add_executable(coretool EXCLUDE_FROM_ALL)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 list(APPEND QT_LIBRARIES Qt6::Core Qt6::Widgets)
 
 list(APPEND SOURCES ../formatload.cc)
+list(APPEND SOURCES ../processwait.cc)
+list(APPEND SOURCES ../runmachine.cc)
 list(APPEND SOURCES coretool.cc)
 
 list(APPEND HEADERS ../format.h)
 list(APPEND HEADERS ../formatload.h)
+list(APPEND HEADERS ../processwait.h)
+list(APPEND HEADERS ../runmachine.h)
 
 target_compile_definitions(coretool PRIVATE GENERATE_CORE_STRINGS)
 target_include_directories(coretool PRIVATE ..)
