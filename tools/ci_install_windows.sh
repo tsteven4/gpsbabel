@@ -47,7 +47,9 @@ else
   mkdir -p "${CACHEDIR}"
 
   if [ "${METHOD}" = "aqt" ]; then
-    pip3 install aqtinstall>=2.0.0
+    #pip3 install aqtinstall>=2.0.0
+    "${CI_BUILD_DIR}/tools/ci_install_aqt.sh"
+    aqt version
     "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
     echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
