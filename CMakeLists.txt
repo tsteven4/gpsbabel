@@ -27,6 +27,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
+message(STATUS "CMake generator ${CMAKE_GENERATOR}")
 add_executable(gpsbabel)
 
 # Find the QtCore library
