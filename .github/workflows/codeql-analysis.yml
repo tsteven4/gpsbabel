@@ -95,3 +95,5 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+      env:
+        CODEQL_EXTRACTOR_CPP_AUTOINSTALL_DEPENDENCIES: false
