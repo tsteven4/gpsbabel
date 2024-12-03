@@ -41,8 +41,6 @@ jobs:
       contents: read
     container:
       image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_noble
-      env:
-        CMAKE_GENERATOR: Ninja
 
     strategy:
       fail-fast: false
