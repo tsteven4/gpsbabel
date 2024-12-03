@@ -41,8 +41,6 @@ jobs:
       contents: read
     container:
       image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_noble
-      env:
-        CMAKE_GENERATOR: Ninja
 
     strategy:
       fail-fast: false
@@ -93,5 +91,7 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
+      env:
+        CMAKE_GENERATOR: Ninja
       with:
         category: "/language:${{matrix.language}}"
