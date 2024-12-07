@@ -98,21 +98,13 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - name: Cache Qt (Windows)
-      if: (matrix.build-mode == 'manual') && (runner.os == 'Windows')
+    - name: Cache Qt
+      if: (matrix.build-mode == 'manual')
       uses: actions/cache@v4
       id: cache
       with:
         path: ~/Cache
-        key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
-
-    - name: Cache Qt (macOS)
-      if: (matrix.build-mode == 'manual') && (runner.os == 'macOS')
-      uses: actions/cache@v4
-      id: cache
-      with:
-        path: ~/Cache
-        key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os == 'Windows' && runner.os-matrix.QT_VERSION-matrix.COMPILER-secrets.CACHE_VERSION || runner.os-matrix.QT_VERSION-secrets.CACHE_VERSION }}
 
     - name: Install Qt setup(aqt)
       if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
