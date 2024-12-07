@@ -59,7 +59,12 @@ jobs:
             ARCH: 'amd64'
             HOST_ARCH: 'amd64'
             COMPILER: 'msvc2019_64'
-            METHOD: 'aqt'
+            GENERATOR: 'Ninja'
+          - language: c-cpp
+            build-mode: manual
+            runs-on: macos-latest
+            QT_VERSION: '6.5.3'
+            XCODE_VERSION: '15.4'
             GENERATOR: 'Ninja'
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
@@ -93,13 +98,21 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - name: Cache Qt
-      if: matrix.build-mode == 'manual'
+    - name: Cache Qt (Windows)
+      if: (matrix.build-mode == 'manual') && (runner.os == 'Windows')
       uses: actions/cache@v4
       id: cache
       with:
         path: ~/Cache
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
+
+    - name: Cache Qt (macOS)
+      if: (matrix.build-mode == 'manual') && (runner.os == 'macOS')
+      uses: actions/cache@v4
+      id: cache
+      with:
+        path: ~/Cache
+        key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt setup(aqt)
       if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
@@ -113,14 +126,24 @@ jobs:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
       run: |
-        ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" aqt
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          ./tools/ci_install_osx.sh ${{ matrix.QT_VERSION }} aqt
+        fi
 
-    - name: Build
-      if: matrix.build-mode == 'manual'
-      shell: powershell
+    - name: Build (Windows)
+      if: (matrix.build-mode == 'manual') && (runner.os == 'Windows')
       run: |
         .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
         .\tools\ci_script_windows.ps1 -generator "${{ matrix.GENERATOR }}" -arch "${{ matrix.ARCH }}" -toolset "${{ matrix.TOOLSET }}"
+
+    - name: Build (macOS)
+      if: (matrix.build-mode == 'manual') && (runner.os == 'macOS')
+      run: |
+        source ${HOME}/Cache/qt-${{ matrix.QT_VERSION }}.env
+        sudo xcode-select --switch /Applications/Xcode_${{ matrix.XCODE_VERSION }}.app
+        ./tools/ci_script_osx.sh . ${{ matrix.QT_VERSION }} ${{ matrix.GENERATOR }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
