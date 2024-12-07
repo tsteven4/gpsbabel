@@ -65,7 +65,7 @@ jobs:
             runs-on: macos-latest
             QT_VERSION: '6.5.3'
             XCODE_VERSION: '15.4'
-            GENERATOR: 'Ninja'
+            GENERATOR: 'Xcode'
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
