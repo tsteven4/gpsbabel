@@ -104,7 +104,7 @@ jobs:
       id: cache
       with:
         path: ~/Cache
-        key: ${{ runner.os == 'Windows' && runner.os-matrix.QT_VERSION-matrix.COMPILER-secrets.CACHE_VERSION || runner.os-matrix.QT_VERSION-secrets.CACHE_VERSION }}
+        key: ${{ runner.os == 'Windows' && ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }} || ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ secrets.CACHE_VERSION }} }}
 
     - name: Install Qt setup(aqt)
       if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
