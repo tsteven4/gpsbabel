@@ -102,13 +102,13 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt setup(aqt)
-      if: matrix.build-mode == 'manual'
+      if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
     - name: Install Qt
-      if: matrix.build-mode == 'manual'
+      if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
@@ -116,7 +116,7 @@ jobs:
         ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
 
     - name: Build
-      if: matrix.build-mode == 'manual'
+      if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
       shell: powershell
       run: |
         .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
