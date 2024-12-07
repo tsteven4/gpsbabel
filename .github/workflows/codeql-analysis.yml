@@ -116,7 +116,7 @@ jobs:
         ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
 
     - name: Build
-      if: (matrix.build-mode == 'manual') && (!steps.cache.outputs.cache-hit)
+      if: matrix.build-mode == 'manual'
       shell: powershell
       run: |
         .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
