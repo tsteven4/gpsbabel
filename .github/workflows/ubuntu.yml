@@ -96,6 +96,8 @@ jobs:
       run: |
         # when using containers manually whitelist the checkout directory to allow git commands to work
         git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+        export GBTEMP=$(pwd)/gbtemp
+        mkdir -p "$GBTEMP"
         ./tools/build_and_test_cmake.sh
 
   coverage:
