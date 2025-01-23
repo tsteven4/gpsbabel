@@ -33,7 +33,7 @@ else
 fi
 XMLWF=xmlwf
 
-TMPDIR=${GBTEMP:-/tmp}/gpsbabel.$$
+TMPDIR=${GBTEMP:-${pwd}}/gpsbabel.$$
 mkdir -p $TMPDIR
 if test -z  "$DEBUG"; then
   trap "rm -fr $TMPDIR" 0 1 2 3 15
