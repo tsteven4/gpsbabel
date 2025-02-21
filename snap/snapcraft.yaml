@@ -50,7 +50,7 @@ apps:
       - process-control # Syscall: sched_setattr
       - hostname-control # operation="dbus_method_call"  bus="system" path="/org/freedesktop/hostname1" interface="org.freedesktop.DBus.Properties" member="GetAll" mask="send"
     command-chain:
-      - snap/command-chain/desktop-launch6
+      - snap/command-chain/desktop-launch
     command: usr/bin/gpsbabelfe
 
 adopt-info: gpsbabel
