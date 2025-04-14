@@ -83,7 +83,7 @@ Name: "{commondesktop}\GPSBabel"; Filename: "{app}\gpsbabelfe.exe"; Tasks: deskt
 [Run]
 Filename: "{app}\vc_redist.x86.exe"; Parameters: "/quiet"; Flags: skipifdoesntexist
 Filename: "{app}\vc_redist.x64.exe"; Parameters: "/quiet"; Flags: skipifdoesntexist
-Filename: "{app}\gpsbabelfe.exe"; Description: "{cm:LaunchProgram,GPSBabelFE}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\gpsbabelfe.exe"; Description: "{cm:LaunchProgram,GPSBabelFE}"; Flags: postinstall skipifsilent
 
 [Registry]
 Root: HKCU; Subkey: "Software\GPSBabel"; Flags: uninsdeletekeyifempty
