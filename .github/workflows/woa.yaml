@@ -6,60 +6,60 @@ on:
 
 jobs:
 
-#  windows:
-#    name: WoA Qt Install
-#    permissions:
-#      id-token: write
-#      contents: write
-#      attestations: write
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        include:
-#          - QT_VERSION: '6.8.3'
-#            TARGET_ARCH: 'arm64'
-#            HOST_ARCH: 'arm64'
-#            COMPILER: 'msvc2022_arm64'
-#            METHOD: 'aqt'
-#            RELEASE: true
-#            os: windows-2025
-#
-#    steps:
-#    - name: Checkout repository
-#      uses: actions/checkout@v4
-#
-#    - name: Install Qt setup(aqt)
-#      uses: actions/setup-python@v5
-#      with:
-#        python-version: '3.12'
-#
-#    - name: Install Qt
-#      id: installqt
-#      env:
-#        CI_BUILD_DIR: ${{ github.workspace }}
-#      shell: bash
-#      run: |
-#        if [ -n "${{ matrix.CROSS_COMPILER }}" ]; then
-#          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}" "${{ matrix.CROSS_COMPILER }}"
-#        else
-#          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
-#        fi
-#        echo "qtdir=$(cygpath -w "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/")" >> "$GITHUB_OUTPUT"
-#
-#    - uses: jfrog/setup-jfrog-cli@v4
-#      env:
-#        # JFrog Platform url
-#        JF_URL: 'https://gpsbabel.jfrog.io'
-#
-#        # JFrog Platform access token
-#        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-#    - run: |
-#        jf rt ping
-#        jf rt u "${{ steps.installqt.outputs.qtdir }}" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
+  windows:
+    name: WoA Qt Install
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - QT_VERSION: '6.8.3'
+            TARGET_ARCH: 'arm64'
+            HOST_ARCH: 'arm64'
+            COMPILER: 'msvc2022_arm64'
+            METHOD: 'aqt'
+            RELEASE: true
+            os: windows-2025
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Qt setup(aqt)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Qt
+      id: installqt
+      env:
+        CI_BUILD_DIR: ${{ github.workspace }}
+      shell: bash
+      run: |
+        if [ -n "${{ matrix.CROSS_COMPILER }}" ]; then
+          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}" "${{ matrix.CROSS_COMPILER }}"
+        else
+          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
+        fi
+        echo "qtdir=$(cygpath -w "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/")" >> "$GITHUB_OUTPUT"
+
+    - uses: jfrog/setup-jfrog-cli@v4
+      env:
+        JF_URL: 'https://gpsbabel.jfrog.io'
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        JFROG_CLI_LOG_LEVEL: DEBUG
+    - run: |
+        New-Item "$Home/Cache/Qt" -type directory -Force | Out-Null
+        Set-Location "$Home/Cache/Qt"
+        jf rt u "${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
 
   woa:
     name: WoA native build
+    needs: WoA Qt Install
     permissions:
       id-token: write
       contents: write
@@ -91,16 +91,13 @@ jobs:
 
     - uses: jfrog/setup-jfrog-cli@v4
       env:
-        # JFrog Platform url
         JF_URL: 'https://gpsbabel.jfrog.io'
-
-        # JFrog Platform access token
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-
         JFROG_CLI_LOG_LEVEL: DEBUG
     - run: |
-        jf rt ping
-        jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode true
+        New-Item "$Home/Cache/Qt" -type directory -Force | Out-Null
+        Set-Location "$Home/Cache/Qt"
+        jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode
     - shell: bash
       run : |
         ls
