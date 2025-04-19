@@ -23,6 +23,7 @@ COMPILER=${2:-msvc2022_64}
 METHOD=${3:-default}
 CROSS_COMPILER=${4}
 
+HOST=windows
 if [ "${COMPILER}" = "msvc2017_64" ]; then
   PACKAGE_SUFFIX=win64_msvc2017_64
 elif [ "${COMPILER}" = "msvc2017" ]; then
@@ -33,6 +34,9 @@ elif [ "${COMPILER}" = "msvc2019" ]; then
   PACKAGE_SUFFIX=win32_msvc2019
 elif [ "${COMPILER}" = "msvc2022_64" ]; then
   PACKAGE_SUFFIX=win64_msvc2022_64
+elif [ "${COMPILER}" = "msvc2022_arm64" ]; then
+    PACKAGE_SUFFIX=win64_msvc2022_arm64
+    HOST=windows_arm64
 else
   echo "ERROR: unrecognized Qt compiler ${COMPILER}." >&2
   exit 1
@@ -58,9 +62,9 @@ else
 
   if [ "${METHOD}" = "aqt" ]; then
     pip3 install 'aqtinstall>=3.1.20'
-    "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
+    "${CI_BUILD_DIR}/tools/ci_install_qt.sh" "${HOST}" "${QT_VERSION}" "${PACKAGE_SUFFIX}" "${CACHEDIR}/Qt"
     if [ -n "${PACKAGE_SUFFIX_CROSS}" ]; then
-      "${CI_BUILD_DIR}/tools/ci_install_qt.sh" windows "${QT_VERSION}" "${PACKAGE_SUFFIX_CROSS}" "${CACHEDIR}/Qt"
+      "${CI_BUILD_DIR}/tools/ci_install_qt.sh" "${HOST}" "${QT_VERSION}" "${PACKAGE_SUFFIX_CROSS}" "${CACHEDIR}/Qt"
     fi
     echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else

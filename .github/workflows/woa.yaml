@@ -19,14 +19,30 @@ jobs:
         include:
           - QT_VERSION: '6.8.3'
             TARGET_ARCH: 'arm64'
-            HOST_ARCH: 'amd64'
-            COMPILER: 'msvc2022_64'
-            CROSS_COMPILER: 'msvc2022_arm64'
+            HOST_ARCH: 'arm64'
+            COMPILER: 'msvc2022_arm64'
             METHOD: 'aqt'
             RELEASE: true
             os: windows-2025
 
     steps:
+    - name: Install Qt setup(aqt)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Qt
+      env:
+        CI_BUILD_DIR: ${{ github.workspace }}
+      shell: bash
+      run: |
+        if [ -n "${{ matrix.CROSS_COMPILER }}" ]; then
+          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}" "${{ matrix.CROSS_COMPILER }}"
+        else
+          ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
+        fi
+        echo "QT_DIR=${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}" >> "$GITHUB_ENV"
+
     - uses: jfrog/setup-jfrog-cli@v4
       env:
         # JFrog Platform url
@@ -36,3 +52,4 @@ jobs:
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
     - run: |
         jf rt ping
+        jf rt u "${QT_DIR}" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
