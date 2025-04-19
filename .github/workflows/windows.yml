@@ -92,10 +92,20 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}-${{ matrix.CROSS_COMPILER }}-${{ secrets.CACHE_VERSION }}
 
     - name: Install Qt setup(aqt)
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: ( steps.cache.outputs.cache-hit != 'true' ) && ( ${{ matrix.METHOD }} == 'aqt' )
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+
+    - name: Setup jfrog
+      if: ( steps.cache.outputs.cache-hit != 'true' ) && ( ${{ matrix.METHOD }} == 'jfrog' )
+      uses: jfrog/setup-jfrog-cli@v4
+      with:
+        disable-auto-build-publish: true
+      env:
+        JF_URL: 'https://gpsbabel.jfrog.io'
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        JFROG_CLI_LOG_LEVEL: INFO
 
     - name: Install Qt
       if: steps.cache.outputs.cache-hit != 'true'
