@@ -98,7 +98,7 @@ jobs:
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
     - run: |
         jf rt ping
-        jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode zip
+        jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode true
     - shell: bash
       run : |
         ls "${HOME}"
