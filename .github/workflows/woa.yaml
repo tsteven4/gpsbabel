@@ -59,7 +59,7 @@ jobs:
 
   woa:
     name: WoA native build
-    needs: WoA Qt Install
+    needs: windows
     permissions:
       id-token: write
       contents: write
