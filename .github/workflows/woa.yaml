@@ -96,11 +96,14 @@ jobs:
 
         # JFrog Platform access token
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+
+        JFROG_CLI_LOG_LEVEL: DEBUG
     - run: |
         jf rt ping
         jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode true
     - shell: bash
       run : |
+        ls
         ls "${HOME}"
         ls "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/"
     
