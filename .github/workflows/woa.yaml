@@ -52,7 +52,7 @@ jobs:
       env:
         JF_URL: 'https://gpsbabel.jfrog.io'
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-        JFROG_CLI_LOG_LEVEL: DEBUG
+        JFROG_CLI_LOG_LEVEL: INFO
     - shell: pwsh
       run: |
         Set-Location "$Home/Cache/Qt"
@@ -95,7 +95,7 @@ jobs:
       env:
         JF_URL: 'https://gpsbabel.jfrog.io'
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-        JFROG_CLI_LOG_LEVEL: DEBUG
+        JFROG_CLI_LOG_LEVEL: INFO
     - shell: pwsh
       run: |
         New-Item "$Home/Cache/Qt" -type directory -Force | Out-Null
