@@ -35,6 +35,7 @@ jobs:
         python-version: '3.12'
 
     - name: Install Qt
+      id: installqt
       env:
         CI_BUILD_DIR: ${{ github.workspace }}
       shell: bash
@@ -44,7 +45,7 @@ jobs:
         else
           ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
         fi
-        echo "QT_DIR=${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}" >> "$GITHUB_ENV"
+        echo "qtdir=${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/" >> "$GITHUB_OUTPUT"
 
     - uses: jfrog/setup-jfrog-cli@v4
       env:
@@ -55,4 +56,4 @@ jobs:
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
     - run: |
         jf rt ping
-        jf rt u "${QT_DIR}" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
+        jf rt u "${{ steps.installqt.outputs.qtdir }}" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
