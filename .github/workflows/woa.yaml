@@ -45,7 +45,7 @@ jobs:
         else
           ./tools/ci_install_windows.sh "${{ matrix.QT_VERSION }}" "${{ matrix.COMPILER }}" "${{ matrix.METHOD }}"
         fi
-        echo "qtdir=${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/" >> "$GITHUB_OUTPUT"
+        echo "qtdir=${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/" | sed 's/^\/c/C:/' >> "$GITHUB_OUTPUT"
 
     - uses: jfrog/setup-jfrog-cli@v4
       env:
