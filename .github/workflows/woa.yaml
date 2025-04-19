@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - QT_VERSION: '6.8.3'
-            TARGET_ARCH: 'arm64'
+            ARCH: 'arm64'
             HOST_ARCH: 'arm64'
             COMPILER: 'msvc2022_arm64'
             METHOD: 'aqt'
@@ -71,7 +71,7 @@ jobs:
       matrix:
         include:
           - QT_VERSION: '6.8.3'
-            TARGET_ARCH: 'arm64'
+            ARCH: 'arm64'
             HOST_ARCH: 'arm64'
             COMPILER: 'msvc2022_arm64'
             METHOD: 'aqt'
