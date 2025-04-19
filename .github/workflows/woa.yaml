@@ -48,14 +48,17 @@ jobs:
         fi
         echo "qtdir=$(cygpath -w "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/")" >> "$GITHUB_OUTPUT"
 
-    - uses: jfrog/setup-jfrog-cli@v4
+    - name: Setup jfrog
+      uses: jfrog/setup-jfrog-cli@v4
       with:
         disable-auto-build-publish: true
       env:
         JF_URL: 'https://gpsbabel.jfrog.io'
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
         JFROG_CLI_LOG_LEVEL: INFO
-    - shell: pwsh
+
+    - name: Upload Qt
+      shell: pwsh
       run: |
         Set-Location "$Home/Cache/Qt"
         jf rt u "${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/" qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --archive zip
@@ -76,7 +79,7 @@ jobs:
             ARCH: 'arm64'
             HOST_ARCH: 'arm64'
             COMPILER: 'msvc2022_arm64'
-            METHOD: 'aqt'
+            METHOD: 'jfrog'
             RELEASE: false
             GENERATOR: 'Ninja'
             os: windows-11-arm
@@ -85,31 +88,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Qt
-      id: installqt
-      env:
-        CI_BUILD_DIR: ${{ github.workspace }}
-      shell: bash
-      run: |
-        echo "qtdir=$(cygpath -w "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/")" >> "$GITHUB_OUTPUT"
-
-    - uses: jfrog/setup-jfrog-cli@v4
+    - name: Setup jfrog
+      uses: jfrog/setup-jfrog-cli@v4
       with:
         disable-auto-build-publish: true
       env:
         JF_URL: 'https://gpsbabel.jfrog.io'
         JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
         JFROG_CLI_LOG_LEVEL: INFO
-    - shell: pwsh
+
+    - name: Download Qt
+      shell: pwsh
       run: |
         New-Item "$Home/Cache/Qt" -type directory -Force | Out-Null
         Set-Location "$Home/Cache/Qt"
         jf rt dl qt-images-local/windows_arm64-${{ matrix.QT_VERSION }}-${{ matrix.COMPILER }}.zip --explode
-    - shell: bash
-      run : |
-        ls
-        ls "${HOME}"
-        ls "${HOME}/Cache/Qt/${{ matrix.QT_VERSION }}/${{ matrix.COMPILER }}/"
 
     - name: Install Inno Setup
       run: choco install innosetup 
