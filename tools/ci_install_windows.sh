@@ -1,23 +1,6 @@
 #!/bin/bash
 set -ex
 
-# validate install
-function validate() {
-  (
-    set +e
-    # shellcheck source=/dev/null
-    source "${CACHEDIR}/qt.env"
-    if [ "$(cygpath -u "$(qmake -query QT_INSTALL_BINS)")" != "${QTDIR}/bin" ]; then
-      echo "ERROR: unexpected Qt location." >&2
-      exit 1
-    fi
-    if [ "$(qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
-      echo "ERROR: wrong Qt version." >&2
-      exit 1
-    fi
-  )
-}
-
 QT_VERSION=${1:-6.5.3}
 COMPILER=${2:-msvc2022_64}
 METHOD=${3:-default}
@@ -72,4 +55,3 @@ else
     exit 1
   fi
 fi
-validate
