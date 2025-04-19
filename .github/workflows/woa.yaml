@@ -1,0 +1,38 @@
+name: "woa"
+permissions: {}
+
+on:
+  workflow_dispatch: ~
+
+jobs:
+
+  windows:
+    name: woa native Build
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - QT_VERSION: '6.8.3'
+            TARGET_ARCH: 'arm64'
+            HOST_ARCH: 'amd64'
+            COMPILER: 'msvc2022_64'
+            CROSS_COMPILER: 'msvc2022_arm64'
+            METHOD: 'aqt'
+            RELEASE: true
+            os: windows-2025
+
+    steps:
+    - uses: jfrog/setup-jfrog-cli@v4
+      env:
+        # JFrog Platform url
+        JF_URL: 'https://gpsbabel.jfrog.io'
+
+        # JFrog Platform access token
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+    - run: |
+        jf rt ping
