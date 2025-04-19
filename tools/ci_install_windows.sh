@@ -50,6 +50,11 @@ else
       "${CI_BUILD_DIR}/tools/ci_install_qt.sh" "${HOST}" "${QT_VERSION}" "${PACKAGE_SUFFIX_CROSS}" "${CACHEDIR}/Qt"
     fi
     echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
+  elif [ "${METHOD}" = "jfrog" ]; then
+    mkdir "${CACHEDIR}/Qt"
+    cd "${CACHEDIR}/Qt"
+    jf rt dl qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}.zip --explode
+    echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2
     exit 1

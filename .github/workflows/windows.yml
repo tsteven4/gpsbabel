@@ -71,6 +71,14 @@ jobs:
             METHOD: 'aqt'
             RELEASE: true
             os: windows-2025
+          - QT_VERSION: '6.8.3'
+            ARCH: 'arm64'
+            HOST_ARCH: 'arm64'
+            COMPILER: 'msvc2022_arm64'
+            METHOD: 'jfrog'
+            RELEASE: false
+            GENERATOR: 'Ninja'
+            os: windows-11-arm
 
     steps:
     - name: Checkout repository
