@@ -53,7 +53,7 @@ else
   elif [ "${METHOD}" = "jfrog" ]; then
     mkdir "${CACHEDIR}/Qt"
     cd "${CACHEDIR}/Qt"
-    jf rt dl qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}.zip --explode
+    jf rt dl qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}-${CROSS_COMPILER}.zip --explode
     echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2

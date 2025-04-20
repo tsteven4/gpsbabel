@@ -1,0 +1,71 @@
+name: "archive qt"
+permissions: {}
+
+on:
+  workflow_dispatch:
+    inputs:
+      QT_VERSION:
+        required: false
+        type: string
+        default: '6.8.3'
+      COMPILER:
+        required: false
+        type: string
+        default: 'msvc2022_arm64'
+      CROSS_COMPILER:
+        required: false
+        type: string
+      HOST:
+        required: false
+        type: string
+        default: 'windows_arm64'
+      METHOD:
+        required: false
+        type: string
+        default: 'aqt'
+      os:
+        required: false
+        type: string
+        default: 'windows-2025'
+
+jobs:
+
+  install_qt:
+    name: Qt Install
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Qt setup(aqt)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Qt
+      id: installqt
+      env:
+        CI_BUILD_DIR: ${{ github.workspace }}
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.CROSS_COMPILER }}" ]; then
+          ./tools/ci_install_windows.sh "${{ inputs.QT_VERSION }}" "${{ inputs.COMPILER }}" "${{ inputs.METHOD }}" "${{ inputs.CROSS_COMPILER }}"
+        else
+          ./tools/ci_install_windows.sh "${{ inputs.QT_VERSION }}" "${{ inputs.COMPILER }}" "${{ inputs.METHOD }}"
+        fi
+
+    - name: Setup jfrog
+      uses: jfrog/setup-jfrog-cli@v4
+      with:
+        disable-auto-build-publish: true
+      env:
+        JF_URL: 'https://gpsbabel.jfrog.io'
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        JFROG_CLI_LOG_LEVEL: INFO
+
+    - name: Upload Qt
+      shell: pwsh
+      run: |
+        Set-Location "$Home/Cache/Qt"
+        jf rt u "${{ inputs.QT_VERSION }}/${{ inputs.COMPILER }}/" qt-images-local/${{ inputs.HOST }}-${{ inputs.QT_VERSION }}-${{ inputs.COMPILER }}-${{ inputs.CROSS_COMPILER }}.zip --archive zip
