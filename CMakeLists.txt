@@ -13,9 +13,6 @@ project(gpsbabel LANGUAGES C CXX VERSION ${GB.VERSION})
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-message(STATUS "PROCESSOR_ARCHITECTURE is \"$ENV{PROCESSOR_ARCHITECTURE}\".")
-message(STATUS "CMAKE_CXX_COMPILER_ARCHITECTURE_ID is \"${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}\".")
-
 # Do this after we set up common variables but before creating other
 # variables that will be inherited.
 add_subdirectory(gui)

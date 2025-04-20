@@ -239,7 +239,7 @@ else()
         message(STATUS "Deploying with target qtpaths \"${_qtpaths_file}\".")
       endif()
       # generate architecture for inno setup
-      # dont trust CMAKE_SYSTEM_PROCESSOR https://gitlab.kitware.com/cmake/cmake/-/issues/15170#note_891234
+      # don't trust CMAKE_SYSTEM_PROCESSOR https://gitlab.kitware.com/cmake/cmake/-/issues/15170#note_891234
       if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "arm64" OR CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "ARM64")
         set(_installer_arch arm64)
       else()

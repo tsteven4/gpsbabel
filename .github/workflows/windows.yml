@@ -84,16 +84,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Debug cmd
-      shell: cmd
-      run: |
-        set
-
-    - name: Debug pwsh
-      shell: pwsh
-      run: |
-        Get-ChildItem env:
-
     - name: Cache Qt
       uses: actions/cache@v4
       id: cache
@@ -137,7 +127,6 @@ jobs:
       shell: pwsh
       run: |
         if ([string]::IsNullOrEmpty("${{  matrix.CROSS_COMPILER }}")) {
-          Get-ChildItem Env:PROCESSOR_ARCHITECTURE
           .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
           .\tools\ci_script_windows.ps1 -generator "${{ matrix.GENERATOR }}" -arch "${{ matrix.ARCH }}" -toolset "${{ matrix.TOOLSET }}"
         } else {
