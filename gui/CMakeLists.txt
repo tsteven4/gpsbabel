@@ -244,6 +244,8 @@ else()
       else()
         set(_installer_arch x64compatible)
       endif()
+      message(STATUS "PROCESSOR_ARCHITECTURE is \"$ENV{PROCESSOR_ARCHITECTURE}\".")
+      message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR is \"${CMAKE_HOST_SYSTEM_PROCESSOR}\".")
       message(STATUS "CMAKE_SYSTEM_PROCESSOR is \"${CMAKE_SYSTEM_PROCESSOR}\".  Building installer for architecture identifier \"${_installer_arch}\".")
       add_custom_target(package_app
                         # deploy to a clean directory as different build systems create differently named debris in release.
