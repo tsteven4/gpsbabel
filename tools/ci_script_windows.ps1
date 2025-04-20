@@ -40,6 +40,7 @@ switch ($arch) {
 Remove-Item $build_dir -Recurse -ErrorAction Ignore
 New-Item $build_dir -type directory -Force | Out-Null
 Set-Location $build_dir
+cmake -E environment
 $hashargs = "-G", $generator
 if ( $toolset ) {
     $hashargs += "-T", $toolset
