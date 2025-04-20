@@ -137,6 +137,7 @@ jobs:
       shell: pwsh
       run: |
         if ([string]::IsNullOrEmpty("${{  matrix.CROSS_COMPILER }}")) {
+          Get-ChildItem Env:PROCESSOR_ARCHITECTURE
           .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
           .\tools\ci_script_windows.ps1 -generator "${{ matrix.GENERATOR }}" -arch "${{ matrix.ARCH }}" -toolset "${{ matrix.TOOLSET }}"
         } else {

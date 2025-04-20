@@ -24,6 +24,7 @@ param(
 $ErrorActionPreference = "Stop"
 # verify we are in the top of the gpsbabel clone
 Get-Item tools/ci_script_windows.ps1 -ErrorAction Stop | Out-Null
+Write-Output "PROCESSOR_ARCHITECTURE: $(Get-ChildItem Env:PROCESSOR_ARCHITECTURE)"
 $src_dir = $Pwd
 $build_dir = Join-Path $src_dir $build_dir_name
 $CMAKE_PREFIX_PATH = Split-Path $((Get-Command qmake) | Split-Path) -Parent
