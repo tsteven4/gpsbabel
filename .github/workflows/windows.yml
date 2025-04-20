@@ -84,6 +84,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Debug cmd
+      shell: cmd
+      run: |
+        set
+
+    - name: Debug pwsh
+      shell: pwsh
+      run: |
+        Get-ChildItem env:
+
     - name: Cache Qt
       uses: actions/cache@v4
       id: cache
