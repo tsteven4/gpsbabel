@@ -1,6 +1,22 @@
 #!/bin/bash
 set -ex
 
+# validate install
+function validate() {
+  (
+    set +e
+    # shellcheck source=/dev/null
+    if [ "$(cygpath -u "$(${QTDIR}/bin/qmake -query QT_INSTALL_BINS)")" != "${QTDIR}/bin" ]; then
+      echo "ERROR: unexpected Qt location." >&2
+      exit 1
+    fi
+    if [ "$(${QTDIR}/bin/qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
+      echo "ERROR: wrong Qt version." >&2
+      exit 1
+    fi
+  )
+}
+
 QT_VERSION=${1:-6.5.3}
 COMPILER=${2:-msvc2022_64}
 METHOD=${3:-default}
@@ -49,14 +65,13 @@ else
     if [ -n "${PACKAGE_SUFFIX_CROSS}" ]; then
       "${CI_BUILD_DIR}/tools/ci_install_qt.sh" "${HOST}" "${QT_VERSION}" "${PACKAGE_SUFFIX_CROSS}" "${CACHEDIR}/Qt"
     fi
-    echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   elif [ "${METHOD}" = "jfrog" ]; then
     mkdir "${CACHEDIR}/Qt"
     cd "${CACHEDIR}/Qt"
     jf rt dl qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}-${CROSS_COMPILER}.zip --explode
-    echo "export PATH=${QTDIR}/bin:\$PATH" > "${CACHEDIR}/qt.env"
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2
     exit 1
   fi
 fi
+validate

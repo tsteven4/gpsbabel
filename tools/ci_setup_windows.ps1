@@ -47,7 +47,7 @@ function Invoke-VSDevEnvironment($arch, $host_arch, $vcversion) {
 $ErrorActionPreference = "Stop"
 
 #Invoke-QtEnvironment $qtdir
-[System.Environment]::SetEnvironmentVariable("Path", $(Join-Path "$qtdir" bin -Resolve) + ";$env:Path")
+[System.Environment]::SetEnvironmentVariable("Path", $(Join-Path "$qtdir" bin -Resolve) + ";" + $([System.Environment]::GetEnvironmentVariable("Path")))
 # verify qmake can be found.
 Get-Command qmake.exe | Format-Table -AutoSize -Wrap
 
