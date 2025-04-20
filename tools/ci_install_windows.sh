@@ -6,11 +6,11 @@ function validate() {
   (
     set +e
     # shellcheck source=/dev/null
-    if [ "$(cygpath -u "$(${QTDIR}/bin/qmake -query QT_INSTALL_BINS)")" != "${QTDIR}/bin" ]; then
+    if [ "$(cygpath -u "$("${QTDIR}/bin/qmake" -query QT_INSTALL_BINS)")" != "${QTDIR}/bin" ]; then
       echo "ERROR: unexpected Qt location." >&2
       exit 1
     fi
-    if [ "$(${QTDIR}/bin/qmake -query QT_VERSION)" != "${QT_VERSION}" ]; then
+    if [ "$("${QTDIR}/bin/qmake" -query QT_VERSION)" != "${QT_VERSION}" ]; then
       echo "ERROR: wrong Qt version." >&2
       exit 1
     fi
@@ -68,7 +68,7 @@ else
   elif [ "${METHOD}" = "jfrog" ]; then
     mkdir "${CACHEDIR}/Qt"
     cd "${CACHEDIR}/Qt"
-    jf rt dl qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}-${CROSS_COMPILER}.zip --explode
+    jf rt dl "qt-images-local/${HOST}-${QT_VERSION}-${COMPILER}-${CROSS_COMPILER}.zip" --explode
   else
     echo "ERROR: unknown installation method ${METHOD}." >&2
     exit 1
