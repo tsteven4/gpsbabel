@@ -56,7 +56,7 @@ jobs:
             os: ubuntu-24.04-arm
           - IMAGE: 'noble'
             CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
-            SCRIPT: './tools/travis_script_linux_coverage'
+            SCRIPT: './tools/ci_script_coverage.sh'
             os: ubuntu-latest
     container:
       image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_${{ matrix.IMAGE }}
