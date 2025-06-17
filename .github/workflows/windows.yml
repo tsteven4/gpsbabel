@@ -125,7 +125,9 @@ jobs:
         #choco install vulkan-sdk
         curl -O https://sdk.lunarg.com/sdk/download/${VULKAN_VER}/windows/VulkanSDK-${VULKAN_VER}-Installer.exe
         ./VulkanSDK-${VULKAN_VER}-Installer.exe --accept-licenses --default-answer --confirm-command install
-        echo "VULKAN_SDK=${VULKAN_SDK}" >> $GITHUB_ENV
+        echo $VULKAN_SDK
+        echo "VULKAN_SDK=${VULKAN_SDK}" >> "$GITHUB_ENV"
+        cat "$GITHUB_ENV"
 
     - name: Install legacy microsoft compiler
       if: matrix.TOOLSET == 'v142,version=14.29.30133'
