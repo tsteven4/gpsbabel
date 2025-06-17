@@ -116,6 +116,9 @@ jobs:
       if: matrix.os == 'windows-2025'
       run: choco install innosetup 
 
+    - name: Install Vulkan SDK 
+      run: choco install vulkan-sdk
+
     - name: Install legacy microsoft compiler
       if: matrix.TOOLSET == 'v142,version=14.29.30133'
       run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.14.29.16.11.CLI.Support"
