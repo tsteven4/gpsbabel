@@ -134,7 +134,7 @@ jobs:
             sudo systemctl daemon-reload
           fi
         fi
-        snap list
+        snap list --all
         snap run --shell gpsbabel -c 'grep XLOCALEDIR $SNAP/gpu-2404/bin/gpu-2404-provider-wrapper'
         export GBTEMP=$(pwd)/gbtemp
         mkdir -p "$GBTEMP"
