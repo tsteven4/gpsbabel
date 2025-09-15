@@ -124,6 +124,7 @@ jobs:
     - name: Test
       run: |
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
+        snap list --all
         # workaround https://github.com/canonical/mesa-2404/issues/63
         if [ "${RUNNER_ARCH}" = "ARM64" ]; then
           mesaver=$(snap info mesa-2404 | grep installed: | tr -s ' ' '\t' | cut -f2,2 | cut -d . -f1,1)
