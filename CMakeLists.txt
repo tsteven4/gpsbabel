@@ -519,3 +519,10 @@ if((CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) AND NOT _isMultiConfig)
 else()
   message(WARNING "Document generation is only supported for in-source builds with single configuration generators.")
 endif()
+
+if(APPLE)
+  # Copy gpsbabel into the app bundle.
+  add_custom_command(TARGET gpsbabel
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gpsbabel> $<TARGET_BUNDLE_CONTENT_DIR:gpsbabelfe>/MacOS/)
+endif()

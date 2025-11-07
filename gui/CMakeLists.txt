@@ -152,10 +152,11 @@ endif()
 
 if(APPLE)
   set(MACOSX_BUNDLE_ICON_FILE appicon.icns)
-  set(ICON_FILE images/${MACOSX_BUNDLE_ICON_FILE})
-  set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  list(APPEND RESOURCE_FILES images/${MACOSX_BUNDLE_ICON_FILE})
+  list(APPEND RESOURCE_FILES COPYING.txt)
+  list(APPEND RESOURCE_FILES gmapbase.html)
 
-  target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${ICON_FILE} ${RESOURCES})
+  target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${RESOURCE_FILES} ${RESOURCES})
 
   # Info.plist has not been debugged with the cmake flow, it's a bit different than with the qmake flow.
   set_target_properties(gpsbabelfe PROPERTIES
@@ -165,6 +166,7 @@ if(APPLE)
     MACOSX_BUNDLE_GUI_IDENTIFIER org.gpsbabel.gpsbabelfe
     MACOSX_BUNDLE_ICON_FILE ${MACOSX_BUNDLE_ICON_FILE}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
+    RESOURCE "${RESOURCE_FILES}"
   )
 else()
   target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${RESOURCES})

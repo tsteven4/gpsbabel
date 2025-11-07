@@ -125,9 +125,6 @@ if [ "${machine}" = "Linux" ]; then
   cp "${SOURCEDIR}/gmapbase.html" "${APPDIR}"
   cp "${SOURCEDIR}/COPYING.txt" "${APPDIR}"
 else # Mac
-  cp "${GPSBABEL}" "${APPDIR}/Contents/MacOS/gpsbabel"
-  cp "${SOURCEDIR}/gmapbase.html" "${APPDIR}/Contents/Resources"
-  cp "${SOURCEDIR}/COPYING.txt" "${APPDIR}/Contents/Resources"
   pushd "${APPDIR}/.."
   # macdeploytqt likes relative paths or else the dmg mount points get funky.
   APPBUNDLE="$(basename "$APPDIR")"
