@@ -521,6 +521,8 @@ else()
 endif()
 
 if(APPLE)
+  # to get a bundle with GPSBabelFE locally runnable we need to make sure gpsbabel is built.
+  add_dependencies(gpsbabelfe gpsbabel)
   # Copy gpsbabel into the app bundle.
   add_custom_command(TARGET gpsbabel
                      POST_BUILD
