@@ -158,7 +158,6 @@ if(APPLE)
 
   target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${RESOURCE_FILES} ${RESOURCES})
 
-  # Info.plist has not been debugged with the cmake flow, it's a bit different than with the qmake flow.
   set_target_properties(gpsbabelfe PROPERTIES
     MACOSX_BUNDLE_BUNDLE_NAME GPSBabel
     MACOSX_BUNDLE_BUNDLE_VERSION ${GB.BUILD}
