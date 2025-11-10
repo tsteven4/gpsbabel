@@ -44,7 +44,7 @@ jobs:
             RELEASE: true
             os: macos-15
           - QT_VERSION: '6.8.3'
-            XCODE_VERSION: '16.2'
+            XCODE_VERSION: '15.0.1'
             GENERATOR: 'Ninja'
             RELEASE: false
             os: macos-14
@@ -59,7 +59,7 @@ jobs:
             RELEASE: false
             os: macos-15
           - QT_VERSION: '6.10.0'
-            XCODE_VERSION: '16.2'
+            XCODE_VERSION: '15.0.1'
             GENERATOR: 'Ninja'
             RELEASE: false
             os: macos-14
