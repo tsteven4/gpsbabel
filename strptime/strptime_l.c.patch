@@ -1,5 +1,5 @@
 --- ../../glibc/time/strptime_l.c	2026-01-23 17:26:08.088749894 -0700
-+++ ./strptime_l.c	2026-01-23 18:42:24.096528048 -0700
++++ ./strptime_l.c	2026-01-23 18:57:03.644407869 -0700
 @@ -21,7 +21,7 @@
  
  #include <assert.h>
@@ -44,7 +44,7 @@
  	      s.decided = raw;
  	    }
  #endif
-+#if __has_c_attribute(fallthrough)
++#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201904L)
  	  [[fallthrough]];
 +#endif
  	case 'D':
@@ -54,7 +54,7 @@
  	      s.decided = raw;
  	    }
  #endif
-+#if __has_c_attribute(fallthrough)
++#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201904L)
  	  [[fallthrough]];
 +#endif
  	case 'T':
