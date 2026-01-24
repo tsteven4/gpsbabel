@@ -557,7 +557,7 @@ __strptime_internal (const char *rp, const char *fmt, struct tm *tmp,
 	      s.decided = raw;
 	    }
 #endif
-#if __has_c_attribute(fallthrough)
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201904L)
 	  [[fallthrough]];
 #endif
 	case 'D':
@@ -713,7 +713,7 @@ __strptime_internal (const char *rp, const char *fmt, struct tm *tmp,
 	      s.decided = raw;
 	    }
 #endif
-#if __has_c_attribute(fallthrough)
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201904L)
 	  [[fallthrough]];
 #endif
 	case 'T':
