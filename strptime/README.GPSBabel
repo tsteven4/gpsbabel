@@ -1,11 +1,13 @@
 This is a modified subset of glibc from:
 https://sourceware.org/git/glibc.git
 cd glibc
-git checkout release/2.37/master
+git checkout release/2.43/master
 
-The varbatim files from glibc.git are:
-COPYING
+The verbatim files from glibc.git are:
+COPYING.LESSERv2
 COPYING.LIB
+COPYINGv2
+COPYINGv3
 LICENSES
 README
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -557,7 +557,7 @@ __strptime_internal (const char *rp, const char *fmt, struct tm *tmp,
 	      s.decided = raw;
 	    }
 #endif
-	  /* Fall through.  */
+	  [[fallthrough]];
 	case 'D':
 	  /* Match standard day format.  */
 	  if (!recursive (HERE_D_FMT))
@@ -711,7 +711,7 @@ __strptime_internal (const char *rp, const char *fmt, struct tm *tmp,
 	      s.decided = raw;
 	    }
 #endif
-	  /* Fall through.  */
+	  [[fallthrough]];
 	case 'T':
 	  if (!recursive (HERE_T_FMT))
 	    return NULL;
