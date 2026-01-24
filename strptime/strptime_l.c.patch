@@ -1,5 +1,5 @@
 --- ../../glibc/time/strptime_l.c	2026-01-23 17:26:08.088749894 -0700
-+++ ./strptime_l.c	2026-01-23 17:19:21.472766562 -0700
++++ ./strptime_l.c	2026-01-23 18:42:24.096528048 -0700
 @@ -21,7 +21,7 @@
  
  #include <assert.h>
@@ -40,7 +40,27 @@
      signed char week_no;
      signed char century;
      int era_cnt;
-@@ -788,7 +793,7 @@
+@@ -552,7 +557,9 @@
+ 	      s.decided = raw;
+ 	    }
+ #endif
++#if __has_c_attribute(fallthrough)
+ 	  [[fallthrough]];
++#endif
+ 	case 'D':
+ 	  /* Match standard day format.  */
+ 	  if (!recursive (HERE_D_FMT))
+@@ -706,7 +713,9 @@
+ 	      s.decided = raw;
+ 	    }
+ #endif
++#if __has_c_attribute(fallthrough)
+ 	  [[fallthrough]];
++#endif
+ 	case 'T':
+ 	  if (!recursive (HERE_T_FMT))
+ 	    return NULL;
+@@ -788,7 +797,7 @@
  	    if (*rp == 'Z')
  	      {
  		++rp;
@@ -49,7 +69,7 @@
  		break;
  	      }
  	    if (*rp != '+' && *rp != '-')
-@@ -810,9 +815,9 @@
+@@ -810,9 +819,9 @@
  	    else if (val % 100 >= 60)
  	      /* Minutes valid range is 0 through 59.  */
  	      return NULL;
@@ -62,7 +82,7 @@
  	  }
  	  break;
  	case 'E':
-@@ -1162,6 +1167,7 @@
+@@ -1162,6 +1171,7 @@
  	tm->tm_year = (s.century - 19) * 100;
      }
  
@@ -70,7 +90,7 @@
    if (s.era_cnt != -1)
      {
        era = _nl_select_era_entry (s.era_cnt HELPER_LOCALE_ARG);
-@@ -1176,6 +1182,7 @@
+@@ -1176,6 +1186,7 @@
  	tm->tm_year = era->start_date[0];
      }
    else
