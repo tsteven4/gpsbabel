@@ -45,6 +45,7 @@
 #include <Qt>                           // for CaseInsensitive
 #include <QTime>                        // for QTime
 #include <QTimeZone>                    // for QTimeZone
+#include <QtEndian>                     // for qToBigEndian, qToLittleEndian
 #include <QtGlobal>                     // for qEnvironmentVariableIsSet, QAddConst<>::Type, qPrintable
 
 #include "defs.h"
@@ -402,85 +403,46 @@ long long qdatetime_to_dotnet_time(const QDateTime& dt)
 double
 endian_read_double(const void* ptr, int read_le)
 {
-  double ret;
-  char r[8];
-  const void* p;
-
-  if (i_am_little_endian == read_le) {
-    p = ptr;
-  } else {
-    for (int i = 0; i < 8; i++) {
-      r[i] = static_cast<const char*>(ptr)[7-i];
-    }
-    p = r;
-  }
-
-// Word order is different on arm, but not on arm-eabi.
 #if defined(__arm__) && !defined(__ARM_EABI__)
-  memcpy(&ret, p + 4, 4);
-  memcpy(((void*)&ret) + 4, p, 4);
-#else
-  memcpy(&ret, p, 8);
+qDebug() << "arm endian";
 #endif
-
-  return ret;
+  if (read_le) {
+    return qFromLittleEndian<double>(ptr);
+  } else {
+    return qFromBigEndian<double>(ptr);
+  }
 }
 
 float
 endian_read_float(const void* ptr, int read_le)
 {
-  float ret;
-  char r[4];
-  const void* p;
-
-  if (i_am_little_endian == read_le) {
-    p = ptr;
+  if (read_le) {
+    return qFromLittleEndian<float>(ptr);
   } else {
-    for (int i = 0; i < 4; i++) {
-      r[i] = static_cast<const char*>(ptr)[3-i];
-    }
-    p = r;
+    return qFromBigEndian<float>(ptr);
   }
-
-  memcpy(&ret, p, 4);
-  return ret;
 }
 
 void
 endian_write_double(void* ptr, double value, int write_le)
 {
-  char* optr = (char*) ptr;
-// Word order is different on arm, but not on arm-eabi.
 #if defined(__arm__) && !defined(__ARM_EABI__)
-  char r[8];
-  memcpy(r + 4, &value, 4);
-  memcpy(r, ((void*)&value) + 4, 4);
-#else
-  char* r = (char*)(void*)&value;
+qDebug() << "arm endian";
 #endif
-
-
-  if (i_am_little_endian == write_le) {
-    memcpy(ptr, r, 8);
+  if (write_le) {
+    qToLittleEndian(value, ptr);
   } else {
-    for (int i = 0; i < 8; i++) {
-      *optr++ = r[7-i];
-    }
+    qToBigEndian(value, ptr);
   }
 }
 
 void
 endian_write_float(void* ptr, float value, int write_le)
 {
-  char* r = (char*)(void*)&value;
-  char* optr = (char*) ptr;
-
-  if (i_am_little_endian == write_le) {
-    memcpy(ptr, &value, 4);
+  if (write_le) {
+    qToLittleEndian(value, ptr);
   } else {
-    for (int i = 0; i < 4; i++) {
-      *optr++ = r[3-i];
-    }
+    qToBigEndian(value, ptr);
   }
 }
 
