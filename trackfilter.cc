@@ -138,23 +138,23 @@ fix_type TrackFilter::trackfilter_parse_fix(int* nsats)
   if (!opt_fix) {
     return fix_unknown;
   }
-  if (!case_ignore_strcmp(opt_fix, "pps")) {
+  if (!opt_fix.get().compare(u"pps", Qt::CaseInsensitive)) {
     *nsats = 4;
     return fix_pps;
   }
-  if (!case_ignore_strcmp(opt_fix, "dgps")) {
+  if (!opt_fix.get().compare(u"dgps", Qt::CaseInsensitive)) {
     *nsats = 4;
     return fix_dgps;
   }
-  if (!case_ignore_strcmp(opt_fix, "3d")) {
+  if (!opt_fix.get().compare(u"3d", Qt::CaseInsensitive)) {
     *nsats = 4;
     return fix_3d;
   }
-  if (!case_ignore_strcmp(opt_fix, "2d")) {
+  if (!opt_fix.get().compare(u"2d", Qt::CaseInsensitive)) {
     *nsats = 3;
     return fix_2d;
   }
-  if (!case_ignore_strcmp(opt_fix, "none")) {
+  if (!opt_fix.get().compare(u"none", Qt::CaseInsensitive)) {
     *nsats = 0;
     return fix_none;
   }
