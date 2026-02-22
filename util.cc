@@ -814,11 +814,11 @@ QString strip_html(const QString& utfstring)
     if (!match.captured(u"tag").isNull()) {
       QString tag = match.captured(u"tag");
       //qDebug() << "tag match:" << tag;
-      if ((tag.compare("p", Qt::CaseInsensitive) == 0) ||
-          (tag.compare("br", Qt::CaseInsensitive) == 0) ||
-          (tag.compare("/tr", Qt::CaseInsensitive) == 0)) {
+      if ((tag.compare(u"p", Qt::CaseInsensitive) == 0) ||
+          (tag.compare(u"br", Qt::CaseInsensitive) == 0) ||
+          (tag.compare(u"/tr", Qt::CaseInsensitive) == 0)) {
         out.append('\n');
-      } else if (tag.compare("/td", Qt::CaseInsensitive) == 0) {
+      } else if (tag.compare(u"/td", Qt::CaseInsensitive) == 0) {
         out.append(' ');
       } else if (tag.startsWith("img", Qt::CaseInsensitive)) {
         out.append("[IMG]");
