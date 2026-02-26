@@ -22,8 +22,9 @@
 
 #include <cassert>                 // for assert
 #include <cmath>                   // for fabs
-#include <cstdio>                  // for snprintf, sscanf, fprintf, fputc, stderr
+#include <cstdio>                  // for sscanf
 #include <cstring>                 // for strncmp, strchr, strlen, strstr, memset, strrchr
+#include <format>                  // for format, format_string, make_format_args, vformat
 #include <iterator>                // for operator!=, reverse_iterator
 
 #include <QByteArray>              // for QByteArray
@@ -41,7 +42,7 @@
 
 #include "defs.h"
 #include "nmea.h"
-#include "gbfile.h"                // for gbfprintf, gbfflush, gbfclose, gbfopen, gbfgetstr, gbfile
+#include "gbfile.h"                // for gbfwrite, gbfflush, gbfclose, gbfopen, gbfgetstr, gbfprintf
 #include "gbser.h"                 // for gbser_set_speed, gbser_flush, gbser_read_line, gbser_deinit, gbser_init, gbser_write
 #include "jeeps/gpsmath.h"         // for GPS_Lookup_Datum_Index, GPS_Math_Known_Datum_To_WGS84_M
 #include "mkshort.h"               // for MakeShort
@@ -300,6 +301,15 @@ NmeaFormat::wr_deinit()
   gbfclose(file_out);
   delete mkshort_handle;
   mkshort_handle = nullptr;
+}
+
+template<typename... Args>
+inline void NmeaFormat::nmea_write_sentence(const std::format_string<Args...> fmt, Args&&... args) const
+{
+  auto obuf = std::vformat(fmt.get(), std::make_format_args(args...));
+  int cksum = nmea_cksum(obuf.c_str());
+  obuf =  std::format("${}*{:0>2X}\n", obuf, cksum);
+  gbfwrite(obuf.c_str(), 1, obuf.size(), file_out);
 }
 
 void
@@ -1160,7 +1170,6 @@ NmeaFormat::rd_position_deinit()
 void
 NmeaFormat::nmea_wayptpr(const Waypoint* wpt) const
 {
-  char obuf[200];
   QString s;
 
   double lat = degrees2ddmm(wpt->latitude);
@@ -1171,12 +1180,10 @@ NmeaFormat::nmea_wayptpr(const Waypoint* wpt) const
     s = mkshort_handle->mkshort(wpt->shortname);
   }
 
-  snprintf(obuf, sizeof(obuf),  "GPWPL,%08.3f,%c,%09.3f,%c,%s",
+  nmea_write_sentence("GPWPL,{:08.3f},{},{:09.3f},{},{}",
            fabs(lat), lat < 0 ? 'S' : 'N',
            fabs(lon), lon < 0 ? 'W' : 'E', CSTRc(s)
           );
-  int cksum = nmea_cksum(obuf);
-  gbfprintf(file_out, "$%s*%02X\n", obuf, cksum);
   if (sleepms >= 0) {
     gbfflush(file_out);
     QThread::msleep(sleepms);
@@ -1192,9 +1199,7 @@ NmeaFormat::nmea_track_init(const route_head* /*unused*/)
 void
 NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
 {
-  char obuf[200];
   char fix='0';
-  int cksum;
 
   if (opt_sleep) {
     gbfflush(file_out);
@@ -1239,7 +1244,14 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
   }
 
   if (opt_gprmc) {
-    snprintf(obuf, sizeof(obuf), "GPRMC,%s,%c,%08.3f,%c,%09.3f,%c,%.2f,%.2f,%s,,",
+    /* GISTeq doesn't care about the checksum, but wants this prefixed, so
+     * we can write it with abandon.
+     */
+    if (opt_gisteq) {
+      gbfprintf(file_out, "---,");
+    }
+
+    nmea_write_sentence("GPRMC,{},{},{:08.3f},{},{:09.3f},{},{:.2f},{:.2f},{},,",
              hms.constData(),
              fix=='0' ? 'V' : 'A',
              fabs(lat), lat < 0 ? 'S' : 'N',
@@ -1247,18 +1259,9 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
              wpt->speed_has_value() ? MPS_TO_KNOTS(wpt->speed_value()):(0),
              wpt->course_value_or(0),
              dmy.constData());
-    cksum = nmea_cksum(obuf);
-
-    /* GISTeq doesn't care about the checksum, but wants this prefixed, so
-     * we can write it with abandon.
-     */
-    if (opt_gisteq) {
-      gbfprintf(file_out, "---,");
-    }
-    gbfprintf(file_out, "$%s*%02X\n", obuf, cksum);
   }
   if (opt_gpgga) {
-    snprintf(obuf, sizeof(obuf), "GPGGA,%s,%08.3f,%c,%09.3f,%c,%c,%02d,%.1f,%.3f,M,%.1f,M,,",
+    nmea_write_sentence("GPGGA,{},{:08.3f},{},{:09.3f},{},{},{:02d},{:.1f},{:.3f},M,{:.1f},M,,",
              hms.constData(),
              fabs(lat), lat < 0 ? 'S' : 'N',
              fabs(lon), lon < 0 ? 'W' : 'E',
@@ -1267,17 +1270,12 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
              (wpt->hdop>0)?(wpt->hdop):(0.0),
              wpt->altitude == unknown_alt ? 0 : wpt->altitude,
              wpt->geoidheight_value_or(0)); /* TODO: we could look up the geoidheight if needed */
-    cksum = nmea_cksum(obuf);
-    gbfprintf(file_out, "$%s*%02X\n", obuf, cksum);
   }
   if ((opt_gpvtg) && (wpt->course_has_value() || wpt->speed_has_value())) {
-    snprintf(obuf,sizeof(obuf),"GPVTG,%.3f,T,0,M,%.3f,N,%.3f,K",
+    nmea_write_sentence("GPVTG,{:.3f},T,0,M,{:.3f},N,{:.3f},K",
              wpt->course_value_or(0),
              wpt->speed_has_value() ? MPS_TO_KNOTS(wpt->speed_value()):(0),
              wpt->speed_has_value() ? MPS_TO_KPH(wpt->speed_value()):(0));
-
-    cksum = nmea_cksum(obuf);
-    gbfprintf(file_out, "$%s*%02X\n", obuf, cksum);
   }
 
   if ((opt_gpgsa) && (wpt->fix!=fix_unknown)) {
@@ -1292,15 +1290,13 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
       fix='2';
       break;
     default:
-      fix=0;
+      fix='1'; // Fix not available
     }
-    snprintf(obuf,sizeof(obuf),"GPGSA,A,%c,,,,,,,,,,,,,%.1f,%.1f,%.1f",
+    nmea_write_sentence("GPGSA,A,{},,,,,,,,,,,,,{:.1f},{:.1f},{:.1f}",
              fix,
              (wpt->pdop > 0) ? (wpt->pdop) : (0),
              (wpt->hdop > 0) ? (wpt->hdop) : (0),
              (wpt->vdop > 0) ? (wpt->vdop) : (0));
-    cksum = nmea_cksum(obuf);
-    gbfprintf(file_out, "$%s*%02X\n", obuf, cksum);
   }
   gbfflush(file_out);
 }

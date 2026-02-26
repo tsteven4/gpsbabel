@@ -94,6 +94,8 @@ private:
 
   /* Member Functions */
 
+  template<typename... Args>
+  inline void nmea_write_sentence(const std::format_string<Args...> fmt, Args&&... args) const;
   Waypoint* nmea_new_wpt();
   void nmea_add_wpt(Waypoint* wpt, route_head* trk) const;
   static void nmea_release_wpt(Waypoint* wpt);
