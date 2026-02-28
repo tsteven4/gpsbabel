@@ -308,8 +308,8 @@ inline void NmeaFormat::nmea_write_sentence(const std::format_string<Args...> fm
 {
   auto obuf = std::vformat(fmt.get(), std::make_format_args(args...));
   int cksum = nmea_cksum(obuf.c_str());
-  obuf =  std::format("${}*{:0>2X}\n", obuf, cksum);
-  gbfwrite(obuf.c_str(), 1, obuf.size(), file_out);
+  obuf =  std::format("${:s}*{:02X}\n", obuf, cksum);
+  gbfwrite(obuf.c_str(), 1, strlen(obuf.c_str()), file_out);
 }
 
 void
@@ -1180,7 +1180,7 @@ NmeaFormat::nmea_wayptpr(const Waypoint* wpt) const
     s = mkshort_handle->mkshort(wpt->shortname);
   }
 
-  nmea_write_sentence("GPWPL,{:08.3f},{},{:09.3f},{},{}",
+  nmea_write_sentence("GPWPL,{:08.3f},{:c},{:09.3f},{:c},{:s}",
            fabs(lat), lat < 0 ? 'S' : 'N',
            fabs(lon), lon < 0 ? 'W' : 'E', CSTRc(s)
           );
@@ -1251,7 +1251,7 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
       gbfprintf(file_out, "---,");
     }
 
-    nmea_write_sentence("GPRMC,{},{},{:08.3f},{},{:09.3f},{},{:.2f},{:.2f},{},,",
+    nmea_write_sentence("GPRMC,{:s},{:c},{:08.3f},{:c},{:09.3f},{:c},{:.2f},{:.2f},{:s},,",
              hms.constData(),
              fix=='0' ? 'V' : 'A',
              fabs(lat), lat < 0 ? 'S' : 'N',
@@ -1261,7 +1261,7 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
              dmy.constData());
   }
   if (opt_gpgga) {
-    nmea_write_sentence("GPGGA,{},{:08.3f},{},{:09.3f},{},{},{:02d},{:.1f},{:.3f},M,{:.1f},M,,",
+    nmea_write_sentence("GPGGA,{:s},{:08.3f},{:c},{:09.3f},{:c},{:c},{:02d},{:.1f},{:.3f},M,{:.1f},M,,",
              hms.constData(),
              fabs(lat), lat < 0 ? 'S' : 'N',
              fabs(lon), lon < 0 ? 'W' : 'E',
@@ -1292,7 +1292,7 @@ NmeaFormat::nmea_trackpt_pr(const Waypoint* wpt)
     default:
       fix='1'; // Fix not available
     }
-    nmea_write_sentence("GPGSA,A,{},,,,,,,,,,,,,{:.1f},{:.1f},{:.1f}",
+    nmea_write_sentence("GPGSA,A,{:c},,,,,,,,,,,,,{:.1f},{:.1f},{:.1f}",
              fix,
              (wpt->pdop > 0) ? (wpt->pdop) : (0),
              (wpt->hdop > 0) ? (wpt->hdop) : (0),
