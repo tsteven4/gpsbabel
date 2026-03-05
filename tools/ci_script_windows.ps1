@@ -8,42 +8,41 @@
 #
 # The defaults should be compatible with github action builds.
 param(
-    $build_dir_name = "bld",
-    $generator = "Ninja",
-    $toolset = "",
-    [ValidateSet("x86", "amd64", "amd64_x86", "x86_amd64", "arm64")] $arch = "amd64"
+    [string] $build_dir_name = "bld",
+    [string] $generator = "Ninja",
+    [string] $qtdir = "C:/Qt/6.8.3/msvc2022_64",
+    [string] $toolset = "",
+    [ValidateSet('x86','amd64','arm','arm64')] [string] $host_arch = "amd64",
+    [ValidateSet('x86','amd64','arm','arm64')] [string] $arch = "amd64"
 )
-# the arch parameter values correspond to:
-# vcvarsall arch parameter x86 => host x86, target x86.
-# vcvarsall arch paramter amd64 => host amd64, target amd64.
-# vcvarsall arch parameter amd64_x86 => host amd64, target x86
-# vcvarsall arch parameter x86_amd64 => host x86, target amd64
-# vsdevcmd arch parameter x86 => target x86.
-# vsdevcmd arch parameter amd64 => target amd64.
 
 $ErrorActionPreference = "Stop"
+
+# setup visual studio development envirnonment
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+$installationPath = & "$vswhere" -latest -property installationPath
+& "$installationPath\Common7\Tools\Launch-VsDevShell.ps1" -Arch $arch -HostArch $host_arch -SkipAutomaticLocation
+
 # verify we are in the top of the gpsbabel clone
 Get-Item tools/ci_script_windows.ps1 -ErrorAction Stop | Out-Null
+
 $src_dir = $Pwd
 $build_dir = Join-Path $src_dir $build_dir_name
-$CMAKE_PREFIX_PATH = Split-Path $((Get-Command qmake) | Split-Path) -Parent
-# translate target architecture to Platform property value.
-switch ($arch) {
-    "x86" { $platform = "Win32" }
-    "amd64" { $platform = "x64" }
-    "amd64_x86" { $platform = "Win32" }
-    "x86_amd64" { $platform = "x64" }
-    "arm64" { $platform = "ARM64" }
-}
+$CMAKE_PREFIX_PATH = $qtdir
 # make sure we are staring with a clean build directory
 Remove-Item $build_dir -Recurse -ErrorAction Ignore
-New-Item $build_dir -type directory -Force | Out-Null
-Set-Location $build_dir
+# Generate
 $hashargs = "-G", $generator
-if ( $toolset ) {
-    $hashargs += "-T", $toolset
-}
 if ( $generator -like "Visual Studio*") {
+    if ( $toolset ) {
+        $hashargs += "-T", $toolset
+    }
+    switch ($arch) {
+        "x86" { $platform = "Win32" }
+        "amd64" { $platform = "x64" }
+        "arm" { $platform = "ARM" }
+        "arm64" { $platform = "ARM64" }
+    }
     $hashargs += "-A", $platform
 }
 else {
@@ -51,13 +50,15 @@ else {
 }
 $hashargs += "-DCMAKE_PREFIX_PATH:PATH=$CMAKE_PREFIX_PATH"
 Write-Output "cmake $hashargs $src_dir"
-cmake $hashargs $src_dir
+cmake $hashargs -B $build_dir -S $src_dir
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+# Build
 switch -wildcard ($generator) {
     "Visual Studio*" { cmake --build $build_dir --config Release }
     default { cmake --build $build_dir }
 }
 if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+# Package
 switch -wildcard ($generator) {
     "Visual Studio*" { cmake --build $build_dir --config Release --target package_app }
     default { cmake --build $build_dir --target package_app }

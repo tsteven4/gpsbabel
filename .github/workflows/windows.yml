@@ -124,9 +124,16 @@ jobs:
     - name: Build
       shell: pwsh
       run: |
-        if ([string]::IsNullOrEmpty("${{  matrix.CROSS_COMPILER }}")) {
-          .\tools\ci_setup_windows.ps1 -qtdir "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}" -arch "${{ matrix.ARCH }}" -host_arch "${{ matrix.HOST_ARCH }}" -vcversion "${{ matrix.VCVERSION }}"
-          .\tools\ci_script_windows.ps1 -generator "${{ matrix.GENERATOR }}" -arch "${{ matrix.ARCH }}" -toolset "${{ matrix.TOOLSET }}"
+        if (-not "${{ matrix.CROSS_COMPILER }}") {
+          $hash = @{}
+          $hash["generator"] = "${{ matrix.GENERATOR }}"
+          $hash["qtdir"] = "$Home\Cache\Qt\${{ matrix.QT_VERSION }}\${{ matrix.COMPILER }}"
+          $hash["host_arch"] = "${{ matrix.HOST_ARCH }}"
+          $hash["arch"] = "${{ matrix.ARCH }}"
+          if ("${{ matrix.TOOLSET }}") {
+            $hash["toolset"] = "${{ matrix.TOOLSET }}"
+          }
+          .\tools\ci_script_windows.ps1 @hash
         } else {
           $hash = @{}
           $hash["qt_root_dir"] = "$Home\Cache\Qt\${{ matrix.QT_VERSION }}"
