@@ -45,7 +45,7 @@ jobs:
       with:
         context: "{{defaultContext}}:tools/archive_images"
         file: "Dockerfile_gpsbabel_${{ inputs.version }}"
-        load: true
+        push: false
         tags: "${{ env.docker_repository }}:test_${{ inputs.version }}"
     - name: Test
       run: |
