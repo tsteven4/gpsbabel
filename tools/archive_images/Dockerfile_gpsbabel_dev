@@ -63,7 +63,7 @@ WORKDIR /home/gpsbabel
 COPY . /home/gpsbabel/gpsbabel-build/
 
 RUN cd gpsbabel-build \
- && git apply tools/archive/gpsbabel_dev.patch \
+ && git apply tools/archive_images/gpsbabel_dev.patch \
  && rm -fr zlib \
  && rm -fr shapelib \
  && rm -f testo.d/serialization.test \
