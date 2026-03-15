@@ -53,6 +53,21 @@ jobs:
       with:
         username: tsteven4
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+    - name: Build and export to Docker
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: ./tools/archive_images/Dockerfile_gpsbabel_${{ inputs.version }}
+        load: true
+        tags: "${{ env.docker_repository }}:test_${{ inputs.version }}"
+    - name: Test
+      run: |
+        # tests failed before 1.6.0 (and repository structure was different)
+        if [[ "${{ inputs.version }}" == "dev" || $(echo -e "${{ inputs.version }}\n1.6.0" | sort -V | head -n1) == "1.6.0" ]]; then
+          docker run --rm -w /home/gpsbabel/gpsbabel-build -e PNAME=/usr/local/bin/gpsbabel "${{ env.docker_repository }}:test_${{ inputs.version }}" ./testo
+        fi
     - name: Docker Metadata
       id: meta
       uses: docker/metadata-action@v6
@@ -66,23 +81,6 @@ jobs:
           type=raw,value=${{ inputs.version }}_{{date 'YYYYMMDD[T]HHmmss[Z]' tz='UTC'}}
           type=raw,value=latest,enable=${{ inputs.latest }}
         context: git
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v4
-    - name: Build and export to Docker
-      uses: docker/build-push-action@v7
-      with:
-        context: .
-        file: ./tools/archive_images/Dockerfile_gpsbabel_${{ inputs.version }}
-        load: true
-        tags: "${{ env.docker_repository }}:test_${{ inputs.version }}"
-        labels: ${{ steps.meta.outputs.labels }}
-        annotations: ${{ steps.meta.outputs.annotations }}
-    - name: Test
-      run: |
-        # tests failed before 1.6.0 (and repository structure was different)
-        if [[ "${{ inputs.version }}" == "dev" || $(echo -e "${{ inputs.version }}\n1.6.0" | sort -V | head -n1) == "1.6.0" ]]; then
-          docker run --rm -w /home/gpsbabel/gpsbabel-build -e PNAME=/usr/local/bin/gpsbabel "${{ env.docker_repository }}:test_${{ inputs.version }}" ./testo
-        fi
     - name: Build and push
       uses: docker/build-push-action@v7
       with:
