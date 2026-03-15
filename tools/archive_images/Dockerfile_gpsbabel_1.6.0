@@ -66,9 +66,9 @@ RUN cd gpsbabel-build \
  && rm -fr zlib \
  && ./configure --with-zlib=system && make -j 10 linux-gui && make check \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin 
+ && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin  \
+ && cp tools/archive_images/setup_user.sh /usr/local/bin
 
-COPY /home/gpsbabel/gpsbabel-build/tools/archive_images/setup_user.sh /usr/local/bin/
 RUN useradd ubuntu -m -s /bin/bash
 USER ubuntu:ubuntu
 WORKDIR /app
