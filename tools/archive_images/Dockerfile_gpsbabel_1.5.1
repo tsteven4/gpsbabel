@@ -68,7 +68,7 @@ RUN cd gpsbabel-build \
  && git clean -f -x -d -e /gpsbabel/gui/GPSBabel1.5.1 -e /tools/archive_images \
  && ln -s $(pwd)/gui/GPSBabel1.5.1/gpsbabel /usr/local/bin \
  && ln -s $(pwd)/gui/GPSBabel1.5.1/gpsbabelfe /usr/local/bin \
- && cp tools/archive_images/setup_user.sh /usr/local/bin
+ && cp ../tools/archive_images/setup_user.sh /usr/local/bin
 
 RUN useradd ubuntu -m -s /bin/bash
 USER ubuntu:ubuntu
