@@ -65,7 +65,7 @@ RUN cd gpsbabel-build \
  && git apply /home/gpsbabel/gpsbabel-build/tools/archive_images/gpsbabel_1_6_0.patch \
  && rm -fr zlib \
  && ./configure --with-zlib=system && make -j 10 linux-gui && make check \
- && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images
+ && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin  \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
