@@ -41,6 +41,7 @@ jobs:
       id: compute
       run: |
         echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+        cat bld-context/tools/archive_images/setup_user.sh
     - name: Checkout
       uses: actions/checkout@v5
       with:
@@ -61,6 +62,7 @@ jobs:
         file: ./bld-context/tools/archive_images/Dockerfile_gpsbabel_${{ inputs.version }}
         load: true
         tags: "${{ env.docker_repository }}:test_${{ inputs.version }}"
+        no-cache: true
     - name: Test
       run: |
         # tests failed before 1.6.0 (and repository structure was different)
