@@ -38,9 +38,9 @@ jobs:
       with:
         path: bld-context
     - name: Compute tag
+      id: compute
       run: |
-        id: compute
-        run: echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+        echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
     - name: Checkout
       uses: actions/checkout@v5
       with:
