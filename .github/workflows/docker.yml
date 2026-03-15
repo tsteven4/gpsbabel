@@ -33,6 +33,19 @@ jobs:
     env:
       docker_repository: ${{ case(github.repository == 'GPSBabel/gpsbabel', 'tsteven4/gpsbabel', 'tsteven4/testing') }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        path: bld-context
+    - name: Compute tag
+      run: |
+        id: compute
+        run: echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ steps.compute.outputs.tag }}
+        path: tgt-context
     - name: Login to Docker Hub
       uses: docker/login-action@v4
       with:
@@ -43,9 +56,10 @@ jobs:
     - name: Build and export to Docker
       uses: docker/build-push-action@v7
       with:
-        context: "{{defaultContext}}:tools/archive_images"
-        file: "Dockerfile_gpsbabel_${{ inputs.version }}"
-        push: false
+        context: ./tgt-context
+        build-contexts: bld_context=./bld-context/tools/archive_images
+        file: ./bld-context/tools/archive_images/Dockerfile_gpsbabel_${{ inputs.version }}
+        load: true
         tags: "${{ env.docker_repository }}:test_${{ inputs.version }}"
     - name: Test
       run: |
@@ -68,7 +82,8 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v7
       with:
-        context: "{{defaultContext}}:tools/archive_images"
-        file: "Dockerfile_gpsbabel_${{ inputs.version }}"
+        context: ./tgt-context
+        build-contexts: bld_context=./bld-context/tools/archive_images
+        file: ./bld-context/tools/archive_images/Dockerfile_gpsbabel_${{ inputs.version }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
