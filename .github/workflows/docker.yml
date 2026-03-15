@@ -36,7 +36,11 @@ jobs:
     - name: Compute tag
       id: compute
       run: |
-        echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+        if [ "$ver" == "dev" ]; then
+          echo "tag=master" >> "$GITHUB_OUTPUT"
+        else
+          echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+        fi
     - name: Checkout
       uses: actions/checkout@v5
       with:
@@ -52,7 +56,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
-    - name: Build and export to Docker
+    - name: Build and load
       uses: docker/build-push-action@v7
       with:
         context: .

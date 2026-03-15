@@ -74,7 +74,7 @@ RUN cd gpsbabel-build \
  && rm -fr zlib \
  && rm -fr shapelib \
  && sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake \
- && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -DGPSBABEL_ENABLE_PCH=OFF -B bld \
+ && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -B bld \
  && cmake --build bld --target package_app \
  && cmake --build bld --target check \
  && git clean -f -x -d -e /bld/gui/GPSBabelFE -e /tools/archive_images \
