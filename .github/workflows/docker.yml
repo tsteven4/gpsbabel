@@ -36,7 +36,7 @@ jobs:
     - name: Compute tag
       id: compute
       run: |
-        if [ "${{ inputs.version }} == "dev" ]; then
+        if [ "${{ inputs.version }}" == "dev" ]; then
           echo "tag=master" >> "$GITHUB_OUTPUT"
         else
           echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
