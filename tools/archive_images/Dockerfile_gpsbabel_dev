@@ -60,12 +60,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && locale -a
 
 WORKDIR /home/gpsbabel
+COPY . /home/gpsbabel/gpsbabel-build/
 
-COPY gpsbabel_dev.patch /home/gpsbabel
-
-RUN git clone https://github.com/GPSBabel/gpsbabel.git gpsbabel-build\
- && cd gpsbabel-build \
- && git apply /home/gpsbabel/gpsbabel_dev.patch \
+RUN cd gpsbabel-build \
+ && git apply tools/archive/gpsbabel_dev.patch \
  && rm -fr zlib \
  && rm -fr shapelib \
  && rm -f testo.d/serialization.test \
@@ -75,9 +73,10 @@ RUN git clone https://github.com/GPSBabel/gpsbabel.git gpsbabel-build\
  && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -DGPSBABEL_ENABLE_PCH=OFF -DGB.PACKAGE_RELEASE="+$(git log -1 --format=%h)" .. \
  && cmake --build . --target package_app \
  && cmake --build . --target check \
+ && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin 
+ && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
+ && cp tools/archive_images/setup_user.sh /usr/local/bin
 
-COPY setup_user.sh /usr/local/bin
 USER ubuntu:ubuntu
 WORKDIR /app

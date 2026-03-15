@@ -59,19 +59,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && locale -a
 
 WORKDIR /home/gpsbabel
+COPY . /home/gpsbabel/gpsbabel-build/
 
-COPY gpsbabel_1_7_0.patch /home/gpsbabel
-
-RUN git clone https://github.com/GPSBabel/gpsbabel.git gpsbabel-build\
- && cd gpsbabel-build \
- && git checkout gpsbabel_1_7_0 \
- && patch < /home/gpsbabel/gpsbabel_1_7_0.patch \
+RUN cd gpsbabel-build \
+ && git apply tools/archive_images/gpsbabel_1_7_0.patch \
  && rm -fr zlib \
  && ./configure --with-zlib=system && make -j 10 linux-gui && make check \
+ && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin 
+ && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
+ && cp tools/archive_images/setup_user.sh /usr/local/bin
 
-COPY setup_user.sh /usr/local/bin
 RUN useradd ubuntu -m -s /bin/bash
 USER ubuntu:ubuntu
 WORKDIR /app
