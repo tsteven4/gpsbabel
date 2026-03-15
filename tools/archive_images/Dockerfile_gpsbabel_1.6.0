@@ -59,16 +59,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && locale -a
 
 WORKDIR /home/gpsbabel
+COPY . /home/gpsbabel/gpsbabel-build/
+COPY --from=bld_context /gpsbabel_1_6_0.patch /home/gpsbabel/
 
-COPY --from=bld_context /gpsbabel_1_6_0.patch /home/gpsbabel
-
-RUN git apply /home/gpsbabel/gpsbabel_1_6_0.patch \
+RUN cd gpsbabel-build \
+ && git apply /home/gpsbabel/gpsbabel_1_6_0.patch \
  && rm -fr zlib \
  && ./configure --with-zlib=system && make -j 10 linux-gui && make check \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
  && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin 
 
-COPY --from=bld_context /setup_user.sh /usr/local/bin
+COPY --from=bld_context /setup_user.sh /usr/local/bin/
 RUN useradd ubuntu -m -s /bin/bash
 USER ubuntu:ubuntu
 WORKDIR /app
