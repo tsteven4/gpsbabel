@@ -66,14 +66,12 @@ RUN cd gpsbabel-build \
  && rm -fr zlib \
  && rm -fr shapelib \
  && sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake \
- && mkdir bld \
- && cd bld \
- && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -DGPSBABEL_ENABLE_PCH=OFF .. \
- && cmake --build . --target package_app \
- && cmake --build . --target check \
- && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
+ && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -DGPSBABEL_ENABLE_PCH=OFF -B bld \
+ && cmake --build bld --target package_app \
+ && cmake --build bld --target check \
+ && git clean -f -x -d -e /bld/gui/GPSBabelFE -e /tools/archive_images \
+ && ln -s $(pwd)/bld/gui/GPSBabelFE/gpsbabel /usr/local/bin \
+ && ln -s $(pwd)/bld/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
 
 USER ubuntu:ubuntu
