@@ -79,6 +79,7 @@ jobs:
           type=raw,value=${{ inputs.version }}
           type=raw,value=${{ inputs.version }}_{{date 'YYYYMMDD[T]HHmmss[Z]' tz='UTC'}}
           type=raw,value=latest,enable=${{ inputs.latest }}
+        context: git
     - name: Build and push
       uses: docker/build-push-action@v7
       with:
