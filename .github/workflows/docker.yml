@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       version:
-        description: 'verison to archive'
+        description: 'version to archive'
         required: false
         default: dev
         type: string
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'verison to archive'
+        description: 'version to archive'
         required: true
         type: string
       latest:
