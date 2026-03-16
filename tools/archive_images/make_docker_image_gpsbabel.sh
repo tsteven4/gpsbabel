@@ -33,9 +33,8 @@ trap "rm -fr ${TMPDIR}" 0 1 2 3 15
 cd "${TMPDIR}"
 
 # get the branch we want to build
-git clone https://github.com/tsteven4/gpsbabel.git
+git clone --depth 1 --branch "${tag}" https://github.com/tsteven4/gpsbabel.git
 cd gpsbabel
-git checkout "${tag}"
 
 # override the docker build instructions with the current version.
 # note the docker build instructions may not exist in the branch,

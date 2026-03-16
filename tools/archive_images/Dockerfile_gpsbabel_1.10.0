@@ -1,8 +1,6 @@
 # this file is used to build the image gpsbabel_build_environment used by travis.
 
-FROM ubuntu:noble
-
-LABEL maintainer="https://github.com/tsteven4"
+FROM ubuntu:noble AS stage
 
 # update environment.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -69,6 +67,46 @@ RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw cd /home/gpsbabel/
  && ln -s /usr/local/cellar/GPSBabelFE/gpsbabel /usr/local/bin \
  && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
+
+FROM ubuntu:noble
+
+LABEL maintainer="https://github.com/tsteven4"
+
+# update environment.
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+ && apt-get upgrade -y \
+ && rm -rf /var/lib/apt/lists/*
+
+# the trick here is finding all the packages that we, and the plugins we
+# use need.  Note we had to figure this out for  snapcraft, but it
+# changes for different flavors of ubuntu.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libusb-1.0-0 \
+    libudev1 \
+    libshp4 \
+    zlib1g \
+    libqt6core6 \
+    libqt6core5compat6 \
+    libqt6gui6 \
+    libqt6network6 \
+    libqt6serialport6 \
+    libqt6widgets6 \
+    libqt6xml6 \
+    libqt6webenginewidgets6 \
+    libqt6webenginecore6 \
+    libqt6webenginecore6-bin \
+    qt6-translations-l10n \
+    qt6-qpa-plugins \
+    qt6-wayland \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=stage /usr/local/cellar /usr/local/cellar
+COPY --from=stage /usr/local/bin/setup_user.sh /usr/local/bin
+
+RUN ln -s /usr/local/cellar/GPSBabelFE/gpsbabel /usr/local/bin \
+ && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin
 
 USER ubuntu:ubuntu
 WORKDIR /app
