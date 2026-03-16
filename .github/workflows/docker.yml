@@ -37,11 +37,10 @@ jobs:
       id: compute
       run: |
         if [ "${{ inputs.version }}" == "dev" ]; then
-          tag=master
+          echo "tag=master" >> "$GITHUB_OUTPUT"
         else
-          tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)
+          echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
         fi
-          echo "tag=${tag} >> "$GITHUB_OUTPUT"
     - name: Checkout
       uses: actions/checkout@v5
       with:
