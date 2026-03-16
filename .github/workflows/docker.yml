@@ -48,7 +48,7 @@ jobs:
         fetch-depth: 0
     - name: Update archive_images
       run: |
-        git checkout ${{ github.sha }} tools/archive_images
+        git checkout ${{ github.sha }} -- tools/archive_images
     - name: Patch
       run: |
         patch=tools/archive_images/gpsbabel_$(echo ${{ inputs.version }} | tr . _).patch

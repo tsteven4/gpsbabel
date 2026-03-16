@@ -4,8 +4,6 @@ FROM ubuntu:focal
 
 LABEL maintainer="https://github.com/tsteven4"
 
-WORKDIR /app
-
 # update environment.
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,7 +27,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ninja-build \
     curl \
     ca-certificates \
-    patch \
  && rm -rf /var/lib/apt/lists/*
 
 # pkgs with libraries needed by gpsbabel
@@ -58,16 +55,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && locale-gen \
  && locale -a
 
-WORKDIR /home/gpsbabel
-COPY . /home/gpsbabel/gpsbabel-build/
-
-RUN cd gpsbabel-build \
- && git apply tools/archive_images/gpsbabel_1_6_0.patch \
+RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw cd /home/gpsbabel/gpsbabel-build \
  && rm -fr zlib \
  && ./configure --with-zlib=system && make -j 10 linux-gui && make check \
- && git clean -f -x -d -e /gui/GPSBabelFE -e /tools/archive_images \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
+ && mkdir -p /usr/local/cellar \
+ && cp -pr gui/GPSBabelFE /usr/local/cellar \
+ && ln -s /usr/local/cellar/GPSBabelFE/gpsbabel /usr/local/bin \
+ && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
 
 RUN useradd ubuntu -m -s /bin/bash
