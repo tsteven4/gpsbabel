@@ -1,6 +1,6 @@
 # this file is used to build the image gpsbabel_build_environment used by travis.
 
-FROM ubuntu:noble AS stage
+FROM ubuntu:jammy AS stage
 
 # update environment.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -36,13 +36,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # pkgs with qt used by gpsbabel
 RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev \
-    qt6-5compat-dev \
-    qt6-serialport-dev \
+    libqt6core5compat6-dev \
+    libqt6opengl6-dev \
+    libqt6serialport6-dev \
+    libqt6webenginecore6-bin \
+    libgl-dev \
+    libopengl-dev \
+    libvulkan-dev \
     libx11-xcb-dev \
     libxkbcommon-dev \
+    qt6-l10n-tools \
     qt6-tools-dev \
+    qt6-tools-dev-tools \
     qt6-translations-l10n \
     qt6-webengine-dev \
+    qt6-webengine-dev-tools \
     qt6-wayland \
  && rm -rf /var/lib/apt/lists/*
 
@@ -68,7 +76,7 @@ RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw cd /home/gpsbabel/
  && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
 
-FROM ubuntu:noble
+FROM ubuntu:jammy
 
 LABEL maintainer="https://github.com/tsteven4"
 
@@ -81,25 +89,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # the trick here is finding all the packages that we, and the plugins we
 # use need.  Note we had to figure this out for  snapcraft, but it
 # changes for different flavors of ubuntu.
+# Or, at the cost of a bunch of space use the dev packages.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    tzdata \
-    libusb-1.0-0 \
-    libudev1 \
-    libshp4 \
-    zlib1g \
-    libqt6core6 \
-    libqt6core5compat6 \
-    libqt6gui6 \
-    libqt6network6 \
-    libqt6serialport6 \
-    libqt6widgets6 \
-    libqt6xml6 \
-    libqt6webenginewidgets6 \
-    libqt6webenginecore6 \
+    libusb-1.0-0-dev \
+    libudev-dev \
+    libshp-dev \
+    zlib1g-dev \
+    qt6-base-dev \
+    libqt6core5compat6-dev \
+    libqt6opengl6-dev \
+    libqt6serialport6-dev \
     libqt6webenginecore6-bin \
+    libgl-dev \
+    libopengl-dev \
+    libvulkan-dev \
+    libx11-xcb-dev \
+    libxkbcommon-dev \
+    qt6-l10n-tools \
+    qt6-tools-dev \
+    qt6-tools-dev-tools \
     qt6-translations-l10n \
-    qt6-qpa-plugins \
+    qt6-webengine-dev \
+    qt6-webengine-dev-tools \
     qt6-wayland \
  && rm -rf /var/lib/apt/lists/*
 
@@ -109,5 +121,6 @@ COPY --from=stage /usr/local/bin/setup_user.sh /usr/local/bin
 RUN ln -s /usr/local/cellar/GPSBabelFE/gpsbabel /usr/local/bin \
  && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin
 
+RUN useradd ubuntu -m -s /bin/bash
 USER ubuntu:ubuntu
 WORKDIR /app

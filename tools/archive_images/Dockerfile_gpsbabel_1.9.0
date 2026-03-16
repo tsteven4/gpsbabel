@@ -83,6 +83,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # changes for different flavors of ubuntu.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    tzdata \
     libusb-1.0-0 \
     libudev1 \
     libshp4 \
