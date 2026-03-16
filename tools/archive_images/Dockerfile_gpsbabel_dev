@@ -4,8 +4,6 @@ FROM ubuntu:noble
 
 LABEL maintainer="https://github.com/tsteven4"
 
-WORKDIR /app
-
 # update environment.
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -59,10 +57,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && locale-gen \
  && locale -a
 
-WORKDIR /home/gpsbabel
-COPY . /home/gpsbabel/gpsbabel-build/
-
-RUN cd gpsbabel-build \
+RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw \
+ cd /home/gpsbabel/gpsbabel-build \
  && git apply tools/archive_images/gpsbabel_dev.patch \
  && rm -fr zlib \
  && rm -fr shapelib \
@@ -71,9 +67,10 @@ RUN cd gpsbabel-build \
  && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -DGB.PACKAGE_RELEASE="+$(git log -1 --format=%h)" -B bld \
  && cmake --build bld --target package_app \
  && cmake --build bld --target check \
- && git clean -f -x -d -e /bld/gui/GPSBabelFE -e /tools/archive_images \
- && ln -s $(pwd)/bld/gui/GPSBabelFE/gpsbabel /usr/local/bin \
- && ln -s $(pwd)/bld/gui/GPSBabelFE/gpsbabelfe /usr/local/bin \
+ && mkdir -p /usr/local/cellar \
+ && cp -pr bld/gui/GPSBabelFE /usr/local/cellar \
+ && ln -s /usr/local/cellar/GPSBabelFE/gpsbabel /usr/local/bin \
+ && ln -s /usr/local/cellar/GPSBabelFE/gpsbabelfe /usr/local/bin \
  && cp tools/archive_images/setup_user.sh /usr/local/bin
 
 USER ubuntu:ubuntu
