@@ -73,9 +73,6 @@ jobs:
       run: |
         # tests failed before 1.6.0 (and repository structure was different)
         if [[ "${{ inputs.version }}" == "dev" || $(echo -e "${{ inputs.version }}\n1.6.0" | sort -V | head -n1) == "1.6.0" ]]; then
-          if [ "${{ inputs.version }}" == "dev" ]; then
-            rm -f testo.d/serialization.test
-          fi
           docker run --rm --volume ${{ github.workspace }}:/app "${{ env.docker_repository }}:test_${{ inputs.version }}" \
             /bin/bash -c 'PNAME=$(which gpsbabel) ./testo'
         fi
