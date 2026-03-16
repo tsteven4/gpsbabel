@@ -59,7 +59,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw \
  cd /home/gpsbabel/gpsbabel-build \
- && git apply tools/archive_images/gpsbabel_dev.patch \
  && rm -fr zlib \
  && rm -fr shapelib \
  && rm -f testo.d/serialization.test \

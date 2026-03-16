@@ -37,10 +37,11 @@ jobs:
       id: compute
       run: |
         if [ "${{ inputs.version }}" == "dev" ]; then
-          echo "tag=master" >> "$GITHUB_OUTPUT"
+          tag=master
         else
-          echo "tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)" >> "$GITHUB_OUTPUT"
+          tag=gpsbabel_$(echo ${{ inputs.version }} | tr . _)
         fi
+          echo "tag=${tag} >> "$GITHUB_OUTPUT"
     - name: Checkout
       uses: actions/checkout@v5
       with:
@@ -49,6 +50,12 @@ jobs:
     - name: Update archive_images
       run: |
         git checkout ${{ github.sha }} tools/archive_images
+    - name: Patch
+      run: |
+        patch=tools/archive_images/gpsbabel_$(echo ${{ inputs.version }} | tr . _).patch
+        if [ -e "${patch}" ]; then
+          git apply "${patch}"
+        fi
     - name: Login to Docker Hub
       uses: docker/login-action@v4
       with:
