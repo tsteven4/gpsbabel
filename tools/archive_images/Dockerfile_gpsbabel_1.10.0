@@ -60,6 +60,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN --mount=type=bind,target=/home/gpsbabel/gpsbabel-build,rw cd /home/gpsbabel/gpsbabel-build \
  && rm -fr zlib \
  && rm -fr shapelib \
+ && sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake \
  && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt6 -DGPSBABEL_WITH_ZLIB=pkgconfig -DGPSBABEL_WITH_SHAPELIB=pkgconfig -B bld \
  && cmake --build bld --target package_app \
  && cmake --build bld --target check \
