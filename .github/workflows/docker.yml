@@ -53,7 +53,7 @@ jobs:
       run: |
         patch=tools/archive_images/gpsbabel_$(echo ${{ inputs.version }} | tr . _).patch
         if [ -e "${patch}" ]; then
-          echo "Applying patch ${patch}
+          echo "Applying patch ${patch}"
           git apply -v "${patch}"
         fi
     - name: Login to Docker Hub
