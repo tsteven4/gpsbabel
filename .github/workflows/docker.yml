@@ -18,9 +18,13 @@ jobs:
       with:
         username: tsteven4
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: is it there
+      run: |
+        ls -ld subdir1/.git
     - name: Docker Metadata
       id: meta
       uses: docker/metadata-action@v6
+      # how do we tell metadata-action the context?
       with:
         context: git
     - name: Set up Docker Buildx
