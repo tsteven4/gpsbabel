@@ -16,11 +16,6 @@ set(CMAKE_AUTOUIC ON)
 # Handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
-add_executable(gpsbabelfe WIN32 MACOSX_BUNDLE)
-if(NOT UNIX OR APPLE)
-  set_target_properties(gpsbabelfe PROPERTIES OUTPUT_NAME GPSBabelFE)
-endif()
-
 # Find the QtCore library
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Network SerialPort Widgets Xml OPTIONAL_COMPONENTS WebEngineWidgets WebChannel)
 list(APPEND QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Network Qt6::SerialPort Qt6::Widgets Qt6::Xml)
@@ -38,6 +33,12 @@ else()
     message(WARNING "Optional components Qt6 WebEngineWidgets and/or Qt6 WebChannel not found, MAPPREVIEW is not available.")
   endif()
   target_compile_definitions(gpsbabelfe PRIVATE DISABLE_MAPPREVIEW)
+endif()
+
+qt_standard_project_setup()
+qt_add_executable(gpsbabelfe WIN32 MACOSX_BUNDLE)
+if(NOT UNIX OR APPLE)
+  set_target_properties(gpsbabelfe PROPERTIES OUTPUT_NAME GPSBabelFE)
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -169,7 +170,7 @@ else()
   target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${RESOURCES})
 endif()
 
-target_link_libraries(gpsbabelfe ${QT_LIBRARIES})
+target_link_libraries(gpsbabelfe PRIVATE ${QT_LIBRARIES})
 
 get_target_property(Srcs gpsbabelfe SOURCES)
 message(STATUS "Sources are: \"${Srcs}\"")

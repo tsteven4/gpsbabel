@@ -27,7 +27,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
-add_executable(gpsbabel)
 
 # Find the QtCore library
 find_package(Qt6 REQUIRED COMPONENTS Core Core5Compat)
@@ -37,6 +36,9 @@ if(${Qt6Core_VERSION} VERSION_LESS 6.2)
 else()
   message(STATUS "Using Qt6 version ${Qt6Core_VERSION}")
 endif()
+qt_standard_project_setup()
+qt_add_executable(gpsbabel)
+
 if(${Qt6Core_VERSION} VERSION_GREATER_EQUAL 6.5)
   target_compile_definitions(gpsbabel PRIVATE LIGHTWEIGHT_TIMEZONES_SUPPORTED)
 endif()
@@ -364,7 +366,7 @@ target_sources(gpsbabel PRIVATE ${SOURCES} ${HEADERS})
 # We don't care about stripping things out of the build.  Full monty, baby.
 target_compile_definitions(gpsbabel PRIVATE FILTERS_ENABLED)
 
-target_link_libraries(gpsbabel PRIVATE ${QT_LIBRARIES} ${LIBS})
+target_link_libraries(gpsbabel PUBLIC ${QT_LIBRARIES} ${LIBS})
 
 get_target_property(Srcs gpsbabel SOURCES)
 message(STATUS "Sources are: \"${Srcs}\"")
@@ -519,3 +521,25 @@ if((CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) AND NOT _isMultiConfig)
 else()
   message(WARNING "Document generation is only supported for in-source builds with single configuration generators.")
 endif()
+install(TARGETS gpsbabelfe gpsbabel
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# Generate the deployment script for MyApp.
+qt_generate_deploy_app_script(
+    TARGET gpsbabelfe
+    OUTPUT_SCRIPT deploy_script_gpsbabelfe
+    INCLUDE_PLUGINS wayland
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+qt_generate_deploy_app_script(
+    TARGET gpsbabel
+    OUTPUT_SCRIPT deploy_script_gpsbabel
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+# Run the deployment script during installation (on "cmake --install").
+install(SCRIPT ${deploy_script_gpsbabelfe} SCRIPT ${deploy_script_gpsbabel})
