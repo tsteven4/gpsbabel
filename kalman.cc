@@ -533,7 +533,7 @@ void Kalman::kalman_point_cb(Waypoint* wpt) {
     wpt->latitude= std::round(filtered_nvector.latitude() * COORDINATE_PRECISION_FACTOR) / COORDINATE_PRECISION_FACTOR;
     wpt->longitude = std::round(filtered_nvector.longitude() * COORDINATE_PRECISION_FACTOR) / COORDINATE_PRECISION_FACTOR;
     wpt->set_speed(speed);
-   
+
     // Update for next iteration
     last_timestamp_ = current_timestamp;
     last_nvector_ = current_nvector;
