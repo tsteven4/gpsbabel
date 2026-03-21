@@ -502,11 +502,9 @@ if((NOT _isMultiConfig) AND Python3_FOUND)
   execute_process(
     COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_BINARY_DIR}"
     OUTPUT_VARIABLE GB.BINARY_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "encoded: ${GB.BINARY_DIR_URI}")
   execute_process(
     COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GB.SOURCE_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "encoded: ${GB.SOURCE_DIR_URI}")
   
   configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
   configure_file(xmldoc/chapters/_chapters.xml.in xmldoc/chapters/_chapters.xml @ONLY NEWLINE_STYLE LF)
