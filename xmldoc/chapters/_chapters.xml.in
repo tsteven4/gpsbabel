@@ -1,0 +1,11 @@
+<!ENTITY allchapters SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/allchapters.xml">
+<!ENTITY chap_preface SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/preface.xml">
+<!ENTITY chap_build SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/build.xml">
+<!ENTITY chap_use SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/use.xml">
+<!ENTITY chap_formats SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/formats.xml">
+<!ENTITY chap_filters SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/filters.xml">
+<!ENTITY app_datums  SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/datums.xml">
+<!ENTITY app_garmin_icons  SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/garmin_icons.xml">
+<!ENTITY app_styles  SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/styles.xml">
+<!ENTITY app_glossary  SYSTEM "@GB.SOURCE_DIR_URI@/xmldoc/chapters/glossary.xml">
+
