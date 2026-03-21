@@ -3,7 +3,6 @@ set -ex
 
 sourcedir=$(cd "$(dirname "$0")/.." && pwd)
 
-echo pwd is $(pwd)
 perl "${sourcedir}/xmldoc/makedoc"
 xmllint --noout --relaxng "file:///${sourcedir}/tools/schema/docbook/xml/5.0/rng/docbook.rng" xmldoc/readme.xml
 # the following doesn't seem to work.

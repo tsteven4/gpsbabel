@@ -21,18 +21,6 @@ add_subdirectory(gui)
 # below here should be in it's own CMakeList.txt
 
 configure_file(gbversion.h.in gbversion.h @ONLY NEWLINE_STYLE LF)
-find_program(PYTHON3 python3 python REQUIRED)
-execute_process(
-  COMMAND ${PYTHON3} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_BINARY_DIR}"
-  OUTPUT_VARIABLE GB.BINARY_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-message(STATUS "encoded: ${GB.BINARY_DIR_URI}")
-execute_process(
-  COMMAND ${PYTHON3} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE GB.SOURCE_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-message(STATUS "encoded: ${GB.SOURCE_DIR_URI}")
-
-configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
-configure_file(xmldoc/chapters/_chapters.xml.in xmldoc/chapters/_chapters.xml @ONLY NEWLINE_STYLE LF)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -508,8 +496,21 @@ if(UNIX AND NOT APPLE)
                     USES_TERMINAL)
 endif()
 
+find_package(Python3 COMPONENTS Interpreter)
 get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(NOT _isMultiConfig)
+if((NOT _isMultiConfig) AND Python3_FOUND)
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_BINARY_DIR}"
+    OUTPUT_VARIABLE GB.BINARY_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "encoded: ${GB.BINARY_DIR_URI}")
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE GB.SOURCE_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "encoded: ${GB.SOURCE_DIR_URI}")
+  
+  configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
+  configure_file(xmldoc/chapters/_chapters.xml.in xmldoc/chapters/_chapters.xml @ONLY NEWLINE_STYLE LF)
+
   set(GPSBABEL_WEB "gpsbabel.org" CACHE PATH "Path where the documentation will be stored for www.gpsbabel.org.")
   add_custom_target(gpsbabel.org
                     ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_org.sh ${GPSBABEL_WEB} ${GPSBABEL_DOCVERSION}
@@ -529,5 +530,5 @@ if(NOT _isMultiConfig)
                     VERBATIM
                     USES_TERMINAL)
 else()
-  message(WARNING "Document generation is only supported for in-source builds with single configuration generators.")
+  message(WARNING "Document generation requires python3 and a single configuration generator.")
 endif()
