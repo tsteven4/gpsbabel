@@ -55,6 +55,5 @@ jobs:
         path: |
           gpsbabel.org/
           gpsbabel.pdf
-          gpsbabel.html
-          docbook.css
+          gpsbabel.html/
         retention-days: 7
