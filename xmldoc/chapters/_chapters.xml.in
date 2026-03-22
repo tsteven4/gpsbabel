@@ -8,4 +8,3 @@
 <!ENTITY app_garmin_icons SYSTEM "@chapter_rel_path@/garmin_icons.xml">
 <!ENTITY app_styles SYSTEM "@chapter_rel_path@/styles.xml">
 <!ENTITY app_glossary SYSTEM "@chapter_rel_path@/glossary.xml">
-

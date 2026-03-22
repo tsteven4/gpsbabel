@@ -4,7 +4,7 @@
 </para>
 <mediaobject>
   <imageobject>
-    <imagedata fileref="&sourcedir;/xmldoc/images/kalman_interpolation.png" format="PNG" width="100%" scalefit="1"/>
+    <imagedata fileref="kalman_interpolation.png" format="PNG" width="100%" scalefit="1"/>
   </imageobject>
 </mediaobject>
 <para>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book
 [
-  <!ENTITY sourcedir "file:@source_rel_path@">
   <!ENTITY % parts SYSTEM "autogen/_parts.xml">
   %parts;
   <!ENTITY % chaps SYSTEM "chapters/_chapters.xml">
