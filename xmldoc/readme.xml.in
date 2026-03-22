@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book
 [
-  <!ENTITY % parts SYSTEM "@GB.BINARY_DIR_URI@/xmldoc/autogen/_parts.xml">
+  <!ENTITY sourcedir "file:@source_rel_path@">
+  <!ENTITY % parts SYSTEM "autogen/_parts.xml">
   %parts;
-  <!ENTITY % chaps SYSTEM "@GB.BINARY_DIR_URI@/xmldoc/chapters/_chapters.xml">
+  <!ENTITY % chaps SYSTEM "chapters/_chapters.xml">
   %chaps;
 ]
 >

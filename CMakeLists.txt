@@ -1,7 +1,7 @@
 if(APPLE)
   cmake_minimum_required(VERSION 3.21.1)
 else()
-  cmake_minimum_required(VERSION 3.17)
+  cmake_minimum_required(VERSION 3.20)
 endif()
 
 include(CMakeDependentOption)
@@ -496,16 +496,12 @@ if(UNIX AND NOT APPLE)
                     USES_TERMINAL)
 endif()
 
-find_package(Python3 COMPONENTS Interpreter)
 get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if((NOT _isMultiConfig) AND Python3_FOUND)
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_BINARY_DIR}"
-    OUTPUT_VARIABLE GB.BINARY_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE GB.SOURCE_DIR_URI OUTPUT_STRIP_TRAILING_WHITESPACE)
-  
+if(NOT _isMultiConfig)
+  set(source_rel_path ${CMAKE_SOURCE_DIR})
+  cmake_path(RELATIVE_PATH source_rel_path BASE_DIRECTORY ${CMAKE_BINARY_DIR})
+  set(chapter_rel_path ${CMAKE_SOURCE_DIR}/xmldoc/chapters)
+  cmake_path(RELATIVE_PATH chapter_rel_path BASE_DIRECTORY ${CMAKE_BINARY_DIR}/xmldoc/chapters)
   configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
   configure_file(xmldoc/chapters/_chapters.xml.in xmldoc/chapters/_chapters.xml @ONLY NEWLINE_STYLE LF)
 
@@ -528,5 +524,5 @@ if((NOT _isMultiConfig) AND Python3_FOUND)
                     VERBATIM
                     USES_TERMINAL)
 else()
-  message(WARNING "Document generation requires python3 and a single configuration generator.")
+  message(WARNING "Document generation requires a single configuration generator.")
 endif()
