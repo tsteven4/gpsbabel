@@ -105,7 +105,7 @@ sub includef {
 }
 
 $sourcedir = dirname($0);
-$binarydir = getcwd;
+$binarydir = getcwd();
 
 qx(mkdir -p "$binarydir/xmldoc/autogen");
 if ( $? != 0 ) {
