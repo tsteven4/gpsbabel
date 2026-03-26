@@ -502,8 +502,8 @@ if((NOT _isMultiConfig) AND Python3_FOUND)
   # The path needs to be a valid uri for xmliint. Paths that contain space or utf8 chars
   # need to be uri escaped.
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe='/'))" "${CMAKE_SOURCE_DIR}/xmldoc/chapters"
-    OUTPUT_VARIABLE chapter_path OUTPUT_STRIP_TRAILING_WHITESPACE)
+    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1]))" "${CMAKE_SOURCE_DIR}/xmldoc"
+    OUTPUT_VARIABLE doc_src_path OUTPUT_STRIP_TRAILING_WHITESPACE)
   configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
 
   set(GPSBABEL_WEB "gpsbabel.org" CACHE PATH "Path where the documentation will be stored for www.gpsbabel.org.")
