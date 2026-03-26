@@ -496,34 +496,4 @@ if(UNIX AND NOT APPLE)
                     USES_TERMINAL)
 endif()
 
-find_package(Python3 COMPONENTS Interpreter)
-get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if((NOT _isMultiConfig) AND Python3_FOUND)
-  # The path needs to be a valid uri for xmliint. Paths that contain space or utf8 chars
-  # need to be uri escaped.
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1]))" "${CMAKE_SOURCE_DIR}/xmldoc"
-    OUTPUT_VARIABLE doc_src_path OUTPUT_STRIP_TRAILING_WHITESPACE)
-  configure_file(xmldoc/readme.xml.in xmldoc/readme.xml @ONLY NEWLINE_STYLE LF)
-
-  set(GPSBABEL_WEB "gpsbabel.org" CACHE PATH "Path where the documentation will be stored for www.gpsbabel.org.")
-  add_custom_target(gpsbabel.org
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_org.sh ${GPSBABEL_WEB} ${GPSBABEL_DOCVERSION}
-                    DEPENDS gpsbabel gpsbabel.pdf
-                    VERBATIM
-                    USES_TERMINAL)
-
-  add_custom_target(gpsbabel.html
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_html.sh
-                    DEPENDS gpsbabel
-                    VERBATIM
-                    USES_TERMINAL)
-
-  add_custom_target(gpsbabel.pdf
-                    ${CMAKE_SOURCE_DIR}/tools/make_gpsbabel_pdf.sh
-                    DEPENDS gpsbabel
-                    VERBATIM
-                    USES_TERMINAL)
-else()
-  message(WARNING "Document generation requires python3 and a single configuration generator.")
-endif()
+add_subdirectory(xmldoc)

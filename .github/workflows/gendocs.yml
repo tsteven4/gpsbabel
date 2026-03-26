@@ -53,7 +53,7 @@ jobs:
       with:
         name: Documents
         path: |
-          gpsbabel.org/
-          gpsbabel.pdf
-          gpsbabel.html/
+          xmldoc/gpsbabel.org/
+          xmldoc/gpsbabel.pdf
+          xmldoc/gpsbabel.html/
         retention-days: 7
