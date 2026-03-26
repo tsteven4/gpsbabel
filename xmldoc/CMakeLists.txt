@@ -41,7 +41,7 @@ if(Python3_FOUND)
                             readme.xml
                     COMMAND ${CMAKE_SOURCE_DIR}/tools/fixdoc ${GPSBABEL_WEB}/htmldoc-${GPSBABEL_DOCVERSION} "GPSBabel ${GPSBABEL_DOCVERSION}:"
                     COMMAND ${CMAKE_SOURCE_DIR}/tools/mkcapabilities ${GPSBABEL_WEB} ${GPSBABEL_WEB}/htmldoc-${GPSBABEL_DOCVERSION} $<TARGET_FILE:gpsbabel>
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images ${GPSBABEL_WEB}/htmldoc-${GPSBABEL_DOCVERSION}
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images ${GPSBABEL_WEB}/htmldoc-${GPSBABEL_DOCVERSION}/images
                     COMMAND ${CMAKE_COMMAND} -E copy gpsbabel.pdf ${GPSBABEL_WEB}/htmldoc-${GPSBABEL_DOCVERSION}/gpsbabel-${GPSBABEL_DOCVERSION}.pdf
                     DEPENDS xmldoc gpsbabel.pdf
                     VERBATIM
