@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Do this after we set up common variables but before creating other
 # variables that will be inherited.
 add_subdirectory(gui)
+add_subdirectory(xmldoc)
 
 # FIXME: When we rearrange the project directory structure everything
 # below here should be in it's own CMakeList.txt
@@ -495,5 +496,3 @@ if(UNIX AND NOT APPLE)
                     VERBATIM
                     USES_TERMINAL)
 endif()
-
-add_subdirectory(xmldoc)
