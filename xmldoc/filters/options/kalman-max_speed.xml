@@ -4,6 +4,7 @@
   greater than this limit to get there from the previous point.
 </para>
 <mediaobject>
+  <alt>Effect of max_speed on a GPS Zinger Clump</alt>
   <imageobject>
     <imagedata fileref="kalman_max_speed.png" format="PNG" width="100%" scalefit="1"/>
   </imageobject>

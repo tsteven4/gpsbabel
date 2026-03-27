@@ -4,6 +4,7 @@
   in your movement dynamics.
 </para>
 <mediaobject>
+  <alt>Effect of q_scale_pos on Sharp Turns</alt>
   <imageobject role="pdf">
     <imagedata fileref="kalman_q_scale_pos.png" format="PNG" width="100%" scalefit="1"/>
   </imageobject>

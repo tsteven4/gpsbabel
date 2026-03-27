@@ -24,9 +24,14 @@
   "humminbird-track" format.
 </para>
 <para>
-  <informalfigure><mediaobject><imageobject>
-    <imagedata fileref="humminbird.png" format="PNG"/>
-  </imageobject> </mediaobject> </informalfigure>
+  <informalfigure>
+    <mediaobject>
+      <alt>Humminbird logo</alt>
+      <imageobject>
+        <imagedata fileref="humminbird.png" format="PNG"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
 </para>
 <para>
 Note:<filename>.dat</filename> files are read-only, they only make sense
