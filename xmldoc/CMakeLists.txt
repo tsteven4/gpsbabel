@@ -58,7 +58,7 @@ if(Python3_FOUND)
                             --stringparam html.cleanup 1
                             --stringparam make.clean.html 1
                             --stringparam html.valid.html 1
-                            --stringparam html.stylesheet https://www.gpsbabel.org/style3.css
+                            --stringparam html.stylesheet gpsbabel-doc.css
                             --stringparam img.src.path images/
                             http://docbook.sourceforge.net/release/xsl-ns/current/xhtml/docbook.xsl
                             readme.xml
