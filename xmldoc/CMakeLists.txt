@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.17)
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  message(FATAL_ERROR "Please use CMakeLists.txt in the project root directory to generate a build system.")
+endif()
 
 find_package(Python3 COMPONENTS Interpreter)
 if(Python3_FOUND)
@@ -10,6 +12,7 @@ if(Python3_FOUND)
   configure_file(readme.xml.in readme.xml @ONLY NEWLINE_STYLE LF)
 
   set(GPSBABEL_WEB "gpsbabel.org" CACHE PATH "Path where the documentation will be stored for www.gpsbabel.org.")
+
   find_program(JING NAMES jing)
   # jing and many depedencies removed from fedora
   if(JING STREQUAL "JING-NOTFOUND")
@@ -18,6 +21,7 @@ if(Python3_FOUND)
     set(jing_rng_cmd ${JING} ${CMAKE_SOURCE_DIR}/tools/schema/docbook/xml/5.0/rng/docbook.rng readme.xml)
     set(jing_sch_cmd ${JING} ${CMAKE_SOURCE_DIR}/tools/schema/docbook/xml/5.0/sch/docbook.sch readme.xml)
   endif()
+
   add_custom_target(xmldoc
                     COMMAND perl ${CMAKE_CURRENT_SOURCE_DIR}/makedoc --pname $<TARGET_FILE:gpsbabel>
                     COMMAND xmllint --noout --relaxng file://${CMAKE_SOURCE_DIR}/tools/schema/docbook/xml/5.0/rng/docbook.rng readme.xml
@@ -30,7 +34,6 @@ if(Python3_FOUND)
                     VERBATIM
                     USES_TERMINAL)
 
-  message(STATUS "using docversion ${GPSBABEL_DOCVERSION}")
   add_custom_target(gpsbabel.org
                     # the img.src.path must allow the images to be found on the web server.
                     COMMAND xsltproc
