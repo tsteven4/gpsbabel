@@ -63,6 +63,9 @@ if(Python3_FOUND)
                             http://docbook.sourceforge.net/release/xsl-ns/current/xhtml/docbook.xsl
                             readme.xml
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images gpsbabel.html/images 
+                    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gpsbabel-doc.css gpsbabel.html/gpsbabel-doc.css
+                    # workaround invalid docbook.css https://github.com/docbook/xslt10-stylesheets/issues/276
+                    COMMAND ${Python3_EXECUTABLE} -c [=[import re,sys; path=sys.argv[1]; s=open(path,'r',encoding='utf-8').read(); s=re.sub(r'hr.footnote-hr {\n  width: 100;\n}','hr.footnote-hr {\n  width: 100%;\n}',s); open(path,'w',encoding='utf-8').write(s);]=] gpsbabel.html/docbook.css
                     DEPENDS xmldoc
                     VERBATIM
                     USES_TERMINAL)
