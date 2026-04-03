@@ -117,7 +117,8 @@ jobs:
         fetch-tags: true
 
     - name: Build
-      uses: snapcore/action-build@v1
+      #uses: snapcore/action-build@v1
+      uses: tsteven4/action-build@14a8889d6db0e65eb4e717f6d4c25a1404da0859
       id: build-snap
 
     # Make sure the snap is installable
