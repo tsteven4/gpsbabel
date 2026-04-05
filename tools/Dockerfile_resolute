@@ -71,6 +71,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-wayland \
  && rm -rf /var/lib/apt/lists/*
 
+# dbgsyms for "libqt6core6t64/resolute,now 6.10.2+dfsg-6 amd64" needed for gpsbabel.supp
+RUN apt-get update && apt-get install -y --no-install-recommends ubuntu-dbgsym-keyring \
+ && echo "deb http://ddebs.ubuntu.com resolute main restricted universe multiverse" >> /etc/apt/sources.list.d/ddebs.list \
+ && echo "deb http://ddebs.ubuntu.com resolute-updates main restricted universe multiverse" >> /etc/apt/sources.list.d/ddebs.list \
+ && echo "deb http://ddebs.ubuntu.com resolute-proposed main restricted universe multiverse" >> /etc/apt/sources.list.d/ddebs.list \
+ && apt-get update && apt-get install -y --no-install-recommends libqt6core6t64-dbgsym \
+ && rm -rf /var/lib/apt/lists/*
+
 # pkgs needed to generate coverage report:
 RUN apt-get update && apt-get install -y --no-install-recommends \
     lcov \
