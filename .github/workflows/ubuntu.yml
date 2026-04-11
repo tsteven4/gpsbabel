@@ -127,6 +127,7 @@ jobs:
       with:
         architecture: ${{ steps.detect-arch.outputs.architecture }}
         review: false
+        publish: false
 
     # Make sure the snap is installable
     - name: Test
@@ -141,7 +142,7 @@ jobs:
             sudo snap install --channel=latest/beta mesa-2404
           fi
         fi
-        sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
+        sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
         snap list
         export GBTEMP=$(pwd)/gbtemp
         mkdir -p "$GBTEMP"
@@ -152,7 +153,7 @@ jobs:
       if: ${{ inputs.attestation }}
       uses: actions/attest@v4
       with:
-        subject-path: ${{ steps.build-snap.outputs.snap }}
+        subject-path: ${{ steps.build-snap.outputs.snap-path }}
 
     - name: Deploy
       # This only handles continous releases now, for other events artifacts may be saved in
@@ -162,11 +163,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_NAME: Continuous-Linux
       run: |
-        ./tools/uploadtool/upload_github.sh ${{ steps.build-snap.outputs.snap }}
+        ./tools/uploadtool/upload_github.sh ${{ steps.build-snap.outputs.snap-path }}
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ steps.build-snap.outputs.snap }}
-        path: ${{ steps.build-snap.outputs.snap }}
+        name: ${{ steps.build-snap.outputs.snap-path }}
+        path: ${{ steps.build-snap.outputs.snap-path }}
         retention-days: 7
