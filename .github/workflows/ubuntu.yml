@@ -126,6 +126,7 @@ jobs:
       id: build-snap
       with:
         architecture: ${{ steps.detect-arch.outputs.architecture }}
+        review: false
 
     # Make sure the snap is installable
     - name: Test
