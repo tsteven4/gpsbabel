@@ -42,6 +42,7 @@ qtconnectivity \
 qtlanguageserver \
 qtlocation \
 qtmultimedia \
+qtopenapi \
 qtquickeffectmaker \
 qtremoteobjects \
 qtscxml \
