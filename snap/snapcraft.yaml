@@ -79,6 +79,7 @@ parts:
     plugin: cmake
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
       - -DGPSBABEL_WITH_ZLIB=pkgconfig
       - -DGPSBABEL_WITH_SHAPELIB=pkgconfig
     cmake-generator: Ninja
@@ -86,8 +87,7 @@ parts:
     override-pull: |
       craftctl default
       # add install command to CMakeLists.txt
-      echo "install(TARGETS gpsbabel gpsbabelfe CONFIGURATIONS Release RUNTIME DESTINATION /usr/bin)" >> CMakeLists.txt
-      echo "install(PROGRAMS snap/local/gpsbabelfe.sh DESTINATION /usr/bin)" >> CMakeLists.txt
+      echo "install(PROGRAMS snap/local/gpsbabelfe.sh TYPE BIN)" >> CMakeLists.txt
       # jam repo sha into GITHUB_SHA
       sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake
       # set snap version
