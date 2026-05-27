@@ -10,7 +10,7 @@ title: GPSBabel
 source-code: https://github.com/GPSBabel/gpsbabel.git
 website: https://www.gpsbabel.org
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 apps:
@@ -44,6 +44,10 @@ apps:
 #      QT_DEBUG_PLUGINS: 1
 #     bug https://forum.snapcraft.io/t/libpxbackend-1-0-so-cannot-open-shared-object-file-no-such-file-or-directory/44263
 #     error while loading shared libraries: libpxbackend-1.0.so: cannot open shared object file: No such file or directory
+#     This error only occurs when starting gpsbabel.gpsbabelfe when ~/snap/gpsbabel doesn't exist.
+#     Even though https://github.com/canonical/snapcraft-desktop-integration/commit/d966bd8e0648bb1bb9140a282adbe2a435458a73
+#     adds this same directory to the end of the path somehow that isn't sufficient but this is (where it will be duplicated
+#     earlier in the path.
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/gnome-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy
 
 plugs:
@@ -75,6 +79,7 @@ parts:
     plugin: cmake
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
       - -DGPSBABEL_WITH_ZLIB=pkgconfig
       - -DGPSBABEL_WITH_SHAPELIB=pkgconfig
     cmake-generator: Ninja
@@ -82,8 +87,7 @@ parts:
     override-pull: |
       craftctl default
       # add install command to CMakeLists.txt
-      echo "install(TARGETS gpsbabel gpsbabelfe CONFIGURATIONS Release RUNTIME DESTINATION /usr/bin)" >> CMakeLists.txt
-      echo "install(PROGRAMS snap/local/gpsbabelfe.sh DESTINATION /usr/bin)" >> CMakeLists.txt
+      echo "install(PROGRAMS snap/local/gpsbabelfe.sh TYPE BIN)" >> CMakeLists.txt
       # jam repo sha into GITHUB_SHA
       sed -i -e"/GB.SHA/i set(ENV{GITHUB_SHA} \"$(git log -1 --format=%h)\")" gbversion.cmake
       # set snap version
