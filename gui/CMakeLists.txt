@@ -181,14 +181,18 @@ if(GPSBABEL_LEAFLET_MAPPREVIEW)
 endif()
 
 if(APPLE)
-  set(MACOSX_BUNDLE_ICON_FILE appicon.icns)
-  set(ICON_FILE images/${MACOSX_BUNDLE_ICON_FILE})
+  set(MACOSX_BUNDLE_ICON_FILE AppIcon.icns)
+  set(ICON_FILE images/macos/${MACOSX_BUNDLE_ICON_FILE})
   set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  
+  set(CAR_FILE images/macos/Assets.car)
+  set_source_files_properties(${CAR_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
-  target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${ICON_FILE} ${RESOURCES})
+  target_sources(gpsbabelfe PRIVATE ${SOURCES} ${HEADERS} ${ICON_FILE} ${CAR_FILE} ${RESOURCES})
 
   # Info.plist has not been debugged with the cmake flow, it's a bit different than with the qmake flow.
   set_target_properties(gpsbabelfe PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
     MACOSX_BUNDLE_BUNDLE_NAME GPSBabel
     MACOSX_BUNDLE_BUNDLE_VERSION ${GB.BUILD}
     MACOSX_BUNDLE_COPYRIGHT "© 2002-${GB.COPYRIGHT_YEAR} Robert Lipe"
@@ -219,6 +223,7 @@ else()
   list(APPEND TRANSLATIONS gpsbabelfe_ar.ts)
   list(APPEND TRANSLATIONS gpsbabelfe_cs.ts)
   list(APPEND TRANSLATIONS gpsbabelfe_de.ts)
+  list(APPEND TRANSLATIONS gpsbabelfe_en.ts)
   list(APPEND TRANSLATIONS gpsbabelfe_es.ts)
   list(APPEND TRANSLATIONS gpsbabelfe_fa.ts)
   list(APPEND TRANSLATIONS gpsbabelfe_fr.ts)
@@ -333,6 +338,7 @@ if(UNIX AND NOT APPLE)
   if (((GPSBABEL_GOOGLE_MAPPREVIEW AND GPSBABEL_EMBED_MAP) OR NOT GPSBABEL_GOOGLE_MAPPREVIEW) AND GPSBABEL_EMBED_TRANSLATIONS)
     set(_GPSBABEL_INSTALL ON PARENT_SCOPE)
     install(TARGETS gpsbabelfe RUNTIME)
+    install(FILES org.gpsbabel.gui.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
     # you probably don't need to run update-desktop-database on ${CMAKE_INSTALL_DATADIR}/applications as our desktop file doesn't have MimeTypes.
     install(FILES gpsbabelfe.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     # you may need to run gtk-update-icon-cache on ${CMAKE_INSTALL_DATADIR}/icons/hicolor, possibly with -t or equivalently with --ignore-theme-index.

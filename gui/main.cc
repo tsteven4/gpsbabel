@@ -37,8 +37,18 @@ int main(int argc, char** argv)
 #error this version of Qt is not supported.
 #endif
 
+  // Set desktop filename before creating QApplication, see QTBUG-149180
+  QApplication::setDesktopFileName("gpsbabelfe");
+
   QApplication app(argc, argv);
-  QApplication::setWindowIcon(QIcon(":/images/appicon.png"));
+  // Don't override the window icon on macos.
+  // Overriding defeats style preferences which otherwise will modify the appearance
+  // of the icon in the dock.
+  // This also effects any title bar icon, but that is only used on macos with windows
+  // representing documents.
+  if (app.platformName() != u"cocoa") {
+    QApplication::setWindowIcon(QIcon(":/images/appicon.png"));
+  }
   QApplication::setOrganizationName("GPSBabel");
   QApplication::setOrganizationDomain("gpsbabel.org");
   QApplication::setApplicationName("GPSBabel");
