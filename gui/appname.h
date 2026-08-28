@@ -21,6 +21,6 @@
 //
 #ifndef APPNAME_H
 #define APPNAME_H
-static const char* appName = "GPSBabel";
+inline const QString appName = QStringLiteral("GPSBabel");
 #endif
 
