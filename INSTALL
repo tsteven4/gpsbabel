@@ -61,7 +61,7 @@ GPSBABEL_EMBED_TRANSLATIONS:BOOL:ON|OFF
   translations will be compiled into the executable and do not need to be
   distributed. The Qt provided translations still need to be distributed.
 
-GPSBABEL_ENABLE_PCH:BOOL 
+GPSBABEL_ENABLE_PCH:BOOL
   Enable precompiled headers when building the target gpsbabel.
 
 GPSBABEL_UPGRADE_CHECK:BOOL

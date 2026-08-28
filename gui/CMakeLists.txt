@@ -184,7 +184,7 @@ if(APPLE)
   set(MACOSX_BUNDLE_ICON_FILE AppIcon.icns)
   set(ICON_FILE images/macos/${MACOSX_BUNDLE_ICON_FILE})
   set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-  
+
   set(CAR_FILE images/macos/Assets.car)
   set_source_files_properties(${CAR_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 

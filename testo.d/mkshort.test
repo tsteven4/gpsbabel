@@ -38,4 +38,4 @@ echo '0,0,"abcd"' | gpsbabel -s -i unicsv,fields=lat+long+name -f - -o xcsv,styl
 echo '0,0,"abcd one"' | gpsbabel -s -i unicsv,fields=lat+long+name -f - -o xcsv,style=${REFERENCE}/mkshort.style,snlen=8 -F - >>${TMPDIR}/mkshort4.log
 
 compare ${REFERENCE}/mkshort4.log ${TMPDIR}/mkshort4.log
-  
+

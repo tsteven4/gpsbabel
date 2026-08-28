@@ -2,7 +2,7 @@
 #
 # this script is run on ci for the script stage of mac builds
 #
- 
+
 function version_ge() { test "$(printf "%s\n%s" "$1" "$2" | sort -rV | head -n 1)" == "$1"; }
 
 while getopts g:i:n: name
@@ -43,7 +43,7 @@ else
 fi
 CMAKEOPTIONS+=(-DCMAKE_OSX_ARCHITECTURES="${ARCHS}")
 CMAKEOPTIONS+=(-DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}")
-  
+
 # we assume we are on macOS, so date is not gnu date.
 VERSIONID=${VERSIONID:-$(date -ju -f %Y-%m-%dT%H:%M:%S%z "$(git show -s --format="%aI" HEAD | sed 's/:\(..\)$/\1/')" +%Y%m%dT%H%MZ)-$(git rev-parse --short=7 HEAD)}
 

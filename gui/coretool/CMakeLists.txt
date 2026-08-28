@@ -65,7 +65,7 @@ if(Qt6LinguistTools_FOUND)
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     VERBATIM
                     USES_TERMINAL)
-  
+
   add_custom_target(coretool_lrelease
                     COMMAND Qt6::lrelease ${TRANSLATIONS}
                     DEPENDS coretool_lupdate

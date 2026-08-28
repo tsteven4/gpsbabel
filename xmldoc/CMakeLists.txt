@@ -62,7 +62,7 @@ if(Python3_FOUND)
                             --stringparam img.src.path images/
                             http://docbook.sourceforge.net/release/xsl-ns/current/xhtml/docbook.xsl
                             readme.xml
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images gpsbabel.html/images 
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images gpsbabel.html/images
                     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gpsbabel-doc.css gpsbabel.html/gpsbabel-doc.css
                     # workaround invalid docbook.css https://github.com/docbook/xslt10-stylesheets/issues/276
                     COMMAND ${Python3_EXECUTABLE} -c [=[import re,sys; path=sys.argv[1]; s=open(path,'r',encoding='utf-8').read(); s=re.sub(r'hr.footnote-hr {\n  width: 100;\n}','hr.footnote-hr {\n  width: 100%;\n}',s); open(path,'w',encoding='utf-8').write(s);]=] gpsbabel.html/docbook.css
@@ -73,7 +73,7 @@ if(Python3_FOUND)
   add_custom_target(gpsbabel.pdf
                     # the img.src.path must allow the document images to be found when creating the pdf.
                     # gpsbabel.icon.path must allow the appicon to be found when creating the pdf.
-                    COMMAND xsltproc 
+                    COMMAND xsltproc
                             -o gpsbabel.fo
                             --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/images/
                             --stringparam gpsbabel.icon.path ${CMAKE_SOURCE_DIR}/gui/images

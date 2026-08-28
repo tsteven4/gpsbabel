@@ -155,7 +155,7 @@ compare ${TMPDIR}/lowrance-v4-unicsv-sorted.txt ${TMPDIR}/lowrance-v6-unicsv-sor
 # test translation of version 2, 3 continuous flag to new track segments.
 # 1. when reading usr files can we translate the contiuous flag in a usr file to track segments?
 gpsbabel -i lowranceusr -f ${REFERENCE}/lowrance-v2.usr -o gpx -F ${TMPDIR}/lowrance-v2.gpx
-compare ${REFERENCE}/lowrance-v2.gpx ${TMPDIR}/lowrance-v2.gpx 
+compare ${REFERENCE}/lowrance-v2.gpx ${TMPDIR}/lowrance-v2.gpx
 # 2. if so, when writing a usr file can we translate a track segment to the continuous flag in the usr file?
 gpsbabel -i gpx -f ${REFERENCE}/lowrance-v2.gpx -o lowranceusr -F ${TMPDIR}/lowrance-v2~gpx.usr
 gpsbabel -i lowranceusr -f ${TMPDIR}/lowrance-v2~gpx.usr -o gpx -F ${TMPDIR}/lowrance-v2~usr.gpx
@@ -167,7 +167,7 @@ compare ${REFERENCE}/lowrance-v2-merge~usr.gpx ${TMPDIR}/lowrance-v2-merge~usr.g
 
 #
 # Test UTF-16 character corruption bug in USR v4+ formats
-# This test verifies that waypoint names with characters containing 0x01 byte in UTF-16LE 
+# This test verifies that waypoint names with characters containing 0x01 byte in UTF-16LE
 # encoding (like "Ā" = U+0100 = 0x00 0x01) are handled correctly without corruption
 #
 gpsbabel -i gpx -f ${REFERENCE}/lowrance-utf16-test.gpx -o lowranceusr,wversion=4 -F ${TMPDIR}/lowrance-utf16-test.usr

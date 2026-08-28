@@ -107,7 +107,7 @@ jobs:
 
     - name: Install Inno Setup
       if: matrix.os == 'windows-2025'
-      run: choco install innosetup 
+      run: choco install innosetup
 
     - name: Install legacy microsoft compiler
       if: matrix.TOOLSET == 'v142,version=14.29.30133'

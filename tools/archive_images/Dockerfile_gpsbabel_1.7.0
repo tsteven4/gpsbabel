@@ -72,7 +72,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && apt-get upgrade -y \
  && rm -rf /var/lib/apt/lists/*
 
-# for hints 
+# for hints
 # ubuntu jammy gpsbabel (1.8.0+ds-4) dependencies
 # ubuntu jammy gpsbabel-gui (1.8.0+ds-4) dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \

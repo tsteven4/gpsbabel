@@ -105,7 +105,7 @@ def generate_q_scale_pos_graph():
     ax_png.plot(high_q_path_x, high_q_path_y, 'b-', label='Filtered (High q_scale_pos)')
     def add_arrows(ax, x, y, color):
         for i in range(10, len(x) - 1, 20):
-            ax.arrow(x[i], y[i], x[i+1]-x[i], y[i+1]-y[i], 
+            ax.arrow(x[i], y[i], x[i+1]-x[i], y[i+1]-y[i],
                      color=color, shape='full', lw=0, length_includes_head=True, width=0, head_width=0.000015)
     add_arrows(ax_png, true_path_x, true_path_y, 'g')
     add_arrows(ax_png, low_q_path_x, low_q_path_y, 'r')

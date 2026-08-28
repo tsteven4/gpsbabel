@@ -3,7 +3,7 @@
 # set -e
 
 # for the customizations that I'm tired of fighting babelmain.xsl to get
-# docbook to produce HTML that plays nice with Smarty.  
+# docbook to produce HTML that plays nice with Smarty.
 # This tries to codify a bunch of manual and automated fixes that were needed
 # before to bludgeon our docbook output into Dreamweaver's terrible templating
 # system.
@@ -12,7 +12,7 @@ DIR=$1
 TITLE=$2
 
 SED="sed"
-# macOS using Homebrew may be /usr/local (macOS intel) or /opt/homebrew (apple silicion) ... 
+# macOS using Homebrew may be /usr/local (macOS intel) or /opt/homebrew (apple silicion) ...
 if command -v gsed >/dev/null 2>&1; then
   SED=$(command -v gsed)
 fi

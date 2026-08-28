@@ -86,7 +86,7 @@ jobs:
         fi
         "${JOB_SCRIPT}"
 
-    - name: upload_coverage 
+    - name: upload_coverage
       if: contains(matrix.script, 'coverage') && ( github.secret_source == 'Actions' )
       uses: codacy/codacy-coverage-reporter-action@v1.3.0
       with:
