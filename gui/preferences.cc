@@ -73,11 +73,11 @@ Preferences::Preferences(QWidget* parent, QList<Format>& formatList,
   QLabel* noStartupCheckLabel = new QLabel(tr("This version never checks for a newer version on start."), ui_.privacy_tab);
   noStartupCheckLabel->setObjectName("noStartupCheckLabel");
   ui_.verticalLayout_5->insertWidget(0, noStartupCheckLabel);
- 
+
   QLabel* noReportStatisticsLabel = new QLabel(tr("This version never reports usage data."), ui_.privacy_tab);
   noReportStatisticsLabel->setObjectName("noReportStatisticsLabel");
   ui_.verticalLayout_5->insertWidget(1, noReportStatisticsLabel);
- 
+
   QLabel* noUpgradeMenuLabel = new QLabel(tr("This version does not include the ability to check for an upgrade."), ui_.privacy_tab);
   noUpgradeMenuLabel->setObjectName("noUpgradeMenuLabel");
   ui_.verticalLayout_5->insertWidget(2, noUpgradeMenuLabel);

@@ -233,7 +233,7 @@ void GMapDialog::trace(const QString& label, const QStandardItem* it)
     }
   }
 }
-  
+
 //------------------------------------------------------------------------
 void GMapDialog::showHideChild(const QStandardItem* child)
 {
