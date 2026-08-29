@@ -150,7 +150,7 @@ LeafletMapDialog::LeafletMapDialog(QWidget* parent,
   gpx_(mapData)
 {
   ui_.setupUi(this);
-  this->setWindowTitle(GBInfo::appName() + QStringLiteral(" Leaflet Maps"));
+  this->setWindowTitle(GBVersion::appName() + QStringLiteral(" Leaflet Maps"));
 
   mapWidget_ = new LeafletMap(this, gpx_, geojsonData, te);
   auto* lay = new QHBoxLayout(ui_.frame);

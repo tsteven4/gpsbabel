@@ -42,7 +42,7 @@
 #include <string>                 // for string
 #include <vector>                 // for vector
 
-#include "gbversion.h"            // for GBInfo
+#include "gbversion.h"            // for GBVersion
 #include "gpx.h"                  // for GpxRoute, GpxTrack, GpxWaypoint, Gpx, GpxRoutePoint, GpxTrackPoint, GpxTrackSegment
 #include "latlng.h"               // for LatLng
 
@@ -118,11 +118,11 @@ Map::Map(QWidget* parent,
       content.replace("APIKEY", decodeKey(encodedKey));
       this->setContent(content, "text/html;charset=UTF-8", baseUrl);
     } else {
-      QMessageBox::critical(nullptr, GBInfo::appName(),
+      QMessageBox::critical(nullptr, GBVersion::appName(),
                             tr("Error opening \"gmapbase.html\" file.  Check installation"));
     }
   } else {
-    QMessageBox::critical(nullptr, GBInfo::appName(),
+    QMessageBox::critical(nullptr, GBVersion::appName(),
                           tr("Missing \"gmapbase.html\" file.  Check installation"));
   }
 
@@ -177,7 +177,7 @@ void Map::loadFinishedX(bool f)
 {
   this->logTime("Done initial page load");
   if (!f) {
-    QMessageBox::critical(nullptr, GBInfo::appName(),
+    QMessageBox::critical(nullptr, GBVersion::appName(),
                           tr("Failed to load Google maps base page"));
   } else {
     QApplication::processEvents();

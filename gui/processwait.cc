@@ -32,7 +32,7 @@
 #include <cstdlib>          // for abs
 #include <string>           // for string
 
-#include "gbversion.h"        // for GBInfo
+#include "gbversion.h"        // for GBVersion
 
 
 //------------------------------------------------------------------------
@@ -41,7 +41,7 @@ ProcessWaitDialog::ProcessWaitDialog(QWidget* parent, QProcess* process):
   QDialog(parent), process_(process)
 {
   this->resize(400, 220);
-  this->setWindowTitle(GBInfo::appName() + tr(" ... Process GPSBabel"));
+  this->setWindowTitle(GBVersion::appName() + tr(" ... Process GPSBabel"));
   // turn off Help Button which can appear on windows as a '?'.
   this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
   auto* layout = new QVBoxLayout(this);

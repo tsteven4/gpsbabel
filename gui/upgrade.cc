@@ -111,7 +111,7 @@ UpgradeCheck::updateStatus UpgradeCheck::checkForUpgrade(
   QLocale locale;
 
   QString args = "current_version=" + currentVersion_;
-  args += "&current_gui_version=" + GBInfo::version();
+  args += "&current_gui_version=" + GBVersion::version();
   args += "&installation=" + babelData_.installationUuid_;
   args += "&os=" + getOsName();
   args += "&cpu=" + getCpuArchitecture();

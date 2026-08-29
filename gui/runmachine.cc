@@ -24,7 +24,7 @@
 #include <Qt>          // for ConnectionType
 #include <QtGlobal>    // for qDebug
 
-#include "gbversion.h" // for GBInfo
+#include "gbversion.h" // for GBVersion
 
 
 QString RunMachine::decodeProcessError(QProcess::ProcessError err)
@@ -140,7 +140,7 @@ void RunMachine::execute(SignalId id,
   case starting:
     switch (id) {
     case processErrorOccurred:
-      errorString_ = QString(tr("Process \"%1\" did not start")).arg(GBInfo::appName());
+      errorString_ = QString(tr("Process \"%1\" did not start")).arg(GBVersion::appName());
       state_ = done;
       emit finished();
       break;

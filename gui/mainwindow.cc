@@ -69,7 +69,7 @@
 #include "donate.h"            // for Donate
 #include "filterdlg.h"         // for FilterDialog
 #include "formatload.h"        // for FormatLoad
-#include "gbversion.h"         // for GBInfo
+#include "gbversion.h"         // for GBVersion
 #if !defined(DISABLE_GOOGLEMAPPREVIEW) || !defined(DISABLE_LEAFLETMAPPREVIEW)
 #include "gpx.h"               // for Gpx
 #endif
@@ -164,7 +164,7 @@ static QString MakeOptionsNoLeadingComma(const QList<FormatOption>& options)
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
 {
   ui_.setupUi(this);
-  setWindowTitle(GBInfo::appName());
+  setWindowTitle(GBVersion::appName());
   babelVersion_ = findBabelVersion();
   fmtChgInterlock_ = false;
   loadDeviceNameCombos();
@@ -251,8 +251,8 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
   }
 #endif
 
-  if (!babelData_.ignoreVersionMismatch_ && babelVersion_ != GBInfo::version()) {
-    VersionMismatch vm(nullptr, babelVersion_, GBInfo::version());
+  if (!babelData_.ignoreVersionMismatch_ && babelVersion_ != GBVersion::version()) {
+    VersionMismatch vm(nullptr, babelVersion_, GBVersion::version());
 
     vm.exec();
     babelData_.ignoreVersionMismatch_ = vm.neverAgain();
@@ -512,7 +512,7 @@ int MainWindow::currentComboFormatIndex(QComboBox* comboBox)
 {
   int idx = comboBox->currentIndex();
   if (idx<0 || idx >= comboBox->count()) {
-//    QMessageBox::critical(0, GBInfo::appName(), "*** Internal Error -- current combo index is invalid!");
+//    QMessageBox::critical(0, GBVersion::appName(), "*** Internal Error -- current combo index is invalid!");
     return 0;
   }
   return comboBox->itemData(idx).toInt();
@@ -619,7 +619,7 @@ QList<int> MainWindow::outputDeviceFormatIndices()
 void MainWindow::loadFormats()
 {
   if (!FormatLoad().getFormats(formatList_)) {
-    QMessageBox::information(nullptr, GBInfo::appName(),
+    QMessageBox::information(nullptr, GBVersion::appName(),
                              tr("Error reading format configuration.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "
                                 "and is in the current PATH\n\n"
@@ -630,7 +630,7 @@ void MainWindow::loadFormats()
       inputDeviceFormatIndices().empty() ||
       outputFileFormatIndices().empty() ||
       outputDeviceFormatIndices().empty()) {
-    QMessageBox::information(nullptr, GBInfo::appName(),
+    QMessageBox::information(nullptr, GBVersion::appName(),
                              tr("Some file/device formats were not found during initialization.  "
                                 "Check that the backend program \"gpsbabel\" is properly installed "
                                 "and is in the current PATH\n\n"
@@ -778,14 +778,14 @@ void MainWindow::inputOptionButtonClicked()
   int fidx = currentComboFormatIndex(ui_.inputFormatCombo);
   if (formatList_[fidx].getInputOptionsRef().empty()) {
     QMessageBox::information
-    (nullptr, GBInfo::appName(),
+    (nullptr, GBVersion::appName(),
      tr("There are no input options for format \"%1\"").arg(formatList_[fidx].getDescription()));
   } else {
     OptionsDlg optionDlg(nullptr,
                          formatList_[fidx].getName(),
                          formatList_[fidx].getInputOptionsRef(),
                          formatList_[fidx].getHtml());
-    optionDlg.setWindowTitle(GBInfo::appName() + " - " + tr("Options for %1").arg(formatList_[fidx].getName()));
+    optionDlg.setWindowTitle(GBVersion::appName() + " - " + tr("Options for %1").arg(formatList_[fidx].getName()));
     optionDlg.exec();
     displayOptionsText(ui_.inputOptionsText,  ui_.inputFormatCombo, true);
   }
@@ -797,14 +797,14 @@ void MainWindow::outputOptionButtonClicked()
   int fidx = currentComboFormatIndex(ui_.outputFormatCombo);
   if (formatList_[fidx].getOutputOptionsRef().empty()) {
     QMessageBox::information
-    (nullptr, GBInfo::appName(),
+    (nullptr, GBVersion::appName(),
      tr("There are no output options for format \"%1\"").arg(formatList_[fidx].getDescription()));
   } else {
     OptionsDlg optionDlg(nullptr,
                          formatList_[fidx].getName(),
                          formatList_[fidx].getOutputOptionsRef(),
                          formatList_[fidx].getHtml());
-    optionDlg.setWindowTitle(GBInfo::appName() + " - " + tr("Options for %1").arg(formatList_[fidx].getName()));
+    optionDlg.setWindowTitle(GBVersion::appName() + " - " + tr("Options for %1").arg(formatList_[fidx].getName()));
     optionDlg.exec();
     displayOptionsText(ui_.outputOptionsText,  ui_.outputFormatCombo, false);
   }
@@ -818,7 +818,7 @@ bool MainWindow::isOkToGo()
   if (!((ui_.xlateWayPtsCk->isChecked() && ui_.xlateWayPtsCk->isEnabled()) ||
         (ui_.xlateRoutesCk->isChecked() && ui_.xlateRoutesCk->isEnabled()) ||
         (ui_.xlateTracksCk->isChecked() && ui_.xlateTracksCk->isEnabled()))) {
-    QMessageBox::information(nullptr, GBInfo::appName(), tr("No valid waypoints/routes/tracks translation specified"));
+    QMessageBox::information(nullptr, GBVersion::appName(), tr("No valid waypoints/routes/tracks translation specified"));
     return false;
   }
 
@@ -837,7 +837,7 @@ bool MainWindow::isOkToGo()
 
   if ((babelData_.inputType_ == BabelData::fileType_) &&
       (babelData_.inputFileNames_.empty())) {
-    QMessageBox::information(nullptr, GBInfo::appName(), tr("No input file specified"));
+    QMessageBox::information(nullptr, GBVersion::appName(), tr("No input file specified"));
     return false;
   }
 
@@ -846,12 +846,12 @@ bool MainWindow::isOkToGo()
 #else
   if (babelData_.outputType_ == BabelData::noType_) {
 #endif
-    QMessageBox::information(nullptr, GBInfo::appName(), tr("No valid output specified"));
+    QMessageBox::information(nullptr, GBVersion::appName(), tr("No valid output specified"));
     return false;
   }
   if (babelData_.outputType_ == BabelData::fileType_ &&
       babelData_.outputFileName_.isEmpty()) {
-    QMessageBox::information(nullptr, GBInfo::appName(), tr("No output file specified"));
+    QMessageBox::information(nullptr, GBVersion::appName(), tr("No output file specified"));
     return false;
   }
   return true;
@@ -969,7 +969,7 @@ void MainWindow::applyActionX()
       args << "-o" << "gpx" << "-F" << gpxTempName;
     } else {
       // gpxTempFile.fileName() may be empty so display gpxTempFile.fileTemplate().
-      QMessageBox::warning(nullptr, GBInfo::appName(),
+      QMessageBox::warning(nullptr, GBVersion::appName(),
                            tr("Failed to open temporary file \"%1\" for map preview.  The error was: \"%2\".  The map preview will not be shown.")
                            .arg(gpxTempFile.fileTemplate(), gpxTempFile.errorString()));
     }
@@ -1075,7 +1075,7 @@ void MainWindow::closeEvent(QCloseEvent* /*event*/)
 //------------------------------------------------------------------------
 void MainWindow::donateActionX()
 {
-  QDesktopServices::openUrl(QString("https://www.gpsbabel.org/contribute.html?gbversion=" + GBInfo::version()));
+  QDesktopServices::openUrl(QString("https://www.gpsbabel.org/contribute.html?gbversion=" + GBVersion::version()));
 }
 
 //------------------------------------------------------------------------
@@ -1158,7 +1158,7 @@ void MainWindow::restoreSettings()
 void MainWindow::resetFormatDefaults()
 {
   int ret = QMessageBox::warning
-            (this, GBInfo::appName(),
+            (this, GBVersion::appName(),
              tr("Are you sure you want to reset all format options to default values?"),
              QMessageBox::Yes | QMessageBox::No);
   if (ret == QMessageBox::Yes) {
@@ -1183,13 +1183,13 @@ void MainWindow::moreOptionButtonClicked()
 //------------------------------------------------------------------------
 void MainWindow::aboutActionX()
 {
-  QDateTime date = QDateTime::fromString(GBInfo::versionDate(), Qt::ISODate);
+  QDateTime date = QDateTime::fromString(GBVersion::versionDate(), Qt::ISODate);
   QString utcdate;
   if (date.isValid()) {
     utcdate = date.toUTC().toString(Qt::ISODate);
   }
-  AboutDlg aboutDlg(nullptr, babelVersion_, GBInfo::appName() + " " + GBInfo::version(), GBInfo::versionSHA(), utcdate, babelData_.installationUuid_);
-  aboutDlg.setWindowTitle(tr("About %1").arg(GBInfo::appName()));
+  AboutDlg aboutDlg(nullptr, babelVersion_, GBVersion::appName() + " " + GBVersion::version(), GBVersion::versionSHA(), utcdate, babelData_.installationUuid_);
+  aboutDlg.setWindowTitle(tr("About %1").arg(GBVersion::appName()));
   aboutDlg.exec();
 }
 

@@ -138,11 +138,11 @@ LeafletMap::LeafletMap(QWidget* parent,
       htmlFile.close();
       this->setContent(content, "text/html;charset=UTF-8", baseUrl);
     } else {
-      QMessageBox::critical(nullptr, GBInfo::appName(),
+      QMessageBox::critical(nullptr, GBVersion::appName(),
                             tr("Error opening \"leafletbase.html\" file.  Check installation"));
     }
   } else {
-    QMessageBox::critical(nullptr, GBInfo::appName(),
+    QMessageBox::critical(nullptr, GBVersion::appName(),
                           tr("Missing \"leafletbase.html\" file.  Check installation"));
   }
 }
@@ -160,7 +160,7 @@ LeafletMap::loadFinishedX(bool f)
 {
   this->logTime("Done initial page load");
   if (!f) {
-    QMessageBox::critical(nullptr, GBInfo::appName(),
+    QMessageBox::critical(nullptr, GBVersion::appName(),
                           tr("Failed to load Leaflet maps base page"));
   } else {
     QApplication::processEvents();
