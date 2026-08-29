@@ -126,7 +126,6 @@ endif()
 # HEADERS
 list(APPEND HEADERS aboutdlg.h)
 list(APPEND HEADERS advdlg.h)
-list(APPEND HEADERS appname.h)
 list(APPEND HEADERS babeldata.h)
 list(APPEND HEADERS markerclicker.h)
 list(APPEND HEADERS donate.h)

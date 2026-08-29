@@ -36,7 +36,7 @@
 #include <QTreeView>            // for QTreeView
 #include <Qt>                   // for CheckState, ContextMenuPolicy
 #include <QtGlobal>             // for qDebug
-#include "appname.h"            // for appName
+#include "gbversion.h"          // for GBInfo
 #include "gpx.h"                // for GpxWaypoint, GpxTrack, GpxRoute, Gpx, GpxItem, GpxTrackPoint, GpxTrackSegment
 #include "latlng.h"             // for LatLn
 
@@ -144,7 +144,7 @@ void GMapDialog::appendRouteInfo(QStandardItem* it, const GpxRoute& rte)
 GMapDialog::GMapDialog(QWidget* parent, const Gpx& mapData, int debugLevel, QPlainTextEdit* te): QDialog(parent), debugLevel_(debugLevel), gpx_(mapData)
 {
   ui_.setupUi(this);
-  this->setWindowTitle(QString(appName) + " " + QString("Google Maps"));
+  this->setWindowTitle(GBInfo::appName() + QStringLiteral(" Google Maps"));
 
   mapWidget_ = new Map(this, gpx_, te);
   auto* lay = new QHBoxLayout(ui_.frame);

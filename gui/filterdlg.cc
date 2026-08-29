@@ -29,7 +29,7 @@
 #include <QMessageBox>      // for QMessageBox, operator|
 #include <QPushButton>      // for QPushButton
 #include <Qt>               // for CheckState
-#include "appname.h"        // for appName
+#include "gbversion.h"      // for GBInfo
 #include "help.h"           // for ShowHelp
 
 int FilterDialog::lastPage_ = 0;
@@ -107,7 +107,7 @@ void FilterDialog::pageSelectionChanged(int i)
 void FilterDialog::resetX()
 {
   int ret = QMessageBox::warning
-            (this, QString(appName),
+            (this, GBInfo::appName(),
              tr("Are you sure you want to reset all filter options to default values?"),
              QMessageBox::Yes | QMessageBox::No);
 

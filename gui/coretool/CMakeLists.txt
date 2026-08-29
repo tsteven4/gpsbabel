@@ -2,6 +2,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   message(FATAL_ERROR "Please use CMakeLists.txt in the project root directory to generate a build system.")
 endif()
 
+configure_file(${CMAKE_SOURCE_DIR}/gbversion.h.in gbversion.h @ONLY NEWLINE_STYLE LF)
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 add_executable(coretool EXCLUDE_FROM_ALL)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)

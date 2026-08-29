@@ -24,7 +24,7 @@
 #include <QTextCursor>    // for QTextCursor
 #include <QTextDocument>  // for QTextDocument
 #include <QTextEdit>      // for QTextEdit
-#include "appname.h"      // for appName
+#include "gbversion.h"    // for GBInfo
 #ifndef DISABLE_UPGRADE_CHECK
 #include "upgrade.h"      // for UpgradeCheck
 #endif
@@ -39,7 +39,7 @@ AboutDlg::AboutDlg(QWidget* parent, const QString& ver1,
   QTextDocument* doc = ui_.textEdit->document();
   ui_.textEdit->setReadOnly(true);
   QString tt = doc->toHtml();
-  tt.replace("$appname$", appName);
+  tt.replace("$appname$", GBInfo::appName());
   tt.replace("$babelversion$", ver1);
   tt.replace("$babelfeversion$", ver2);
   if (ver3.isEmpty()) {

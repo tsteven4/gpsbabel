@@ -1115,7 +1115,7 @@ GdbFormat::write_header()
    * The date/time used to be from CVS, and may be from git in the future.
    */
   static const QDateTime gdb_release_dt = QDateTime(QDate(2011, 4, 14), QTime(1, 30, 1), QtUTC);
-  gdb_write_cstr(QStringLiteral("GPSBabel-%1").arg(gpsbabel_version));
+  gdb_write_cstr(QStringLiteral("GPSBabel-%1").arg(GBInfo::version()));
   gdb_write_cstr(gdb_release_dt.toString(u"MMM dd yyyy"));
   gdb_write_cstr(gdb_release_dt.toString(u"HH:mm:ss"));
 

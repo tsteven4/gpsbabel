@@ -30,7 +30,7 @@
 #include <QTreeView>
 #include <Qt>
 #include <QtGlobal>
-#include "appname.h"
+#include "gbversion.h"
 #include "gpx.h"
 #include "latlng.h"
 #include "leafletdlg.h"
@@ -150,7 +150,7 @@ LeafletMapDialog::LeafletMapDialog(QWidget* parent,
   gpx_(mapData)
 {
   ui_.setupUi(this);
-  this->setWindowTitle(QString(appName) + " " + QString("Leaflet Maps"));
+  this->setWindowTitle(GBInfo::appName() + QStringLiteral(" Leaflet Maps"));
 
   mapWidget_ = new LeafletMap(this, gpx_, geojsonData, te);
   auto* lay = new QHBoxLayout(ui_.frame);

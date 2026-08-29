@@ -33,7 +33,7 @@
 #include <QString>             // for QString, operator+
 #include <QTextStream>         // for QTextStream
 #include <QVariant>            // for QVariant
-#include "appname.h"           // for appNam
+#include "gbversion.h"         // for GBInfo
 
 
 #ifdef GENERATE_CORE_STRINGS
@@ -170,7 +170,7 @@ bool FormatLoad::getFormats(QList<Format>& formatList)
     Format format;
     if (!processFormat(format)) {
       QMessageBox::information
-      (nullptr, appName,
+      (nullptr, GBInfo::appName(),
        QObject::tr("Error processing formats from running process \"gpsbabel -^3\" at line %1").arg(lineList[currentLine_]));
     } else {
       formatList << format;

@@ -756,7 +756,7 @@ OsmFormat::osm_waypt_disp(const Waypoint* waypoint)
     if (!gpsbabel_testmode()) {
       if (creator == "GPSBabel") {
         creator += '-';
-        creator += gpsbabel_version;
+        creator += GBInfo::version();
       }
     }
     osm_write_tag(QStringLiteral("created_by"), creator);
@@ -815,7 +815,7 @@ OsmFormat::osm_rte_disp_trail(const route_head* route)
     if (!gpsbabel_testmode()) {
       if (creator == "GPSBabel") {
         creator += '-';
-        creator += gpsbabel_version;
+        creator += GBInfo::version();
       }
     }
     osm_write_tag(QStringLiteral("created_by"), creator);
@@ -855,7 +855,7 @@ OsmFormat::write()
   QString value(QStringLiteral("GPSBabel"));
   if (!gpsbabel_testmode()) {
     value += '-';
-    value += gpsbabel_version;
+    value += GBInfo::version();
   }
   fout->writeAttribute(QStringLiteral("generator"), value);
 

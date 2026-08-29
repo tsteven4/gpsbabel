@@ -40,9 +40,9 @@
 #include <Qt>                     // for DateFormat, TextFormat
 #include <QtGlobal>               // for qDebug, QT_VERSION, QT_VERSION_CHECK, qsizetype
 
+#include "gbversion.h"
 #include "babeldata.h"            // for BabelData
 #include "format.h"               // for Format
-#include "gbversion.h"            // for VERSION
 
 
 #if 0
@@ -111,7 +111,7 @@ UpgradeCheck::updateStatus UpgradeCheck::checkForUpgrade(
   QLocale locale;
 
   QString args = "current_version=" + currentVersion_;
-  args += "&current_gui_version=" VERSION;
+  args += "&current_gui_version=" + GBInfo::version();
   args += "&installation=" + babelData_.installationUuid_;
   args += "&os=" + getOsName();
   args += "&cpu=" + getCpuArchitecture();
