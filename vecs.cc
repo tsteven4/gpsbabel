@@ -999,7 +999,7 @@ const char* Vecs::name_option(uint32_t type)
 
 void Vecs::disp_help_url(const vecinfo_t& vec, const QString& argstring)
 {
-  printf("\t%s/fmt_%s.html", kWebDocDir, CSTR(vec.name));
+  printf("\t%s/fmt_%s.html", gpsbabel::kWebDocDir, CSTR(vec.name));
   if (!argstring.isEmpty()) {
     printf("#fmt_%s_o_%s", CSTR(vec.name), CSTR(argstring));
   }
