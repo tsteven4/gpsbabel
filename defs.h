@@ -43,6 +43,7 @@
 #include <Qt>                        // for CaseInsensitive
 #include <QtGlobal>                  // for QForeachContainer, qMakeForeachContainer, foreach, qint64
 
+#include "gbversion.h"
 #include "geocache.h"                // for Geocache
 #include "formspec.h"                // for FormatSpecificData
 #include "inifile.h"                 // for inifile_t
@@ -170,7 +171,6 @@ struct global_options {
 };
 
 extern global_options global_opts;
-extern const char gpsbabel_version[];
 extern time_t gpsbabel_time;	/* gpsbabel startup-time; initialized in main.c with current_time(), ! ZERO within testo ! */
 
 enum fix_type {

@@ -1632,7 +1632,7 @@ XcsvFormat::xcsv_replace_tokens(const QString& original) const
   // isn't present;
   if (original.contains("__")) {
     replacement.replace("__FILE__", xcsv_file->fname);
-    replacement.replace("__VERSION__", gpsbabel_testmode()? "" : gpsbabel_version);
+    replacement.replace("__VERSION__", gpsbabel_testmode()? "" : kVersion);
 
     QDateTime dt = current_time().toUTC();
 

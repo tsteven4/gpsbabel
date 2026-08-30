@@ -70,7 +70,7 @@
 #include "donate.h"            // for Donate
 #include "filterdlg.h"         // for FilterDialog
 #include "formatload.h"        // for FormatLoad
-#include "gbversion.h"         // for VERSION, kVersionDate, kVersionSHA
+#include "gbversion.h"         // for kVersion, kVersionDate, kVersionSHA
 #if !defined(DISABLE_GOOGLEMAPPREVIEW) || !defined(DISABLE_LEAFLETMAPPREVIEW)
 #include "gpx.h"               // for Gpx
 #endif
@@ -252,8 +252,8 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
   }
 #endif
 
-  if (!babelData_.ignoreVersionMismatch_ && babelVersion_ != VERSION) {
-    VersionMismatch vm(nullptr, babelVersion_, QString(VERSION));
+  if (!babelData_.ignoreVersionMismatch_ && babelVersion_ != kVersion) {
+    VersionMismatch vm(nullptr, babelVersion_, kVersion);
 
     vm.exec();
     babelData_.ignoreVersionMismatch_ = vm.neverAgain();
@@ -1076,7 +1076,7 @@ void MainWindow::closeEvent(QCloseEvent* /*event*/)
 //------------------------------------------------------------------------
 void MainWindow::donateActionX()
 {
-  QDesktopServices::openUrl(QString("https://www.gpsbabel.org/contribute.html?gbversion=" VERSION));
+  QDesktopServices::openUrl(QStringLiteral("https://www.gpsbabel.org/contribute.html?gbversion=%1").arg(kVersion));
 }
 
 //------------------------------------------------------------------------
@@ -1189,7 +1189,7 @@ void MainWindow::aboutActionX()
   if (date.isValid()) {
     utcdate = date.toUTC().toString(Qt::ISODate);
   }
-  AboutDlg aboutDlg(nullptr, babelVersion_, QString(appName) + QString(" " VERSION), kVersionSHA, utcdate, babelData_.installationUuid_);
+  AboutDlg aboutDlg(nullptr, babelVersion_, QStringLiteral("%1 %2").arg(appName, kVersion), kVersionSHA, utcdate, babelData_.installationUuid_);
   aboutDlg.setWindowTitle(tr("About %1").arg(appName));
   aboutDlg.exec();
 }

@@ -246,7 +246,7 @@ HtmlFormat::write()
   // probably not write this line at all...
   if (!gpsbabel_testmode()) {
     *file_out << R"(  <meta name="Generator" content="GPSBabel )"
-              << gpsbabel_version << "\">\n";
+              << kVersion << "\">\n";
   }
   *file_out << "  <title>GPSBabel HTML Output</title>\n";
   if (opt_stylesheet) {
