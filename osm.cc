@@ -20,6 +20,8 @@
 
 */
 
+#include "osm.h"
+
 #include <QByteArray>                  // for QByteArray
 #include <QIODevice>                   // for operator|, QIODevice, QIODevice::Text, QIODevice::WriteOnly
 #include <QLatin1String>               // for QLatin1String
@@ -29,7 +31,7 @@
 #include <QtGlobal>                    // for qMax, qPrintable
 
 #include "defs.h"
-#include "osm.h"
+#include "gbversion.h"                 // for kVersion
 #include "src/core/datetime.h"         // for DateTime
 #include "src/core/xmlstreamwriter.h"  // for XmlStreamWriter
 #include "xmlgeneric.h"                // for xml_deinit, xml_init, xml_read

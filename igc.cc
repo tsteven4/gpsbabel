@@ -48,6 +48,7 @@
 
 #include "defs.h"
 #include "gbfile.h"             // for gbfprintf, gbfclose, gbfopen, gbfputs, gbfgetstr, gbfile
+#include "gbversion.h"          // for kVersion
 #include "grtcirc.h"            // for RAD, gcdist, radtometers
 #include "src/core/datetime.h"  // for DateTime
 #include "formspec.h"           // for FormatSpecificData, kFsIGC

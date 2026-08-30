@@ -43,7 +43,6 @@
 #include <Qt>                        // for CaseInsensitive
 #include <QtGlobal>                  // for QForeachContainer, qMakeForeachContainer, foreach, qint64
 
-#include "gbversion.h"
 #include "geocache.h"                // for Geocache
 #include "formspec.h"                // for FormatSpecificData
 #include "inifile.h"                 // for inifile_t

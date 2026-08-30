@@ -34,6 +34,7 @@
 #include "defs.h"
 #include "formspec.h"              // for FormatSpecificDataList, kFsGpx
 #include "geocache.h"              // for Geocache, Geocache::UtfString
+#include "gbversion.h"             // for kVersion
 #include "jeeps/gpsmath.h"         // for GPS_Math_WGS84_To_UTM_EN
 #include "mkshort.h"               // for MakeShort
 #include "src/core/datetime.h"     // for DateTime
