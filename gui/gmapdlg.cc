@@ -144,7 +144,7 @@ void GMapDialog::appendRouteInfo(QStandardItem* it, const GpxRoute& rte)
 GMapDialog::GMapDialog(QWidget* parent, const Gpx& mapData, int debugLevel, QPlainTextEdit* te): QDialog(parent), debugLevel_(debugLevel), gpx_(mapData)
 {
   ui_.setupUi(this);
-  this->setWindowTitle(QStringLiteral("%1 - %2").arg(appName, "Google Maps"));
+  this->setWindowTitle(appName + QStringLiteral(" - Google Maps"));
 
   mapWidget_ = new Map(this, gpx_, te);
   auto* lay = new QHBoxLayout(ui_.frame);
