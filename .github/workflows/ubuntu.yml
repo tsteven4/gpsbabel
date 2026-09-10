@@ -37,6 +37,7 @@ jobs:
             SCRIPT: './tools/build_and_test_cmake.sh'
             TOOLS: 'clang'
             os: ubuntu-latest
+
           - IMAGE: 'noble'
             CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
             SCRIPT: './tools/build_and_test_cmake.sh'
@@ -58,6 +59,28 @@ jobs:
             CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
             SCRIPT: './tools/travis_script_linux_coverage'
             os: ubuntu-latest
+
+          - IMAGE: 'resolute'
+            CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
+            SCRIPT: './tools/build_and_test_cmake.sh'
+            os: ubuntu-26.04
+          - IMAGE: 'resolute'
+            CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
+            SCRIPT: './tools/build_and_test_cmake.sh'
+            TOOLS: 'clang'
+            os: ubuntu-26.04
+          - IMAGE: 'resolute'
+            CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
+            SCRIPT: './tools/build_extra_tests.sh'
+            os: ubuntu-26.04
+          - IMAGE: 'resolute'
+            CMAKE_PREFIX_PATH: '/usr/lib/aarch64-linux-gnu/cmake/Qt6'
+            SCRIPT: './tools/build_and_test_cmake.sh'
+            os: ubuntu-26.04-arm
+          - IMAGE: 'resolute'
+            CMAKE_PREFIX_PATH: '/usr/lib/x86_64-linux-gnu/cmake/Qt6'
+            SCRIPT: './tools/travis_script_linux_coverage'
+            os: ubuntu-26.04
     container:
       image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_${{ matrix.IMAGE }}
       env:
