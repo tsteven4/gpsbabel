@@ -1396,14 +1396,14 @@ GpxFormat::gpx_write_common_extensions(const Waypoint* waypointp, const gpx_poin
       }
 
       writer->stackOptionalStartElement(QStringLiteral("gpxx:Address"));
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:StreetAddress"), garmin_fs_t::get_addr(gmsd, nullptr));
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:City"), garmin_fs_t::get_city(gmsd, nullptr));
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:State"), garmin_fs_t::get_state(gmsd, nullptr));
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:Country"), garmin_fs_t::get_country(gmsd, nullptr));
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:PostalCode"), garmin_fs_t::get_postal_code(gmsd, nullptr));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:StreetAddress"), garmin_fs_t::get_addr(gmsd));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:City"), garmin_fs_t::get_city(gmsd));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:State"), garmin_fs_t::get_state(gmsd));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:Country"), garmin_fs_t::get_country(gmsd));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:PostalCode"), garmin_fs_t::get_postal_code(gmsd));
       writer->stackEndElement(); // gpxx:Address
 
-      writer->stackOptionalTextElement(QStringLiteral("gpxx:PhoneNumber"), garmin_fs_t::get_phone_nr(gmsd, nullptr));
+      writer->stackOptionalTextElement(QStringLiteral("gpxx:PhoneNumber"), garmin_fs_t::get_phone_nr(gmsd));
 
       writer->stackEndElement(); // gpxx:WaypointExtension
       break;

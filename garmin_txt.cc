@@ -462,10 +462,10 @@ GarminTxtFormat::write_waypt(const Waypoint* wpt)
   }
   print_string("%s\t", gt_find_desc_from_icon_number(icon, GDB));
 
-  print_string("%s\t", garmin_fs_t::get_facility(gmsd, ""));
-  print_string("%s\t", garmin_fs_t::get_city(gmsd, ""));
-  print_string("%s\t", garmin_fs_t::get_state(gmsd, ""));
-  const char* country = gt_get_icao_country(garmin_fs_t::get_cc(gmsd, ""));
+  print_string("%s\t", garmin_fs_t::get_facility(gmsd));
+  print_string("%s\t", garmin_fs_t::get_city(gmsd));
+  print_string("%s\t", garmin_fs_t::get_state(gmsd));
+  const char* country = gt_get_icao_country(garmin_fs_t::get_cc(gmsd));
   print_string("%s\t", (country != nullptr) ? country : "");
   print_date_and_time(wpt->GetCreationTime().toTime_t(), false);
   if (wpt->HasUrlLink()) {

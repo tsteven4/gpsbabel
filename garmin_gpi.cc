@@ -764,28 +764,28 @@ GarminGPIFormat::wdata_compute_size(writer_data_t* data) const
     }
 
     if ((gmsd = garmin_fs_t::find(wpt))) {
-      if ((dt->mask == 0) && !(dt->addr = garmin_fs_t::get_addr(gmsd, nullptr)).isEmpty()) {
+      if ((dt->mask == 0) && !(dt->addr = garmin_fs_t::get_addr(gmsd)).isEmpty()) {
         dt->mask |= GPI_ADDR_ADDR;
         dt->sz += (8 + str_from_unicode(dt->addr).size());
       }
-      if (!(dt->city = garmin_fs_t::get_city(gmsd, nullptr)).isEmpty()) {
+      if (!(dt->city = garmin_fs_t::get_city(gmsd)).isEmpty()) {
         dt->mask |= GPI_ADDR_CITY;
         dt->sz += (8 + str_from_unicode(dt->city).size());
       }
-      if (!(dt->country = garmin_fs_t::get_country(gmsd, nullptr)).isEmpty()) {
+      if (!(dt->country = garmin_fs_t::get_country(gmsd)).isEmpty()) {
         dt->mask |= GPI_ADDR_COUNTRY;
         dt->sz += (8 + str_from_unicode(dt->country).size());
       }
-      if (!(dt->state = garmin_fs_t::get_state(gmsd, nullptr)).isEmpty()) {
+      if (!(dt->state = garmin_fs_t::get_state(gmsd)).isEmpty()) {
         dt->mask |= GPI_ADDR_STATE;
         dt->sz += (8 + str_from_unicode(dt->state).size());
       }
-      if (!(dt->postal_code = garmin_fs_t::get_postal_code(gmsd, nullptr)).isEmpty()) {
+      if (!(dt->postal_code = garmin_fs_t::get_postal_code(gmsd)).isEmpty()) {
         dt->mask |= GPI_ADDR_POSTAL_CODE;
         dt->sz += (2 + str_from_unicode(dt->postal_code).size());  /* short form */
       }
 
-      if (!(dt->phone_nr = garmin_fs_t::get_phone_nr(gmsd, nullptr)).isEmpty()) {
+      if (!(dt->phone_nr = garmin_fs_t::get_phone_nr(gmsd)).isEmpty()) {
         res += (12 + 4 +  str_from_unicode(dt->phone_nr).size());
       }
     }

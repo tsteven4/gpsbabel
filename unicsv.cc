@@ -1548,34 +1548,34 @@ UnicsvFormat::unicsv_waypt_disp_cb(const Waypoint* wpt)
   }
 
   if (unicsv_outp_flags[fld_garmin_facility]) {
-    unicsv_print_str(garmin_fs_t::get_facility(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_facility(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_addr]) {
-    unicsv_print_str(garmin_fs_t::get_addr(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_addr(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_city]) {
-    unicsv_print_str(garmin_fs_t::get_city(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_city(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_postal_code]) {
-    unicsv_print_str(garmin_fs_t::get_postal_code(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_postal_code(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_state]) {
-    unicsv_print_str(garmin_fs_t::get_state(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_state(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_country]) {
-    unicsv_print_str(garmin_fs_t::get_country(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_country(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_phone_nr]) {
-    unicsv_print_str(garmin_fs_t::get_phone_nr(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_phone_nr(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_phone_nr2]) {
-    unicsv_print_str(garmin_fs_t::get_phone_nr2(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_phone_nr2(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_fax_nr]) {
-    unicsv_print_str(garmin_fs_t::get_fax_nr(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_fax_nr(gmsd));
   }
   if (unicsv_outp_flags[fld_garmin_email]) {
-    unicsv_print_str(garmin_fs_t::get_email(gmsd, nullptr));
+    unicsv_print_str(garmin_fs_t::get_email(gmsd));
   }
 
   if (wpt->EmptyGCData()) {

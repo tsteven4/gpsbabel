@@ -159,9 +159,9 @@ public:
   { \
     return gmsd && gmsd->flags.field; \
   } \
-  static QString get_##field(const garmin_fs_t* gmsd, const QString& p) \
+  static QString get_##field(const garmin_fs_t* gmsd) \
   { \
-    return (gmsd && gmsd->flags.field)? gmsd->field : p; \
+    return (gmsd && gmsd->flags.field)? gmsd->field : QString(); \
   } \
   static void set_##field(garmin_fs_t* gmsd, const char* p) \
   { \

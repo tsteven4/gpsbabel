@@ -1209,10 +1209,10 @@ GarminFormat::garmin_fs_garmin_before_write(const Waypoint* wpt, GPS_PWay way, c
   }
 
   /* destination may not be null terminated, but we will fill with nulls if necessary */
-  strncpy(way->cc, str_from_unicode(garmin_fs_t::get_cc(gmsd, nullptr)).constData(), sizeof(way->cc));
-  strncpy(way->city, str_from_unicode(garmin_fs_t::get_city(gmsd, nullptr)).constData(), sizeof(way->city));
-  strncpy(way->state, str_from_unicode(garmin_fs_t::get_state(gmsd, nullptr)).constData(), sizeof(way->state));
-  strncpy(way->facility, str_from_unicode(garmin_fs_t::get_facility(gmsd, nullptr)).constData(), sizeof(way->facility));
-  strncpy(way->cross_road, str_from_unicode(garmin_fs_t::get_cross_road(gmsd, nullptr)).constData(), sizeof(way->cross_road));
-  strncpy(way->addr, str_from_unicode(garmin_fs_t::get_addr(gmsd, nullptr)).constData(), sizeof(way->addr));
+  strncpy(way->cc, str_from_unicode(garmin_fs_t::get_cc(gmsd)).constData(), sizeof(way->cc));
+  strncpy(way->city, str_from_unicode(garmin_fs_t::get_city(gmsd)).constData(), sizeof(way->city));
+  strncpy(way->state, str_from_unicode(garmin_fs_t::get_state(gmsd)).constData(), sizeof(way->state));
+  strncpy(way->facility, str_from_unicode(garmin_fs_t::get_facility(gmsd)).constData(), sizeof(way->facility));
+  strncpy(way->cross_road, str_from_unicode(garmin_fs_t::get_cross_road(gmsd)).constData(), sizeof(way->cross_road));
+  strncpy(way->addr, str_from_unicode(garmin_fs_t::get_addr(gmsd)).constData(), sizeof(way->addr));
 }
