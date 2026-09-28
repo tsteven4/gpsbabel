@@ -21,6 +21,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # variables that will be inherited.
 add_subdirectory(gui)
 add_subdirectory(xmldoc)
+add_subdirectory(test)
 
 # FIXME: When we rearrange the project directory structure everything
 # below here should be in it's own CMakeList.txt
@@ -32,7 +33,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Handle the Qt rcc code generator automatically
 set(CMAKE_AUTORCC ON)
 
-add_executable(gpsbabel)
+add_executable(gpsbabel main.cc)
+add_library(gpsbabellib STATIC)
 
 # Find the QtCore library
 find_package(Qt6 REQUIRED COMPONENTS Core Core5Compat)
@@ -43,13 +45,13 @@ else()
   message(STATUS "Using Qt6 version ${Qt6Core_VERSION}")
 endif()
 if(${Qt6Core_VERSION} VERSION_GREATER_EQUAL 6.5)
-  target_compile_definitions(gpsbabel PRIVATE LIGHTWEIGHT_TIMEZONES_SUPPORTED)
+  target_compile_definitions(gpsbabellib PUBLIC LIGHTWEIGHT_TIMEZONES_SUPPORTED)
 endif()
 
 option(GPSBABEL_ENABLE_PCH "enable precompiled headers." ON)
 if (GPSBABEL_ENABLE_PCH)
   # This list is from defs.h.
-  target_precompile_headers(gpsbabel PRIVATE
+  target_precompile_headers(gpsbabellib PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:<cmath$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<cstddef$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<cstdint$<ANGLE-R>>"
@@ -69,11 +71,11 @@ if (GPSBABEL_ENABLE_PCH)
     "$<$<COMPILE_LANGUAGE:CXX>:<QTextCodec$<ANGLE-R>>"
   )
   if(${Qt6Core_VERSION} VERSION_GREATER_EQUAL 6.5)
-    target_precompile_headers(gpsbabel PRIVATE
+    target_precompile_headers(gpsbabellib PUBLIC
       "$<$<COMPILE_LANGUAGE:CXX>:<QTimeZone$<ANGLE-R>>"
     )
   endif()
-  target_precompile_headers(gpsbabel PRIVATE
+  target_precompile_headers(gpsbabellib PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:<Qt$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<QtGlobal$<ANGLE-R>>"
   )
@@ -189,7 +191,6 @@ set(SUPPORT
   globals.cc
   grtcirc.cc
   inifile.cc
-  main.cc
   mkshort.cc
   option.cc
   parse.cc
@@ -311,14 +312,15 @@ set(HEADERS ${HEADERS} ${FILTER_HEADERS})
 if(UNIX)
   set(SOURCES ${SOURCES} gbser_posix.cc)
   set(HEADERS ${HEADERS} gbser_posix.h)
-  target_compile_options(gpsbabel PRIVATE -Wall)
+  target_compile_options(gpsbabellib PUBLIC -Wall)
 endif()
 
 if(WIN32)
-  target_compile_definitions(gpsbabel PRIVATE __WIN32__)
+  target_compile_definitions(gpsbabellib PUBLIC __WIN32__)
+  qt_disable_unicode_defines(gpsbabellib)
   qt_disable_unicode_defines(gpsbabel)
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    target_compile_definitions(gpsbabel PRIVATE _DEBUG)
+    target_compile_definitions(gpsbabellib PUBLIC _DEBUG)
   endif()
   set(SOURCES ${SOURCES} gbser_win.cc)
   set(HEADERS ${HEADERS} gbser_win.h)
@@ -328,13 +330,13 @@ if(WIN32)
 endif()
 
 if(MSVC)
-  target_compile_definitions(gpsbabel PRIVATE _CRT_SECURE_NO_WARNINGS)
-  target_compile_definitions(gpsbabel PRIVATE _CRT_NONSTDC_NO_WARNINGS)
-  target_compile_options(gpsbabel PRIVATE /MP -wd4100 -wd4267 -wd5030)
+  target_compile_definitions(gpsbabellib PUBLIC _CRT_SECURE_NO_WARNINGS)
+  target_compile_definitions(gpsbabellib PUBLIC _CRT_NONSTDC_NO_WARNINGS)
+  target_compile_options(gpsbabellib PUBLIC /MP -wd4100 -wd4267 -wd5030)
 endif()
 
 if(APPLE)
-  target_compile_options(gpsbabel PRIVATE -Wall -Wsign-compare)
+  target_compile_options(gpsbabellib PUBLIC -Wall -Wsign-compare)
 endif()
 
 include(shapelib.cmake)
@@ -345,43 +347,45 @@ include(strptime.cmake)
 set(GPSBABEL_EXTRA_LINK_LIBRARIES "" CACHE STRING "extra libraries to link with.")
 list(APPEND LIBS ${GPSBABEL_EXTRA_LINK_LIBRARIES})
 set(GPSBABEL_EXTRA_INCLUDE_DIRECTORIES "" CACHE STRING "extra directories to include.")
-target_include_directories(gpsbabel PRIVATE ${GPSBABEL_EXTRA_INCLUDE_DIRECTORIES})
+target_include_directories(gpsbabellib PUBLIC ${GPSBABEL_EXTRA_INCLUDE_DIRECTORIES})
 set(GPSBABEL_EXTRA_COMPILE_OPTIONS "" CACHE STRING "extra compile options.")
 # Qt sanitize.conf used:
 #   -fsanitize=address -fno-omit-frame-pointer
 #   -fsanitize=undefined -fsanitize=float-divide-by-zero -fno-omit-frame-pointer
 # For coverage use --coverage
 separate_arguments(GPSBABEL_EXTRA_COMPILE_OPTIONS)
-target_compile_options(gpsbabel PRIVATE ${GPSBABEL_EXTRA_COMPILE_OPTIONS})
+target_compile_options(gpsbabellib PUBLIC ${GPSBABEL_EXTRA_COMPILE_OPTIONS})
 set(GPSBABEL_EXTRA_LINK_OPTIONS "" CACHE STRING "extra link options.")
 # Qt sanitize.conf used:
 #   -fsanitize=address
 #   -fsanitize=undefined -fsanitize=float-divide-by-zero
 # For coverage use --coverage
 separate_arguments(GPSBABEL_EXTRA_LINK_OPTIONS)
-target_link_options(gpsbabel PRIVATE ${GPSBABEL_EXTRA_LINK_OPTIONS})
+target_link_options(gpsbabellib PUBLIC ${GPSBABEL_EXTRA_LINK_OPTIONS})
 
 set(SOURCES
-  ${SOURCES} ${ALL_FMTS} ${FILTERS} ${SUPPORT} ${SHAPE} ${ZLIB} ${JEEPS} ${RESOURCES}
+  ${SOURCES} ${ALL_FMTS} ${FILTERS} ${SUPPORT} ${SHAPE} ${ZLIB} ${JEEPS}
 )
 
 list(SORT SOURCES)
 list(SORT HEADERS)
 
-target_sources(gpsbabel PRIVATE ${SOURCES} ${HEADERS})
+target_sources(gpsbabellib PRIVATE ${SOURCES} ${HEADERS})
+target_sources(gpsbabel PUBLIC ${RESOURCES})
 
 # We don't care about stripping things out of the build.  Full monty, baby.
-target_compile_definitions(gpsbabel PRIVATE FILTERS_ENABLED)
+target_compile_definitions(gpsbabellib PUBLIC FILTERS_ENABLED)
 
-target_link_libraries(gpsbabel PRIVATE ${QT_LIBRARIES} ${LIBS})
+target_link_libraries(gpsbabellib PUBLIC ${QT_LIBRARIES} ${LIBS})
+target_link_libraries(gpsbabel PRIVATE gpsbabellib)
 
-get_target_property(Srcs gpsbabel SOURCES)
+get_target_property(Srcs gpsbabellib SOURCES)
 message(STATUS "Sources are: \"${Srcs}\"")
-get_target_property(DirDefs gpsbabel COMPILE_DEFINITIONS)
+get_target_property(DirDefs gpsbabellib COMPILE_DEFINITIONS)
 message(STATUS "Defines are: \"${DirDefs}\"")
-get_target_property(LnkLibs gpsbabel LINK_LIBRARIES)
+get_target_property(LnkLibs gpsbabellib LINK_LIBRARIES)
 message(STATUS "Libs are: \"${LnkLibs}\"")
-get_target_property(IncDirs gpsbabel INCLUDE_DIRECTORIES)
+get_target_property(IncDirs gpsbabellib INCLUDE_DIRECTORIES)
 message(STATUS "Include Directores are: \"${IncDirs}\"")
 
 # In case we ever update the garmin_icons mkicondoc helps

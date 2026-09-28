@@ -36,6 +36,7 @@
 #include <QIODevice>                        // for QIODevice, operator|, QIODevice::ReadOnly, QIODevice::Text, QIODevice::WriteOnly
 #include <QLatin1Char>                      // for QLatin1Char
 #include <QLatin1String>                    // for QLatin1String
+#include <QRegularExpression>
 #include <QString>                          // for QString, QStringLiteral, operator+, operator==
 #include <QStringList>                      // for QStringList
 #include <QStringView>                      // for QStringView
@@ -460,6 +461,7 @@ GpxFormat::gpx_start(QStringView el, const QXmlStreamAttributes& attr)
 gpsbabel::DateTime
 xml_parse_time(const QString& dateTimeString)
 {
+#if 0
   int off_hr = 0;
   int off_min = 0;
   int off_sign = 1;
@@ -527,6 +529,124 @@ xml_parse_time(const QString& dateTimeString)
     dt = dt.addSecs(-off_sign * off_hr * 3600 - off_sign * off_min * 60);
   }
   return dt;
+#else
+//static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([dhms])$)", QRegularExpression::CaseInsensitiveOption);
+//static const QRegularExpression re(R"(^(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?:(?<hour>\d{2})(?::(?<min>\d{2})(?::(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?)?)?)?(?:(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2}))|(?<zulu>Z))?$)");
+//static const QRegularExpression re(R"(^(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?(?:(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2}))|(?<zulu>Z))?$)");
+//static const QRegularExpression re(R"(\A(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?:(?<hour>\d{2})(?::(?<min>\d{2})(?::(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?)?)?)?(?:(?<zulu>Z)|(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2})))?\z)");
+  static const QRegularExpression re(R"REGEX(
+    \A
+    (?<year> -? \d{4,} )
+    (?:
+      -
+      (?<month> \d{2} )
+      (?:
+        -
+        (?<day> \d{2} )
+        (?:
+          T
+          (?:
+            (?<hour> \d{2} )
+            (?:
+              :
+              (?<min> \d{2} )
+              (?:
+                :
+                (?<sec> \d{2} )
+                (?<fsec> \. [0-9]+ )?
+              )?
+            )?
+          )?
+        )?
+      )?
+    )?
+    (?:
+        (?<zulu> Z )
+      |
+        (?:
+          (?<zonesign> [+-] )
+          (?<zonehour> \d{2} )
+          :
+          (?<zonemin> \d{2} )
+        )
+    )?
+    \z
+  )REGEX", QRegularExpression::ExtendedPatternSyntaxOption);
+
+// using indexes is much faster than names
+  constexpr int kYearIdx{1};
+  constexpr int kMonthIdx{2};
+  constexpr int kDayIdx{3};
+  constexpr int kHourIdx{4};
+  constexpr int kMinIdx{5};
+  constexpr int kSecIdx{6};
+  constexpr int kFSecIdx{7};
+  constexpr int kZuluIdx{8};
+  constexpr int kZoneSignIdx{9};
+  constexpr int kZoneHourIdx{10};
+  constexpr int kZoneMinIdx{11};
+
+  assert(re.isValid());
+  QRegularExpressionMatch match = re.match(dateTimeString);
+
+  int year{0};
+  int month{1};
+  int day{1};
+  int hour{0};
+  int min{0};
+  int sec{0};
+  double fsec{0.0};
+  int zonesign{1};
+  int zonehour{0};
+  int zonemin{0};
+  QDateTime dt;
+
+  if (match.hasMatch()) {
+    if (QStringView qyear = match.capturedView(kYearIdx); !qyear.isNull()) {
+      year = qyear.toInt();
+      if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
+        month = qmonth.toInt();
+        if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
+          day = qday.toInt();
+          if (QStringView qhour = match.capturedView(kHourIdx); !qhour.isNull()) {
+            hour = qhour.toInt();
+            if (QStringView qmin = match.capturedView(kMinIdx); !qmin.isNull()) {
+              min = qmin.toInt();
+              if (QStringView qsec = match.capturedView(kSecIdx); !qsec.isNull()) {
+                sec = qsec.toInt();
+              }
+              if (QStringView qfsec = match.capturedView(kFSecIdx); !qfsec.isNull()) {
+                fsec = qfsec.toDouble();
+              }
+            }
+          }
+        }
+      }
+    }
+    if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
+      zonesign = (qzonesign == '-')? -1: 1;
+    }
+    if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
+      zonehour = qzonehour.toInt();
+    }
+    if (QStringView qzonemin = match.capturedView(kZoneMinIdx); !qzonemin.isNull()) {
+      zonemin = qzonemin.toInt();
+    }
+    QDate date(year, month, day);
+    QTime time(hour, min, sec);
+    dt = QDateTime(date, time, QtUTC);
+
+    // Fractional part of time.
+    if (fsec) {
+      dt = dt.addMSecs(lround(fsec * 1000));
+    }
+
+    // Any offsets that were stuck at the end.
+    dt = dt.addSecs(-zonesign * ((zonehour * 60) + zonemin) * 60);
+  }
+//  qDebug() << dateTimeString << year << month << day << hour << min << sec << fsec << zonesign << zonehour << zonemin;
+  return dt;
+#endif
 }
 
 void
