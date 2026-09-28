@@ -39,6 +39,7 @@
 #include <QTextStream>                // for QTextStream
 #include <QtConfig>                   // for QT_VERSION_STR
 #include <QtGlobal>                   // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK
+#include <QtResource>                 // for Q_INIT_RESOURCE
 
 #ifdef AFL_INPUT_FUZZING
 #include "argv-fuzz-inl.h"
@@ -841,6 +842,8 @@ main(int argc, char* argv[])
   if (!gpsbabel_testmode()) {	/* within testo ? */
     global_opts.inifile = inifile_init(QString());
   }
+
+  Q_INIT_RESOURCE(gpsbabel);
 
   assert(GPS_Lookup_Datum_Index("OSGB36") == kDatumOSGB36);
   assert(GPS_Lookup_Datum_Index("WGS 84") == kDatumWGS84);

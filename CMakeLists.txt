@@ -326,7 +326,7 @@ if(WIN32)
   set(HEADERS ${HEADERS} gbser_win.h)
   set(JEEPS ${JEEPS} jeeps/gpsusbwin.cc)
   set(LIBS ${LIBS} setupapi)
-  set(RESOURCES ${RESOURCES} win32/gpsbabel.rc)
+  set(APPRESOURCES ${APPRESOURCES} win32/gpsbabel.rc)
 endif()
 
 if(MSVC)
@@ -370,8 +370,8 @@ set(SOURCES
 list(SORT SOURCES)
 list(SORT HEADERS)
 
-target_sources(gpsbabellib PRIVATE ${SOURCES} ${HEADERS})
-target_sources(gpsbabel PUBLIC ${RESOURCES})
+target_sources(gpsbabellib PRIVATE ${SOURCES} ${HEADERS} ${RESOURCES})
+target_sources(gpsbabel PRIVATE ${APPRESOURCES})
 
 # We don't care about stripping things out of the build.  Full monty, baby.
 target_compile_definitions(gpsbabellib PUBLIC FILTERS_ENABLED)
