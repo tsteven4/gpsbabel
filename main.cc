@@ -38,8 +38,7 @@
 #include <QTextCodec>                 // for QTextCodec
 #include <QTextStream>                // for QTextStream
 #include <QtConfig>                   // for QT_VERSION_STR
-#include <QtGlobal>                   // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK
-#include <QtResource>                 // for Q_INIT_RESOURCE
+#include <QtGlobal>                   // for qPrintable, qVersion, QT_VERSION, QT_VERSION_CHECK, Q_INIT_RESOURCE
 
 #ifdef AFL_INPUT_FUZZING
 #include "argv-fuzz-inl.h"
