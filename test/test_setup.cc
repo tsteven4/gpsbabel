@@ -1,5 +1,5 @@
 #include <clocale>
-#include <QtResource>
+#include <QtGlobal>
 
 void test_setup()
 {
