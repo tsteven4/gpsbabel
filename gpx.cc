@@ -23,9 +23,7 @@
 
 #include <cassert>                          // for assert
 #include <cmath>                            // for lround
-#include <cstdio>                           // for sscanf
 #include <cstdint>                          // for uint16_t
-#include <cstring>                          // for strchr
 #include <optional>                         // for optional
 #include <utility>                          // for as_const
 
@@ -36,7 +34,7 @@
 #include <QIODevice>                        // for QIODevice, operator|, QIODevice::ReadOnly, QIODevice::Text, QIODevice::WriteOnly
 #include <QLatin1Char>                      // for QLatin1Char
 #include <QLatin1String>                    // for QLatin1String
-#include <QRegularExpression>
+#include <QRegularExpression>               // for QRegularExpressionMatch, QRegularExpression
 #include <QString>                          // for QString, QStringLiteral, operator+, operator==
 #include <QStringList>                      // for QStringList
 #include <QStringView>                      // for QStringView
@@ -458,82 +456,18 @@ GpxFormat::gpx_start(QStringView el, const QXmlStreamAttributes& attr)
   }
 }
 
+/* Convert an xsd time stamp to a DateTime.
+ * This works with:
+ * xsd:dateTime
+ * xsd:date
+ * xsd:gYearMonth
+ * xsd:gYear
+ * We also allow partial time components.
+ * We treat untimezoned values as UTC instead of Local!
+ */
 gpsbabel::DateTime
 xml_parse_time(const QString& dateTimeString)
 {
-#if 0
-  int off_hr = 0;
-  int off_min = 0;
-  int off_sign = 1;
-
-  QByteArray dts = dateTimeString.toUtf8();
-  char* timestr = dts.data();
-
-  char* offsetstr = strchr(timestr, 'Z');
-  if (offsetstr) {
-    /* zulu time; offsets stay at defaults */
-    *offsetstr = '\0';
-  } else {
-    offsetstr = strchr(timestr, '+');
-    if (offsetstr) {
-      /* positive offset; parse it */
-      *offsetstr = '\0';
-      sscanf(offsetstr + 1, "%d:%d", &off_hr, &off_min);
-    } else {
-      offsetstr = strchr(timestr, 'T');
-      if (offsetstr) {
-        offsetstr = strchr(offsetstr, '-');
-        if (offsetstr) {
-          /* negative offset; parse it */
-          *offsetstr = '\0';
-          sscanf(offsetstr + 1, "%d:%d", &off_hr, &off_min);
-          off_sign = -1;
-        }
-      }
-    }
-  }
-
-  double fsec = 0;
-  char* pointstr = strchr(timestr, '.');
-  if (pointstr) {
-    sscanf(pointstr, "%le", &fsec);
-#if 0
-    /* Round to avoid FP jitter */
-    if (microsecs) {
-      *microsecs = .5 + (fsec * 1000000.0) ;
-    }
-#endif
-    *pointstr = '\0';
-  }
-
-  int year = 0;
-  int mon = 1;
-  int mday = 1;
-  int hour = 0;
-  int min = 0;
-  int sec = 0;
-  gpsbabel::DateTime dt;
-  int res = sscanf(timestr, "%d-%d-%dT%d:%d:%d", &year, &mon, &mday, &hour,
-                   &min, &sec);
-  if (res > 0) {
-    QDate date(year, mon, mday);
-    QTime time(hour, min, sec);
-    dt = QDateTime(date, time, QtUTC);
-
-    // Fractional part of time.
-    if (fsec) {
-      dt = dt.addMSecs(lround(fsec * 1000));
-    }
-
-    // Any offsets that were stuck at the end.
-    dt = dt.addSecs(-off_sign * off_hr * 3600 - off_sign * off_min * 60);
-  }
-  return dt;
-#else
-//static const QRegularExpression re(R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([dhms])$)", QRegularExpression::CaseInsensitiveOption);
-//static const QRegularExpression re(R"(^(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?:(?<hour>\d{2})(?::(?<min>\d{2})(?::(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?)?)?)?(?:(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2}))|(?<zulu>Z))?$)");
-//static const QRegularExpression re(R"(^(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?<hour>\d{2}):(?<min>\d{2}):(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?(?:(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2}))|(?<zulu>Z))?$)");
-//static const QRegularExpression re(R"(\A(?<year>-?\d{4,})(?:-(?<month>\d{2})(?:-(?<day>\d{2})(?:T(?:(?<hour>\d{2})(?::(?<min>\d{2})(?::(?<sec>\d{2})(?<fsec>\.[0-9]+)?)?)?)?)?)?)?(?:(?<zulu>Z)|(?:(?<zonesign>[+-])(?<zonehour>\d{2}):(?<zonemin>\d{2})))?\z)");
   static const QRegularExpression re(R"REGEX(
     \A
     (?<year> -? \d{4,} )
@@ -573,7 +507,7 @@ xml_parse_time(const QString& dateTimeString)
     \z
   )REGEX", QRegularExpression::ExtendedPatternSyntaxOption);
 
-// using indexes is much faster than names
+// using indexes is much faster than names for retrieving the captured match.
   constexpr int kYearIdx{1};
   constexpr int kMonthIdx{2};
   constexpr int kDayIdx{3};
@@ -581,12 +515,13 @@ xml_parse_time(const QString& dateTimeString)
   constexpr int kMinIdx{5};
   constexpr int kSecIdx{6};
   constexpr int kFSecIdx{7};
-  constexpr int kZuluIdx{8};
+//  constexpr int kZuluIdx{8};
   constexpr int kZoneSignIdx{9};
   constexpr int kZoneHourIdx{10};
   constexpr int kZoneMinIdx{11};
 
   assert(re.isValid());
+
   QRegularExpressionMatch match = re.match(dateTimeString);
 
   int year{0};
@@ -632,6 +567,7 @@ xml_parse_time(const QString& dateTimeString)
     if (QStringView qzonemin = match.capturedView(kZoneMinIdx); !qzonemin.isNull()) {
       zonemin = qzonemin.toInt();
     }
+
     QDate date(year, month, day);
     QTime time(hour, min, sec);
     dt = QDateTime(date, time, QtUTC);
@@ -646,7 +582,6 @@ xml_parse_time(const QString& dateTimeString)
   }
 //  qDebug() << dateTimeString << year << month << day << hour << min << sec << fsec << zonesign << zonehour << zonemin;
   return dt;
-#endif
 }
 
 void
