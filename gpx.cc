@@ -469,7 +469,7 @@ gpsbabel::DateTime
 xml_parse_time(const QString& dateTimeString)
 {
   static const QRegularExpression re(R"REGEX(
-    \A
+    \A\s*
     (?<year> -? \d{4,} )
     (?:
       -
@@ -504,7 +504,7 @@ xml_parse_time(const QString& dateTimeString)
           (?<zonemin> \d{2} )
         )
     )?
-    \z
+    \s*\z
   )REGEX", QRegularExpression::ExtendedPatternSyntaxOption);
 
 // using indexes is much faster than names for retrieving the captured match.
@@ -539,24 +539,24 @@ xml_parse_time(const QString& dateTimeString)
   if (match.hasMatch()) {
     if (QStringView qyear = match.capturedView(kYearIdx); !qyear.isNull()) {
       year = qyear.toInt();
-      if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
-        month = qmonth.toInt();
-        if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
-          day = qday.toInt();
-          if (QStringView qhour = match.capturedView(kHourIdx); !qhour.isNull()) {
-            hour = qhour.toInt();
-            if (QStringView qmin = match.capturedView(kMinIdx); !qmin.isNull()) {
-              min = qmin.toInt();
-              if (QStringView qsec = match.capturedView(kSecIdx); !qsec.isNull()) {
-                sec = qsec.toInt();
-              }
-              if (QStringView qfsec = match.capturedView(kFSecIdx); !qfsec.isNull()) {
-                fsec = qfsec.toDouble();
-              }
-            }
-          }
-        }
-      }
+    }
+    if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
+      month = qmonth.toInt();
+    }
+    if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
+      day = qday.toInt();
+    }
+    if (QStringView qhour = match.capturedView(kHourIdx); !qhour.isNull()) {
+      hour = qhour.toInt();
+    }
+    if (QStringView qmin = match.capturedView(kMinIdx); !qmin.isNull()) {
+      min = qmin.toInt();
+    }
+    if (QStringView qsec = match.capturedView(kSecIdx); !qsec.isNull()) {
+      sec = qsec.toInt();
+    }
+    if (QStringView qfsec = match.capturedView(kFSecIdx); !qfsec.isNull()) {
+      fsec = qfsec.toDouble();
     }
     if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
       zonesign = (qzonesign == '-')? -1: 1;
