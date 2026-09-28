@@ -539,33 +539,33 @@ xml_parse_time(const QString& dateTimeString)
   if (match.hasMatch()) {
     if (QStringView qyear = match.capturedView(kYearIdx); !qyear.isNull()) {
       year = qyear.toInt();
-    }
-    if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
-      month = qmonth.toInt();
-    }
-    if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
-      day = qday.toInt();
-    }
-    if (QStringView qhour = match.capturedView(kHourIdx); !qhour.isNull()) {
-      hour = qhour.toInt();
-    }
-    if (QStringView qmin = match.capturedView(kMinIdx); !qmin.isNull()) {
-      min = qmin.toInt();
-    }
-    if (QStringView qsec = match.capturedView(kSecIdx); !qsec.isNull()) {
-      sec = qsec.toInt();
-    }
-    if (QStringView qfsec = match.capturedView(kFSecIdx); !qfsec.isNull()) {
-      fsec = qfsec.toDouble();
-    }
-    if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
-      zonesign = (qzonesign == '-')? -1: 1;
-    }
-    if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
-      zonehour = qzonehour.toInt();
-    }
-    if (QStringView qzonemin = match.capturedView(kZoneMinIdx); !qzonemin.isNull()) {
-      zonemin = qzonemin.toInt();
+      if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
+        month = qmonth.toInt();
+        if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
+          day = qday.toInt();
+          if (QStringView qhour = match.capturedView(kHourIdx); !qhour.isNull()) {
+            hour = qhour.toInt();
+            if (QStringView qmin = match.capturedView(kMinIdx); !qmin.isNull()) {
+              min = qmin.toInt();
+              if (QStringView qsec = match.capturedView(kSecIdx); !qsec.isNull()) {
+                sec = qsec.toInt();
+                if (QStringView qfsec = match.capturedView(kFSecIdx); !qfsec.isNull()) {
+                  fsec = qfsec.toDouble();
+                }
+              }
+            }
+          }
+        }
+      }
+      if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
+        zonesign = (qzonesign == '-')? -1: 1;
+        if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
+          zonehour = qzonehour.toInt();
+          if (QStringView qzonemin = match.capturedView(kZoneMinIdx); !qzonemin.isNull()) {
+            zonemin = qzonemin.toInt();
+          }
+        }
+      }
     }
 
     QDate date(year, month, day);
