@@ -46,8 +46,7 @@ if [ "${DOCS}" = "ON" ]; then
   cmake --build . --target gpsbabel.org
 fi
 cmake --build . --target check
-cmake --build . --target gpsbabel_unit_test
-ctest --test-dir ./test --output-on-failure
+cmake --build . --target unit_tests
 cmake --build . --target gpsbabelfe
 # test for mangled encoding of command line arguments
 ./test_encoding_latin1
