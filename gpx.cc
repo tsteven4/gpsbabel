@@ -487,7 +487,7 @@ xml_parse_time(const QString& dateTimeString)
               (?:
                 :
                 (?<sec> \d{2} )
-                (?<fsec> \. [0-9]+ )?
+                (?<fsec> \. \d+ )?
               )?
             )?
           )?
