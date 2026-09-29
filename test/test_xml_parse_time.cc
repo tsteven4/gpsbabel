@@ -77,7 +77,9 @@ void TestXmlParseTime::xml_parse_time()
   QFETCH(gpsbabel::DateTime, result);
   QCOMPARE(::xml_parse_time(string), result);
   gpsbabel::DateTime dt;
+#ifdef ENABLE_BENCHMARK
   QBENCHMARK{ dt = ::xml_parse_time(string); }
+#endif
 }
 
 QTEST_MAIN(TestXmlParseTime);

@@ -12,6 +12,11 @@ target_sources(gpsbabel_unit_test PRIVATE test_setup.cc test_xml_parse_time.cc)
 target_link_libraries(gpsbabel_unit_test PRIVATE Qt6::Test gpsbabellib)
 target_include_directories(gpsbabel_unit_test PRIVATE ${CMAKE_SOURCE_DIR})
 
+option(GPSBABEL_ENABLE_BENCHMARK "enable benchmarking." OFF)
+if(GPSBABEL_ENABLE_BENCHMARK)
+  target_compile_definitions(gpsbabel_unit_test PRIVATE "ENABLE_BENCHMARK")
+endif()
+
 enable_testing(true)
 add_test(NAME gpsbabel_unit_test COMMAND gpsbabel_unit_test)
 

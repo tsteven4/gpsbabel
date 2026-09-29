@@ -9,6 +9,8 @@ mkdir bld-coverage
 
 cmake -DCMAKE_BUILD_TYPE=Release -DGPSBABEL_EXTRA_COMPILE_OPTIONS="--coverage" -DGPSBABEL_EXTRA_LINK_OPTIONS="--coverage" -G Ninja -S . -B bld-coverage
 cmake --build bld-coverage --target check
+cmake --build bld-coverage --target gpsbabel_unit_test
+ctest --test-dir bld-coverage/test
 if [ -n "$USE_LCOV" ]; then
   # produce lcov data for codacy
   lcov --capture --directory bld-coverage --base-directory "$(pwd)" --no-external --output-file lcov.info
