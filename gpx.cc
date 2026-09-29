@@ -555,14 +555,14 @@ xml_parse_time(const QString& dateTimeString)
       }
 
       dt = QDateTime(QDate(year, month, day), QTime(hour, min, sec), QtUTC);
-  
+
       // Fractional part of time.
       if (fsec) {
-        dt = dt.addMSecs(lround(fsec * 1000));
+        dt = dt.addMSecs(lround(fsec * 1000.0));
       }
 
       if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
-        int zonesign = (qzonesign == '-')? -1: 1;
+        int zonesign = (qzonesign == '-')? -1 : 1;
         int zonehour{0};
         int zonemin{0};
         if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
