@@ -524,21 +524,17 @@ xml_parse_time(const QString& dateTimeString)
 
   QRegularExpressionMatch match = re.match(dateTimeString);
 
-  int year{0};
-  int month{1};
-  int day{1};
-  int hour{0};
-  int min{0};
-  int sec{0};
-  double fsec{0.0};
-  int zonesign{1};
-  int zonehour{0};
-  int zonemin{0};
-  QDateTime dt;
+  gpsbabel::DateTime dt;
 
   if (match.hasMatch()) {
     if (QStringView qyear = match.capturedView(kYearIdx); !qyear.isNull()) {
-      year = qyear.toInt();
+      int year = qyear.toInt();
+      int month{1};
+      int day{1};
+      int hour{0};
+      int min{0};
+      int sec{0};
+      double fsec{0.0};
       if (QStringView qmonth = match.capturedView(kMonthIdx); !qmonth.isNull()) {
         month = qmonth.toInt();
         if (QStringView qday = match.capturedView(kDayIdx); !qday.isNull()) {
@@ -566,7 +562,9 @@ xml_parse_time(const QString& dateTimeString)
       }
 
       if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
-        zonesign = (qzonesign == '-')? -1: 1;
+        int zonesign = (qzonesign == '-')? -1: 1;
+        int zonehour{0};
+        int zonemin{0};
         if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
           zonehour = qzonehour.toInt();
           if (QStringView qzonemin = match.capturedView(kZoneMinIdx); !qzonemin.isNull()) {
