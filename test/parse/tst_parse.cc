@@ -223,5 +223,5 @@ void TestParse::parse_coordinates()
   QCOMPARE(dut.longitude, longitude);
 }
 
-QTEST_MAIN(TestParse);
+QTEST_GUILESS_MAIN(TestParse);
 #include "tst_parse.moc"
