@@ -51,7 +51,7 @@ endif()
 option(GPSBABEL_ENABLE_PCH "enable precompiled headers." ON)
 if (GPSBABEL_ENABLE_PCH)
   # This list is from defs.h.
-  target_precompile_headers(gpsbabellib PUBLIC
+  target_precompile_headers(gpsbabellib PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:<cmath$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<cstddef$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<cstdint$<ANGLE-R>>"
@@ -71,11 +71,11 @@ if (GPSBABEL_ENABLE_PCH)
     "$<$<COMPILE_LANGUAGE:CXX>:<QTextCodec$<ANGLE-R>>"
   )
   if(${Qt6Core_VERSION} VERSION_GREATER_EQUAL 6.5)
-    target_precompile_headers(gpsbabellib PUBLIC
+    target_precompile_headers(gpsbabellib PRIVATE
       "$<$<COMPILE_LANGUAGE:CXX>:<QTimeZone$<ANGLE-R>>"
     )
   endif()
-  target_precompile_headers(gpsbabellib PUBLIC
+  target_precompile_headers(gpsbabellib PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:<Qt$<ANGLE-R>>"
     "$<$<COMPILE_LANGUAGE:CXX>:<QtGlobal$<ANGLE-R>>"
   )

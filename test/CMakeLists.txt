@@ -7,16 +7,31 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Test)
 
-add_executable(gpsbabel_unit_test)
-target_sources(gpsbabel_unit_test PRIVATE test_setup.cc test_xml_parse_time.cc)
-target_link_libraries(gpsbabel_unit_test PRIVATE Qt6::Test gpsbabellib)
-target_include_directories(gpsbabel_unit_test PRIVATE ${CMAKE_SOURCE_DIR})
+add_library(gpsbabel_unit_test_lib STATIC test_setup.cc)
+target_link_libraries(gpsbabel_unit_test_lib PUBLIC Qt6::Test gpsbabellib)
+target_include_directories(gpsbabel_unit_test_lib PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 option(GPSBABEL_ENABLE_BENCHMARK "enable benchmarking." OFF)
 if(GPSBABEL_ENABLE_BENCHMARK)
-  target_compile_definitions(gpsbabel_unit_test PRIVATE "ENABLE_BENCHMARK")
+  target_compile_definitions(gpsbabel_unit_test_lib PUBLIC "ENABLE_BENCHMARK")
 endif()
 
 enable_testing(true)
-add_test(NAME gpsbabel_unit_test COMMAND gpsbabel_unit_test)
 
+set(UNIT_TEST_DIRS
+  parse
+  xml_parse_time
+)
+# assume each directory creates a test with the name tst_ prepended to the directory name.
+set(UNIT_TESTS ${UNIT_TEST_DIRS})
+list(TRANSFORM UNIT_TESTS PREPEND tst_)
+
+foreach(unit_subdir ${UNIT_TEST_DIRS})
+  add_subdirectory(${unit_subdir})
+endforeach()
+
+add_custom_target(unit_tests
+                  ctest --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
+                  DEPENDS ${UNIT_TESTS}
+                  VERBATIM
+                  USES_TERMINAL)

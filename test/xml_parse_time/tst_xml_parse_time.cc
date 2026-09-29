@@ -83,4 +83,4 @@ void TestXmlParseTime::xml_parse_time()
 }
 
 QTEST_MAIN(TestXmlParseTime);
-#include "test_xml_parse_time.moc"
+#include "tst_xml_parse_time.moc"
