@@ -557,6 +557,14 @@ xml_parse_time(const QString& dateTimeString)
           }
         }
       }
+
+      dt = QDateTime(QDate(year, month, day), QTime(hour, min, sec), QtUTC);
+  
+      // Fractional part of time.
+      if (fsec) {
+        dt = dt.addMSecs(lround(fsec * 1000));
+      }
+
       if (QStringView qzonesign = match.capturedView(kZoneSignIdx); !qzonesign.isNull()) {
         zonesign = (qzonesign == '-')? -1: 1;
         if (QStringView qzonehour = match.capturedView(kZoneHourIdx); !qzonehour.isNull()) {
@@ -565,20 +573,12 @@ xml_parse_time(const QString& dateTimeString)
             zonemin = qzonemin.toInt();
           }
         }
+
+        // Any offsets that were stuck at the end.
+        dt = dt.addSecs(-zonesign * ((zonehour * 60) + zonemin) * 60);
+
       }
     }
-
-    QDate date(year, month, day);
-    QTime time(hour, min, sec);
-    dt = QDateTime(date, time, QtUTC);
-
-    // Fractional part of time.
-    if (fsec) {
-      dt = dt.addMSecs(lround(fsec * 1000));
-    }
-
-    // Any offsets that were stuck at the end.
-    dt = dt.addSecs(-zonesign * ((zonehour * 60) + zonemin) * 60);
   }
 //  qDebug() << dateTimeString << year << month << day << hour << min << sec << fsec << zonesign << zonehour << zonemin;
   return dt;

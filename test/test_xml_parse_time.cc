@@ -66,6 +66,9 @@ void TestXmlParseTime::xml_parse_time_data()
   QTest::newRow("shortyear") << "10-10-16T14:27:17.123" << gpsbabel::DateTime(QDateTime());
   QTest::newRow("nowholesecsonds") << "2010-10-16T14:27:.123" << gpsbabel::DateTime(QDateTime());
   QTest::newRow("nofracsecsonds") << "2010-10-16T14:27:17." << gpsbabel::DateTime(QDateTime());
+  QTest::newRow("nodatetimeOffset") << "+01:30" << gpsbabel::DateTime(QDateTime());
+  QTest::newRow("nodatetimeZulu") << "Z" << gpsbabel::DateTime(QDateTime());
+  QTest::newRow("empty") << "" << gpsbabel::DateTime(QDateTime());
 }
 
 void TestXmlParseTime::xml_parse_time()
