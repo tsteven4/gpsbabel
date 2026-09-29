@@ -31,7 +31,11 @@ foreach(unit_subdir ${UNIT_TEST_DIRS})
 endforeach()
 
 add_custom_target(unit_tests
-                  ctest --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
                   DEPENDS ${UNIT_TESTS}
+                  VERBATIM)
+
+add_custom_target(check-unit
+                  ctest --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
+                  DEPENDS unit_tests 
                   VERBATIM
                   USES_TERMINAL)
