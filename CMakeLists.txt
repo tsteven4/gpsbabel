@@ -10,6 +10,8 @@ include(CheckIncludeFile)
 include(gbversion.cmake)
 project(gpsbabel LANGUAGES C CXX VERSION ${GB.VERSION})
 
+include(CTest)
+
 if(UNIX AND NOT APPLE)
   include(GNUInstallDirs)
 endif()
@@ -21,7 +23,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # variables that will be inherited.
 add_subdirectory(gui)
 add_subdirectory(xmldoc)
-add_subdirectory(test)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 
 # FIXME: When we rearrange the project directory structure everything
 # below here should be in it's own CMakeList.txt
@@ -474,8 +478,7 @@ set(TESTS
 
 list(SORT TESTS)
 
-if(UNIX)
-  enable_testing()
+if(UNIX AND BUILD_TESTING)
   foreach(TESTNAME IN LISTS TESTS)
     add_test(NAME test-${TESTNAME}
              COMMAND ${CMAKE_SOURCE_DIR}/testo -p $<TARGET_FILE:gpsbabel> ${TESTNAME}

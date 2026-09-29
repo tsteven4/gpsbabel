@@ -16,8 +16,6 @@ if(GPSBABEL_ENABLE_BENCHMARK)
   target_compile_definitions(gpsbabel_unit_test_lib PUBLIC "ENABLE_BENCHMARK")
 endif()
 
-enable_testing(true)
-
 set(UNIT_TEST_DIRS
   parse
   xml_parse_time
@@ -30,12 +28,17 @@ foreach(unit_subdir ${UNIT_TEST_DIRS})
   add_subdirectory(${unit_subdir})
 endforeach()
 
-add_custom_target(unit_tests
+add_custom_target(unit-tests
                   DEPENDS ${UNIT_TESTS}
                   VERBATIM)
 
-add_custom_target(check-unit
-                  ctest --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
-                  DEPENDS unit_tests 
-                  VERBATIM
-                  USES_TERMINAL)
+find_program(CTEST_EXECUTABLE NAMES ctest)
+if(CTEST_EXECUTABLE STREQUAL "CTEST_EXECUTABLE-NOTFOUND")
+  message(WARNING "ctest not found.")
+else()
+  add_custom_target(check-unit
+                    COMMAND ${CTEST_EXECUTABLE} --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
+                    DEPENDS unit-tests 
+                    VERBATIM
+                    USES_TERMINAL)
+endif()
