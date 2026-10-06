@@ -50,7 +50,7 @@ jobs:
             RELEASE: false
             os: macos-26
           - QT_VERSION: '6.12.0'
-            XCODE_VERSION: '26.6'
+            XCODE_VERSION: '27.2'
             GENERATOR: 'Ninja'
             RELEASE: false
             os: xcode-27
