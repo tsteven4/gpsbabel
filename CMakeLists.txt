@@ -348,7 +348,7 @@ check_cxx_source_compiles([[
   #include <string>
 
   #if !defined(__cpp_lib_format) || __cpp_lib_format < 202110L
-  #error \"Insufficient std::format support\"
+  #error "Insufficient std::format support"
   #endif
 
   template <typename... Args>
