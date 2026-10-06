@@ -34,6 +34,8 @@ set(CMAKE_AUTORCC ON)
 
 add_executable(gpsbabel)
 
+add_executable(cpp_lib_format_test cpp_lib_format_test.cc)
+
 # Find the QtCore library
 find_package(Qt6 REQUIRED COMPONENTS Core Core5Compat)
 list(APPEND QT_LIBRARIES Qt6::Core Qt6::Core5Compat)
@@ -478,6 +480,10 @@ if(UNIX)
              WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             )
   endforeach()
+  add_test(NAME tst-cpp-lib-format
+           COMMAND ${CMAKE_BINARY_DIR}/cpp_lib_format_test
+           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          }
 endif()
 
 if(UNIX)
