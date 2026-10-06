@@ -483,7 +483,7 @@ if(UNIX)
   add_test(NAME tst-cpp-lib-format
            COMMAND ${CMAKE_BINARY_DIR}/cpp_lib_format_test
            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          }
+          )
 endif()
 
 if(UNIX)
