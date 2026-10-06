@@ -378,7 +378,7 @@ check_cxx_source_compiles([[
     return 0;
   }
 ]] _cpp_lib_format_compile_xfail)
-if(_have_std_format AND NOT _cpp)lib_format_compile_xfail)
+if(_have_std_format AND NOT _cpp_lib_format_compile_xfail)
   set(_use_fmt_default OFF)
 else()
   set(_use_fmt_default ON)
