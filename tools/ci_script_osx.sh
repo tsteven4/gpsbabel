@@ -55,13 +55,13 @@ case "${GENERATOR}" in
 Xcode | "Ninja Multi-Config")
   cmake "${CMAKEOPTIONS[@]}" "${SOURCE_DIR}"
   cmake --build . --config Release
-  ctest -C Release --output-on-failure
+  ctest -C Release --output-on-failure --verbose
   cmake --build . --config Release --target package_app
   ;;
 *)
   cmake -DCMAKE_BUILD_TYPE=Release "${CMAKEOPTIONS[@]}" "${SOURCE_DIR}"
   cmake --build .
-  ctest --output-on-failure
+  ctest --output-on-failure --verbose
   cmake --build . --target package_app
   cmake --build . --target gpsbabel.html
   cmake --build . --target gpsbabel.pdf
