@@ -345,7 +345,7 @@ include(libusb.cmake)
 include(strptime.cmake)
 
 include(CheckCXXSourceCompiles)
-check_cxx_source_compiles("
+check_cxx_source_compiles([[
   #include <format>
   #include <string>
 
@@ -353,12 +353,12 @@ check_cxx_source_compiles("
   void test(std::format_string<Args...> fmt, Args&&... args) {}
 
   int main() {
-      std::string s = std::format(\"Hello {}\", 42);
-      test(\"Hello {}\", 42);
+      std::string s = std::format("Hello {}", 42);
+      test("Hello {}", 42);
       return 0;
   }
-" _have_std_format)
-check_cxx_source_compiles("
+]] _have_std_format)
+check_cxx_source_compiles([[
   #include <format>
   #include <string>
   #include <iostream>
@@ -370,12 +370,12 @@ check_cxx_source_compiles("
 
   int main() {
   #ifdef __cpp_lib_format
-    std::cout << \"_cpp_lib_format \" << __cpp_lib_format << std::endl;
+    std::cout << "_cpp_lib_format " << __cpp_lib_format << std::endl;
   #endif
-    test(\"your lucky number is {:.1f}\", \"42\");
+    test("your lucky number is {:.1f}", "42");
     return 0;
   }
-" _cpp_lib_format_compile_dection_failure)
+]] _cpp_lib_format_compile_dection_failure)
 set(GPSBABEL_EXTRA_LINK_LIBRARIES "" CACHE STRING "extra libraries to link with.")
 list(APPEND LIBS ${GPSBABEL_EXTRA_LINK_LIBRARIES})
 set(GPSBABEL_EXTRA_INCLUDE_DIRECTORIES "" CACHE STRING "extra directories to include.")
