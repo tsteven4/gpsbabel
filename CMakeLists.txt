@@ -343,11 +343,11 @@ include(libusb.cmake)
 include(strptime.cmake)
 
 include(CheckCXXSourceCompiles)
-check_cxx_source_compiles("
+check_cxx_source_compiles([[
   #include <format>
   #include <string>
 
-  #if !defined(__cpp_lib_format) || __cpp_lib_format < 202207L
+  #if !defined(__cpp_lib_format) || __cpp_lib_format < 202110L
   #error \"Insufficient std::format support\"
   #endif
 
@@ -355,12 +355,30 @@ check_cxx_source_compiles("
   void test(std::format_string<Args...> fmt, Args&&... args) {}
 
   int main() {
-      std::string s = std::format(\"Hello {}\", 42);
-      test(\"Hello {}\", 42);
+      std::string s = std::format("Hello {}", 42);
+      test("Hello {}", 42);
       return 0;
   }
-" _have_std_format)
-if(_have_std_format)
+]] _have_std_format)
+check_cxx_source_compiles([[
+  #include <format>
+  #include <string>
+  #include <iostream>
+
+  template <typename... Args>
+  void test(std::format_string<Args...> fmt, Args&&... args) {
+    std::cout << std::format(fmt, std::forward<Args>(args)...) << std::endl;
+  }
+
+  int main() {
+  #ifdef __cpp_lib_format
+    std::cout << "_cpp_lib_format " << __cpp_lib_format << std::endl;
+  #endif
+    test("your lucky number is {:.1f}", "42");
+    return 0;
+  }
+]] _cpp_lib_format_compile_xfail)
+if(_have_std_format AND NOT _cpp)lib_format_compile_xfail)
   set(_use_fmt_default OFF)
 else()
   set(_use_fmt_default ON)
