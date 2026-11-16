@@ -22,6 +22,7 @@ jobs:
             SCRIPT: './tools/ci_run_tidy.sh'
     container:
       image: gpsbabel-docker.jfrog.io/tsteven4/gpsbabel_build_environment_${{ matrix.IMAGE }}
+      options: -u 0:0
       env:
         LC_ALL: 'C.UTF-8'
         JOB_CMAKE_PREFIX_PATH: ${{ matrix.CMAKE_PREFIX_PATH }}

@@ -41,6 +41,7 @@ jobs:
       contents: read
     container:
       image: ${{ matrix.image || '' }}
+      options: -u 0:0
       env:
         CMAKE_GENERATOR: Ninja
 
